@@ -1,0 +1,46 @@
+{
+  "name": "r6rutilsv3",
+  "version": "0.0.0",
+  "private": true,
+  "description": "third generation of r6rutils",
+  "repository": "https://github.com/badcoder1337/r6rutilsv3",
+  "author": "BadCoder1337",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsc && node ./build/app.js",
+    "dev": "tsc-watch --onSuccess \"node ./build/app.js\"",
+    "lint": "tslint 'src/**/*.ts'",
+    "lint-fix": "tslint 'src/**/*.ts' --fix"
+  },
+  "dependencies": {
+    "discord-akairo": "^7.5.5",
+    "discord.js": "^11.4.2",
+    "jsonwebtoken": "^8.3.0",
+    "lodash": "^4.17.11",
+    "morgan": "^1.9.0",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "pg": "^7.6.0",
+    "r6api": "^1.12.2",
+    "restify": "^7.2.1",
+    "restify-errors": "^6.1.1",
+    "sequelize": "^4.41.0",
+    "sequelize-typescript": "^0.6.6",
+    "sqlite": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/jsonwebtoken": "^7.2.7",
+    "@types/node": "^10.12.0",
+    "@types/passport": "^0.4.5",
+    "@types/passport-jwt": "^3.0.1",
+    "@types/passport-local": "^1.0.33",
+    "@types/restify": "^7.2.5",
+    "@types/sequelize": "^4.27.30",
+    "dotenv": "^6.1.0",
+    "tsc-watch": "^1.0.30",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.3"
+  }
+}
