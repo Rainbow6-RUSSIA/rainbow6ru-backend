@@ -1,11 +1,13 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { pathToFileURL } from 'url';
+
+// import ubiGenome from './bot/types/ubiGenome';
+// import ubiNickname from './bot/types/ubiNickname';
 
 class Bot extends AkairoClient {
     private commandHandler;
     private inhibitorHandler;
     private listenerHandler;
-    constructor() {
+    public constructor() {
         super({
             ownerID: process.env.OWNERS.split(','),
         }, {});
@@ -16,9 +18,12 @@ class Bot extends AkairoClient {
             prefix: process.env.PREFIX,
             allowMention: true,
             defaultCooldown: 1000,
-            handleEdits: true,
-            commandUtil: true,
+            // handleEdits: true,
+            // commandUtil: true,
         });
+        // this.commandHandler.resolver.addType('ubi_genome', ubiGenome);
+        // this.commandHandler.resolver.addType('ubi_nickname', ubiNickname);
+
         this.inhibitorHandler = new InhibitorHandler(this, {
             directory: './build/bot/inhibitors/',
             loadFilter: (path) => path.split('.').pop() === 'js',
@@ -31,6 +36,7 @@ class Bot extends AkairoClient {
             commandHandler: this.commandHandler,
             inhibitorHandler: this.inhibitorHandler,
             listenerHandler: this.listenerHandler,
+            process,
         });
         this.commandHandler.loadAll();
         this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
