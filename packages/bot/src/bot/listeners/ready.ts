@@ -9,5 +9,7 @@ export default class Ready extends Listener {
     }
     public exec() {
         console.log('Bot ready');
+
+        // some Rainbow6-RUSSIA specific code
     }
 }

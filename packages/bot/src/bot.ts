@@ -1,13 +1,10 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
 
-// import ubiGenome from './bot/types/ubiGenome';
-// import ubiNickname from './bot/types/ubiNickname';
-
 class Bot extends AkairoClient {
     private commandHandler;
     private inhibitorHandler;
     private listenerHandler;
-    public constructor() {
+    constructor() {
         super({
             ownerID: process.env.OWNERS.split(','),
         }, {});
@@ -48,3 +45,5 @@ class Bot extends AkairoClient {
 
 const bot = new Bot();
 bot.login(process.env.DISCORD_TOKEN);
+
+export default bot;

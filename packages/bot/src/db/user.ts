@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as sequelize from 'sequelize';
-import { BulkCreateOptions, CreateOptions, DestroyOptions, FindOptions, UpdateOptions, UpsertOptions} from 'sequelize';
+import { BulkCreateOptions, CreateOptions, DestroyOptions, FindOptions, FindOrInitializeOptions, UpdateOptions, UpsertOptions} from 'sequelize';
 
 const DBsURIs = process.env.USER_DB.split(',');
 
@@ -36,7 +36,11 @@ for (let i = 0; i < HowManyDBs; i++) {
         nickname: sequelize.STRING(15),
         nicknameHistory: sequelize.ARRAY(sequelize.STRING(15)),
         rank: sequelize.INTEGER,
-        verificationLevel: sequelize.INTEGER,
+        verificationLevel: {
+            type: sequelize.INTEGER,
+            defaultValue: 0,
+        },
+        platform: sequelize.ARRAY(sequelize.STRING(3)),
     }, {
         timestamps: true,
     });
@@ -45,8 +49,8 @@ for (let i = 0; i < HowManyDBs; i++) {
 }
 
 // export const User = models;
-// const m0 = new sequelize(DBsURIs[0]).define('', {}); // for autocomplete
-// m0.destroy;
+const m0 = new sequelize(DBsURIs[0]).define('', {}); // for autocomplete
+m0.findOrCreate;
 export class User extends models[0] {
     public static bulkCreate = async (data: any[], options?: BulkCreateOptions): Promise<any> => {
         const groups = [];
@@ -123,6 +127,10 @@ export class User extends models[0] {
             answ += pool[i];
         }
         return answ;
+    }
+    public static findOrCreate = async (options: any): Promise<any> => {
+        const DBIndex = (options.where.id || '0').slice(-2) % HowManyDBs;
+        return models[DBIndex].findOrCreate(options);
     }
 
     // findOne

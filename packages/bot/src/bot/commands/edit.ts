@@ -1,10 +1,10 @@
 import { Command } from "discord-akairo";
 import { Message } from 'discord.js';
 
-export default class MM extends Command {
+export default class Edit extends Command {
     public constructor() {
-        super('MM', {
-            aliases: ['MM', 'casual', 'ranked']
+        super('edit', {
+            aliases: ['edit', 'E']
         })
     }
     public exec(message: Message) {

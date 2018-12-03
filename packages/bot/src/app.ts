@@ -1,13 +1,14 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import './r6api';
 import './bot';
-// import * as DB from './db/index';
+import './db/index';
 import './server';
 
-import {HowManyDBs, User} from './db/user';
+// import {HowManyDBs, User} from './db/user';
 
-console.log(`[DB] Number of User DBs - ${HowManyDBs}`);
+// console.log(`[DB] Number of User DBs - ${HowManyDBs}`);
 // setTimeout(async () => {
 //     // upsert - 1 изменение или создание,
 //     // bulkCreate - удаляем перед обновлением и записываем
