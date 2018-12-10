@@ -1,6 +1,11 @@
 import {Sequelize} from 'sequelize-typescript';
 
-// export const mainDB = new Sequelize(process.env.MAIN_DB);
+
+import { Guild } from '../models/Guild';
+import { User } from '../models/User';
+import { GuildBlacklist } from '../models/GuildBlacklist';
+import { ENV } from '../utils/types';
+
 export const DB = new Sequelize({
     url: process.env.DB,
     define: {
@@ -8,12 +13,6 @@ export const DB = new Sequelize({
     }
 })
 
-import { Guild } from '../models/Guild';
-import { User } from '../models/User';
-import { GuildBlacklist } from '../models/GuildBlacklist';
-// import {Queue} from '../models/Queue';
-// import {User} from '../models/User';
-
 DB.addModels([Guild, GuildBlacklist, User]);
-DB.sync();
+DB.sync({ force: ENV.DANGER_DROP_BEFORE_START === 'true' });
 DB.authenticate();

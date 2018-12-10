@@ -1,4 +1,5 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
+import { ENV } from './utils/types';
 
 class Bot extends AkairoClient {
     private commandHandler;
@@ -12,7 +13,7 @@ class Bot extends AkairoClient {
         this.commandHandler = new CommandHandler(this, {
             directory: './build/bot/commands/',
             loadFilter: (path) => path.split('.').pop() === 'js',
-            prefix: process.env.PREFIX,
+            prefix: ENV.PREFIX,
             allowMention: true,
             defaultCooldown: 1000,
             // handleEdits: true,
@@ -44,6 +45,6 @@ class Bot extends AkairoClient {
 }
 
 const bot = new Bot();
-bot.login(process.env.DISCORD_TOKEN);
+bot.login(ENV.DISCORD_TOKEN);
 
 export default bot;

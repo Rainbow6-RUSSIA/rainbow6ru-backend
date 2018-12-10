@@ -1,4 +1,5 @@
 import * as restify from 'restify';
+import { ENV } from './utils/types';
 
 function respond(req, res, next) {
     res.send('hello ' + req.params.name);
@@ -16,4 +17,4 @@ server.use(restify.plugins.bodyParser())
 
 server.get('/auth/login', respond);
 
-server.listen(process.env.PORT || 3000, () => console.log(`${server.name} listening at ${server.url}`));
+server.listen(ENV.PORT || 3000, () => console.log(`${server.name} listening at ${server.url}`));

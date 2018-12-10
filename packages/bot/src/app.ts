@@ -1,9 +1,9 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import './db/index';
 import './r6api';
 import './bot';
-import './db/index';
 import './server';
 
 // import {HowManyDBs, User} from './db/user';

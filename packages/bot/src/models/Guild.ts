@@ -2,13 +2,16 @@ import { BelongsToMany, Column, DataType, Model, PrimaryKey, Table } from 'seque
 import { User } from './User'
 import { GuildBlacklist } from './GuildBlacklist';
 
-import {RANKS, VERIFICATION_LEVEL} from '../types'
+import {RANKS, VERIFICATION_LEVEL} from '../utils/types'
+
+import { Snowflake } from 'discord.js'
+import bot from '../bot'
 
 @Table
 export class Guild extends Model<Guild> {
     @PrimaryKey
-    @Column
-    public id: string; // discord snowflake
+    @Column(DataType.STRING)
+    public id: Snowflake; // discord snowflake
 
     @Column(DataType.INTEGER)
     public fixAfter: RANKS; // siege rank to fix
@@ -37,4 +40,7 @@ export class Guild extends Model<Guild> {
 
     @Column(DataType.JSONB)
     public options: any;
+
+    @Column
+    public logsChannel: string;
 }
