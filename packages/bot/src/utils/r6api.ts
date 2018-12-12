@@ -5,19 +5,19 @@ import { UUID } from "./types";
 //     password: string,
 // }
 
-interface IIdentification {
+export interface IIdentification {
     id: UUID,
     name: string,
     userId: UUID,
 }
 
-interface IPlaytime {
+export interface IPlaytime {
     id: UUID,
     casual: number,
     ranked: number,
 }
 
-interface IStats {
+export interface IStats {
     id: UUID,
     general: {
         lost: number,
@@ -27,12 +27,12 @@ interface IStats {
     }
 }
 
-interface ILevels {
+export interface ILevels {
     id: UUID,
     level: number
 }
 
-interface IRanks {
+export interface IRanks {
     id: UUID,
     season: number,
     ncsa: IRegionRank,
@@ -40,7 +40,7 @@ interface IRanks {
     apac: IRegionRank,
 }
 
-interface IRegionRank {
+export interface IRegionRank {
     max_mmr: number,
     skill_mean: number,
     abadons: number,

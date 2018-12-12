@@ -1,5 +1,5 @@
 import * as Discord from 'discord.js';
-import * as Akairo from 'discord-akairo';
+// import * as Akairo from 'discord-akairo';
 
 export const RankResolvable = [
     'Unranked',
@@ -30,13 +30,7 @@ export interface IUbiBound {
     err?: Error
 }
 
-class IDefaultEnv {
-    DANGER_DROP_BEFORE_START = "";
-    DISCORD_ID = "";
-    PORT = "";
-}
-
-class IEnv extends IDefaultEnv {
+class IEnv {
     PREFIX = "";
     OWNERS = "";
     HOME_GUILD = "";
@@ -51,14 +45,17 @@ class IEnv extends IDefaultEnv {
     COOLDOWN = "";
 }
 
-const env = new IEnv;
-const defaultEnv = new IDefaultEnv;
-
-for (const key in env) {
-    if (!(process.env[key] || key in defaultEnv)) throw new Error(`Enviromental variable ${key} not specified`)
+class IDefaultEnv extends IEnv {
+    DANGER_DROP_BEFORE_START = "";
+    DISCORD_ID = "";
+    PORT = "";
 }
 
-export const ENV = process.env as any as IEnv;
+for (const key in new IEnv) {
+    if (!process.env[key]) throw new Error(`Enviromental variable ${key} not specified`)
+}
+
+export const ENV = process.env as any as IDefaultEnv;
 
 export enum VERIFICATION_LEVEL {
     NONE,
@@ -73,13 +70,19 @@ export enum PLATFORM {
     XBOX = 'XBOX'
 }
 
+export enum REGIONS {
+    APAC = 'apac',
+    EMEA = 'emea',
+    NCSA = 'ncsa'
+}
+
 export enum RANKS {
     UNRANKED,
     COPPER4, COPPER3, COPPER2, COPPER1,
     BRONZE4, BRONZE3, BRONZE2, BRONZE1,
     SILVER4, SILVER3, SILVER2, SILVER1,
     GOLD4, GOLD3, GOLD2, GOLD1,
-    PLATINUM3,PLATINUM2, PLATINUM1, DIAMOND
+    PLATINUM3, PLATINUM2, PLATINUM1, DIAMOND
 }
 
 export enum ACCESS {
@@ -93,3 +96,5 @@ export enum ACCESS {
     // ...
     NONE,
 }
+
+export const ONLINE_TRACKER = 'https://r6tab.com/'

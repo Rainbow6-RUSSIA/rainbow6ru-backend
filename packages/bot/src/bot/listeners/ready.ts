@@ -10,7 +10,7 @@ export default class Ready extends Listener {
         });
     }
     public async exec() {
-        console.log('Bot ready');
+        console.log('[BOT] Logged as', this.client.user.tag);
 
         // some Rainbow6-RUSSIA specific code
         const GInst = Guild.upsert({

@@ -165,10 +165,10 @@
     "@types/lodash" "*"
     "@types/validator" "*"
 
-"@types/sequelize@^4.27.31":
-  version "4.27.32"
-  resolved "https://registry.yarnpkg.com/@types/sequelize/-/sequelize-4.27.32.tgz#0f42e75e8d7b485cece3561b2d097c11d0e8fdbc"
-  integrity sha512-M4iFjZLXDdjqnyKaxz9I5XlVFr4/WBvFYyd8oLU5YsKcXGeppMl6nNo9EBsdDgOOirJcyH2JkJEUhbhegZ6MqA==
+"@types/sequelize@^4.27.33":
+  version "4.27.33"
+  resolved "https://registry.yarnpkg.com/@types/sequelize/-/sequelize-4.27.33.tgz#1e906565f371c7efbda0bf2bfa322bea4b5bb1a2"
+  integrity sha512-4w36T30hQKtsVj3BWktRauAls+amAkJsjn6EdQBQ5Pq5iiMm2qRgdFsQj/OHYM1LCYtH7eR4/g4ffbmFux1q2A==
   dependencies:
     "@types/bluebird" "*"
     "@types/continuation-local-storage" "*"
@@ -492,10 +492,10 @@ diff@^3.2.0:
     tweetnacl "^1.0.0"
     ws "^6.0.0"
 
-dotenv@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.1.0.tgz#9853b6ca98292acb7dec67a95018fa40bccff42c"
-  integrity sha512-/veDn2ztgRlB7gKmE3i9f6CmDIyXAy6d5nBq+whO9SLX+Zs1sXEgFLPi+aSuWqUuusMfbi84fT8j34fs1HaYUw==
+dotenv@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
+  integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
 
 dottie@^2.0.0:
   version "2.0.1"
@@ -1361,10 +1361,10 @@ restify-errors@^6.1.1:
   optionalDependencies:
     safe-json-stringify "^1.0.4"
 
-restify@^7.2.3:
-  version "7.2.3"
-  resolved "https://registry.yarnpkg.com/restify/-/restify-7.2.3.tgz#ba17f7c73be84a7889538a7bdc3bd138679af1ef"
-  integrity sha512-ywwBQSuGewhUJohUykm4w/c1Qokcn67F+9iYHrIVWfN3iXRXFy0cjaB6pKinuw2qh5rYmlYwANs4bJf/3mF9yQ==
+restify@^7.3.0:
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/restify/-/restify-7.3.0.tgz#237b1a25e1caaaa8c5ac6ea18808f12ecc59f0d2"
+  integrity sha512-jXJyT8lGKHfcOxmD3Rc9ftF2fwpw7BzaUwVdEbolsoehAs0ZCqEUc55kmw0pxzBSNK7kQydo5/ata2t9ZrOBuQ==
   dependencies:
     assert-plus "^1.0.0"
     bunyan "^1.8.12"
@@ -1655,6 +1655,11 @@ tough-cookie@~2.4.3:
     psl "^1.1.24"
     punycode "^1.4.1"
 
+ts-enum-util@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/ts-enum-util/-/ts-enum-util-3.1.0.tgz#60ff9242fe9e7468f488f0d471281abd3ed7fcdd"
+  integrity sha512-X3rvaVckjES5KXheW8KdMiQmhWwGnNPpM5wDydz3mPhuym2qe7asWMlYHj0OOaHN7a2REgcT3JWpIAi7S8HoNA==
+
 tsc-watch@^1.0.31:
   version "1.0.31"
   resolved "https://registry.yarnpkg.com/tsc-watch/-/tsc-watch-1.0.31.tgz#639fc7866a86abcdd3cf0836d5f1cd1d64dcd5e0"
@@ -1714,10 +1719,10 @@ tweetnacl@^1.0.0:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.0.tgz#713d8b818da42068740bf68386d0479e66fc8a7b"
   integrity sha1-cT2LgY2kIGh0C/aDhtBHnmb8ins=
 
-typescript@^3.1.6:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.2.1.tgz#0b7a04b8cf3868188de914d9568bd030f0c56192"
-  integrity sha512-jw7P2z/h6aPT4AENXDGjcfHTu5CSqzsbZc6YlUIebTyBAq8XaKp78x7VcSh30xwSCcsu5irZkYZUSFP1MrAMbg==
+typescript@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.2.2.tgz#fe8101c46aa123f8353523ebdcf5730c2ae493e5"
+  integrity sha512-VCj5UiSyHBjwfYacmDuc/NOk4QQixbE+Wn7MFJuS0nRuPQbof132Pw4u53dm264O8LPc2MVsc7RJNml5szurkg==
 
 uid2@0.0.x:
   version "0.0.3"

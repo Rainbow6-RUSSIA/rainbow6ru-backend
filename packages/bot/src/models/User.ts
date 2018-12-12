@@ -1,5 +1,5 @@
 import { BelongsToMany, Column, DataType, Default, Model, PrimaryKey, Table, CreatedAt, UpdatedAt } from 'sequelize-typescript';
-import { ACCESS, PLATFORM, RANKS, VERIFICATION_LEVEL, IHistoryRecord } from '../utils/types'
+import { ACCESS, PLATFORM, RANKS, REGIONS, VERIFICATION_LEVEL, IHistoryRecord } from '../utils/types'
 import { Guild } from './Guild';
 import { GuildBlacklist } from './GuildBlacklist';
 
@@ -37,6 +37,9 @@ export class User extends Model<User> {
     @Column(DataType.INTEGER)
     public rank: RANKS;
 
+    @Column(DataType.STRING)
+    public region: REGIONS;
+
     @Default(0)
     @Column(DataType.INTEGER)
     public verificationLevel: VERIFICATION_LEVEL;
@@ -51,7 +54,7 @@ export class User extends Model<User> {
     public access: ACCESS;
 
     public pushGenome = (genome: string): void => {
-        let old = this.getDataValue('genomeHistory') as IHistoryRecord[];
+        let old = this.getDataValue('genomeHistory') as IHistoryRecord[] || [];
         if (!old.some(r => r.record === genome)) {
             this.setDataValue('genomeHistory', old.push({
                 record: genome,
@@ -61,9 +64,9 @@ export class User extends Model<User> {
     }
 
     public pushNickname = (nickname: string): void => {
-        let old = this.getDataValue('nicknameHistory') as IHistoryRecord[];
+        let old = this.getDataValue('nicknameHistory') as IHistoryRecord[] || [];
         if (!old.some(r => r.record === nickname)) {
-            this.setDataValue('genomeHistory', old.push({
+            this.setDataValue('nicknameHistory', old.push({
                 record: nickname,
                 timestamp: Date.now()
             }))
