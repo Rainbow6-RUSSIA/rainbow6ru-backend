@@ -1,10 +1,16 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import './db/index';
+// import './db/index';
 import './r6api';
-import './bot';
-import './server';
+// import './bot';
+// import './server';
+
+import { ENV } from './utils/types';
+
+if (ENV.MIGRATE === 'true') {
+    import('./utils/migration');
+}
 
 // import {HowManyDBs, User} from './db/user';
 

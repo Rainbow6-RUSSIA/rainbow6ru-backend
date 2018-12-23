@@ -1,9 +1,9 @@
-import { BelongsToMany, Column, DataType, Default, Model, PrimaryKey, Table, CreatedAt, UpdatedAt } from 'sequelize-typescript';
-import { ACCESS, PLATFORM, RANKS, REGIONS, VERIFICATION_LEVEL, IHistoryRecord } from '../utils/types'
+import { BelongsToMany, Column, DataType, Default, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
+import { ACCESS, IHistoryRecord, PLATFORM, RANKS, REGIONS, VERIFICATION_LEVEL } from '../utils/types';
 import { Guild } from './Guild';
 import { GuildBlacklist } from './GuildBlacklist';
 
-import { Snowflake } from 'discord.js'
+import { Snowflake } from 'discord.js';
 
 @Table({
     timestamps: true,
@@ -54,22 +54,22 @@ export class User extends Model<User> {
     public access: ACCESS;
 
     public pushGenome = (genome: string): void => {
-        let old = this.getDataValue('genomeHistory') as IHistoryRecord[] || [];
-        if (!old.some(r => r.record === genome)) {
+        const old = this.getDataValue('genomeHistory') as IHistoryRecord[] || [];
+        if (!old.some((r) => r.record === genome)) {
             this.setDataValue('genomeHistory', old.push({
                 record: genome,
                 timestamp: Date.now()
-            }))
+            }));
         }
     }
 
     public pushNickname = (nickname: string): void => {
-        let old = this.getDataValue('nicknameHistory') as IHistoryRecord[] || [];
-        if (!old.some(r => r.record === nickname)) {
+        const old = this.getDataValue('nicknameHistory') as IHistoryRecord[] || [];
+        if (!old.some((r) => r.record === nickname)) {
             this.setDataValue('nicknameHistory', old.push({
                 record: nickname,
-                timestamp: Date.now()
-            }))
+                timestamp: Date.now(),
+            }));
         }
     }
 }

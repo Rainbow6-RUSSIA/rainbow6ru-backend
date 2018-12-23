@@ -29,7 +29,7 @@
     "reflect-metadata": "^0.1.12",
     "restify": "^7.3.0",
     "restify-errors": "^6.1.1",
-    "sequelize": "^4.41.2",
+    "sequelize": "^4.42.0",
     "sequelize-typescript": "^0.6.6"
   },
   "devDependencies": {
@@ -40,8 +40,11 @@
     "@types/passport": "^0.4.7",
     "@types/passport-jwt": "^3.0.1",
     "@types/passport-local": "^1.0.33",
+    "@types/redis": "^2.8.8",
     "@types/restify": "^7.2.6",
     "@types/sequelize": "^4.27.33",
+    "bluebird": "^3.5.3",
+    "redis": "^2.8.0",
     "ts-enum-util": "^3.1.0",
     "tsc-watch": "^1.0.31",
     "tslint": "^5.11.0",

@@ -1,8 +1,9 @@
 import { EmojiResolvable, Message, MessageOptions, ReactionEmoji, Snowflake, User, UserResolvable } from 'discord.js'
-import { ONLINE_TRACKER, IUbiBound } from './types';
+import { ONLINE_TRACKER, IUbiBound, ENV } from './types';
 import { IStats } from './r6api';
 import { Guild } from '../models/Guild';
 import { User as U } from '../models/User';
+import bot from '../bot';
 
 interface IPromptOptions {
     [prop: string]: any,
@@ -57,6 +58,17 @@ export function buildRankEmbed (bound: IUbiBound, s: IStats) {
       }
 }
 
-export function syncMember (guild: Guild, user: U, currentRoles?: string[]) {
+export async function syncRank() {
+  let UInsts = await U.findAll({where: {
+    inactive: false,
+  }, limit: parseInt(ENV.PACK_SIZE), order: ['updatedAt', 'ASC']});
+}
+
+export async function syncMember (guild: Guild, user: U, currentRoles?: string[]) {
+    let discordGuild = bot.guilds.get(guild.id);
+    if (!discordGuild.available) return;
+    if (!currentRoles) {
+      currentRoles = discordGuild.members.get(user.id).roles.keyArray();
+    }
 
 }
