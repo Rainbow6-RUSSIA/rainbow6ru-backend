@@ -16,6 +16,7 @@ class Bot extends AkairoClient {
             prefix: ENV.PREFIX,
             allowMention: true,
             defaultCooldown: 1000,
+            fetchMembers: true,
             // handleEdits: true,
             // commandUtil: true,
         });
@@ -38,9 +39,10 @@ class Bot extends AkairoClient {
         });
         this.commandHandler.loadAll();
         this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
-        this.commandHandler.useListenerHandler(this.listenerHandler);
+        this.commandHandler.useListenerHandler(this.listenerHandler); // mb optional
         this.inhibitorHandler.loadAll();
         this.listenerHandler.loadAll();
+        // TODO: Special commandHandler+inhibitorHandler for premium commands
     }
 }
 

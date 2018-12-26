@@ -89,15 +89,21 @@ export enum RANKS {
 }
 
 export enum ACCESS {
-    OWNER,
-    ABSOLUTE,
-    ADMIN,
-    MODERATOR,
-    CONTENTMANAGER,
-    ALLNEWS,
-    NEWS,
+    OWNER = 100,
+    ABSOLUTE = 90,
+    ADMIN = 80,
+    MODERATOR = 70,
+    CONTENTMANAGER = 60,
+    ALLNEWS = 50,
+    NEWS = 40,
     // ...
-    NONE,
+    NONE = 0,
+}
+
+export interface jwt {
+    sub: string,
+    exp: number,
+    acc: number,
 }
 
 export const ONLINE_TRACKER = 'https://r6tab.com/';
