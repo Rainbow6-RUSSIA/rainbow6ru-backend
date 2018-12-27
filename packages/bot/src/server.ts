@@ -11,9 +11,9 @@ export const server = restify.createServer();
 server.use(restify.plugins.throttle({
     burst: 100,
     rate: 50,
-    ip: true
+    ip: true,
   }));
-server.use(restify.plugins.bodyParser())
+server.use(restify.plugins.bodyParser());
 
 server.get('/auth/login', respond);
 

@@ -1,8 +1,8 @@
 import * as passport from 'passport';
 import { Strategy as DiscordStrategy } from 'passport-oauth2';
+import bot from './bot';
 import { User } from './models/User';
 import { ENV } from './utils/types';
-import bot from './bot';
 
 passport.use('discord', new DiscordStrategy({
     authorizationURL: 'https://discordapp.com/api/oauth2/authorize',
@@ -11,5 +11,5 @@ passport.use('discord', new DiscordStrategy({
     clientSecret: ENV.DISCORD_SECRET,
     callbackURL: ENV.CALLBACK_URL,
 }, (accessToken, refreshToken, profile, cb) => {
-    User.findOrCreate({ where: profile.id })
-}))
+    User.findOrCreate({ where: profile.id });
+}));

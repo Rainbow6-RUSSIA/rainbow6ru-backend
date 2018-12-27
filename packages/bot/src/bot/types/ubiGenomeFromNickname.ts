@@ -10,11 +10,11 @@ export default async (phrase: string): Promise<IUbiBound | null> => {
             if (profile.length) {
                 return {
                     nickname: phrase,
-                    genome: profile[0].userId
-                }
+                    genome: profile[0].userId,
+                };
             }
         } catch (err) {
-            return { err }
+            return { err };
         }
     }
 

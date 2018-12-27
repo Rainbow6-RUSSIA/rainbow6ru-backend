@@ -18,15 +18,15 @@ export default class Ready extends Listener {
             fixAfter: 20,
             rankRoles: [
                 '416308522020765697',
-                '330802325172125696'
+                '330802325172125696',
             ],
             platformRoles: {
                 PC: '473980291430613002',
                 PS4: '473980295196966922',
                 XBOX: '473980297738846222',
             },
-            premium: true
-        })
+            premium: true,
+        });
 
     }
 }

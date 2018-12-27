@@ -14,19 +14,20 @@ export default class Info extends Command {
                     id: 'member',
                     type: 'relevant',
                     unordered: true,
-                },{
+                }, {
                     id: 'genome',
                     type: ubiGenome,
                     unordered: true,
-                },{
+                }, {
                     id: 'nickname',
                     type: ubiNickname,
                     unordered: true,
-                },],
+                }],
         });
     }
     public exec = async (message: Message, args) => {
-        let { member, nickname, genome } = args;
+        let { member, nickname } = args;
+        const { genome } = args;
         if (!(!member || !nickname)) {
             const prompt = await message.reply(`вы ищите информацию о пользователе:\n1) Discord <@${args.member.id}> или\n2) Uplay \`${nickname}\`?`) as Message;
             await prompt.react(emojiPrompt[1]);

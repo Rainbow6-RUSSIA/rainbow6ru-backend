@@ -58,7 +58,7 @@ export class User extends Model<User> {
         if (!old.some((r) => r.record === genome)) {
             this.setDataValue('genomeHistory', old.push({
                 record: genome,
-                timestamp: Date.now()
+                timestamp: Date.now(),
             }));
         }
     }

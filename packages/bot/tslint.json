@@ -11,7 +11,7 @@
         "object-literal-sort-keys": false,
         "only-arrow-functions": [true, "allow-declarations", "allow-named-functions"],
         "no-implicit-dependencies": [true, "dev"],
-        "radix": false,
+        "radix": false
     },
     "rulesDirectory": []
 }

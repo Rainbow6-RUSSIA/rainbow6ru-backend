@@ -1,11 +1,11 @@
 import { BelongsToMany, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
-import { User } from './User'
 import { GuildBlacklist } from './GuildBlacklist';
+import { User } from './User';
 
-import {RANKS, VERIFICATION_LEVEL} from '../utils/types'
+import {RANKS, VERIFICATION_LEVEL} from '../utils/types';
 
-import { Snowflake } from 'discord.js'
-import bot from '../bot'
+import { Snowflake } from 'discord.js';
+import bot from '../bot';
 
 @Table
 export class Guild extends Model<Guild> {
@@ -23,7 +23,7 @@ export class Guild extends Model<Guild> {
     public platformRoles: {
         PC: string,
         PS4: string,
-        XBOX: string
+        XBOX: string,
     };
 
     @Column

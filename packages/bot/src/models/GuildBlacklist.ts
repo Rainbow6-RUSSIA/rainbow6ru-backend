@@ -1,14 +1,14 @@
-import {Column, ForeignKey, Model, Table} from "sequelize-typescript";
-import {User} from "./User";
-import {Guild} from "./Guild";
+import {Column, ForeignKey, Model, Table} from 'sequelize-typescript';
+import {Guild} from './Guild';
+import {User} from './User';
 
 @Table
 export class GuildBlacklist extends Model<GuildBlacklist> {
     @ForeignKey(() => User)
     @Column
-    userId: string;
+    public userId: string;
 
     @ForeignKey(() => Guild)
     @Column
-    guildId: string;
+    public guildId: string;
 }

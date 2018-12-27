@@ -3,7 +3,7 @@ import { ENV } from './utils/types';
 
 export default r6api({
         email: ENV.R6API_LOGIN,
-        password: ENV.R6API_PASSWORD
+        password: ENV.R6API_PASSWORD,
     }, {
-        logLevel: parseInt(ENV.R6API_LOGLEVEL)
+        logLevel: parseInt(ENV.R6API_LOGLEVEL),
     });

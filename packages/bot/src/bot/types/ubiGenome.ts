@@ -1,4 +1,4 @@
-import { UUID } from "../../utils/types";
+import { UUID } from '../../utils/types';
 
 export default (phrase: string): UUID | null => {
     if (!phrase) { return null; }

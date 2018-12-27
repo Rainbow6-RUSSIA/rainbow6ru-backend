@@ -100,10 +100,10 @@ export enum ACCESS {
     NONE = 0,
 }
 
-export interface jwt {
-    sub: string,
-    exp: number,
-    acc: number,
+export interface IJWT {
+    sub: string;
+    exp: number;
+    acc: number;
 }
 
 export const ONLINE_TRACKER = 'https://r6tab.com/';

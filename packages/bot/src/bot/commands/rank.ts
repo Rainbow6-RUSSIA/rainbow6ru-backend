@@ -63,9 +63,11 @@ export default class Rank extends Command {
                 };
             }
 
+            let UInst: User;
+
             if (target && member !== target && member.hasPermission('MANAGE_ROLES')) {
                 console.log('admin registering');
-                const UInst = await User.findById(target.id);
+                UInst = await User.findById(target.id);
                 if (UInst && UInst.genome) {
                     return message.reply(`пользователь уже зарегистрирован!`);
                 }
@@ -73,7 +75,7 @@ export default class Rank extends Command {
                 return message.reply('регистрация других пользователей доступна **только администрации**');
             } else {
                 target = member;
-                const UInst = await User.findById(target.id);
+                UInst = await User.findById(target.id);
                 if (UInst && UInst.genome) {
                     return message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
                         humanizeDuration(
@@ -91,15 +93,15 @@ export default class Rank extends Command {
                 : currentRoles.includes(platformRoles.XBOX) ? PLATFORM.PS4
                 : null;
             const rawRank = (await r6api.getRanks(bound.genome))[0];
-			// console.log("​Rank -> publicexec -> rawRank", rawRank)
+            // console.log("​Rank -> publicexec -> rawRank", rawRank)
             const regionRank = $enum(REGIONS).map((r) => rawRank[r].rank);
             // console.log("​Rank -> publicexec -> regionRank", regionRank)
             const mainRegion = $enum(REGIONS).map((e) => e)[regionRank.indexOf(Math.max(...regionRank))] as REGIONS;
-			// console.log("​Rank -> publicexec -> mainRegion", mainRegion)
+            // console.log("​Rank -> publicexec -> mainRegion", mainRegion)
             const stats = (await r6api.getStats(bound.genome))[0];
-			// console.log("​Rank -> publicexec -> rawRank[mainRegion]", rawRank[mainRegion])
+            // console.log("​Rank -> publicexec -> rawRank[mainRegion]", rawRank[mainRegion])
 
-            const UInst = new User({
+            UInst = new User({
                 id: target.id,
                 genome: bound.genome,
                 genomeHistory: [{record: bound.genome, timestamp: Date.now()}],
