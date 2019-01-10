@@ -485,11 +485,11 @@ diff@^3.2.0:
 
 "discord-akairo@https://github.com/1Computer1/discord-akairo":
   version "8.0.0-dev"
-  resolved "https://github.com/1Computer1/discord-akairo#89a538be5f70101eea880e81d3fd82d8a90a649a"
+  resolved "https://github.com/1Computer1/discord-akairo#f06972b269c98da48b916dcd602272936dc66aec"
 
 "discord.js@https://github.com/discordjs/discord.js":
   version "12.0.0-dev"
-  resolved "https://github.com/discordjs/discord.js#42505b78c15306491ac3a605f86a3e010bc80958"
+  resolved "https://github.com/discordjs/discord.js#8a76cc5c725ffcfe8131c652de3d16be1f51439a"
   dependencies:
     form-data "^2.3.2"
     node-fetch "^2.1.2"
@@ -1284,7 +1284,7 @@ qs@~6.5.2:
 
 "r6api@https://github.com/BadCoder1337/r6api-fixed":
   version "1.12.2"
-  resolved "https://github.com/BadCoder1337/r6api-fixed#f9d47fb3cfffd2173acbbd0ad9945ee497b43dee"
+  resolved "https://github.com/BadCoder1337/r6api-fixed#354ece7c19fcabe2cf2820f056d3b01cfc1820b2"
   dependencies:
     bluebird "^3.4.1"
     ensure-array "0.0.5"

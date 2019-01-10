@@ -1,10 +1,10 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-// import './db/index';
+import './bot';
+import './db/index';
 import './r6api';
-// import './bot';
-// import './server';
+import './server';
 
 import { ENV } from './utils/types';
 
