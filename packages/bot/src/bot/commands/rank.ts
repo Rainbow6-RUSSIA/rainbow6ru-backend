@@ -8,7 +8,7 @@ import { User } from '../../models/User';
 import r6api from '../../r6api';
 
 import { ENV, IRankArgs, ONLINE_TRACKER, PLATFORM, REGIONS, VERIFICATION_LEVEL } from '../../utils/types';
-import { buildRankEmbed, discordPrompt } from '../../utils/utils';
+import { buildRankEmbed, combinedPrompt } from '../../utils/utils';
 import ubiGenome from '../types/ubiGenome';
 import ubiGenomeFromNickname from '../types/ubiGenomeFromNickname';
 // import ubiNickname from '../types/ubiNickname';
@@ -119,12 +119,19 @@ export default class Rank extends Command {
                 rank: rawRank[mainRegion].rank,
             });
 
-            switch (await discordPrompt(message, `игрок с ником **${bound.nickname}** найден, это верный профиль?\nНажмите реакцию под сообщением для подтверждения`, target.user, {messageOpt: {
-                embed: buildRankEmbed(bound, stats),
-            }})) {
-                case false: return message.reply('вы отклонили регистрацию. Попробуйте снова, указав нужный аккаунт.');
-                case null: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
-                case true: {
+            const prompt = await combinedPrompt(
+                await message.reply(`игрок с ником **${bound.nickname}** найден, это верный профиль?`, { embed: buildRankEmbed(bound, stats) }) as Message,
+                {
+                    emojis: ['✅', '❎'],
+                    texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
+                    message,
+                },
+            );
+
+            switch (prompt) {
+                case 1: return message.reply('вы отклонили регистрацию. Попробуйте снова, указав нужный аккаунт.');
+                case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
+                case 0: {
                     UInst.save();
                 }
             }

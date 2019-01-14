@@ -13,35 +13,55 @@ interface IPromptOptions {
     messageOpt?: MessageOptions;
 }
 
-class Utils {
+// class Utils {
 
-}
-
-// export async function discordPrompt(message: Message, prompt: string, target: User, options: IPromptOptions): Promise<boolean | null> {
-//     const opts = {
-//         lifetime: 5 * 60 * 1000,
-//         aftertime: 5 * 1000,
-//         emojis: ['✅', '❎'], ...options};
-//     const p = await message.reply(prompt, opts.messageOpt) as Message;
-//     // console.log(opts.emojis)
-//     await p.react(opts.emojis[0]);
-//     await p.react(opts.emojis[1]);
-
-//     const reactionFilter = (reaction, user) => opts.emojis.includes(reaction.emoji.name) && user.id === target.id;
-//     const res = await p.awaitReactions(reactionFilter, { maxEmojis: 1, time: opts.lifetime });
-//     p.delete({timeout: opts.aftertime});
-//     if (!res.array().length) { return null; } else if (res.first().emoji.name !== opts.emojis[0]) { return false; } else { return true; }
 // }
 
-export async function combinedPrompt(prompt: Message, options, emojis: string[] | EmojiResolvable[], responses: string[]): Promise<number> {
-  for (const e of emojis) {
-    await prompt.react(e);
-  }
-  const emojiFilter = (reaction: MessageReaction, user: User) => emojis.includes(reaction.emoji.identifier) && user.id === options.author.id;
-  const textFilter = (m: Message) => m.author.id === options.author.id && (m.content.includes('1') || m.content.includes('2'));
-  const race = await Promise.race([prompt.awaitReactions(emojiFilter, { max: 1 }), prompt.channel.awaitMessages(textFilter, { max: 1 })]);
+export async function combinedPrompt(prompt: Message, options: {
+  emojis?: string[] | EmojiResolvable[],
+  texts?: Array<string | string[]>,
+  message: Message,
+  time?: number,
+  keep?: boolean,
+}): Promise<number> {
+  const { author } = options.message;
+  const time = options.time || 5 * 60 * 1000;
+
+  (async () => {
+    for (const e of options.emojis) {
+      await prompt.react(e);
+    }
+  })();
+
+  const emojiFilter = (reaction: MessageReaction, user: User) => options.emojis.includes(reaction.emoji.id || reaction.emoji.name) && user.id === author.id;
+
+  const textFilter = (msg: Message) => {
+    const answ = msg.author.id === author.id &&
+      options.texts.some(([...t]) =>
+        t.some((txt) =>
+          msg.content.toLowerCase().includes(txt),
+        ));
+    if (answ && !options.keep) {
+      msg.delete();
+    }
+    return answ;
+  };
+
+  const race = await Promise.race([prompt.awaitReactions(emojiFilter, { max: 1, time }), prompt.channel.awaitMessages(textFilter, { max: 1, time })]);
   const result = race.first();
-  return 0;
+  if (!options.keep) {
+    prompt.delete({timeout: 5000});
+  }
+  if (result instanceof Message) {
+    return options.texts.findIndex(([...t]) =>
+    t.some((txt) =>
+      result.content.toLowerCase().includes(txt),
+    ));
+  } else if (result instanceof MessageReaction) {
+    return options.emojis.indexOf(result.emoji.id || result.emoji.name);
+  } else {
+    return -1;
+  }
 }
 
 export function buildRankEmbed(bound: IUbiBound, s: IStats) {

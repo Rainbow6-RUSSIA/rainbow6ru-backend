@@ -1,6 +1,8 @@
 import { ArgumentOptions , Command } from 'discord-akairo';
 import { Message, MessageReaction, ReactionEmoji, User } from 'discord.js';
 
+import { UUID } from '../../utils/types';
+import { combinedPrompt } from '../../utils/utils';
 import ubiGenome from '../types/ubiGenome';
 import ubiNickname from '../types/ubiNickname';
 
@@ -11,7 +13,7 @@ export default class Info extends Command {
         super('info', {
             aliases: ['info', 'I'],
             args: [{
-                    id: 'member',
+                    id: 'user',
                     type: 'relevant',
                     unordered: true,
                 }, {
@@ -25,28 +27,43 @@ export default class Info extends Command {
                 }],
         });
     }
-    public exec = async (message: Message, args) => {
-        const { member, nickname } = args;
-        const { genome } = args;
-        if (!(!member || !nickname)) {
-            const prompt = await message.reply(`вы ищите информацию о пользователе:\n1) Discord <@${args.member.id}> или\n2) Uplay \`${nickname}\`?`) as Message;
-
-            // if (result instanceof Message) {
-            //     (parseInt(result.content) - 1) ? member = null : nickname = null;
-            // } else {
-            //     (emojiPrompt.indexOf(result.emoji.name) - 1) ? member = null : nickname = null;
-            // }
+    public exec = async (message: Message, args: {
+        user: User,
+        genome: UUID,
+        nickname: string,
+    }) => {
+        let { user, genome } = args;
+        const { nickname } = args;
+        if (!(!user || !nickname)) {
+            const prompt = await combinedPrompt(
+                await message.reply(`вы ищите информацию о пользователе:\n1) Discord <@${user.id}> или\n2) Uplay \`${nickname}\`?`) as Message,
+                {
+                    emojis: ['1⃣', '2⃣'],
+                    texts: [['1', 'discord'], ['2', 'uplay']],
+                    message,
+                },
+            );
+            switch (prompt) {
+                case 1:
+                    user = null;
+                    break;
+                default:
+                    genome = null;
+                    break;
+            }
         }
-        console.log(member, nickname, genome);
+        console.log(user, nickname, genome);
         switch (false) {
-            case !member:
+            case user !== message.author:
+                return message.reply('инфа о себе (напрямую)');
+            case !user:
                 return message.reply('инфа по мемберу');
             case !nickname:
                 return message.reply('инфа по нику');
             case !genome:
                 return message.reply('инфа по геному');
             default:
-                return message.reply('инфа о себе');
+                return message.reply('инфа о себе, так как ничего не найдено');
         }
     }
 }
