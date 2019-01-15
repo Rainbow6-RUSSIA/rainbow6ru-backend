@@ -1,9 +1,10 @@
-import { BelongsToMany, Column, DataType, Default, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
+import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
 import { ACCESS, IHistoryRecord, PLATFORM, RANKS, REGIONS, VERIFICATION_LEVEL } from '../utils/types';
 import { Guild } from './Guild';
 import { GuildBlacklist } from './GuildBlacklist';
 
 import { Snowflake } from 'discord.js';
+import { Lobby } from './Lobby';
 
 @Table({
     timestamps: true,
@@ -28,6 +29,13 @@ export class User extends Model<User> {
 
     @Column
     public inactive: boolean;
+
+    @ForeignKey(() => Lobby)
+    @Column
+    public lobbyId: any;
+
+    @BelongsTo(() => Lobby)
+    public lobby: Lobby;
 
     // @Column(DataType.ARRAY(DataType.STRING))
     // public blacklist: string[]; // genome blacklist

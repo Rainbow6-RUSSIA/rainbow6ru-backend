@@ -1,11 +1,11 @@
-import { BelongsToMany, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { BelongsToMany, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { GuildBlacklist } from './GuildBlacklist';
 import { User } from './User';
 
 import {RANKS, VERIFICATION_LEVEL} from '../utils/types';
 
 import { Snowflake } from 'discord.js';
-import bot from '../bot';
+import { Lobby } from './Lobby';
 
 @Table
 export class Guild extends Model<Guild> {
@@ -25,6 +25,24 @@ export class Guild extends Model<Guild> {
         PS4: string,
         XBOX: string,
     };
+
+    @Column(DataType.JSONB)
+    public voiceCategories: {
+        ranked: string | string[],
+        casual: string | string[],
+        custom: string | string[],
+    };
+
+    @Column(DataType.JSONB)
+    public lfgChannels: {
+        ranked: string,
+        casual: string,
+        custom: string,
+        any: string,
+    };
+
+    @HasMany(() => Lobby)
+    public lobbys: Lobby[];
 
     @Column
     public premium: boolean; // idk mb unused in future
