@@ -32,13 +32,11 @@ export class User extends Model<User> {
 
     @ForeignKey(() => Lobby)
     @Column
-    public lobbyId: any;
+    public lobbyId: number;
 
     @BelongsTo(() => Lobby)
     public lobby: Lobby;
 
-    // @Column(DataType.ARRAY(DataType.STRING))
-    // public blacklist: string[]; // genome blacklist
     @BelongsToMany(() => Guild, () => GuildBlacklist)
     public bannedAt: Guild[];
 
@@ -55,8 +53,12 @@ export class User extends Model<User> {
     @Column(DataType.INTEGER)
     public requiredVerification: VERIFICATION_LEVEL;
 
-    @Column(DataType.STRING)
-    public platform: PLATFORM;
+    @Column(DataType.JSONB)
+    public platform: {
+        PC: boolean,
+        PS4: boolean,
+        XBOX: boolean,
+    };
 
     @Column(DataType.INTEGER)
     public access: ACCESS;

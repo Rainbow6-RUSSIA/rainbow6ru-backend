@@ -1,8 +1,9 @@
 import { EmojiResolvable, Message, MessageOptions, MessageReaction, ReactionEmoji, Snowflake, User, UserResolvable } from 'discord.js';
-import { IStats } from 'r6api';
+import { IStats, UUID } from 'r6api';
 import bot from '../bot';
-import { Guild } from '../models/Guild';
+import { Guild as G} from '../models/Guild';
 import { User as U } from '../models/User';
+import r6api from '../r6api';
 import { ENV, IUbiBound, ONLINE_TRACKER } from './types';
 
 interface IPromptOptions {
@@ -64,7 +65,8 @@ export async function combinedPrompt(prompt: Message, options: {
   }
 }
 
-export function buildRankEmbed(bound: IUbiBound, s: IStats) {
+export const embeds = {
+  rank: function buildRankEmbed(bound: IUbiBound, s: IStats) {
     const stats = s.general;
     return {
         description: 'Общая статистика',
@@ -88,7 +90,9 @@ export function buildRankEmbed(bound: IUbiBound, s: IStats) {
           },
         ],
       };
-}
+  },
+
+};
 
 export async function syncRank() {
   const UInsts = await U.findAll({
@@ -96,12 +100,24 @@ export async function syncRank() {
     limit: parseInt(ENV.PACK_SIZE),
     order: ['updatedAt', 'ASC'],
   });
+
 }
 
-export async function syncMember(guild: Guild, user: U, currentRoles?: string[]) {
-    const discordGuild = bot.guilds.get(guild.id);
-    if (!discordGuild.available) { return; }
+export async function syncMember(dbGuild: G, dbUser: U, currentRoles?: string[]) {
+    const guild = bot.guilds.get(dbGuild.id);
+    const member = guild.members.get(dbUser.id);
+    if (!guild.available) { return; }
     if (!currentRoles) {
-      currentRoles = discordGuild.members.get(user.id).roles.keyArray();
+      currentRoles = member.roles.keyArray();
     }
+
+    const rolesToApply = [];
+
+    for (const key in dbUser.platform) {
+      if (dbUser.platform[key]) { rolesToApply.push(dbGuild.platformRoles[key]); }
+    }
+
+    rolesToApply.push(dbGuild.rankRoles[dbUser.rank]);
+
+    member.edit({roles: rolesToApply});
 }

@@ -1,6 +1,7 @@
 import { ArgumentOptions , Command } from 'discord-akairo';
 import { Message, MessageReaction, ReactionEmoji, User } from 'discord.js';
 
+import r6api from '../../r6api';
 import { UUID } from '../../utils/types';
 import { combinedPrompt } from '../../utils/utils';
 import ubiGenome from '../types/ubiGenome';
@@ -53,6 +54,7 @@ export default class Info extends Command {
             }
         }
         console.log(user, nickname, genome);
+        console.log(await r6api.queue(['964b07cb-0169-4a55-ad59-62c975f227ff', 'c09fc7c9-5d45-4c6c-94e5-2dee159abff3'], r6api.getCurrentName));
         switch (false) {
             case user !== message.author:
                 return message.reply('инфа о себе (напрямую)');

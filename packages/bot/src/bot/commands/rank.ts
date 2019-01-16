@@ -8,7 +8,7 @@ import { User } from '../../models/User';
 import r6api from '../../r6api';
 
 import { ENV, IRankArgs, ONLINE_TRACKER, PLATFORM, REGIONS, VERIFICATION_LEVEL } from '../../utils/types';
-import { buildRankEmbed, combinedPrompt } from '../../utils/utils';
+import { combinedPrompt, embeds } from '../../utils/utils';
 import ubiGenome from '../types/ubiGenome';
 import ubiGenomeFromNickname from '../types/ubiGenomeFromNickname';
 // import ubiNickname from '../types/ubiNickname';
@@ -120,7 +120,7 @@ export default class Rank extends Command {
             });
 
             const prompt = await combinedPrompt(
-                await message.reply(`игрок с ником **${bound.nickname}** найден, это верный профиль?`, { embed: buildRankEmbed(bound, stats) }) as Message,
+                await message.reply(`игрок с ником **${bound.nickname}** найден, это верный профиль?`, { embed: embeds.rank(bound, stats) }) as Message,
                 {
                     emojis: ['✅', '❎'],
                     texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
