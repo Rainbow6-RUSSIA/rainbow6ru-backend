@@ -88,10 +88,11 @@ export default class Rank extends Command {
 
             const { platformRoles } = await Guild.findById((channel as TextChannel).guild.id);
             const currentRoles = target.roles.keyArray();
-            const platform = currentRoles.includes(platformRoles.PC) ? PLATFORM.PC
-                : currentRoles.includes(platformRoles.PS4) ? PLATFORM.PS4
-                : currentRoles.includes(platformRoles.XBOX) ? PLATFORM.PS4
-                : null;
+            const platform = {
+                PC: currentRoles.includes(platformRoles.PC),
+                PS4: currentRoles.includes(platformRoles.PS4),
+                XBOX: currentRoles.includes(platformRoles.XBOX),
+            };
             const rawRank = (await r6api.getRanks(bound.genome))[0];
             // console.log("​Rank -> publicexec -> rawRank", rawRank)
             const regionRank = $enum(REGIONS).map((r) => rawRank[r].rank);
