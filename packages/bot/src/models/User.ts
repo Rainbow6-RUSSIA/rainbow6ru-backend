@@ -63,7 +63,8 @@ export class User extends Model<User> {
     @Column(DataType.INTEGER)
     public access: ACCESS;
 
-    // TODO: reputation system
+    @Column
+    public karma: number;
 
     public pushGenome = (genome: string): void => {
         const old = this.getDataValue('genomeHistory') as IHistoryRecord[] || [];
