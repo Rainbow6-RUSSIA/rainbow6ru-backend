@@ -6,7 +6,6 @@
 	"recommendations": [
 		"eg2.tslint",
 		"esbenp.prettier-vscode",
-		"rafaelmaiolla.remote-vscode",
 		"dbaeumer.vscode-eslint",
 		"mikestead.dotenv",
 		"shardulm94.trailing-spaces",

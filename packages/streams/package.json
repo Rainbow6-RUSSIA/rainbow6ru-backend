@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/node": "^10.12.9",
-    "@types/passport": "^0.4.7",
+    "@types/passport": "^1.0.0",
     "@types/restify": "^7.2.6",
     "@types/sequelize": "^4.27.30",
     "tsc-watch": "^1.0.31",
