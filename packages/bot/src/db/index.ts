@@ -7,7 +7,7 @@ import { User } from '../models/User';
 import { ENV } from '../utils/types';
 
 export const DB = new Sequelize({
-    url: process.env.DB,
+    url: ENV.DB,
     define: {
         schema: 'siegebot',
     },
