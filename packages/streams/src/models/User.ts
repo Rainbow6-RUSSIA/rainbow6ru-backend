@@ -1,1 +1,0 @@
-../../rainbow6ru-bot/src/models/User.ts
