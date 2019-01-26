@@ -13,7 +13,8 @@
     "emitDecoratorMetadata": true
   },
   "exclude": [
-    "rainbow6ru-bot",
-    "build"
+    "rainbow6ru-bot/*",
+    "build",
+    "node_modules"
   ]
 }
