@@ -1,5 +1,5 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { ENV } from './utils/types';
+import ENV from './utils/env';
 
 class Bot extends AkairoClient {
     private commandHandler;
@@ -11,12 +11,12 @@ class Bot extends AkairoClient {
         }, {});
 
         this.commandHandler = new CommandHandler(this, {
-            directory: './build/bot/commands/',
-            loadFilter: (path) => path.split('.').pop() === 'js',
-            prefix: ENV.PREFIX,
             allowMention: true,
             defaultCooldown: 1000,
+            directory: './build/bot/commands/',
             fetchMembers: true,
+            loadFilter: (path) => path.split('.').pop() === 'js',
+            prefix: ENV.PREFIX,
             // handleEdits: true,
             // commandUtil: true,
         });

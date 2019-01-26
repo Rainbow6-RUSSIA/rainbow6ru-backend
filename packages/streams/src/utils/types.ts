@@ -1,11 +1,3 @@
-export enum MATCH_TYPE {
-    BO1 = 'bo1',
-    BO2 = 'bo2',
-    BO3 = 'bo3',
-    BO5 = 'bo5',
-    BO7 = 'bo7',
-}
-
 class IEnv {
     public PREFIX = '';
     public OWNERS = '';

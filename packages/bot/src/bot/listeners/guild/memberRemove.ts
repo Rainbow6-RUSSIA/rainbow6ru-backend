@@ -1,6 +1,6 @@
+import { User } from '@r6ru/db';
 import { Listener } from 'discord-akairo';
 import { GuildMember } from 'discord.js';
-import { User } from '../../../models/User';
 
 export default class MemberRemove extends Listener {
     public constructor() {

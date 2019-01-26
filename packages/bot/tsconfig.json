@@ -1,15 +1,9 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es2018",
     "rootDir": "src",
     "outDir": "build",
-    "noImplicitAny": false,
-    "experimentalDecorators": true,
-    "sourceMap": true,
-    "allowJs": false,
-    "declaration": true,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true
-  }
+    "baseUrl": ".",
+    "composite": true
+  },
+  "extends": "../tsconfig.json",
 }

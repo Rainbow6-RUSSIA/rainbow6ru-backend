@@ -1,5 +1,5 @@
 import r6api from 'r6api';
-import { ENV } from './utils/types';
+import ENV from './utils/env';
 
 export default r6api({
         email: ENV.R6API_LOGIN,

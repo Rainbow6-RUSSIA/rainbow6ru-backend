@@ -1,5 +1,5 @@
 import * as restify from 'restify';
-import { ENV } from './utils/types';
+import ENV from './utils/env';
 
 function respond(req, res, next) {
     res.send('hello ' + req.params.name);
@@ -10,8 +10,8 @@ export const server = restify.createServer();
 
 server.use(restify.plugins.throttle({
     burst: 100,
-    rate: 50,
     ip: true,
+    rate: 50,
   }));
 server.use(restify.plugins.bodyParser());
 

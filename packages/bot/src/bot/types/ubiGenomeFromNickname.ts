@@ -1,5 +1,5 @@
+import { IUbiBound } from '@r6ru/types';
 import r6api from '../../r6api';
-import { IUbiBound } from '../../utils/types';
 
 export default async (phrase: string): Promise<IUbiBound | null> => {
     if (!phrase) { return null; }

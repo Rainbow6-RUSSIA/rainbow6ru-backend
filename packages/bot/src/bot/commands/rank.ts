@@ -3,12 +3,13 @@ import { GuildMember, Message, TextChannel } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import { $enum } from 'ts-enum-util';
 
-import { Guild } from '../../models/Guild';
-import { User } from '../../models/User';
+import { Guild, User } from '@r6ru/db';
 import r6api from '../../r6api';
 
-import { ENV, IRankArgs, ONLINE_TRACKER, PLATFORM, REGIONS, VERIFICATION_LEVEL } from '../../utils/types';
-import { combinedPrompt, embeds } from '../../utils/utils';
+import { IRankArgs, ONLINE_TRACKER, PLATFORM, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { combinedPrompt } from '@r6ru/utils';
+import ENV from '../../utils/env';
+import { embeds } from '../../utils/utils';
 import ubiGenome from '../types/ubiGenome';
 import ubiGenomeFromNickname from '../types/ubiGenomeFromNickname';
 // import ubiNickname from '../types/ubiNickname';
@@ -23,24 +24,24 @@ export default class Rank extends Command {
                 unordered: true,
             }, {
                 id: 'bound',
-                type: ubiGenomeFromNickname, // префетч - это слишком пиздато, при ошибках причину хуй поймешь
-                unordered: true,
                 prompt: {
-                    retries: 3,
-                    time: 30000,
-                    start: 'Введите корректный ник в Uplay!',
-                    retry: 'Некорректный ник Uplay! Проверьте правильность и попробуйте еще раз.',
                     ended: 'Слишком много попыток. Проверьте правильность и начните регистрацию сначала.',
+                    retries: 3,
+                    retry: 'Некорректный ник Uplay! Проверьте правильность и попробуйте еще раз.',
+                    start: 'Введите корректный ник в Uplay!',
+                    time: 30000,
                     timeout: 'Время вышло. Начните регистрацию сначала.',
                 },
+                type: ubiGenomeFromNickname, // префетч - это слишком пиздато, при ошибках причину хуй поймешь
+                unordered: true,
             }, {
                 id: 'target',
                 type: 'member',
                 unordered: true,
             }],
-            ratelimit: 1,
-            cooldown: 10000,
             channel: 'guild',
+            cooldown: 10000,
+            ratelimit: 1,
         });
     }
     public async exec(message: Message, args: IRankArgs) {
@@ -58,12 +59,14 @@ export default class Rank extends Command {
             if (genome) {
                 const currentName = (await r6api.getCurrentName(genome))[0];
                 bound = {
-                    nickname: currentName.name,
                     genome: currentName.userId,
+                    nickname: currentName.name,
                 };
             }
 
-            let UInst: User;
+            // tslint:disable-next-line:max-classes-per-file
+            class UU extends User {}
+            let UInst: UU = null;
 
             if (target && member !== target && member.hasPermission('MANAGE_ROLES')) {
                 console.log('admin registering');
@@ -103,11 +106,14 @@ export default class Rank extends Command {
             // console.log("​Rank -> publicexec -> rawRank[mainRegion]", rawRank[mainRegion])
 
             UInst = new User({
-                id: target.id,
                 genome: bound.genome,
                 genomeHistory: [{record: bound.genome, timestamp: Date.now()}],
+                id: target.id,
                 nickname: bound.nickname,
                 nicknameHistory: [{record: bound.nickname, timestamp: Date.now()}],
+                platform,
+                rank: rawRank[mainRegion].rank,
+                region: REGIONS[mainRegion],
                 requiredVerification:
                     (Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 ? VERIFICATION_LEVEL.R6DB
                         : VERIFICATION_LEVEL.NONE,
@@ -115,17 +121,14 @@ export default class Rank extends Command {
                     (target.nickname || '').includes(bound.nickname) ||
                         target.user.username.includes(bound.nickname) ? VERIFICATION_LEVEL.MATCHNICK
                             : VERIFICATION_LEVEL.NONE,
-                platform,
-                region: REGIONS[mainRegion],
-                rank: rawRank[mainRegion].rank,
             });
 
             const prompt = await combinedPrompt(
                 await message.reply(`игрок с ником **${bound.nickname}** найден, это верный профиль?`, { embed: embeds.rank(bound, stats) }) as Message,
                 {
                     emojis: ['✅', '❎'],
-                    texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
                     message,
+                    texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
                 },
             );
 

@@ -1,9 +1,9 @@
 import { ArgumentOptions , Command } from 'discord-akairo';
 import { Message, MessageReaction, ReactionEmoji, User } from 'discord.js';
 
+import { UUID } from '@r6ru/types';
+import { combinedPrompt } from '@r6ru/utils';
 import r6api from '../../r6api';
-import { UUID } from '../../utils/types';
-import { combinedPrompt } from '../../utils/utils';
 import ubiGenome from '../types/ubiGenome';
 import ubiNickname from '../types/ubiNickname';
 
@@ -40,8 +40,8 @@ export default class Info extends Command {
                 await message.reply(`вы ищите информацию о пользователе:\n1) Discord <@${user.id}> или\n2) Uplay \`${nickname}\`?`) as Message,
                 {
                     emojis: ['1⃣', '2⃣'],
-                    texts: [['1', 'discord'], ['2', 'uplay']],
                     message,
+                    texts: [['1', 'discord'], ['2', 'uplay']],
                 },
             );
             switch (prompt) {
