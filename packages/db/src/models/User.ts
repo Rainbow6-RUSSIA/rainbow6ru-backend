@@ -8,7 +8,7 @@ import Team from './Team';
 
 import { Snowflake } from 'discord.js';
 
-@Table({schema: 'siegebot'})
+@Table({schema: 'siegebot', timestamps: true})
 export default class User extends Model<User> {
     @PrimaryKey
     @Column(DataType.STRING)

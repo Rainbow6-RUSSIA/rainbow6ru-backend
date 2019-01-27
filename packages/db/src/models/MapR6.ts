@@ -1,21 +1,23 @@
-import { BelongsToMany, Column, ForeignKey, HasMany, Model, PrimaryKey, Table, Unique } from 'sequelize-typescript';
+import { AllowNull, BelongsToMany, Column, DataType, ForeignKey, HasMany, Model, PrimaryKey, Table, Unique } from 'sequelize-typescript';
 import Match from './Match';
 import Pool from './Pool';
 import Vote from './Vote';
 
 @Table({schema: 'streambot'})
-export default class Map extends Model<Map> {
+export default class MapR6 extends Model<MapR6> {
     @PrimaryKey
-    @Unique
-    @Column
+    @Column(DataType.STRING)
     public id: string;
 
+    @AllowNull
     @Column
-    public splash: string;
+    public splash?: string;
 
+    @AllowNull
     @Column
     public titleRu: string;
 
+    @AllowNull
     @Column
     public titleEn: string;
 

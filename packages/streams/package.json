@@ -34,6 +34,7 @@
 		"@types/passport": "^1.0.0",
 		"@types/restify": "^7.2.6",
 		"@types/sequelize": "^4.27.30",
+		"cross-env": "^5.2.0",
 		"tsc-watch": "^1.0.31",
 		"tslint": "^5.11.0",
 		"typescript": "^3.1.6"

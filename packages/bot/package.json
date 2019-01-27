@@ -46,6 +46,7 @@
 		"@types/restify": "^7.2.6",
 		"@types/sequelize": "^4.27.33",
 		"bluebird": "^3.5.3",
+		"cross-env": "^5.2.0",
 		"redis": "^2.8.0",
 		"ts-enum-util": "^3.1.0",
 		"tsc-watch": "^1.0.31",

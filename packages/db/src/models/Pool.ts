@@ -1,5 +1,5 @@
 import { Column, ForeignKey, Model, Table } from 'sequelize-typescript';
-import Map from './Map';
+import MapR6 from './MapR6';
 import Match from './Match';
 
 @Table({schema: 'streambot'})
@@ -8,7 +8,7 @@ export default class Pool extends Model<Pool> {
     @Column
     public matchId: number;
 
-    @ForeignKey(() => Map)
+    @ForeignKey(() => MapR6)
     @Column
     public mapId: string;
 }

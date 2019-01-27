@@ -1,9 +1,9 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from 'sequelize-typescript';
-import Map from './Map';
+import MapR6 from './MapR6';
 import Match from './Match';
 import Team from './Team';
 
-@Table({schema: 'streambot'})
+@Table({schema: 'streambot', timestamps: true})
 export default class Vote extends Model<Vote> {
     @ForeignKey(() => Match)
     public matchId: number;
@@ -17,11 +17,11 @@ export default class Vote extends Model<Vote> {
     @BelongsTo(() => Team)
     public team: Team;
 
-    @ForeignKey(() => Map)
+    @ForeignKey(() => MapR6)
     public mapId: string;
 
-    @BelongsTo(() => Map)
-    public map: Map;
+    @BelongsTo(() => MapR6)
+    public map: MapR6;
 
     @Column(DataType.STRING)
     public type: 'ban' | 'pick' | 'decider';

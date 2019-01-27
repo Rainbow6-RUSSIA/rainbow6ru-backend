@@ -1,5 +1,5 @@
 import { Listener } from 'discord-akairo';
-import { User } from '@r6ru/db';
+import { MapR6 } from '@r6ru/db';
 
 class ReadyListener extends Listener {
     constructor() {

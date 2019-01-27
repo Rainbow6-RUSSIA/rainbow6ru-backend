@@ -1,7 +1,7 @@
 import { MATCH_TYPE } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
 import { AllowNull, BelongsToMany, Column, DataType, Default, HasMany, Model, Table } from 'sequelize-typescript';
-import Map from './Map';
+import MapR6 from './MapR6';
 import Pool from './Pool';
 import Team from './Team';
 import TeamMatch from './TeamMatch';
@@ -28,8 +28,8 @@ export default class Match extends Model<Match> {
     @HasMany(() => Vote)
     public votes: Vote[];
 
-    @BelongsToMany(() => Map, () => Pool)
-    public pool: Map[];
+    @BelongsToMany(() => MapR6, () => Pool)
+    public pool: MapR6[];
 
     @BelongsToMany(() => Team, () => TeamMatch)
     public teams: Team[];

@@ -1,31 +1,23 @@
 import { Sequelize } from 'sequelize-typescript';
 
-import G from './models/Guild';
-import GB from './models/GuildBlacklist';
-import L from './models/Lobby';
-import M from './models/Map';
-import MM from './models/Match';
-import P from './models/Pool';
-import T from './models/Team';
-import TM from './models/TeamMatch';
-import U from './models/User';
-import V from './models/Vote';
+import Guild from './models/Guild';
+import GuildBlacklist from './models/GuildBlacklist';
+import Lobby from './models/Lobby';
+import MapR6 from './models/MapR6';
+import Match from './models/Match';
+import Pool from './models/Pool';
+import Team from './models/Team';
+import TeamMatch from './models/TeamMatch';
+import User from './models/User';
+import Vote from './models/Vote';
 
 export default (url: string) => {
-    const DB = new Sequelize({ url });
-    DB.addModels([G, GB, L, M, MM, P, T, TM, U, V]);
+    const DB = new Sequelize({ url, logging: false });
+    DB.addModels([Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, TeamMatch, User, Vote]);
     DB.sync({ force: process.env.DROP_DB === 'true' });
     DB.authenticate();
 };
 
-// tslint:disable:max-classes-per-file
-export class Guild extends G {}
-export class GuildBlacklist extends GB {}
-export class Lobby extends L {}
-export class Map extends M {}
-export class Match extends MM {}
-export class Pool extends P {}
-export class Team extends T {}
-export class TeamMatch extends TM {}
-export class User extends U {}
-export class Vote extends V {}
+export {
+    Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, TeamMatch, User, Vote,
+};
