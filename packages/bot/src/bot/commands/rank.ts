@@ -64,9 +64,7 @@ export default class Rank extends Command {
                 };
             }
 
-            // tslint:disable-next-line:max-classes-per-file
-            class UU extends User {}
-            let UInst: UU = null;
+            let UInst: User = null;
 
             if (target && member !== target && member.hasPermission('MANAGE_ROLES')) {
                 console.log('admin registering');

@@ -12,5 +12,12 @@
     "discord.js": "https://github.com/discordjs/discord.js",
     "r6api": "https://github.com/BadCoder1337/r6api-fixed",
     "tslint": "^5.12.1"
+  },
+  "dependencies": {
+    "dotenv": "^6.2.0",
+    "pg": "^7.8.0",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^4.42.0",
+    "undefined": "https://github.com/1Computer1/discord-akairo.git"
   }
 }

@@ -1766,6 +1766,10 @@ uid2@0.0.x:
   resolved "https://registry.yarnpkg.com/uid2/-/uid2-0.0.3.tgz#483126e11774df2f71b8b639dcd799c376162b82"
   integrity sha1-SDEm4Rd03y9xuLY53NeZw3YWK4I=
 
+"undefined@https://github.com/1Computer1/discord-akairo.git":
+  version "8.0.0-dev"
+  resolved "https://github.com/1Computer1/discord-akairo.git#8014fc7d50fe646f74d31fbf92b16b61c5b7d229"
+
 uri-js@^4.2.2:
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/uri-js/-/uri-js-4.2.2.tgz#94c540e1ff772956e2299507c010aea6c8838eb0"

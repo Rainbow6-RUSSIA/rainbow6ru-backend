@@ -1,26 +1,29 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler} from 'discord-akairo';
+import ENV from './utils/env';
 
 class Bot extends AkairoClient {
     private commandHandler;
     private inhibitorHandler;
     private listenerHandler;
     constructor() {
-        super({ownerID: process.env.OWNERS.split(',')});
+        super({ownerID: ENV.OWNERS.split(',')});
+
+        const loadFilter = (path) => /^.*\.js$/g.test(path);
 
         this.commandHandler = new CommandHandler(this, {
             directory: './build/commands',
-            loadFilter: (path) => /^.*\.js$/g.test(path),
+            loadFilter,
             prefix: process.env.PREFIX,
             allowMention: true,
         });
 
         this.inhibitorHandler = new InhibitorHandler(this, {
             directory: './build/inhibitors/',
-            loadFilter: (path) => /^.*\.js$/g.test(path),
+            loadFilter,
         });
         this.listenerHandler = new ListenerHandler(this, {
             directory: './build/listeners/',
-            loadFilter: (path) => /^.*\.js$/g.test(path),
+            loadFilter,
         });
 
         this.listenerHandler.setEmitters({
@@ -39,6 +42,6 @@ class Bot extends AkairoClient {
 }
 
 const bot = new Bot();
-bot.login(process.env.DISCORD_TOKEN);
+bot.login(ENV.DISCORD_TOKEN);
 
 export default bot;

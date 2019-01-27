@@ -4,10 +4,6 @@ import { IStats } from 'r6api';
 import bot from '../bot';
 import ENV from '../utils/env';
 
-class GG extends G {}
-// tslint:disable-next-line:max-classes-per-file
-class UU extends U {}
-
 export async function syncRank() {
     const UInsts = await U.findAll({
       limit: parseInt(ENV.PACK_SIZE),
@@ -16,7 +12,7 @@ export async function syncRank() {
     });
 }
 
-export async function syncMember(dbGuild: GG, dbUser: UU, currentRoles?: string[]) {
+export async function syncMember(dbGuild: G, dbUser: U, currentRoles?: string[]) {
     const guild = bot.guilds.get(dbGuild.id);
     const member = guild.members.get(dbUser.id);
     if (!guild.available) { return; }
