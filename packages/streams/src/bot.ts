@@ -2,9 +2,9 @@ import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler} from '
 import ENV from './utils/env';
 
 class Bot extends AkairoClient {
-    private commandHandler;
-    private inhibitorHandler;
-    private listenerHandler;
+    private commandHandler: CommandHandler;
+    private inhibitorHandler: InhibitorHandler;
+    private listenerHandler: ListenerHandler;
     constructor() {
         super({ownerID: ENV.OWNERS.split(',')});
 
@@ -15,6 +15,7 @@ class Bot extends AkairoClient {
             loadFilter,
             prefix: process.env.PREFIX,
             allowMention: true,
+            defaultCooldown: 1000,
         });
 
         this.inhibitorHandler = new InhibitorHandler(this, {

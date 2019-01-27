@@ -10,7 +10,7 @@ class IEnv {
     public R6API_PASSWORD = '';
     public R6API_LOGLEVEL = '';
     public PACK_SIZE = '';
-    public MIGRATE = '';
+    // public MIGRATE = '';
     public COOLDOWN = '';
 }
 

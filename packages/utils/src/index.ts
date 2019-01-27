@@ -50,16 +50,17 @@ export async function combinedPrompt(prompt: Message, options: {
   };
 
   const race = await Promise.race([prompt.awaitReactions(emojiFilter, { max: 1, time }), prompt.channel.awaitMessages(textFilter, { max: 1, time })]);
-  const result = race.first();
+  const result = race.first() as any;
   if (!options.keep) {
     prompt.delete({timeout: 5000});
   }
-  if (result instanceof Message) {
+  // console.log({result}, result instanceof Message, result instanceof MessageReaction)
+  if (result.channel) {
     return options.texts.findIndex(([...t]) =>
     t.some((txt) =>
       result.content.toLowerCase().includes(txt),
     ));
-  } else if (result instanceof MessageReaction) {
+  } else if (result.message) {
     return options.emojis.indexOf(result.emoji.id || result.emoji.name);
   } else {
     return -1;

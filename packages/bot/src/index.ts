@@ -1,12 +1,13 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import '../../utils/src/db/index';
+import db from '@r6ru/db';
 import './bot';
 import './r6api';
 import './server';
 
 import ENV from './utils/env';
+db(ENV.DB);
 
 // if (ENV.MIGRATE === 'true') {
 //     import('./utils/migration');

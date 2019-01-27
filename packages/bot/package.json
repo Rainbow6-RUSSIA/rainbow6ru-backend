@@ -9,7 +9,9 @@
 	"main": "build/index.js",
 	"typings": "build/index.d.ts",
 	"scripts": {
-		"build": "tsc -p ."
+		"build": "tsc -p .",
+		"dev": "lerna run build --parallel --ignore=@r6ru/bot && tsc-watch --onSuccess \"node ./build/index.js\"",
+		"start": "tsc && node ./build/index.js"
 	},
 	"dependencies": {
 		"@r6ru/db": "0.0.0",
