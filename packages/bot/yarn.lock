@@ -190,6 +190,13 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
+"@types/socket.io@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@types/socket.io/-/socket.io-2.1.2.tgz#7165c2587cc3b86b44aa78e2a0060140551de211"
+  integrity sha512-Ind+4qMNfQ62llyB4IMs1D8znMEBsMKohZBPqfBUIXqLQ9bdtWIbNTBWwtdcBWJKnokMZGcmWOOKslatni5vtA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/spdy@*":
   version "3.4.4"
   resolved "https://registry.yarnpkg.com/@types/spdy/-/spdy-3.4.4.tgz#3282fd4ad8c4603aa49f7017dd520a08a345b2bc"

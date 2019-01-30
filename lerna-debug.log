@@ -1,7 +1,24 @@
-0 silly argv { _: [ 'bootstrap' ],
+0 silly argv { _: [ 'add' ],
+0 silly argv   globs: [],
 0 silly argv   lernaVersion: '3.10.7',
 0 silly argv   '$0':
-0 silly argv    'C:\\Users\\NO_RUSSIAN_SYMBOLS\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\lerna\\cli.js' }
+0 silly argv    'C:\\Users\\NO_RUSSIAN_SYMBOLS\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\lerna\\cli.js',
+0 silly argv   pkg: 'https://github.com/1Computer1/discord-akairo' }
 1 notice cli v3.10.7
 2 verbose rootPath D:\Projects\rainbow6ru-backend
-3 error
+3 info versioning independent
+4 error TypeError: Invalid comparator: https://github.com/1Computer1/discord-akairo.git
+4 error     at Comparator.parse (D:\Projects\rainbow6ru-backend\node_modules\semver\semver.js:701:11)
+4 error     at new Comparator (D:\Projects\rainbow6ru-backend\node_modules\semver\semver.js:685:8)
+4 error     at Range.<anonymous> (D:\Projects\rainbow6ru-backend\node_modules\semver\semver.js:859:12)
+4 error     at Array.map (<anonymous>)
+4 error     at Range.parseRange (D:\Projects\rainbow6ru-backend\node_modules\semver\semver.js:858:13)
+4 error     at Range.<anonymous> (D:\Projects\rainbow6ru-backend\node_modules\semver\semver.js:801:17)
+4 error     at Array.map (<anonymous>)
+4 error     at new Range (D:\Projects\rainbow6ru-backend\node_modules\semver\semver.js:800:40)
+4 error     at Function.intersects (D:\Projects\rainbow6ru-backend\node_modules\semver\semver.js:1333:8)
+4 error     at getRangeToReference (D:\Projects\rainbow6ru-backend\node_modules\@lerna\add\lib\get-range-to-reference.js:18:35)
+4 error     at result.filter.pkg (D:\Projects\rainbow6ru-backend\node_modules\@lerna\add\index.js:135:14)
+4 error     at Array.filter (<anonymous>)
+4 error     at AddCommand.collectPackagesToChange (D:\Projects\rainbow6ru-backend\node_modules\@lerna\add\index.js:127:21)
+4 error     at chain.then (D:\Projects\rainbow6ru-backend\node_modules\@lerna\add\index.js:69:35)

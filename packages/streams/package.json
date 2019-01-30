@@ -13,7 +13,8 @@
 	},
 	"dependencies": {
 		"@r6ru/db": "0.0.0",
-		"discord-akairo": "https://github.com/1Computer1/discord-akairo",
+		"@r6ru/types": "^0.0.0",
+		"discord-akairo": "https://github.com/1Computer1/discord-akairo#f85be50",
 		"discord.js": "https://github.com/discordjs/discord.js",
 		"dotenv": "^6.2.0",
 		"jsonwebtoken": "^8.4.0",
@@ -34,6 +35,7 @@
 		"@types/passport": "^1.0.0",
 		"@types/restify": "^7.2.6",
 		"@types/sequelize": "^4.27.30",
+		"@types/socket.io": "^2.1.2",
 		"cross-env": "^5.2.0",
 		"tsc-watch": "^1.0.31",
 		"tslint": "^5.11.0",

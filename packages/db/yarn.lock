@@ -59,6 +59,13 @@
     "@types/lodash" "*"
     "@types/validator" "*"
 
+"@types/socket.io@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@types/socket.io/-/socket.io-2.1.2.tgz#7165c2587cc3b86b44aa78e2a0060140551de211"
+  integrity sha512-Ind+4qMNfQ62llyB4IMs1D8znMEBsMKohZBPqfBUIXqLQ9bdtWIbNTBWwtdcBWJKnokMZGcmWOOKslatni5vtA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/validator@*":
   version "10.9.0"
   resolved "https://registry.yarnpkg.com/@types/validator/-/validator-10.9.0.tgz#747f36c7ad281da769458ab4c3b8837aee1578b6"

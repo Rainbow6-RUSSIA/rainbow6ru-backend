@@ -1,4 +1,6 @@
+import { MapR6 } from '@r6ru/db';
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler} from 'discord-akairo';
+import { Op } from 'sequelize';
 import ENV from './utils/env';
 
 class Bot extends AkairoClient {
@@ -13,7 +15,7 @@ class Bot extends AkairoClient {
         this.commandHandler = new CommandHandler(this, {
             directory: './build/commands',
             loadFilter,
-            prefix: process.env.PREFIX,
+            prefix: ENV.PREFIX,
             allowMention: true,
             defaultCooldown: 1000,
         });
@@ -42,7 +44,17 @@ class Bot extends AkairoClient {
     }
 }
 
-const bot = new Bot();
-bot.login(ENV.DISCORD_TOKEN);
+let bot: Bot;
+export let pool: string[];
+
+MapR6.findAll({where: {
+    id: {
+        [Op.ne]: '',
+    },
+}}).then((maps) => {
+    pool = maps.map((map) => map.id);
+    bot = new Bot();
+    bot.login(ENV.DISCORD_TOKEN);
+});
 
 export default bot;

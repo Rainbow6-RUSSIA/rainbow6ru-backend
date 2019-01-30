@@ -138,6 +138,13 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
+"@types/socket.io@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@types/socket.io/-/socket.io-2.1.2.tgz#7165c2587cc3b86b44aa78e2a0060140551de211"
+  integrity sha512-Ind+4qMNfQ62llyB4IMs1D8znMEBsMKohZBPqfBUIXqLQ9bdtWIbNTBWwtdcBWJKnokMZGcmWOOKslatni5vtA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/spdy@*":
   version "3.4.4"
   resolved "https://registry.yarnpkg.com/@types/spdy/-/spdy-3.4.4.tgz#3282fd4ad8c4603aa49f7017dd520a08a345b2bc"
@@ -509,9 +516,9 @@ diff@^3.2.0:
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
   integrity sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==
 
-"discord-akairo@https://github.com/1Computer1/discord-akairo":
+"discord-akairo@https://github.com/1Computer1/discord-akairo#f85be50":
   version "8.0.0-dev"
-  resolved "https://github.com/1Computer1/discord-akairo#f06972b269c98da48b916dcd602272936dc66aec"
+  resolved "https://github.com/1Computer1/discord-akairo#f85be50d7eab7c068e3c83489340f6e800da5fd2"
 
 "discord.js@https://github.com/discordjs/discord.js":
   version "12.0.0-dev"
