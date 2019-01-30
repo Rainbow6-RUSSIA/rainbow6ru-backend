@@ -9,6 +9,7 @@ interface IArgs {
     matchType: 'bo1' | 'bo2' | 'bo3' | 'bo5' | 'bo7';
     pool: string[];
     teams: string[];
+    legacy: 'yes' | 'no';
 }
 
 let teamPool: Team[] = [];
@@ -56,6 +57,13 @@ export default class Create extends Command {
                         infinite: true,
                     },
                 },
+                {
+                    id: 'legacy',
+                    type: ['yes', 'no'],
+                    prompt: {
+                        start: 'Провести жеребьёвку (yes/no)? Иначе начинает голосовать всегда первая команда.',
+                    },
+                },
             ],
             defaultPrompt: {
                 retries: 3,
@@ -87,6 +95,7 @@ export default class Create extends Command {
 
         const match = await Match.create<Match>({
             matchType: MATCH_TYPE[args.matchType.toUpperCase()],
+            legacy: args.legacy === 'no',
         });
         match.$set('creator', await User.findByPk(message.author.id));
         match.$set('pool', dbPool);

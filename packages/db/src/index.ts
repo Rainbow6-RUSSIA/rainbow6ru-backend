@@ -11,8 +11,8 @@ import TeamMatch from './models/TeamMatch';
 import User from './models/User';
 import Vote from './models/Vote';
 
-export default (url: string) => {
-    const DB = new Sequelize({ url, logging: false });
+export default (url: string, logging = false) => {
+    const DB = new Sequelize({ url, logging});
     DB.addModels([Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, TeamMatch, User, Vote]);
     DB.sync({ force: process.env.DROP_DB === 'true' });
     DB.authenticate();

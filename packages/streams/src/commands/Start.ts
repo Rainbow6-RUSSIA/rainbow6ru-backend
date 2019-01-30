@@ -1,10 +1,10 @@
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 
-export default class Start extends Command { // update all|newseason|numofpacks
+export default class Start extends Command {
     public constructor() {
         super('start', {
-            aliases: ['start'],
+            aliases: ['start', 'S'],
         });
     }
     public exec(message: Message, args) {

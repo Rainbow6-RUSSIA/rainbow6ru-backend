@@ -1,4 +1,4 @@
-import { Match } from '@r6ru/db';
+import { MapR6, Match, Team, User, Vote } from '@r6ru/db';
 import * as restify from 'restify';
 import * as socketio from 'socket.io';
 
@@ -18,8 +18,11 @@ interface ISub {
 io.sockets.on('connection', (socket) => {
     socket.emit('status', { status: 'Online' });
     socket.on('subscribe', async (e: ISub) => { // header/#id; map_vote/#id
-        socket.join(e.room);
-        socket.emit(e.room, await Match.findByPk(e.id));
+        socket.emit('status', { status: 'Online' });
+        console.log('Moving new listener to ', e.id + e.room);
+        socket.join(e.id + e.room);
+        const match = await Match.findByPk(e.id, {include: [MapR6, Vote, User, Team]});
+        socket.emit(e.room, match.toJSON());
     });
     // // socket.on('disconnect', () => {});
     // socket.on('my other event', (data) => {

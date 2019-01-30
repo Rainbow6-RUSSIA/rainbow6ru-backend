@@ -14,6 +14,7 @@
 	"dependencies": {
 		"@r6ru/db": "0.0.0",
 		"@r6ru/types": "^0.0.0",
+		"@r6ru/utils": "^0.0.0",
 		"discord-akairo": "https://github.com/1Computer1/discord-akairo#f85be50",
 		"discord.js": "https://github.com/discordjs/discord.js",
 		"dotenv": "^6.2.0",
