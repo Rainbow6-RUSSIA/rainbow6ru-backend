@@ -19,8 +19,8 @@ io.sockets.on('connection', (socket) => {
     socket.emit('status', { status: 'Online' });
     socket.on('subscribe', async (e: ISub) => { // header/#id; map_vote/#id
         socket.emit('status', { status: 'Online' });
-        console.log('Moving new listener to ', e.id + e.room);
-        socket.join(e.id + e.room);
+        console.log('Moving new listener to', e.id + '/' + e.room);
+        socket.join(e.id + '/' + e.room);
         const match = await Match.findByPk(e.id, {include: [MapR6, Vote, User, Team]});
         socket.emit(e.room, match.toJSON());
     });
