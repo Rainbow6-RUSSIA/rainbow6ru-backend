@@ -33,8 +33,7 @@
 		"restify": "^7.3.0",
 		"restify-errors": "^6.1.1",
 		"sequelize": "^4.42.0",
-		"sequelize-typescript": "^0.6.6",
-		"undefined": "https://github.com/1Computer1/discord-akairo.git"
+		"sequelize-typescript": "^0.6.6"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^3.0.0",

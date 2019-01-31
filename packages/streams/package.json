@@ -11,7 +11,7 @@
 		"dev": "lerna run build --parallel --ignore=@r6ru/streams && tsc-watch --onSuccess \"node ./build/index.js\"",
 		"start": "tsc && node ./build/index.js"
 	},
-	"dependencies": {		
+	"dependencies": {
 		"@r6ru/db": "0.0.0",
 		"@r6ru/types": "^0.0.0",
 		"@r6ru/utils": "^0.0.0",

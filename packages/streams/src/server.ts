@@ -18,11 +18,12 @@ interface ISub {
 io.sockets.on('connection', (socket) => {
     socket.emit('status', { status: 'Online' });
     socket.on('subscribe', async (e: ISub) => { // header/#id; map_vote/#id
-        socket.emit('status', { status: 'Online' });
+        // socket.emit('status', { status: 'Online' });
+        if (!e.id || !e.room) { return; }
         console.log('Moving new listener to', e.id + '/' + e.room);
         socket.join(e.id + '/' + e.room);
         const match = await Match.findByPk(e.id, {include: [MapR6, Vote, User, Team]});
-        socket.emit(e.room, match.toJSON());
+        socket.emit('init', match.toJSON());
     });
     // // socket.on('disconnect', () => {});
     // socket.on('my other event', (data) => {
