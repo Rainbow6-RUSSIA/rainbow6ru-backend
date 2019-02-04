@@ -39,8 +39,8 @@ export default class Info extends Command {
             const prompt = await combinedPrompt(
                 await message.reply(`вы ищите информацию о пользователе:\n1) Discord <@${user.id}> или\n2) Uplay \`${nickname}\`?`) as Message,
                 {
+                    author: message.author,
                     emojis: ['1⃣', '2⃣'],
-                    message,
                     texts: [['1', 'discord'], ['2', 'uplay']],
                 },
             );

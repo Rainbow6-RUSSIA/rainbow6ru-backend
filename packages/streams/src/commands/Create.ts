@@ -88,9 +88,10 @@ export default class Create extends Command {
             return message.reply('Количество карт в пуле должно быть нечетным!');
         }
 
-        const dbTeams = await Team.findAll({where: {id: args.teams}});
-        if (dbTeams.length !== 2) {
-            return message.reply('Укажите 2 команды!');
+        const dbTeam0 = await Team.findByPk(args.teams[0]);
+        const dbTeam1 = await Team.findByPk(args.teams[1]);
+        if (!dbTeam0 || !dbTeam1) {
+            return message.reply('команда(-ы) не найдена(-ы)');
         }
 
         const match = await Match.create<Match>({
@@ -99,7 +100,8 @@ export default class Create extends Command {
         });
         match.$set('creator', await User.findByPk(message.author.id));
         match.$set('pool', dbPool);
-        match.$add('teams', dbTeams);
+        match.$set('team0', dbTeam0);
+        match.$set('team1', dbTeam1);
         message.reply(`матч создан, id: \`${match.id}\``);
     }
 }

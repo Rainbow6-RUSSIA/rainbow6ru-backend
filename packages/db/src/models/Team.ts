@@ -1,7 +1,7 @@
 import { BelongsToMany, Column, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
 import Match from './Match';
-import TeamMatch from './TeamMatch';
 import User from './User';
+import Vote from './Vote';
 
 @Table({schema: 'streambot'})
 export default class Team extends Model<Team> {
@@ -20,6 +20,12 @@ export default class Team extends Model<Team> {
     @HasMany(() => User)
     public members: User[];
 
-    @BelongsToMany(() => Match, () => TeamMatch)
-    public matches: Match[];
+    @HasMany(() => Match, 'team0Id')
+    public matchesLeft: Match[];
+
+    @HasMany(() => Match, 'team1Id')
+    public matchesRight: Match[];
+
+    @HasMany(() => Vote)
+    public votes: Vote[];
 }

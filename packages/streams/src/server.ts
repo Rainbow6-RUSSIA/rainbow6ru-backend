@@ -17,18 +17,13 @@ interface ISub {
 
 io.sockets.on('connection', (socket) => {
     socket.emit('status', { status: 'Online' });
-    socket.on('subscribe', async (e: ISub) => { // header/#id; map_vote/#id
-        // socket.emit('status', { status: 'Online' });
+    socket.on('subscribe', async (e: ISub) => { // #id/header; #id/map_vote
         if (!e.id || !e.room) { return; }
         console.log('Moving new listener to', e.id + '/' + e.room);
         socket.join(e.id + '/' + e.room);
-        const match = await Match.findByPk(e.id, {include: [MapR6, Vote, User, Team]});
-        socket.emit('init', match.toJSON());
+        const match = await Match.findByPk(e.id, {include: [{all: true}]});
+        socket.emit('init', match && match.toJSON());
     });
-    // // socket.on('disconnect', () => {});
-    // socket.on('my other event', (data) => {
-    //     console.log(data);
-    // });
 });
 
 server.listen(process.env.PORT || 3001, () => console.log(`${server.name} listening at ${server.url}`));

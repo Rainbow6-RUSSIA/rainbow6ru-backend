@@ -124,8 +124,8 @@ export default class Rank extends Command {
             const prompt = await combinedPrompt(
                 await message.reply(`игрок с ником **${bound.nickname}** найден, это верный профиль?`, { embed: embeds.rank(bound, stats) }) as Message,
                 {
+                    author: message.author,
                     emojis: ['✅', '❎'],
-                    message,
                     texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
                 },
             );

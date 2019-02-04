@@ -11,17 +11,17 @@ export default class Info extends Command {
     }
 
     public async exec(message: Message) {
-        const matches = await Match.findAll({where: {creatorId: message.author.id}, include: [MapR6, Team, User, Vote]});
+        const matches = await Match.findAll({where: {creatorId: message.author.id}, include: [{model: Team, include: [User]}, {all: true}], order: ['id']});
         if (!matches.length) {
             return message.reply('вы не создали ни одного матча!');
         }
         let match: Match;
         if (matches.length > 1) {
             const pick = await combinedPrompt(
-                await message.reply(`уточните, какой матч вы хотите просмотреть:\n${matches.map((m, i) => `${i + 1}. ${m.teams[0].name} vs. ${m.teams[1].name}\n`)}`)[0],
+                await message.reply(`уточните, какой матч вы хотите просмотреть:\n${matches.map((m, i) => `${i + 1}. ${m.team0.name} vs. ${m.team1.name}, id: \`${m.id}\``).join('\n')}`) as Message,
                 {
+                    author: message.author,
                     texts: new Array(matches.length).fill(0).map((_, i) => (i + 1).toString()),
-                    message,
                 },
             );
             if (pick === -1) {
@@ -31,6 +31,6 @@ export default class Info extends Command {
         } else {
             match = matches[0];
         }
-        message.reply('```js\n' + JSON.stringify(match.dataValues, null, 2) + '```');
+        message.reply('```js\n' + JSON.stringify(match.dataValues, null, 2) + '```', {split: {prepend: '```js\n', append: '```'}});
     }
 }
