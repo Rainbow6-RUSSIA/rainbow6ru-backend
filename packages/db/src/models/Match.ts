@@ -18,6 +18,9 @@ export default class Match extends Model<Match> {
     @Column(DataType.STRING(5))
     public matchType: MATCH_TYPE;
 
+    @Column(DataType.ARRAY(DataType.INTEGER))
+    public mapScore: [number, number];
+
     @Default(false)
     @AllowNull(false)
     @Column

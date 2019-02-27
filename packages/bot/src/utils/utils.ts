@@ -1,15 +1,23 @@
 import { Guild as G, User as U } from '@r6ru/db';
-import { IUbiBound, ONLINE_TRACKER } from '@r6ru/types';
+import { IUbiBound, ONLINE_TRACKER, PLATFORM } from '@r6ru/types';
 import { IStats } from 'r6api';
 import bot from '../bot';
+import r6api from '../r6api';
 import ENV from '../utils/env';
 
-export async function syncRank() {
+export async function syncRank(platform: PLATFORM) {
     const UInsts = await U.findAll({
       limit: parseInt(ENV.PACK_SIZE),
       order: ['updatedAt', 'ASC'],
-      where: {inactive: false},
+      where: {inactive: false, platform: {
+        [platform]: true,
+      }},
     });
+    const res = await r6api.getRank(platform, UInsts.map((u) => u.genome));
+    U.bulkCreate<U>(UInsts.map((u) => {
+      u.dataValues.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
+      return u;
+    }), {updateOnDuplicate: ['rank'], ignoreDuplicates: true});
 }
 
 export async function syncMember(dbGuild: G, dbUser: U, currentRoles?: string[]) {
