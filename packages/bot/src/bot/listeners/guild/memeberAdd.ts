@@ -11,6 +11,7 @@ export default class MemberAdd extends Listener {
         });
     }
     public async exec(member: GuildMember) {
+            // чек на регистрацию
             User.update({
                 inactive: false,
             }, {
@@ -20,7 +21,7 @@ export default class MemberAdd extends Listener {
                 },
             });
 
-            syncMember(await Guild.findByPk(member.guild.id), await User.findByPk(member.id), []);
+            syncMember(await Guild.findByPk(member.guild.id), await User.findByPk(member.id));
 
             console.log('[BOT] Reactivating', member.user.tag, member.id);
     }

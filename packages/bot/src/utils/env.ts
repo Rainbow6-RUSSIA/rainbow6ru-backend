@@ -12,6 +12,7 @@ class IEnv {
     public PACK_SIZE = '';
     // public MIGRATE = '';
     public COOLDOWN = '';
+    public KEY256 = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file

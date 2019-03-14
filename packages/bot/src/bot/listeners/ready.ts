@@ -1,6 +1,8 @@
 import { Listener } from 'discord-akairo';
 
 import { Guild } from '@r6ru/db';
+import ENV from '../../utils/env';
+import { syncRoles } from '../../utils/utils';
 
 export default class Ready extends Listener {
     public constructor() {
@@ -27,6 +29,9 @@ export default class Ready extends Listener {
                 '330802325172125696',
             ],
         });
+
+        console.log('[BOT] Start updating...');
+        setInterval(syncRoles, parseInt(ENV.COOLDOWN));
 
     }
 }
