@@ -9,7 +9,7 @@ export default class VoiceStateUpdate extends Listener {
         });
     }
     public exec(oldState: VoiceState, newState: VoiceState) {
-        console.log('​VoiceStateUpdate -> publicexec -> oldState', oldState);
-        console.log('​VoiceStateUpdate -> publicexec -> newState', newState);
+        // console.log('​VoiceStateUpdate -> publicexec -> oldState', { oldState });
+        // console.log('​VoiceStateUpdate -> publicexec -> newState', { newState });
     }
 }

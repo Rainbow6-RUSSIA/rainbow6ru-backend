@@ -58,3 +58,5 @@ typings/
 .env
 
 package.json.lerna_backup
+banlist.txt
+log.txt

@@ -8,3 +8,7 @@ import './server';
 
 import ENV from './utils/env';
 db(ENV.DB);
+
+if (process.env.MIGRATE === 'true') {
+    import('./utils/migration');
+}

@@ -1,4 +1,4 @@
-import { User } from '@r6ru/db';
+import { Lobby, User } from '@r6ru/db';
 import { Listener } from 'discord-akairo';
 import { GuildMember } from 'discord.js';
 
@@ -10,10 +10,10 @@ export default class MemberRemove extends Listener {
         });
     }
     public async exec(member: GuildMember) {
-        const UInst = await User.findByPk(member.id);
+        const UInst = await User.findByPk(member.id, {include: [Lobby]});
         if (!UInst) { return; }
 
-        if (UInst.lobby.guildId === member.guild.id) {
+        if (UInst.lobby && UInst.lobby.guildId === member.guild.id) {
             UInst.set({
                 lobby: null,
             });
@@ -30,6 +30,6 @@ export default class MemberRemove extends Listener {
             console.log('[BOT] Inactivating', member.user.tag, member.id);
         }
 
-        UInst.save();
+        await UInst.save();
     }
 }

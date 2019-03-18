@@ -1,0 +1,1 @@
+require(`${__dirname}/packages/${process.env.PACKAGE_NAME}/build/index`);

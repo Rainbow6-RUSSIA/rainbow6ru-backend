@@ -24,6 +24,7 @@ export async function syncRank(platform: PLATFORM) {
 }
 
 export async function syncMember(dbGuild: G, dbUser: U) {
+    if (!dbGuild || !dbUser) { return false; }
     const guild = bot.guilds.get(dbGuild.id);
     const member = await guild.members.fetch(dbUser.id);
     if (!member) { return false; }
@@ -38,27 +39,37 @@ export async function syncMember(dbGuild: G, dbUser: U) {
       return false;
     }
     if (!guild.available) { return false; }
-    
-    const rolesToApply: string[] = [];
-    
-    if (!member.roles.has(dbGuild.rankRoles[dbUser.rank])) {
 
+    // console.log(dbUser.rank, dbUser.platform, dbGuild.rankRoles[dbUser.rank]);
+
+    const currentRankRoles = member.roles.keyArray().filter((r) => dbGuild.rankRoles.includes(r));
+
+    if (currentRankRoles.length > 1) {
+      await member.roles.remove(dbGuild.rankRoles.filter((r) => r));
+      if (dbGuild.rankRoles[dbUser.rank]) {
+        await member.roles.add(dbGuild.rankRoles[dbUser.rank]);
+      }
+    } else if (currentRankRoles.length === 1) {
+      const currentRank = dbGuild.rankRoles.indexOf(currentRankRoles[0]);
+      if (dbUser.rank > currentRank || (currentRank < dbGuild.fixAfter && currentRank !== dbUser.rank)) {
+        await member.roles.remove(dbGuild.rankRoles[currentRank]);
+        await member.roles.add(dbGuild.rankRoles[dbUser.rank]);
+        console.log(`[BOT] User ${member.user.tag} updated!`);
+      }
+    } else {
+      if (dbGuild.rankRoles[dbUser.rank]) {
+        await member.roles.add(dbGuild.rankRoles[dbUser.rank]);
+      }
     }
 
-    // member.roles.remove([...dbGuild.rankRoles.filter((r) => r)]);
+    await member.roles.add(Object.entries(dbGuild.platformRoles).filter((k) => dbUser.platform[k[0]]).map((k) => k[1]));
 
-    // for (const key in dbUser.platform) {
-    //   if (dbUser.platform[key]) { rolesToApply.push(dbGuild.platformRoles[key]); }
-    // }
-
-    // rolesToApply.push(dbGuild.rankRoles[dbUser.rank]);
-
-    // await member.roles.add(rolesToApply);
     return true;
   }
 
 export async function syncRoles() {
   const guilds = await G.findAll({where: {premium: true}});
+
   guilds.map((g) => console.log('[BOT] Syncing ' + bot.guilds.get(g.id).name));
   const usersAtPlatforms = await Promise.all($enum(PLATFORM).getValues().map((p) => syncRank(p)));
   const users = usersAtPlatforms.reduce((acc, val) => acc.concat(val), []);

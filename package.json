@@ -1,9 +1,15 @@
 {
   "name": "@r6ru/r6ru",
   "private": true,
+  "main": "bootstrap.js",
   "scripts": {
-    "dev-bot": "",
-    "build": "lerna run build"
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "postinstall": "yarn bootstrap && yarn build"
+  },
+  "engines": {
+    "node": "10.15.x",
+    "yarn": "1.13.x"
   },
   "devDependencies": {
     "@types/node": "^11.10.5",
