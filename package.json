@@ -4,8 +4,8 @@
   "main": "bootstrap.js",
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build",
-    "postinstall": "yarn bootstrap --parallel && yarn build"
+    "build": "lerna run build --parallel",
+    "postinstall": "yarn bootstrap && yarn build"
   },
   "engines": {
     "node": "10.15.x",
