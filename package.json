@@ -11,10 +11,12 @@
     "node": "10.15.x",
     "yarn": "1.13.x"
   },
+  "dependencies": {
+    "lerna": "^3.13.1",
+    "typescript": "^3.3.3333"
+  },
   "devDependencies": {
     "@types/node": "^11.10.5",
-    "lerna": "^3.13.1",
-    "tslint": "^5.13.1",
-    "typescript": "^3.3.3333"
+    "tslint": "^5.13.1"
   }
 }
