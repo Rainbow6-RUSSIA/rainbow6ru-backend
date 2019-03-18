@@ -10,6 +10,5 @@ export default class Ping extends Command {
     public async exec(message: Message) {
         const sent = await message.channel.send('Пинг...') as any;
         sent.edit(`Понг! Задержка ${sent.createdTimestamp - message.createdTimestamp}мс`);
-        console.log('rank used');
     }
 }

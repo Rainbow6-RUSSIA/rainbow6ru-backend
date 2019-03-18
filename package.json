@@ -1,14 +1,20 @@
 {
   "name": "@r6ru/r6ru",
   "private": true,
+  "main": "bootstrap.js",
   "scripts": {
-    "dev-bot": "",
-    "build": "lerna run build"
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "postinstall": "yarn bootstrap && yarn build"
+  },
+  "engines": {
+    "node": "10.15.x",
+    "yarn": "1.13.x"
   },
   "devDependencies": {
-    "@types/node": "^10.12.18",
-    "lerna": "^3.10.7",
-    "tslint": "^5.12.1",
-    "typescript": "^3.2.4"
+    "@types/node": "^11.10.5",
+    "lerna": "^3.13.1",
+    "tslint": "^5.13.1",
+    "typescript": "^3.3.3333"
   }
 }

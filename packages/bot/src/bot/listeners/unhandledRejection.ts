@@ -3,8 +3,8 @@ import { Listener } from 'discord-akairo';
 export default class UnhandledRejection extends Listener {
     public constructor() {
         super('unhandledRejection', {
-            event: 'unhandledRejection',
             emitter: 'process',
+            event: 'unhandledRejection',
         });
     }
     public exec(error) {

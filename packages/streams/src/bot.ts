@@ -1,26 +1,32 @@
+import { MapR6 } from '@r6ru/db';
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler} from 'discord-akairo';
+import { Op } from 'sequelize';
+import ENV from './utils/env';
 
 class Bot extends AkairoClient {
-    private commandHandler;
-    private inhibitorHandler;
-    private listenerHandler;
+    private commandHandler: CommandHandler;
+    private inhibitorHandler: InhibitorHandler;
+    private listenerHandler: ListenerHandler;
     constructor() {
-        super({ownerID: process.env.OWNERS.split(',')});
+        super({ownerID: ENV.OWNERS.split(',')});
+
+        const loadFilter = (path) => /^.*\.js$/g.test(path);
 
         this.commandHandler = new CommandHandler(this, {
             directory: './build/commands',
-            loadFilter: (path) => /^.*\.js$/g.test(path),
-            prefix: process.env.PREFIX,
+            loadFilter,
+            prefix: ENV.PREFIX,
             allowMention: true,
+            defaultCooldown: 1000,
         });
 
         this.inhibitorHandler = new InhibitorHandler(this, {
             directory: './build/inhibitors/',
-            loadFilter: (path) => /^.*\.js$/g.test(path),
+            loadFilter,
         });
         this.listenerHandler = new ListenerHandler(this, {
             directory: './build/listeners/',
-            loadFilter: (path) => /^.*\.js$/g.test(path),
+            loadFilter,
         });
 
         this.listenerHandler.setEmitters({
@@ -38,7 +44,17 @@ class Bot extends AkairoClient {
     }
 }
 
-const bot = new Bot();
-bot.login(process.env.DISCORD_TOKEN);
+let bot: Bot;
+export let pool: string[];
+
+MapR6.findAll({where: {
+    id: {
+        [Op.ne]: '',
+    },
+}}).then((maps) => {
+    pool = maps.map((map) => map.id);
+    bot = new Bot();
+    bot.login(ENV.DISCORD_TOKEN);
+});
 
 export default bot;

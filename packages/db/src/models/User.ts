@@ -1,13 +1,15 @@
-import { ACCESS, IHistoryRecord, PLATFORM, RANKS, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
-import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
+import { ACCESS, IHistoryRecord, RANKS, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
 
 import Guild from './Guild';
 import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
+import Team from './Team';
 
 import { Snowflake } from 'discord.js';
+import Match from './Match';
 
-@Table({schema: 'siegebot'})
+@Table({schema: 'siegebot', timestamps: true})
 export default class User extends Model<User> {
     @PrimaryKey
     @Column(DataType.STRING)
@@ -35,6 +37,16 @@ export default class User extends Model<User> {
     @BelongsTo(() => Lobby)
     public lobby: Lobby;
 
+    @ForeignKey(() => Team)
+    @Column
+    public teamId: number;
+
+    @BelongsTo(() => Team)
+    public team: Team;
+
+    @HasMany(() => Match)
+    public matches: Match[];
+
     @BelongsToMany(() => Guild, () => GuildBlacklist)
     public bannedAt: Guild[];
 
@@ -61,7 +73,7 @@ export default class User extends Model<User> {
     @Column(DataType.INTEGER)
     public access: ACCESS;
 
-    @Column
+    @Column(DataType.FLOAT)
     public karma: number;
 
     public pushGenome = (genome: string): void => {

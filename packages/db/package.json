@@ -11,13 +11,18 @@
     "build": "tsc -p ."
   },
   "dependencies": {
-    "@r6ru/utils": "0.0.0",
     "@r6ru/types": "0.0.0",
+    "@r6ru/utils": "0.0.0",
+    "pg": "^7.8.0",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^4.42.0",
     "sequelize-typescript": "^0.6.7"
   },
   "devDependencies": {
     "@types/node": "^10.12.18",
     "@types/sequelize": "^4.27.34",
+    "@types/socket.io": "^2.1.2",
+    "cross-env": "^5.2.0",
     "discord.js": "https://github.com/discordjs/discord.js",
     "r6api": "https://github.com/BadCoder1337/r6api-fixed",
     "tslint": "^5.12.1"

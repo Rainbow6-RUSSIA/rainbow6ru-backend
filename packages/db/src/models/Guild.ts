@@ -17,7 +17,7 @@ export default class Guild extends Model<Guild> {
     @Column(DataType.INTEGER)
     public fixAfter: RANKS; // siege rank to fix
 
-    @Column(DataType.ARRAY(DataType.STRING))
+    @Column(DataType.JSONB)
     public rankRoles: string[]; // any rank to any role
 
     @Column(DataType.JSONB)
@@ -28,19 +28,19 @@ export default class Guild extends Model<Guild> {
     };
 
     @Column(DataType.JSONB)
-    public voiceCategories: {
+    public voiceCategories: Partial<{
         ranked: string | string[],
         casual: string | string[],
         custom: string | string[],
-    };
+    }>;
 
     @Column(DataType.JSONB)
-    public lfgChannels: {
+    public lfgChannels: Partial<{
         ranked: string,
         casual: string,
         custom: string,
         any: string,
-    };
+    }>;
 
     @HasMany(() => Lobby)
     public lobbys: Lobby[];
@@ -48,9 +48,6 @@ export default class Guild extends Model<Guild> {
     @Column
     public premium: boolean; // idk mb unused in future
 
-    // @HasMany(() => User)
-    // public blacklist: User[]; // User blacklist
-    // @Column(DataType.ARRAY(DataType.UUID))
     @BelongsToMany(() => User, () => GuildBlacklist)
     public blacklist: User[];
 

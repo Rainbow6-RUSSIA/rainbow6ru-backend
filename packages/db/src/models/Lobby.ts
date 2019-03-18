@@ -5,7 +5,7 @@ import User from './User';
 
 import { Snowflake } from 'discord.js';
 
-@Table({schema: 'siegebot'})
+@Table({schema: 'siegebot', timestamps: true})
 export default class Lobby extends Model<Lobby> {
     @Column
     public description: string;

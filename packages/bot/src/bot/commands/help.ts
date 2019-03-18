@@ -8,7 +8,7 @@ export default class Help extends Command {
             cooldown: 5000,
         });
     }
-    public exec = async (message: Message) => {
+    public async exec(message: Message) {
         return message.reply('some help');
     }
 }

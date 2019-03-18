@@ -15,19 +15,22 @@ export enum MATCH_TYPE {
   BO5 = 'bo5',
   BO7 = 'bo7',
 }
-// class Utils {
 
-// }
+export function emojiNumbers(n: number) {
+  return ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇺', '🇻', '🇼', '🇽', '🇾', '🇿'].slice(0, n);
+}
 
 export async function combinedPrompt(prompt: Message, options: {
   emojis?: string[] | EmojiResolvable[],
   texts?: Array<string | string[]>,
-  message: Message,
+  author: User,
   time?: number,
   keep?: boolean,
 }): Promise<number> {
-  const { author } = options.message;
+  const { author } = options;
   const time = options.time || 5 * 60 * 1000;
+  options.emojis = options.emojis || [];
+  options.texts = options.texts || [];
 
   (async () => {
     for (const e of options.emojis) {
@@ -50,16 +53,17 @@ export async function combinedPrompt(prompt: Message, options: {
   };
 
   const race = await Promise.race([prompt.awaitReactions(emojiFilter, { max: 1, time }), prompt.channel.awaitMessages(textFilter, { max: 1, time })]);
-  const result = race.first();
+  const result = race.first() as any;
   if (!options.keep) {
     prompt.delete({timeout: 5000});
   }
-  if (result instanceof Message) {
+  // console.log({result}, result instanceof Message, result instanceof MessageReaction)
+  if (result && result.channel) {
     return options.texts.findIndex(([...t]) =>
     t.some((txt) =>
       result.content.toLowerCase().includes(txt),
     ));
-  } else if (result instanceof MessageReaction) {
+  } else if (result && result.message) {
     return options.emojis.indexOf(result.emoji.id || result.emoji.name);
   } else {
     return -1;

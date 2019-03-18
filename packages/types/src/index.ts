@@ -17,17 +17,11 @@ export interface IHistoryRecord {
     timestamp: number;
 }
 
-export interface IRankArgs {
-    genome: UUID;
-    nickname: string;
-    target: Discord.GuildMember;
-    bound: IUbiBound;
-}
-
 export interface IUbiBound {
     nickname?: string;
     genome?: string;
     err?: Error;
+    platform?: PLATFORM;
 }
 
 export enum VERIFICATION_LEVEL {
@@ -44,9 +38,9 @@ export enum PLATFORM {
 }
 
 export enum REGIONS {
-    APAC = 'apac',
-    EMEA = 'emea',
-    NCSA = 'ncsa',
+    A_EMEA = 'emea',
+    B_APAC = 'apac',
+    C_NCSA = 'ncsa',
 }
 
 export enum MATCH_TYPE {
@@ -58,12 +52,12 @@ export enum MATCH_TYPE {
 }
 
 export enum RANKS {
-    UNRANKED,
-    COPPER4, COPPER3, COPPER2, COPPER1,
-    BRONZE4, BRONZE3, BRONZE2, BRONZE1,
-    SILVER4, SILVER3, SILVER2, SILVER1,
-    GOLD4, GOLD3, GOLD2, GOLD1,
-    PLATINUM3, PLATINUM2, PLATINUM1, DIAMOND,
+    'Unranked',
+    'Copper IV', 'Copper III', 'Copper II', 'Copper I',
+    'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
+    'Silver IV', 'Silver III', 'Silver II', 'Silver I',
+    'Gold IV', 'Gold III', 'Gold II', 'Gold I',
+    'Platinum III', 'Platinum II', 'Platinum I', 'Diamond',
 }
 
 export enum ACCESS {

@@ -6,23 +6,25 @@ import { $enum } from 'ts-enum-util';
 import { Guild, User } from '@r6ru/db';
 import r6api from '../../r6api';
 
-import { IRankArgs, ONLINE_TRACKER, PLATFORM, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { IUbiBound, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import ENV from '../../utils/env';
-import { embeds } from '../../utils/utils';
-import ubiGenome from '../types/ubiGenome';
+import { embeds, syncMember } from '../../utils/utils';
 import ubiGenomeFromNickname from '../types/ubiGenomeFromNickname';
 // import ubiNickname from '../types/ubiNickname';
+
+interface IRankArgs {
+    genome: UUID;
+    nickname: string;
+    target: GuildMember;
+    bound: IUbiBound;
+}
 
 export default class Rank extends Command {
     public constructor() {
         super('rank', {
             aliases: ['rank', 'rang', 'R'],
             args: [{
-                id: 'genome',
-                type: ubiGenome,
-                unordered: true,
-            }, {
                 id: 'bound',
                 prompt: {
                     ended: 'Слишком много попыток. Проверьте правильность и начните регистрацию сначала.',
@@ -47,39 +49,34 @@ export default class Rank extends Command {
     public async exec(message: Message, args: IRankArgs) {
         console.log('[Log] rank called');
         try {
-            const { genome } = args;
-            let { bound, target } = args;
-            console.log(bound, genome, target);
-            const { member, channel } = message;
+            const { bound } = args;
+            let { target } = args;
+            // console.log(bound, target);
+            const { member } = message;
 
             if (bound && bound.err) {
                 throw bound.err;
             }
+            const GInst = await Guild.findByPk(message.guild.id);
+            const { platformRoles } = GInst;
 
-            if (genome) {
-                const currentName = (await r6api.getCurrentName(genome))[0];
-                bound = {
-                    genome: currentName.userId,
-                    nickname: currentName.name,
-                };
-            }
+            let adminAction: boolean = null;
 
-            // tslint:disable-next-line:max-classes-per-file
-            class UU extends User {}
-            let UInst: UU = null;
-
-            if (target && member !== target && member.hasPermission('MANAGE_ROLES')) {
-                console.log('admin registering');
-                UInst = await User.findById(target.id);
-                if (UInst && UInst.genome) {
-                    return message.reply(`пользователь уже зарегистрирован!`);
-                }
-            } else if (target && member !== target) {
+            if (target && member.id !== target.id && member.hasPermission('MANAGE_ROLES')) {
+                adminAction = true;
+            } else if (target && member.id !== target.id) {
                 return message.reply('регистрация других пользователей доступна **только администрации**');
             } else {
+                adminAction = false;
                 target = member;
-                UInst = await User.findById(target.id);
-                if (UInst && UInst.genome) {
+            }
+
+            let UInst = await User.findByPk(target.id);
+
+            if (UInst && UInst.genome) {
+                if (adminAction) {
+                    return message.reply(`пользователь уже зарегистрирован!`);
+                } else {
                     return message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
                         humanizeDuration(
                             (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(UInst.updatedAt).valueOf() - Date.now(),
@@ -89,22 +86,28 @@ export default class Rank extends Command {
                 }
             }
 
-            const { platformRoles } = await Guild.findById((channel as TextChannel).guild.id);
             const currentRoles = target.roles.keyArray();
             const platform = {
                 PC: currentRoles.includes(platformRoles.PC),
                 PS4: currentRoles.includes(platformRoles.PS4),
                 XBOX: currentRoles.includes(platformRoles.XBOX),
             };
-            const rawRank = (await r6api.getRanks(bound.genome))[0];
-            // console.log("​Rank -> publicexec -> rawRank", rawRank)
-            const regionRank = $enum(REGIONS).map((r) => rawRank[r].rank);
-            // console.log("​Rank -> publicexec -> regionRank", regionRank)
-            const mainRegion = $enum(REGIONS).map((e) => e)[regionRank.indexOf(Math.max(...regionRank))] as REGIONS;
-            // console.log("​Rank -> publicexec -> mainRegion", mainRegion)
-            const stats = (await r6api.getStats(bound.genome))[0];
-            // console.log("​Rank -> publicexec -> rawRank[mainRegion]", rawRank[mainRegion])
+            const activePlatform = $enum(PLATFORM).getValues().find((p) => platform[p]);
+            if ((activePlatform !== bound.platform) && !adminAction) {
+                    return message.reply('выбранная вами платформа не совпадает с платформой указанного аккаунта!');
+            }
+            const rawRank = (await r6api.getRank(bound.platform, bound.genome))[bound.genome];
 
+            // console.log('​Rank -> publicexec -> rawRank', rawRank);
+            const regionRank = $enum(REGIONS).getValues().map((r) => rawRank[r].rank);
+            // console.log('​Rank -> publicexec -> regionRank', regionRank);
+            const mainRegion = $enum(REGIONS).getValues()[regionRank.indexOf(Math.max(...regionRank))];
+            // console.log('TCL: Rank -> publicexec -> $enum(REGIONS).getValues()', $enum(REGIONS).getValues());
+            // console.log('TCL: Rank -> publicexec -> REGIONS', REGIONS);
+            // console.log('​Rank -> publicexec -> mainRegion', mainRegion);
+            const stats = (await r6api.getStats(bound.platform, bound.genome, {general: '*'}))[bound.genome];
+            // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);
+            platform[bound.platform] = true;
             UInst = new User({
                 genome: bound.genome,
                 genomeHistory: [{record: bound.genome, timestamp: Date.now()}],
@@ -113,9 +116,9 @@ export default class Rank extends Command {
                 nicknameHistory: [{record: bound.nickname, timestamp: Date.now()}],
                 platform,
                 rank: rawRank[mainRegion].rank,
-                region: REGIONS[mainRegion],
+                region: mainRegion,
                 requiredVerification:
-                    (Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 ? VERIFICATION_LEVEL.R6DB
+                    ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter) ? GInst.requiredVerification
                         : VERIFICATION_LEVEL.NONE,
                 verificationLevel:
                     (target.nickname || '').includes(bound.nickname) ||
@@ -124,10 +127,10 @@ export default class Rank extends Command {
             });
 
             const prompt = await combinedPrompt(
-                await message.reply(`игрок с ником **${bound.nickname}** найден, это верный профиль?`, { embed: embeds.rank(bound, stats) }) as Message,
+                await message.reply(`игрок с ником **${bound.nickname}** найден, это верный профиль?`, { embed: embeds.rank(bound, stats.general) }) as Message,
                 {
+                    author: message.author,
                     emojis: ['✅', '❎'],
-                    message,
                     texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
                 },
             );
@@ -136,14 +139,16 @@ export default class Rank extends Command {
                 case 1: return message.reply('вы отклонили регистрацию. Попробуйте снова, указав нужный аккаунт.');
                 case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
                 case 0: {
-                    UInst.save();
+                    await UInst.save();
+                    syncMember(GInst, UInst);
+                    return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\``);
                 }
             }
-            // UInst.pushGenome(bound.genome);
-            // UInst.pushNickname(bound.nickname);
 
         } catch (err) {
-            return message.reply(`Ошибка: \`\`\`js\n${err.stack}\`\`\``);
+            const code = Math.random().toString(36).substring(2, 6);
+            [...this.client.ownerID].map(async (id) => (await this.client.users.fetch(id)).send(`Ошибка: \`\`\`js\n${err.stack}\`\`\`Код: \`${code}\``));
+            return message.reply(`произошла ошибка! Код: \`${code}\` (данные для поддержки)`);
         }
     }
 }
