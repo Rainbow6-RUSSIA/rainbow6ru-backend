@@ -15,13 +15,17 @@ export default class Help extends Command {
     public async exec(message: Message) {
         const UInst = await User.findByPk(message.author.id);
         if (UInst && UInst.genome) {
-            if (await verify(UInst.genome, message.author.id)) {
-                UInst.verificationLevel = VERIFICATION_LEVEL.QR;
-                UInst.inactive = false;
-                UInst.save();
-                return message.reply('Вы успешно подтвердили свой аккаунт!');
-            } else {
-                return message.reply('Неккоректный QR-код!');
+            try {
+                if (await verify(UInst.genome, message.author.id)) {
+                    UInst.verificationLevel = VERIFICATION_LEVEL.QR;
+                    UInst.inactive = false;
+                    UInst.save();
+                    return message.reply('Вы успешно подтвердили свой аккаунт!');
+                } else {
+                    return message.reply('Неккоректный QR-код!');
+                }
+            } catch (err) {
+                return message.reply('QR-код не установлен!');
             }
         } else {
             return message.reply('Вы должны сначала зарегистрироваться!');
