@@ -90,7 +90,7 @@ export default class Info extends Command {
                 return message.reply(!U3.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U3.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
             default:
                 const U4 = await U.findByPk(message.author.id);
-                return message.reply(U4 ? `показан ваш профиль, так как по запросу ничего не найдено: ${ONLINE_TRACKER}${U0.genome}` : 'по вашему запросу ничего не найдено!');
+                return message.reply(U4 ? `показан ваш профиль, так как по запросу ничего не найдено: ${ONLINE_TRACKER}${U4.genome}` : 'по вашему запросу ничего не найдено!');
         }
     }
 }
