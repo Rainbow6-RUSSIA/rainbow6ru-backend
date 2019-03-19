@@ -5,7 +5,6 @@ import { createHash } from 'crypto';
 import readerQR from 'jsqr';
 import fetch from 'node-fetch';
 import { PNG } from 'pngjs';
-import { promisify } from 'util';
 import ENV from './env';
 
 const png = new PNG();

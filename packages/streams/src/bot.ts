@@ -13,7 +13,7 @@ class Bot extends AkairoClient {
         const loadFilter = (path) => /^.*\.js$/g.test(path);
 
         this.commandHandler = new CommandHandler(this, {
-            directory: './build/commands',
+            directory: __dirname + '/commands',
             loadFilter,
             prefix: ENV.PREFIX,
             allowMention: true,
@@ -21,11 +21,11 @@ class Bot extends AkairoClient {
         });
 
         this.inhibitorHandler = new InhibitorHandler(this, {
-            directory: './build/inhibitors/',
+            directory: __dirname + '/inhibitors/',
             loadFilter,
         });
         this.listenerHandler = new ListenerHandler(this, {
-            directory: './build/listeners/',
+            directory: __dirname + '/listeners/',
             loadFilter,
         });
 
