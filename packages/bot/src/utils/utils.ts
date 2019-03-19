@@ -52,7 +52,7 @@ export async function syncMember(dbGuild: G, dbUser: U) {
       console.log(`[BOT] User ${member.user.tag} updated!`);
     } else if (currentRankRoles.length === 1) {
       const currentRank = dbGuild.rankRoles.indexOf(currentRankRoles[0]);
-      if (dbUser.rank > currentRank || (currentRank < dbGuild.fixAfter && currentRank !== dbUser.rank) || dbUser.rank === 0) {
+      if ((dbUser.rank > currentRank || currentRank < dbGuild.fixAfter || dbUser.rank === 0) && currentRank !== dbUser.rank) {
         await member.roles.remove(dbGuild.rankRoles[currentRank], 'удаляю роли перед обновлением...');
         await member.roles.add(dbGuild.rankRoles[dbUser.rank], '...готово');
         console.log(`[BOT] User ${member.user.tag} updated!`);
