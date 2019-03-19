@@ -34,7 +34,7 @@ export default class Rank extends Command {
                     time: 30000,
                     timeout: 'Время вышло. Начните регистрацию сначала.',
                 },
-                type: ubiGenomeFromNickname, // префетч - это слишком пиздато, при ошибках причину хуй поймешь
+                type: ubiGenomeFromNickname,
                 unordered: true,
             }, {
                 id: 'target',
@@ -108,7 +108,7 @@ export default class Rank extends Command {
             // console.log('​Rank -> publicexec -> mainRegion', mainRegion);
             const stats = (await r6api.getStats(bound.platform, bound.genome, {general: '*'}))[bound.genome];
 
-            if (!stats.general) {
+            if (!(stats && stats.general)) {
                 return message.reply('указанный аккаунт не имеет Rainbow Six Siege');
             }
             // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);
