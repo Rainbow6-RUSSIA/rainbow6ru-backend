@@ -2,9 +2,9 @@ import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 
 import ENV from './utils/env';
 
 class Bot extends AkairoClient {
-    private commandHandler;
-    private inhibitorHandler;
-    private listenerHandler;
+    private commandHandler: CommandHandler;
+    private inhibitorHandler: InhibitorHandler;
+    private listenerHandler: ListenerHandler;
     constructor() {
         super({
             ownerID: process.env.OWNERS.split(','),
@@ -13,7 +13,7 @@ class Bot extends AkairoClient {
         this.commandHandler = new CommandHandler(this, {
             allowMention: true,
             defaultCooldown: 1000,
-            directory: './build/bot/commands/',
+            directory: __dirname + '/bot/commands/',
             fetchMembers: true,
             loadFilter: (path) => path.split('.').pop() === 'js',
             prefix: ENV.PREFIX,
@@ -24,11 +24,11 @@ class Bot extends AkairoClient {
         // this.commandHandler.resolver.addType('ubi_nickname', ubiNickname);
 
         this.inhibitorHandler = new InhibitorHandler(this, {
-            directory: './build/bot/inhibitors/',
+            directory: __dirname + '/bot/inhibitors/',
             loadFilter: (path) => path.split('.').pop() === 'js',
         });
         this.listenerHandler = new ListenerHandler(this, {
-            directory: './build/bot/listeners/',
+            directory: __dirname + '/bot/listeners/',
             loadFilter: (path) => path.split('.').pop() === 'js',
         });
         this.listenerHandler.setEmitters({
