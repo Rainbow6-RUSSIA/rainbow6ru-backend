@@ -37,7 +37,8 @@
 		"restify": "^8.1.0",
 		"restify-errors": "^7.0.0",
 		"sequelize": "^4.43.0",
-		"sequelize-typescript": "^0.6.6"
+		"sequelize-typescript": "^0.6.6",
+		"ts-enum-util": "^3.1.0"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^3.0.0",
@@ -56,7 +57,6 @@
 		"bluebird": "^3.5.3",
 		"cross-env": "^5.2.0",
 		"redis": "^2.8.0",
-		"ts-enum-util": "^3.1.0",
 		"tsc-watch": "^2.1.2",
 		"tslint": "^5.13.1",
 		"typescript": "^3.3.3333"
