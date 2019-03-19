@@ -4,12 +4,13 @@
   "main": "bootstrap.js",
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build",
+    "build": "lerna run build --parallel",
     "postinstall": "yarn bootstrap && yarn build"
   },
   "engines": {
     "node": "10.15.x",
-    "yarn": "1.13.x"
+    "yarn": "1.13.x",
+    "npm": "6.4.x"
   },
   "dependencies": {
     "lerna": "^3.13.1",
