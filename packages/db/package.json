@@ -24,6 +24,7 @@
     "@types/sequelize": "^4.27.34",
     "@types/socket.io": "^2.1.2",
     "cross-env": "^5.2.0",
+    "typescript": "^3.3.3333",
     "tslint": "^5.12.1"
   }
 }
