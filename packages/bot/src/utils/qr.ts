@@ -14,7 +14,7 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
         new AwesomeQRCode().create({
             autoColor: false,
             backgroundDimming: 'rgba(0,0,0,0)',
-            backgroundImage: './assets/r6rus.png',
+            backgroundImage: __dirname + '/../../assets/r6rus.png',
             borderDark : 'rgba(0, 0, 0, .1)',
             borderLight : 'rgba(255, 255, 255, .1)',
             callback: (data) => {
