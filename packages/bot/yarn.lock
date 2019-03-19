@@ -4,7 +4,7 @@
 
 "@r6s.media/r6.api@https://github.com/BadCoder1337/r6api":
   version "1.5.6"
-  resolved "https://github.com/BadCoder1337/r6api#af84cc4ea025df46000db30d167e1ff6bd69e002"
+  resolved "https://github.com/BadCoder1337/r6api#23c359c64be4fae6b3ee0be17e7b2e3718aaec17"
   dependencies:
     bluebird "^3.5.3"
     lodash.merge "^4.6.0"
