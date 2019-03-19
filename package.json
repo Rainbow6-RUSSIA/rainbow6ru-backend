@@ -4,7 +4,7 @@
   "main": "bootstrap.js",
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --parallel",
+    "build": "lerna run build",
     "postinstall": "yarn bootstrap && yarn build"
   },
   "engines": {
