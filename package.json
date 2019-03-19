@@ -5,7 +5,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
-    "postinstall": "yarn bootstrap && yarn build"
+    "postinstall": "yarn bootstrap && yarn build",
+    "start": "node bootstrap.js"
   },
   "engines": {
     "node": "10.15.x",
