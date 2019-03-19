@@ -107,6 +107,10 @@ export default class Rank extends Command {
             // console.log('TCL: Rank -> publicexec -> REGIONS', REGIONS);
             // console.log('​Rank -> publicexec -> mainRegion', mainRegion);
             const stats = (await r6api.getStats(bound.platform, bound.genome, {general: '*'}))[bound.genome];
+
+            if (!stats.general) {
+                return message.reply('указанный аккаунт не имеет Rainbow Six Siege');
+            }
             // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);
             platform[bound.platform] = true;
             UInst = new User({

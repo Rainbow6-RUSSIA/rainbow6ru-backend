@@ -79,7 +79,8 @@ export async function syncRoles() {
   guilds.map((g) => console.log('[BOT] Syncing ' + bot.guilds.get(g.id).name));
   const usersAtPlatforms = await Promise.all($enum(PLATFORM).getValues().map((p) => syncRank(p)));
   const users = usersAtPlatforms.reduce((acc, val) => acc.concat(val), []);
-  await Promise.all(guilds.map((g) => users.map((u) => syncMember(g, u))).reduce((acc, val) => acc.concat(val), []));
+  await Promise.all(guilds.map((g) => bot.guilds.get(g.id).members.fetch()));
+  await Promise.all(guilds.map((g) => users.filter((u) => bot.guilds.get(g.id).members.has(u.id)).map((u) => syncMember(g, u))).reduce((acc, val) => acc.concat(val), []));
 }
 
 export const embeds = {
