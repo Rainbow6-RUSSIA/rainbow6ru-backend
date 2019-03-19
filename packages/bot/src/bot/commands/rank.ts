@@ -77,6 +77,7 @@ export default class Rank extends Command {
                 if (adminAction) {
                     return message.reply(`пользователь уже зарегистрирован!`);
                 } else {
+                    syncMember(GInst, UInst);
                     return message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
                         humanizeDuration(
                             (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(UInst.updatedAt).valueOf() - Date.now(),
