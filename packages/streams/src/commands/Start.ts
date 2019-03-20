@@ -60,6 +60,7 @@ export default class Start extends Command {
                     await match.reload();
                     await match.save();
                     io.to(match.id + '/map_vote').emit('swap', match.toJSON());
+                    io.to(match.id + '/header').emit('swap', match.toJSON());
                     console.log('After...', [match.team0.dataValues, match.team1.dataValues]);
                 }
             }

@@ -97,11 +97,15 @@ export default class Create extends Command {
         const match = await Match.create<Match>({
             matchType: MATCH_TYPE[args.matchType.toUpperCase()],
             legacy: args.legacy === 'no',
+            mapScore: [0, 0],
         });
         match.$set('creator', await User.findByPk(message.author.id));
         match.$set('pool', dbPool);
         match.$set('team0', dbTeam0);
         match.$set('team1', dbTeam1);
+        await match.updateAttributes({
+            poolCache: match.pool.map((p) => p.toJSON()),
+        });
         message.reply(`матч создан, id: \`${match.id}\``);
     }
 }
