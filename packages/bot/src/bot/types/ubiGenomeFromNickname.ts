@@ -9,7 +9,7 @@ export default async (phrase: string): Promise<IUbiBound | null> => {
         try {
             const platforms = $enum(PLATFORM).getValues();
             const profiles = (await Promise.all(platforms.map((p) => r6api.findByName(p, phrase)))).map((p, i) => ({profile: Object.values(p)[0], platform: platforms[i]})).filter((p) => p.profile);
-            if (!profiles.length) {
+            if (profiles.length) {
                 return {
                     genome: profiles[0].profile.id,
                     nickname: profiles[0].profile.name,
