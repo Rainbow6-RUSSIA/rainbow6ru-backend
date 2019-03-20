@@ -94,7 +94,7 @@ export default class Rank extends Command {
                 XBOX: currentRoles.includes(platformRoles.XBOX),
             };
             const activePlatform = $enum(PLATFORM).getValues().find((p) => platform[p]);
-            if ((activePlatform !== bound.platform) && !adminAction) {
+            if ((!adminAction) && (activePlatform !== bound.platform)) {
                     return message.reply('выбранная вами платформа не совпадает с платформой указанного аккаунта!');
             }
             const rawRank = (await r6api.getRank(bound.platform, bound.genome))[bound.genome];
