@@ -115,10 +115,8 @@ export default class Rank extends Command {
             platform[bound.platform] = true;
             UInst = new User({
                 genome: bound.genome,
-                genomeHistory: [bound.genome],
                 id: target.id,
                 nickname: bound.nickname,
-                nicknameHistory: [bound.nickname.toLowerCase()],
                 platform,
                 rank: rawRank[mainRegion].rank,
                 region: mainRegion,

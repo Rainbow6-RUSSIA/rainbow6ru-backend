@@ -73,7 +73,7 @@ export default class Info extends Command {
                         {nickname},
                         {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
                         {genome: genomes},
-                        {genomeHistory: {[Op.contains]: [genomes]}},
+                        {genomeHistory: {[Op.contains]: genomes}},
                     ],
                 }});
                 return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);

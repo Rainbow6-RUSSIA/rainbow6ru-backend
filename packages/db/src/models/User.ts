@@ -1,5 +1,5 @@
 import { ACCESS, IHistoryRecord, RANKS, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
-import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
+import { BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
 import Guild from './Guild';
 import GuildBlacklist from './GuildBlacklist';
@@ -11,6 +11,22 @@ import Match from './Match';
 
 @Table({schema: 'siegebot', timestamps: true})
 export default class User extends Model<User> {
+    @BeforeCreate
+    public static initHistory(instance: User) {
+        instance.genomeHistory = [instance.genome];
+        instance.nicknameHistory = [instance.nickname.toLowerCase()];
+    }
+
+    @BeforeUpdate
+    public static addHistory(instance: User) {
+        if (!instance.genomeHistory.includes(instance.genome)) {
+            instance.genomeHistory = [...instance.genomeHistory, instance.genome];
+        }
+        if (!instance.nicknameHistory.includes(instance.nickname.toLowerCase())) {
+            instance.nicknameHistory = [...instance.nicknameHistory, instance.nickname.toLowerCase()];
+        }
+    }
+
     @PrimaryKey
     @Column(DataType.STRING)
     public id: Snowflake; // discord snowflake
@@ -76,23 +92,4 @@ export default class User extends Model<User> {
     @Column(DataType.FLOAT)
     public karma: number;
 
-    public pushGenome = (genome: string): void => {
-        const old = this.getDataValue('genomeHistory') as IHistoryRecord[] || [];
-        if (!old.some((r) => r.record === genome)) {
-            this.setDataValue('genomeHistory', old.push({
-                record: genome,
-                timestamp: Date.now(),
-            }));
-        }
-    }
-
-    public pushNickname = (nickname: string): void => {
-        const old = this.getDataValue('nicknameHistory') as IHistoryRecord[] || [];
-        if (!old.some((r) => r.record === nickname)) {
-            this.setDataValue('nicknameHistory', old.push({
-                record: nickname,
-                timestamp: Date.now(),
-            }));
-        }
-    }
 }
