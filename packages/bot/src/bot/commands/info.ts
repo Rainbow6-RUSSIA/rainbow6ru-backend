@@ -2,9 +2,11 @@ import { ArgumentOptions , Command } from 'discord-akairo';
 import { Message, MessageReaction, ReactionEmoji, User } from 'discord.js';
 
 import { User as U } from '@r6ru/db';
-import { ONLINE_TRACKER, UUID } from '@r6ru/types';
+import { ONLINE_TRACKER, PLATFORM, UUID } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Op } from 'sequelize';
+import { $enum } from 'ts-enum-util';
+import r6api from '../../r6api';
 // import r6api from '../../r6api';
 import ubiGenome from '../types/ubiGenome';
 import ubiNickname from '../types/ubiNickname';
@@ -65,14 +67,13 @@ export default class Info extends Command {
                 const U1 = await U.findByPk(user.id);
                 return message.reply(U1 ? `профиль <@${user.id}>: ${ONLINE_TRACKER}${U1.genome}` : 'пользователь не найден!');
             case !nickname:
+                const genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
                 const U2 = await U.findAll({where: {
                     [Op.or]: [
                         {nickname},
-                        {nicknameHistory: {
-                            [Op.contains]: [{
-                                record: nickname,
-                            }],
-                        }},
+                        {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
+                        {genome: genomes},
+                        {genomeHistory: {[Op.contains]: [genomes]}},
                     ],
                 }});
                 return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
@@ -80,11 +81,7 @@ export default class Info extends Command {
                 const U3 = await U.findAll({where: {
                     [Op.or]: [
                         {genome},
-                        {genomeHistory: {
-                            [Op.contains]: [{
-                                record: genome,
-                            }],
-                        }},
+                        {genomeHistory: {[Op.contains]: [genome]}},
                     ],
                 }});
                 return message.reply(!U3.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U3.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);

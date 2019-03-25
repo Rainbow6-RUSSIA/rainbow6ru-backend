@@ -1,6 +1,6 @@
 import { Guild as G, User as U } from '@r6ru/db';
 import { IUbiBound, ONLINE_TRACKER, PLATFORM } from '@r6ru/types';
-import { MessageAttachment } from 'discord.js';
+import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import bot from '../bot';
 import r6api from '../r6api';
@@ -26,8 +26,18 @@ export async function syncRank(platform: PLATFORM) {
 export async function syncMember(dbGuild: G, dbUser: U) {
     if (!dbGuild || !dbUser) { return false; }
     const guild = bot.guilds.get(dbGuild.id);
-    const member = await guild.members.fetch(dbUser.id);
-    if (!member) { return false; }
+    if (!guild.available) { return false; }
+
+    let member: GuildMember = null;
+    try {
+      member = await guild.members.fetch(dbUser.id);
+      if (!member) { throw new Error(); }
+    } catch (err) {
+      dbUser.inactive = true;
+      await dbUser.save();
+      return false;
+    }
+
     if (dbUser.verificationLevel < dbGuild.requiredVerification || dbUser.verificationLevel < dbUser.requiredVerification) {
       dbUser.inactive = true;
       await dbUser.save();
@@ -38,7 +48,6 @@ export async function syncMember(dbGuild: G, dbUser: U) {
         );
       return false;
     }
-    if (!guild.available) { return false; }
 
     // console.log(dbUser.rank, dbUser.platform, dbGuild.rankRoles[dbUser.rank]);
 
@@ -52,7 +61,7 @@ export async function syncMember(dbGuild: G, dbUser: U) {
       console.log(`[BOT] User ${member.user.tag} updated!`);
     } else if (currentRankRoles.length === 1) {
       const currentRank = dbGuild.rankRoles.indexOf(currentRankRoles[0]);
-      if ((dbUser.rank > currentRank || currentRank < dbGuild.fixAfter || dbUser.rank === 0) && currentRank !== dbUser.rank) {
+      if ((dbUser.rank > currentRank || currentRank < dbGuild.fixAfter || dbUser.rank === 0) && currentRankRoles[0] !== dbGuild.rankRoles[dbUser.rank]) {
         await member.roles.remove(dbGuild.rankRoles[currentRank], 'удаляю роли перед обновлением...');
         await member.roles.add(dbGuild.rankRoles[dbUser.rank], '...готово');
         console.log(`[BOT] User ${member.user.tag} updated!`);

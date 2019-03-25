@@ -18,14 +18,14 @@ export default class User extends Model<User> {
     @Column(DataType.UUID)
     public genome: string;
 
-    @Column(DataType.ARRAY(DataType.JSONB))
-    public genomeHistory: IHistoryRecord[];
+    @Column(DataType.ARRAY(DataType.UUID))
+    public genomeHistory: string[];
 
     @Column(DataType.STRING(15))
     public nickname: string;
 
-    @Column(DataType.ARRAY(DataType.JSONB))
-    public nicknameHistory: IHistoryRecord[];
+    @Column(DataType.ARRAY(DataType.STRING(15)))
+    public nicknameHistory: string[];
 
     @Column
     public inactive: boolean;

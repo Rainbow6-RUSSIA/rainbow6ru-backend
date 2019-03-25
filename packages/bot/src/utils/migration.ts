@@ -1,7 +1,7 @@
 // import * as dotenv from 'dotenv';
 // dotenv.config();
 
-// import { Guild, User } from '@r6ru/db';
+import { Guild, User } from '@r6ru/db';
 // import { GetRankedResponse } from '@r6s.media/r6.api/build/Types';
 // // import { ENV } from '@r6ru/types';
 // import { promisifyAll } from 'bluebird';
@@ -147,4 +147,14 @@
 
 // }
 
-// main().catch(console.log);
+async function main() {
+    const Users = await User.findAll();
+    for (const u of Users) {
+        u.nicknameHistory = [u.nickname.toLowerCase()];
+        u.genomeHistory = [u.genome];
+        await u.save();
+    }
+    console.log('Done');
+}
+
+main().catch(console.log);
