@@ -19,6 +19,7 @@ export async function syncRank(platform: PLATFORM) {
     const res = await r6api.getRank(platform, UInsts.map((u) => u.genome));
     return Promise.all(UInsts.map((u) => {
       u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
+      u.updatedAt = new Date();
       return u.save();
     }));
 }

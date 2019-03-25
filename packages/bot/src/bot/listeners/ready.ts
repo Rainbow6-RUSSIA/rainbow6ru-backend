@@ -63,8 +63,10 @@ export default class Ready extends Listener {
             ],
         });
 
-        console.log('[BOT] Updating scheduled');
-        setInterval(syncRoles, parseInt(ENV.COOLDOWN));
+        if (ENV.NODE_ENV !== 'development') {
+            console.log('[BOT] Updating scheduled');
+            setInterval(syncRoles, parseInt(ENV.COOLDOWN));
+        }
 
     }
 }

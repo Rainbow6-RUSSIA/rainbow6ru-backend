@@ -19,7 +19,7 @@ export default class Info extends Command {
             aliases: ['info', 'I'],
             args: [{
                     id: 'user',
-                    type: 'relevant',
+                    type: 'user',
                     unordered: true,
                 }, {
                     id: 'genome',

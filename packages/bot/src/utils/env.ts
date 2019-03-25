@@ -19,6 +19,7 @@ class IDefaultEnv extends IEnv {
     public DISCORD_ID = '';
     public PORT = '';
     public REDIS_DB = '';
+    public NODE_ENV = '';
 }
 
 for (const key in new IEnv()) {
