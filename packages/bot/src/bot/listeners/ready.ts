@@ -65,7 +65,12 @@ export default class Ready extends Listener {
 
         if (ENV.NODE_ENV !== 'development') {
             console.log('[BOT] Updating scheduled');
-            setInterval(syncRoles, parseInt(ENV.COOLDOWN));
+            while (true) {
+                await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+                console.log('[BOT] Starting update');
+                await syncRoles();
+                console.log('[BOT] Updating done');
+            }
         }
 
     }

@@ -80,7 +80,7 @@ export default class Rank extends Command {
                     syncMember(GInst, UInst);
                     return message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
                         humanizeDuration(
-                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(UInst.updatedAt).valueOf() - Date.now(),
+                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(UInst.rankUpdatedAt).valueOf() - Date.now(),
                             {conjunction: ' и ', language: 'ru', round: true},
                         )
                     }\``);
@@ -119,6 +119,7 @@ export default class Rank extends Command {
                 nickname: bound.nickname,
                 platform,
                 rank: rawRank[mainRegion].rank,
+                rankUpdatedAt: new Date(),
                 region: mainRegion,
                 requiredVerification:
                     ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter) ? GInst.requiredVerification

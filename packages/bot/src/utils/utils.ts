@@ -28,16 +28,17 @@ export async function syncRank(platform: PLATFORM) {
   const UInsts = await U.findAll({
     limit: parseInt(ENV.PACK_SIZE),
     order: [['rankUpdatedAt', 'ASC']],
-    where: {inactive: false, platform: {
-      [platform]: true,
-    }},
+    where: {
+      inactive: false,
+      platform: {[platform]: true}},
   });
+  // console.log(UInsts.map((u) => u.nickname).join(', '));
   if (!UInsts.length) { return []; }
   const res = await r6api.getRank(platform, UInsts.map((u) => u.genome));
   return Promise.all(UInsts.map((u) => {
     u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
     u.rankUpdatedAt = new Date();
-    return u.save();
+    return u.save({silent: true});
   }));
 }
 
