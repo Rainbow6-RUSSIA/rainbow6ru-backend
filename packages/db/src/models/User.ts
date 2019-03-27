@@ -44,6 +44,9 @@ export default class User extends Model<User> {
     public nicknameHistory: string[];
 
     @Column
+    public rankUpdatedAt: Date;
+
+    @Column
     public inactive: boolean;
 
     @ForeignKey(() => Lobby)

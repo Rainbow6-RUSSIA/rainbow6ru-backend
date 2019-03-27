@@ -49,7 +49,7 @@ export let pool: string[];
 
 MapR6.findAll({where: {
     id: {
-        [Op.ne]: '',
+        $ne: '',
     },
 }}).then((maps) => {
     pool = maps.map((map) => map.id);

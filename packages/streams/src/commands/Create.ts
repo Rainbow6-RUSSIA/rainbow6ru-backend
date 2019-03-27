@@ -81,7 +81,7 @@ export default class Create extends Command {
         // console.log(args);
         const dbPool = await MapR6.findAll({
             where: {
-                id: {[Op.or]: args.pool},
+                id: args.pool,
             },
         });
         if (dbPool.length % 2 === 0) {

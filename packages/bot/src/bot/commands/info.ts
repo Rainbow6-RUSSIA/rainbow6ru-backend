@@ -69,19 +69,19 @@ export default class Info extends Command {
             case !nickname:
                 const genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
                 const U2 = await U.findAll({where: {
-                    [Op.or]: [
+                    $or: [
                         {nickname},
-                        {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
+                        {nicknameHistory: {$contains: [nickname.toLowerCase()]}},
                         {genome: genomes},
-                        {genomeHistory: {[Op.contains]: genomes}},
+                        {genomeHistory: {$contains: genomes}},
                     ],
                 }});
                 return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
             case !genome:
                 const U3 = await U.findAll({where: {
-                    [Op.or]: [
+                    $or: [
                         {genome},
-                        {genomeHistory: {[Op.contains]: [genome]}},
+                        {genomeHistory: {$contains: [genome]}},
                     ],
                 }});
                 return message.reply(!U3.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U3.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);

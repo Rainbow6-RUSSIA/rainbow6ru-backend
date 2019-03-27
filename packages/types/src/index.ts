@@ -1,6 +1,3 @@
-import * as Discord from 'discord.js';
-// import * as Akairo from 'discord-akairo';
-
 export const RankResolvable = [
     'Unranked',
     'Copper IV', 'Copper III', 'Copper II', 'Copper I',

@@ -8,19 +8,16 @@
     "build": "tsc -p ."
   },
   "devDependencies": {
-    "@types/node": "^10.12.18",
+    "@types/node": "^11.11.7",
     "@types/socket.io": "^2.1.2",
     "cross-env": "^5.2.0",
-    "discord.js": "https://github.com/discordjs/discord.js",
-    "r6api": "https://github.com/BadCoder1337/r6api-fixed",
-    "tslint": "^5.12.1"
+    "tslint": "^5.14.0"
   },
   "dependencies": {
     "@r6ru/utils": "^0.0.0",
-    "dotenv": "^6.2.0",
-    "pg": "^7.8.0",
+    "dotenv": "^7.0.0",
+    "pg": "^7.9.0",
     "reflect-metadata": "^0.1.13",
-    "sequelize": "^4.42.0",
-    "undefined": "https://github.com/1Computer1/discord-akairo.git"
+    "sequelize": "^5.1.1"
   }
 }
