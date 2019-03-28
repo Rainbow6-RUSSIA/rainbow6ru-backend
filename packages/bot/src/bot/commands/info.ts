@@ -6,7 +6,7 @@ import { ONLINE_TRACKER, PLATFORM, UUID } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Op } from 'sequelize';
 import { $enum } from 'ts-enum-util';
-import r6api from '../../r6api';
+import r6 from '../../r6api';
 // import r6api from '../../r6api';
 import ubiGenome from '../types/ubiGenome';
 import ubiNickname from '../types/ubiNickname';
@@ -67,7 +67,7 @@ export default class Info extends Command {
                 const U1 = await U.findByPk(user.id);
                 return message.reply(U1 ? `профиль <@${user.id}>: ${ONLINE_TRACKER}${U1.genome}` : 'пользователь не найден!');
             case !nickname:
-                const genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
+                const genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6.api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
                 const U2 = await U.findAll({where: {
                     $or: [
                         {nickname},

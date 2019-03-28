@@ -3,7 +3,7 @@ import { IUbiBound, ONLINE_TRACKER, PLATFORM } from '@r6ru/types';
 import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import bot from '../bot';
-import r6api from '../r6api';
+import r6 from '../r6api';
 import ENV from '../utils/env';
 import { generate } from './qr';
 
@@ -16,7 +16,7 @@ export async function syncNicknames(platform: PLATFORM) {
     }},
   });
   if (!UInsts.length) { return []; }
-  const res = await r6api.getCurrentName(platform, UInsts.map((u) => u.genome));
+  const res = await r6.api.getCurrentName(platform, UInsts.map((u) => u.genome));
   return Promise.all(UInsts.map((u) => {
     u.nickname = res[u.genome].name;
     u.updatedAt = new Date();
@@ -34,7 +34,7 @@ export async function syncRank(platform: PLATFORM) {
   });
   // console.log(UInsts.map((u) => u.nickname).join(', '));
   if (!UInsts.length) { return []; }
-  const res = await r6api.getRank(platform, UInsts.map((u) => u.genome));
+  const res = await r6.api.getRank(platform, UInsts.map((u) => u.genome));
   return Promise.all(UInsts.map((u) => {
     u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
     u.rankUpdatedAt = new Date();

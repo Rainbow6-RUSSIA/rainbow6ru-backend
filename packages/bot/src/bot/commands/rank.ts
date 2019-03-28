@@ -4,7 +4,7 @@ import * as humanizeDuration from 'humanize-duration';
 import { $enum } from 'ts-enum-util';
 
 import { Guild, User } from '@r6ru/db';
-import r6api from '../../r6api';
+import r6 from '../../r6api';
 
 import { IUbiBound, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
@@ -97,7 +97,7 @@ export default class Rank extends Command {
             if ((!adminAction) && (activePlatform !== bound.platform)) {
                     return message.reply('выбранная вами платформа не совпадает с платформой указанного аккаунта!');
             }
-            const rawRank = (await r6api.getRank(bound.platform, bound.genome))[bound.genome];
+            const rawRank = (await r6.api.getRank(bound.platform, bound.genome))[bound.genome];
 
             // console.log('​Rank -> publicexec -> rawRank', rawRank);
             const regionRank = $enum(REGIONS).getValues().map((r) => rawRank[r].rank);
@@ -106,7 +106,7 @@ export default class Rank extends Command {
             // console.log('TCL: Rank -> publicexec -> $enum(REGIONS).getValues()', $enum(REGIONS).getValues());
             // console.log('TCL: Rank -> publicexec -> REGIONS', REGIONS);
             // console.log('​Rank -> publicexec -> mainRegion', mainRegion);
-            const stats = (await r6api.getStats(bound.platform, bound.genome, {general: '*'}))[bound.genome];
+            const stats = (await r6.api.getStats(bound.platform, bound.genome, {general: '*'}))[bound.genome];
 
             if (!(stats && stats.general)) {
                 return message.reply('указанный аккаунт не имеет Rainbow Six Siege');
