@@ -11,9 +11,14 @@ import r6 from '../../r6api';
 import ubiGenome from '../types/ubiGenome';
 import ubiNickname from '../types/ubiNickname';
 
-const { Op } = Sequelize;
+interface IInfoArgs {
+    user: User | { id: string };
+    genome: UUID;
+    nickname: string;
+    id: { match: RegExpMatchArray };
+}
 
-const emojiPrompt = ['', '1⃣', '2⃣'];
+const { Op } = Sequelize;
 
 export default class Info extends Command {
     public constructor() {
@@ -31,16 +36,19 @@ export default class Info extends Command {
                     id: 'nickname',
                     type: ubiNickname,
                     unordered: true,
+                }, {
+                    id: 'id',
+                    type: /^(?:<@!?)?(\d{17,21})>?$/,
+                    unordered: true,
                 }],
         });
     }
-    public exec = async (message: Message, args: {
-        user: User,
-        genome: UUID,
-        nickname: string,
-    }) => {
+    public async exec(message: Message, args: IInfoArgs) {
         let { user, genome } = args;
-        const { nickname } = args;
+        const { nickname, id } = args;
+        if (!user && id) {
+            user = { id: id.match[0]};
+        }
         if (!(!user || !nickname)) {
             const prompt = await combinedPrompt(
                 await message.reply(`вы ищите информацию о пользователе:\n1) Discord <@${user.id}> или\n2) Uplay \`${nickname}\`?`) as Message,
@@ -59,15 +67,13 @@ export default class Info extends Command {
                     break;
             }
         }
-        // console.log(user, nickname, genome);
-        // console.log(await r6api.getCurrentName('PC', ['964b07cb-0169-4a55-ad59-62c975f227ff', 'c09fc7c9-5d45-4c6c-94e5-2dee159abff3']));
         switch (false) {
             case user !== message.author:
                 const U0 = await U.findByPk(message.author.id);
                 return message.reply(U0 ? `ваш профиль: ${ONLINE_TRACKER}${U0.genome}` : 'вы не зарегистрированы!');
             case !user:
                 const U1 = await U.findByPk(user.id);
-                return message.reply(U1 ? `профиль <@${user.id}>: ${ONLINE_TRACKER}${U1.genome}` : 'пользователь не найден!');
+                return message.reply(U1 ? `профиль <@${user.id}> \`${(await this.client.users.fetch(user.id)).tag}\`: ${ONLINE_TRACKER}${U1.genome}` : 'пользователь не найден!');
             case !nickname:
                 let genomes: string[] = null;
                 try {

@@ -15,7 +15,7 @@ export async function syncNicknames(platform: PLATFORM) {
       [platform]: true,
     }},
   });
-  console.log(UInsts.map((u) => u.nickname).join(', '));
+  // console.log(UInsts.map((u) => u.nickname).join(', '));
   if (!UInsts.length) { return []; }
   const res = await r6.api.getCurrentName(platform, UInsts.map((u) => u.genome));
   return Promise.all(UInsts.map((u) => {
