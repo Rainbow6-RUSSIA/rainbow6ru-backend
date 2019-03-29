@@ -50,7 +50,7 @@ export default class Start extends Command {
                     author: this.client.users.get(caps[n]),
                     emojis: ['✅', '❎'],
                     texts: [['да', 'yes', '+'], ['нет', 'no', '-']],
-                    time: 10 * 60 * 1000,
+                    time: 15 * 60 * 1000,
                 });
                 if (prmpt + n === 1) {
                     console.log('Swapping...', [match.team0.dataValues, match.team1.dataValues]);
@@ -78,7 +78,7 @@ export default class Start extends Command {
                 author: this.client.users.get(caps[i % 2]),
                 emojis: emojiNumbers(match.pool.length),
                 texts,
-                time: 10 * 60 * 1000,
+                time: 15 * 60 * 1000,
             });
 
             console.log('Prompt resolved', prmpt);

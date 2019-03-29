@@ -116,6 +116,7 @@ export const embeds = {
       return {
         author: {
           name: bound.nickname,
+          url: `${ONLINE_TRACKER}${bound.genome}`,
         },
         description: `Общая статистика на платформе \`${bound.platform}\``,
         fields: [
@@ -133,7 +134,6 @@ export const embeds = {
         thumbnail: {
           url: `https://ubisoft-avatars.akamaized.net/${bound.genome}/default_146_146.png`,
         },
-        url: `${ONLINE_TRACKER}${bound.genome}`,
-        };
-      },
+      };
+    },
   };
