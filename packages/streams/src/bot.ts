@@ -1,7 +1,9 @@
 import { MapR6 } from '@r6ru/db';
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler} from 'discord-akairo';
-import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import ENV from './utils/env';
+
+const { Op } = Sequelize;
 
 class Bot extends AkairoClient {
     private commandHandler: CommandHandler;
@@ -49,7 +51,7 @@ export let pool: string[];
 
 MapR6.findAll({where: {
     id: {
-        $ne: '',
+        [Op.ne]: '',
     },
 }}).then((maps) => {
     pool = maps.map((map) => map.id);

@@ -2,7 +2,6 @@ import { MapR6, Match, Team, User } from '@r6ru/db';
 import { MATCH_TYPE } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { Op } from 'sequelize';
 import { pool } from '../bot';
 
 interface IArgs {
@@ -16,7 +15,7 @@ let teamPool: Team[] = [];
 
 function getTeams() {
     (async () => {
-        teamPool = await Team.findAll({where: {id: {[Op.ne]: 0}}});
+        teamPool = await Team.findAll();
     })();
     return '`' + teamPool.map((t) => `${t.name} (${t.id})`).join('`, `') + '`';
 }

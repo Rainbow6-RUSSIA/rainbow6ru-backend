@@ -4,12 +4,14 @@ import { Message, MessageReaction, ReactionEmoji, User } from 'discord.js';
 import { User as U } from '@r6ru/db';
 import { ONLINE_TRACKER, PLATFORM, UUID } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
-import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import r6 from '../../r6api';
 // import r6api from '../../r6api';
 import ubiGenome from '../types/ubiGenome';
 import ubiNickname from '../types/ubiNickname';
+
+const { Op } = Sequelize;
 
 const emojiPrompt = ['', '1⃣', '2⃣'];
 
@@ -69,19 +71,19 @@ export default class Info extends Command {
             case !nickname:
                 const genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6.api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
                 const U2 = await U.findAll({where: {
-                    $or: [
+                    [Op.or]: [
                         {nickname},
-                        {nicknameHistory: {$contains: [nickname.toLowerCase()]}},
+                        {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
                         {genome: genomes},
-                        {genomeHistory: {$contains: genomes}},
+                        {genomeHistory: {[Op.contains]: genomes}},
                     ],
                 }});
                 return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
             case !genome:
                 const U3 = await U.findAll({where: {
-                    $or: [
+                    [Op.or]: [
                         {genome},
-                        {genomeHistory: {$contains: [genome]}},
+                        {genomeHistory: {[Op.contains]: [genome]}},
                     ],
                 }});
                 return message.reply(!U3.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U3.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
