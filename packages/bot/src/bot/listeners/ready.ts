@@ -1,9 +1,10 @@
 import { Listener } from 'discord-akairo';
 
 import { Guild } from '@r6ru/db';
-import { VERIFICATION_LEVEL } from '@r6ru/types';
+import { PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
+import { $enum } from 'ts-enum-util';
 import ENV from '../../utils/env';
-import { syncRoles } from '../../utils/utils';
+import { syncNicknames, syncRoles } from '../../utils/utils';
 
 export default class Ready extends Listener {
     public constructor() {
@@ -65,13 +66,25 @@ export default class Ready extends Listener {
 
         if (ENV.NODE_ENV !== 'development') {
             console.log('[BOT] Updating scheduled');
-            while (true) {
-                await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
-                console.log('[BOT] Starting update');
-                await syncRoles();
-                console.log('[BOT] Updating done');
-            }
+            this.startNickUpdating();
+            this.startRankUpdating();
         }
 
+    }
+    private async startRankUpdating() {
+        while (true) {
+            await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+            console.log('[BOT] Updating ranks...');
+            await syncRoles();
+            console.log('[BOT] Updating ranks done');
+        }
+    }
+    private async startNickUpdating() {
+        while (true) {
+            await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+            console.log('[BOT] Updating nicknames...');
+            await Promise.all($enum(PLATFORM).getValues().map((p) => syncNicknames(p)));
+            console.log('[BOT] Updating nicknames done');
+        }
     }
 }

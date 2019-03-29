@@ -69,16 +69,31 @@ export default class Info extends Command {
                 const U1 = await U.findByPk(user.id);
                 return message.reply(U1 ? `профиль <@${user.id}>: ${ONLINE_TRACKER}${U1.genome}` : 'пользователь не найден!');
             case !nickname:
-                const genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6.api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
-                const U2 = await U.findAll({where: {
-                    [Op.or]: [
-                        {nickname},
-                        {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
-                        {genome: genomes},
-                        {genomeHistory: {[Op.contains]: genomes}},
-                    ],
-                }});
-                return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
+                let genomes: string[] = null;
+                try {
+                    genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6.api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
+                } catch (err) {
+                    console.log(err);
+                }
+                let U2: U[] = null;
+                if (genomes.length) {
+                    U2 = await U.findAll({where: {
+                        [Op.or]: [
+                            {nickname},
+                            {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
+                            {genome: genomes},
+                            {genomeHistory: {[Op.contains]: genomes}},
+                        ],
+                    }});
+                } else {
+                    U2 = await U.findAll({where: {
+                        [Op.or]: [
+                            {nickname},
+                            {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
+                        ],
+                    }});
+                }
+                return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено ${!genomes ? 'среди сохраненных никнеймов ' : ''}по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
             case !genome:
                 const U3 = await U.findAll({where: {
                     [Op.or]: [

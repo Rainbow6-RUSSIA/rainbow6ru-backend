@@ -10,17 +10,21 @@ import { generate } from './qr';
 export async function syncNicknames(platform: PLATFORM) {
   const UInsts = await U.findAll({
     limit: 40,
-    order: [['updatedAt', 'ASC']],
+    order: [['nicknameUpdatedAt', 'ASC']],
     where: {platform: {
       [platform]: true,
     }},
   });
+  console.log(UInsts.map((u) => u.nickname).join(', '));
   if (!UInsts.length) { return []; }
   const res = await r6.api.getCurrentName(platform, UInsts.map((u) => u.genome));
   return Promise.all(UInsts.map((u) => {
-    u.nickname = res[u.genome].name;
-    u.updatedAt = new Date();
-    return u.save();
+    if (u.nickname !== res[u.genome].name) {
+      console.log('[BOT]', u.nickname, '-->', res[u.genome].name);
+      u.nickname = res[u.genome].name;
+    }
+    u.nicknameUpdatedAt = new Date();
+    return u.save({ silent: true });
   }));
 }
 
@@ -38,7 +42,7 @@ export async function syncRank(platform: PLATFORM) {
   return Promise.all(UInsts.map((u) => {
     u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
     u.rankUpdatedAt = new Date();
-    return u.save({silent: true});
+    return u.save({ silent: true });
   }));
 }
 
