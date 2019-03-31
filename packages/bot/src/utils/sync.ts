@@ -19,7 +19,7 @@ export async function syncNicknames(platform: PLATFORM) {
   if (!UInsts.length) { return []; }
   const res = await r6.api.getCurrentName(platform, UInsts.map((u) => u.genome));
   return Promise.all(UInsts.map((u) => {
-    if (u.nickname !== res[u.genome].name) {
+    if (res[u.genome] && (u.nickname !== res[u.genome].name)) {
       console.log('[BOT]', u.nickname, '-->', res[u.genome].name);
       u.nickname = res[u.genome].name;
     }
@@ -40,7 +40,9 @@ export async function syncRank(platform: PLATFORM) {
   if (!UInsts.length) { return []; }
   const res = await r6.api.getRank(platform, UInsts.map((u) => u.genome));
   return Promise.all(UInsts.map((u) => {
-    u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
+    if (res[u.genome]) {
+      u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
+    }
     u.rankUpdatedAt = new Date();
     return u.save({ silent: true });
   }));
