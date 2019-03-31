@@ -27,6 +27,12 @@ export default class User extends Model<User> {
         }
     }
 
+    @BeforeUpdate
+    public static calculateKarma(instance: User) {
+        const likes = Object.values(instance.likes || {});
+        instance.karma = likes.length ? likes.filter((l) => l).length / likes.length : 0.5;
+    }
+
     @PrimaryKey
     @Column(DataType.STRING)
     public id: Snowflake; // discord snowflake
@@ -95,7 +101,11 @@ export default class User extends Model<User> {
     @Column(DataType.INTEGER)
     public access: ACCESS;
 
+    @Column(DataType.JSONB)
+    public likes: {
+        [key: string]: boolean;
+    };
+
     @Column(DataType.FLOAT)
     public karma: number;
-
 }

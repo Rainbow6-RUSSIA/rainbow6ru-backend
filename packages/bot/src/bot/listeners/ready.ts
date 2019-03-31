@@ -5,7 +5,7 @@ import { PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
 import { $enum } from 'ts-enum-util';
 import r6 from '../../r6api';
 import ENV from '../../utils/env';
-import { syncNicknames, syncRoles } from '../../utils/utils';
+import { syncNicknames, syncRoles } from '../../utils/sync';
 
 export default class Ready extends Listener {
     public constructor() {
@@ -43,15 +43,19 @@ export default class Ready extends Listener {
                 '414765737190621184',
             ],
             requiredVerification: VERIFICATION_LEVEL.NONE,
+            roomsRange: [10, 50],
             voiceCategories: {
                 casual: '414760349783556106',
                 custom: '414820154044710914',
                 ranked: '414761479430995968',
             },
         });
-        Guild.upsert({
+        Guild.upsert<Guild>({
             fixAfter: 20,
             id: '216649610511384576',
+            lfgChannels: {
+                ranked: '505831870735319055',
+            },
             platformRoles: {
                 PC: '473980291430613002',
                 PS4: '473980295196966922',
@@ -63,6 +67,10 @@ export default class Ready extends Listener {
                 '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
                 '330802325172125696',
             ],
+            roomsRange: [1, 10],
+            voiceCategories: {
+                ranked: '505831824765747230',
+            },
         });
 
         if (ENV.NODE_ENV !== 'development') {

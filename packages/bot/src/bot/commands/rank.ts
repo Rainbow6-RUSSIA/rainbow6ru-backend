@@ -8,8 +8,9 @@ import r6 from '../../r6api';
 
 import { IUbiBound, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
+import embeds from '../../utils/embeds';
 import ENV from '../../utils/env';
-import { embeds, syncMember } from '../../utils/utils';
+import { syncMember } from '../../utils/sync';
 import ubiGenomeFromNickname from '../types/ubiGenomeFromNickname';
 // import ubiNickname from '../types/ubiNickname';
 

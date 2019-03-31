@@ -1,7 +1,7 @@
 import { Guild as G, User as U } from '@r6ru/db';
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
-import { syncMember } from '../../utils/utils';
+import { syncMember } from '../../utils/sync';
 interface IUpdateArgs {
     user: User;
     verification: number;

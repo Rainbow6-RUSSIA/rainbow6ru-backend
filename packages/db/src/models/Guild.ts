@@ -28,22 +28,20 @@ export default class Guild extends Model<Guild> {
     };
 
     @Column(DataType.JSONB)
-    public voiceCategories: Partial<{
-        ranked: string | string[],
-        casual: string | string[],
-        custom: string | string[],
-    }>;
+    public voiceCategories: {
+        [key: string]: Snowflake;
+    };
 
     @Column(DataType.JSONB)
-    public lfgChannels: Partial<{
-        ranked: string,
-        casual: string,
-        custom: string,
-        any: string,
-    }>;
+    public lfgChannels: {
+        [key: string]: Snowflake;
+    };
 
     @HasMany(() => Lobby)
     public lobbys: Lobby[];
+
+    @Column(DataType.ARRAY(DataType.INTEGER))
+    public roomsRange: [number, number];
 
     @Column
     public premium: boolean; // idk mb unused in future

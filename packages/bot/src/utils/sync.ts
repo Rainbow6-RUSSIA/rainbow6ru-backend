@@ -1,10 +1,10 @@
 import { Guild as G, User as U } from '@r6ru/db';
-import { IUbiBound, ONLINE_TRACKER, PLATFORM } from '@r6ru/types';
+import { PLATFORM } from '@r6ru/types';
 import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import bot from '../bot';
 import r6 from '../r6api';
-import ENV from '../utils/env';
+import ENV from './env';
 import { generate } from './qr';
 
 export async function syncNicknames(platform: PLATFORM) {
@@ -114,30 +114,3 @@ export async function syncRoles() {
   await Promise.all(guilds.map((g) => bot.guilds.get(g.id).members.fetch()));
   await Promise.all(guilds.map((g) => users.filter((u) => bot.guilds.get(g.id).members.has(u.id)).map((u) => syncMember(g, u))).reduce((acc, val) => acc.concat(val), []));
 }
-
-export const embeds = {
-    rank: function buildRankEmbed(bound: IUbiBound, stats: {won?: any, lost?: any, kills?: any, deaths?: any}) {
-      return {
-        author: {
-          name: bound.nickname,
-          url: `${ONLINE_TRACKER}${bound.genome}`,
-        },
-        description: `Общая статистика на платформе \`${bound.platform}\``,
-        fields: [
-          {
-            inline: true,
-            name: 'Выигрыши/Поражения',
-            value: `**В:** ${stats.won || 0} **П:** ${stats.lost || 0}\n**В%:** ${(100 * (stats.won / (stats.won + stats.lost) || 0)).toFixed(2)}%`,
-          },
-          {
-            inline: true,
-            name: 'Убийства/Смерти',
-            value: `**У:** ${stats.kills || 0} **С:** ${stats.deaths || 0}\n**У/С:** ${(stats.kills / (stats.deaths || 1)).toFixed(2)}`,
-          },
-        ],
-        thumbnail: {
-          url: `https://ubisoft-avatars.akamaized.net/${bound.genome}/default_146_146.png`,
-        },
-      };
-    },
-  };
