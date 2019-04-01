@@ -21,6 +21,7 @@ class IDefaultEnv extends IEnv {
     public REDIS_DB = '';
     public NODE_ENV = '';
     public LOGGING_WEBHOOK = '';
+    public VERIFIED_BADGE = '<:verified:562059822279819265>';
 }
 
 for (const key in new IEnv()) {

@@ -1,5 +1,5 @@
-import { Guild as G, User as U } from '@r6ru/db';
-import { PLATFORM } from '@r6ru/types';
+import { Guild as G, Team, User as U } from '@r6ru/db';
+import { PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
 import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import bot from '../bot';
@@ -66,15 +66,22 @@ export async function syncMember(dbGuild: G, dbUser: U) {
     if (dbUser.verificationLevel < dbGuild.requiredVerification || dbUser.verificationLevel < dbUser.requiredVerification) {
       dbUser.inactive = true;
       await dbUser.save();
+      await (await bot.guilds.get(dbGuild.id).members.fetch(dbUser.id)).roles.remove([...dbGuild.rankRoles.filter((r) => r), ...Object.values(dbGuild.platformRoles).filter((r) => r)], 'запрос верификации');
       const QR = await generate(dbUser.genome, dbUser.id);
       await member.send(
-        `Привет!\n\nДля дальнейшей обработки тебе необходимо подтвердить факт владения указанным аккаунтом Осады - тебе нужно будет поставить прикрепленное изображение c QR-кодом на аватар **Uplay**.\nПосле смены аватара введи здесь команду \`${ENV.PREFIX}verify\`\nСменить аватар можно на https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar`,
+        `Здравствуйте!\n\nДля дальнейшей игры вам необходимо подтвердить факт владения указанным аккаунтом Осады - вам нужно будет поставить прикрепленное изображение c QR-кодом на аватар **Uplay**.\nПосле смены аватара введите здесь команду \`${ENV.PREFIX}verify\`\nСменить аватар можно на https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar`,
         new MessageAttachment(Buffer.from(QR.buffer), 'QR-verification.png'),
         );
       return false;
     }
 
-    // console.log(dbUser.rank, dbUser.platform, dbGuild.rankRoles[dbUser.rank]);
+    if (dbUser.syncNickname) {
+      try {
+        await member.setNickname(`${dbUser.teamId ? (await Team.findByPk(dbUser.teamId)).shortName + '.' : ''}${dbUser.nickname}${dbUser.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ✔' : ''}`);
+      } catch (err) {
+        console.log(err);
+      }
+    }
 
     const currentRankRoles = member.roles.keyArray().filter((r) => dbGuild.rankRoles.includes(r));
 
@@ -98,11 +105,10 @@ export async function syncMember(dbGuild: G, dbUser: U) {
       }
     }
 
-    const platformRolesToApply = Object.entries(dbGuild.platformRoles).filter((k) => dbUser.platform[k[0]]).map((k) => k[1]).filter((r) => !member.roles.has(r));
-    // console.log(platformRolesToApply);
-    if (platformRolesToApply.length) {
-      await member.roles.add(platformRolesToApply, 'синхронизация платформы');
-    }
+    const platformRolesToApply = Object.entries(dbGuild.platformRoles).filter((k) => dbUser.platform[k[0]]).map((k) => k[1]); // .filter((r) => !member.roles.has(r));
+    // if (platformRolesToApply.length) {
+    await Promise.all(platformRolesToApply.map((r) => member.roles.add(r, 'синхронизация платформы')));
+    // }
 
     return true;
   }

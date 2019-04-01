@@ -123,8 +123,8 @@ export default class Rank extends Command {
                 rankUpdatedAt: new Date(),
                 region: mainRegion,
                 requiredVerification:
-                    ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter) ? GInst.requiredVerification
-                        : VERIFICATION_LEVEL.NONE,
+                    ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter || (Date.now() - target.joinedTimestamp) < 1000 * 60 * 5) ? VERIFICATION_LEVEL.QR
+                        : GInst.requiredVerification,
                 verificationLevel:
                     (target.nickname || '').includes(bound.nickname) ||
                         target.user.username.includes(bound.nickname) ? VERIFICATION_LEVEL.MATCHNICK

@@ -1,12 +1,13 @@
 import { ArgumentOptions , Command } from 'discord-akairo';
 import { Message, MessageReaction, ReactionEmoji, User } from 'discord.js';
 
-import { User as U } from '@r6ru/db';
-import { ONLINE_TRACKER, PLATFORM, UUID } from '@r6ru/types';
+import { Guild as G, User as U } from '@r6ru/db';
+import { ONLINE_TRACKER, PLATFORM, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import r6 from '../../r6api';
+import ENV from '../../utils/env';
 // import r6api from '../../r6api';
 import ubiGenome from '../types/ubiGenome';
 import ubiNickname from '../types/ubiNickname';
@@ -67,13 +68,14 @@ export default class Info extends Command {
                     break;
             }
         }
+        const addBadge = async (lvl: VERIFICATION_LEVEL) => lvl >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : '';
         switch (false) {
             case user !== message.author:
                 const U0 = await U.findByPk(message.author.id);
-                return message.reply(U0 ? `ваш профиль: ${ONLINE_TRACKER}${U0.genome}` : 'вы не зарегистрированы!');
+                return message.reply(U0 ? `ваш профиль: ${ONLINE_TRACKER}${U0.genome}${await addBadge(U0.verificationLevel)}` : 'вы не зарегистрированы!');
             case !user:
                 const U1 = await U.findByPk(user.id);
-                return message.reply(U1 ? `профиль <@${user.id}> \`${(await this.client.users.fetch(user.id)).tag}\`: ${ONLINE_TRACKER}${U1.genome}` : 'пользователь не найден!');
+                return message.reply(U1 ? `профиль <@${user.id}> \`${(await this.client.users.fetch(user.id)).tag}\`: ${ONLINE_TRACKER}${U1.genome}${await addBadge(U1.verificationLevel)}` : 'пользователь не найден!');
             case !nickname:
                 let genomes: string[] = null;
                 try {
@@ -99,7 +101,7 @@ export default class Info extends Command {
                         ],
                     }});
                 }
-                return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено ${!genomes ? 'среди сохраненных никнеймов ' : ''}по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
+                return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено ${!genomes ? 'среди сохраненных никнеймов ' : ''}по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${await addBadge(u.verificationLevel)}`))).join('\n')}`);
             case !genome:
                 const U3 = await U.findAll({where: {
                     [Op.or]: [
@@ -107,10 +109,10 @@ export default class Info extends Command {
                         {genomeHistory: {[Op.contains]: [genome]}},
                     ],
                 }});
-                return message.reply(!U3.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U3.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}`))).join('\n')}`);
+                return message.reply(!U3.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U3.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${await addBadge(u.verificationLevel)}`))).join('\n')}`);
             default:
                 const U4 = await U.findByPk(message.author.id);
-                return message.reply(U4 ? `показан ваш профиль, так как по запросу ничего не найдено: ${ONLINE_TRACKER}${U4.genome}` : 'по вашему запросу ничего не найдено!');
+                return message.reply(U4 ? `показан ваш профиль, так как по запросу ничего не найдено: ${ONLINE_TRACKER}${U4.genome}${await addBadge(U4.verificationLevel)}` : 'по вашему запросу ничего не найдено!');
         }
     }
 }

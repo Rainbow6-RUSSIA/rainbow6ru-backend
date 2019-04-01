@@ -57,4 +57,7 @@ export default class Guild extends Model<Guild> {
 
     @Column
     public logsChannel: string;
+
+    @Column
+    public teamRole: string;
 }

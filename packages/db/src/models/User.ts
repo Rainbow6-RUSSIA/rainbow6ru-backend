@@ -58,6 +58,9 @@ export default class User extends Model<User> {
     @Column
     public inactive: boolean;
 
+    @Column
+    public syncNickname: boolean;
+
     @ForeignKey(() => Lobby)
     @Column
     public lobbyId: number;

@@ -1,4 +1,4 @@
-import { BelongsToMany, Column, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
+import { BelongsToMany, Column, DataType, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
 import Match from './Match';
 import User from './User';
 import Vote from './Vote';
@@ -13,6 +13,9 @@ export default class Team extends Model<Team> {
 
     @Column
     public logo: string;
+
+    @Column
+    public role: string;
 
     @HasOne(() => User)
     public captain: User;
