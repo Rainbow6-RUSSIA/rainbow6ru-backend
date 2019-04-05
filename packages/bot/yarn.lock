@@ -183,16 +183,6 @@
     "@types/lodash" "*"
     "@types/validator" "*"
 
-"@types/sequelize@^4.27.39":
-  version "4.27.44"
-  resolved "https://registry.yarnpkg.com/@types/sequelize/-/sequelize-4.27.44.tgz#28971ee07af8cb296565f6fd9e2991241a3cdfd3"
-  integrity sha512-GrM7/rxosbskkToSORCona1D1YMJcJ9O9gCSlobr0hdFn6v0QyvMD/2YRVO/lRXrqHVRFwtZkf0mO0BBbyspEw==
-  dependencies:
-    "@types/bluebird" "*"
-    "@types/continuation-local-storage" "*"
-    "@types/lodash" "*"
-    "@types/validator" "*"
-
 "@types/serve-static@*":
   version "1.13.2"
   resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.13.2.tgz#f5ac4d7a6420a99a6a45af4719f4dcd8cd907a48"

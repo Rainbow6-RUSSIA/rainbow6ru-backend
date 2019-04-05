@@ -1,5 +1,5 @@
-import { ArgumentOptions , Command } from 'discord-akairo';
-import { Message, MessageReaction, ReactionEmoji, User } from 'discord.js';
+import { Command } from 'discord-akairo';
+import { Message, User } from 'discord.js';
 
 import { Guild as G, User as U } from '@r6ru/db';
 import { ONLINE_TRACKER, PLATFORM, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
@@ -8,7 +8,6 @@ import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import r6 from '../../r6api';
 import ENV from '../../utils/env';
-// import r6api from '../../r6api';
 import ubiGenome from '../types/ubiGenome';
 import ubiNickname from '../types/ubiNickname';
 

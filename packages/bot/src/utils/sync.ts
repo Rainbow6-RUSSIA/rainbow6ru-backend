@@ -66,7 +66,7 @@ export async function syncMember(dbGuild: G, dbUser: U) {
     if (dbUser.verificationLevel < dbGuild.requiredVerification || dbUser.verificationLevel < dbUser.requiredVerification) {
       dbUser.inactive = true;
       await dbUser.save();
-      await (await bot.guilds.get(dbGuild.id).members.fetch(dbUser.id)).roles.remove([...dbGuild.rankRoles.filter((r) => r), ...Object.values(dbGuild.platformRoles).filter((r) => r)], 'запрос верификации');
+      await (await bot.guilds.get(dbGuild.id).members.fetch(dbUser.id)).roles.remove([...dbGuild.rankRoles.filter(Boolean), ...Object.values(dbGuild.platformRoles).filter(Boolean)], 'запрос верификации');
       const QR = await generate(dbUser.genome, dbUser.id);
       await member.send(
         `Здравствуйте!\n\nДля дальнейшей игры вам необходимо подтвердить факт владения указанным аккаунтом Осады - вам нужно будет поставить прикрепленное изображение c QR-кодом на аватар **Uplay**.\nПосле смены аватара введите здесь команду \`${ENV.PREFIX}verify\`\nСменить аватар можно на https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar`,
@@ -86,7 +86,7 @@ export async function syncMember(dbGuild: G, dbUser: U) {
     const currentRankRoles = member.roles.keyArray().filter((r) => dbGuild.rankRoles.includes(r));
 
     if (currentRankRoles.length > 1) {
-      await member.roles.remove(dbGuild.rankRoles.filter((r) => r), 'удаляю роли перед обновлением...');
+      await member.roles.remove(dbGuild.rankRoles.filter(Boolean), 'удаляю роли перед обновлением...');
       if (dbGuild.rankRoles[dbUser.rank]) {
         await member.roles.add(dbGuild.rankRoles[dbUser.rank], '...готово');
       }
