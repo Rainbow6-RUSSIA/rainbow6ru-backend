@@ -45,6 +45,7 @@ export default class Verify extends Command {
                 return message.reply('Неккоректный QR-код!');
             }
         } catch (err) {
+            console.log(err);
             return message.reply('QR-код не установлен!');
         }
     }
