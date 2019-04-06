@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@r6s.media/r6.api@https://github.com/BadCoder1337/r6api":
+"@r6s.media/r6.api@https://github.com/BadCoder1337/r6api#23c359c":
   version "1.5.6"
   resolved "https://github.com/BadCoder1337/r6api#23c359c64be4fae6b3ee0be17e7b2e3718aaec17"
   dependencies:
@@ -294,9 +294,9 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha1-x57Zf380y48robyXkLzDZkdLS3k=
 
-"awesome-qr@https://github.com/BadCoder1337/Awesome-qr.js":
+"awesome-qr@https://github.com/BadCoder1337/Awesome-qr.js#6761fa7":
   version "1.2.1"
-  resolved "https://github.com/BadCoder1337/Awesome-qr.js#f174781590ca2aa5397ad7b327217e5f268f66a7"
+  resolved "https://github.com/BadCoder1337/Awesome-qr.js#6761fa7045cbe946c24b4c8528cdbf56fbd7047d"
   dependencies:
     canvas-prebuilt "^1.6.5-prerelease.1"
     fs "0.0.1-security"
@@ -1540,7 +1540,7 @@ pidusage@^2.0.17:
   dependencies:
     safe-buffer "^5.1.2"
 
-pngjs@^3.3.3:
+pngjs@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
   integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
