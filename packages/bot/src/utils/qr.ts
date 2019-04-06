@@ -1,6 +1,6 @@
 
 import { UUID } from '@r6ru/types';
-import { AwesomeQRCode } from 'awesome-qr';
+import { AwesomeQRCode, QRErrorCorrectLevel } from 'awesome-qr';
 import { createHash } from 'crypto';
 import readerQR from 'jsqr';
 import fetch from 'node-fetch';
@@ -30,10 +30,11 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
             },
             colorDark: 'rgba(0, 0, 0, 0.8)',
             colorLight: 'rgba(255, 255, 255, 1)',
+            correctLevel: QRErrorCorrectLevel.H,
             dotScale: 0.35,
             drawPosition : false,
             logoCornerRadius: 8,
-            margin: 15,
+            margin: 5,
             size: 500,
             text: `${genome}_${id}_${createHash('md5').update(`${genome}_${id}_${ENV.KEY256}`).digest('base64')}`,
             typeNumber: 4,
