@@ -1,4 +1,4 @@
-import { EmojiResolvable, Message, MessageOptions, MessageReaction, ReactionEmoji, Snowflake, User, UserResolvable } from 'discord.js';
+import { EmojiResolvable, Message, MessageOptions, MessageReaction, User } from 'discord.js';
 
 interface IPromptOptions {
     [prop: string]: any;

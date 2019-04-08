@@ -10,14 +10,9 @@
   "devDependencies": {
     "@types/node": "^11.11.7",
     "@types/socket.io": "^2.1.2",
-    "cross-env": "^5.2.0",
     "tslint": "^5.14.0"
   },
   "dependencies": {
-    "@r6ru/utils": "^0.0.0",
-    "dotenv": "^7.0.0",
-    "pg": "^7.9.0",
-    "reflect-metadata": "^0.1.13",
-    "sequelize": "^5.1.1"
+    "restify": "^8.2.0"
   }
 }

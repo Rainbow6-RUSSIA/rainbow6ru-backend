@@ -4,6 +4,7 @@ import { AllowNull, BelongsTo, BelongsToMany, Column, DataType, Default, Foreign
 import MapR6 from './MapR6';
 import Pool from './Pool';
 import Team from './Team';
+import Tournament from './Tournament';
 import User from './User';
 import Vote from './Vote';
 
@@ -34,9 +35,6 @@ export default class Match extends Model<Match> {
     @HasMany(() => Vote)
     public votes: Vote[];
 
-    @BelongsToMany(() => MapR6, () => Pool)
-    public pool: MapR6[];
-
     @Column(DataType.JSONB)
     public poolCache: MapR6[];
 
@@ -49,6 +47,15 @@ export default class Match extends Model<Match> {
     public team1Id: number;
     @BelongsTo(() => Team, 'team1Id')
     public team1: Team;
+
+    @ForeignKey(() => Tournament)
+    @Column
+    public tournamentId: number;
+
+    @BelongsTo(() => Tournament)
+    public tournament: Tournament;
+
+    public swapped: boolean;
 
     public async swap() {
         const t0 = await this.$get('team0');

@@ -7,6 +7,7 @@ import User from './User';
 import { RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 
 import { Snowflake } from 'discord.js';
+import Tournament from './Tournament';
 
 @Table({schema: 'siegebot'})
 export default class Guild extends Model<Guild> {
@@ -39,6 +40,9 @@ export default class Guild extends Model<Guild> {
 
     @HasMany(() => Lobby)
     public lobbys: Lobby[];
+
+    @HasMany(() => Tournament)
+    public tournaments: Tournament[];
 
     @Column(DataType.ARRAY(DataType.INTEGER))
     public roomsRange: [number, number];
