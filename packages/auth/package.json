@@ -1,0 +1,22 @@
+{
+  "name": "auth",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "BadCoder1337 <anton.tiz.musin@gmail.com>",
+  "homepage": "https://github.com/BadCoder1337/rainbow6ru-backend#readme",
+  "license": "ISC",
+  "main": "build/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BadCoder1337/rainbow6ru-backend.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/BadCoder1337/rainbow6ru-backend/issues"
+  },
+  "dependencies": {
+    "restify": "^8.2.0"
+  }
+}

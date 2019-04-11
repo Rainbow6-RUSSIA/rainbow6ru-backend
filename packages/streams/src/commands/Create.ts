@@ -2,7 +2,6 @@ import { MapR6, Match, Team, User } from '@r6ru/db';
 import { MATCH_TYPE } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { Op } from 'sequelize';
 import { pool } from '../bot';
 
 interface IArgs {
@@ -16,7 +15,7 @@ let teamPool: Team[] = [];
 
 function getTeams() {
     (async () => {
-        teamPool = await Team.findAll({where: {id: {[Op.ne]: 0}}});
+        teamPool = await Team.findAll();
     })();
     return '`' + teamPool.map((t) => `${t.name} (${t.id})`).join('`, `') + '`';
 }
@@ -57,13 +56,6 @@ export default class Create extends Command {
                         infinite: true,
                     },
                 },
-                {
-                    id: 'legacy',
-                    type: ['yes', 'no'],
-                    prompt: {
-                        start: 'Провести жеребьёвку (yes/no)? Иначе начинает голосовать всегда первая команда.',
-                    },
-                },
             ],
             defaultPrompt: {
                 retries: 3,
@@ -81,7 +73,7 @@ export default class Create extends Command {
         // console.log(args);
         const dbPool = await MapR6.findAll({
             where: {
-                id: {[Op.or]: args.pool},
+                id: args.pool,
             },
         });
         if (dbPool.length % 2 === 0) {
@@ -96,12 +88,17 @@ export default class Create extends Command {
 
         const match = await Match.create<Match>({
             matchType: MATCH_TYPE[args.matchType.toUpperCase()],
-            legacy: args.legacy === 'no',
+            legacy: false,
+            mapScore: [0, 0],
         });
-        match.$set('creator', await User.findByPk(message.author.id));
-        match.$set('pool', dbPool);
-        match.$set('team0', dbTeam0);
-        match.$set('team1', dbTeam1);
+        await match.$set('creator', await User.findByPk(message.author.id));
+        await match.$set('pool', dbPool);
+        await match.$set('team0', dbTeam0);
+        await match.$set('team1', dbTeam1);
+        await match.reload({include: [{all: true}]});
+        await match.updateAttributes({
+            poolCache: match.tournament.pool.map((p) => p.toJSON()),
+        });
         message.reply(`матч создан, id: \`${match.id}\``);
     }
 }

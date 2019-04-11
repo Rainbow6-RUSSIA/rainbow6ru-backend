@@ -27,7 +27,7 @@ export default class Delete extends Command {
         try {
             const { platformRoles, rankRoles} = await Guild.findByPk(guild.id);
             const member = await guild.members.fetch(target.id);
-            member.roles.remove([...Object.values(platformRoles), ...rankRoles].filter((r) => r), 'пользователь удален');
+            member.roles.remove([...Object.values(platformRoles), ...rankRoles].filter(Boolean), 'пользователь удален');
         } catch (err) {
             console.log(err);
         }

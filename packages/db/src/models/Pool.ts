@@ -1,12 +1,12 @@
 import { Column, ForeignKey, Model, Table } from 'sequelize-typescript';
 import MapR6 from './MapR6';
-import Match from './Match';
+import Tournament from './Tournament';
 
 @Table({schema: 'streambot'})
 export default class Pool extends Model<Pool> {
-    @ForeignKey(() => Match)
+    @ForeignKey(() => Tournament)
     @Column
-    public matchId: number;
+    public tournamentId: number;
 
     @ForeignKey(() => MapR6)
     @Column

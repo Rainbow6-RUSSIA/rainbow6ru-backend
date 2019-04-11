@@ -12,7 +12,7 @@ class IDefaultEnv extends IEnv {
 }
 
 for (const key in new IEnv()) {
-    if (!process.env[key]) { throw new Error(`Enviromental variable ${key} not specified`); }
+    if (!process.env[key] && process.env.ENV_CHECK) { throw new Error(`Enviromental variable ${key} not specified`); }
 }
 
 export default process.env as any as IDefaultEnv;

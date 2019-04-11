@@ -61,11 +61,11 @@ export default class CreateTeam extends Command { // update all|newseason|numofp
         return message.reply('капитан не зарегистрирован!');
     }
     team.$set('captain', captain);
-    const members = await User.findAll({where: {id: args.members.map((m) => m.id)}});
-    if (members.length !== args.members.length) {
-            message.reply(`пользователь(-ли) <@${args.members.filter((m) => !members.map((dbm) => dbm.id).includes(m.id)).map((u) => u.id).join('>, <@')}> не зарегистрированы, поэтому не будут добавлены в команду.`);
+    const dbUsers = await User.findAll({where: {id: args.members.map((m) => m.id)}});
+    if (dbUsers.length !== args.members.length) {
+            message.reply(`пользователь(-ли) <@${args.members.filter((m) => !dbUsers.map((dbm) => dbm.id).includes(m.id)).map((u) => u.id).join('>, <@')}> не зарегистрированы, поэтому не будут добавлены в команду.`);
         }
-    team.$set('members', members);
+    team.$set('members', dbUsers);
     message.reply('команда создана');
     }
 }

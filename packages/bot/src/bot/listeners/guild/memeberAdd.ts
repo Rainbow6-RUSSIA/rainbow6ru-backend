@@ -1,7 +1,7 @@
 import { Guild, User } from '@r6ru/db';
 import { Listener } from 'discord-akairo';
 import { GuildMember } from 'discord.js';
-import { syncMember } from '../../../utils/utils';
+import { syncMember } from '../../../utils/sync';
 
 export default class MemberAdd extends Listener {
     public constructor() {

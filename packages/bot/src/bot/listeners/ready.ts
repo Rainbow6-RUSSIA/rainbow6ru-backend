@@ -1,9 +1,11 @@
 import { Listener } from 'discord-akairo';
 
 import { Guild } from '@r6ru/db';
-import { VERIFICATION_LEVEL } from '@r6ru/types';
+import { PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
+import { $enum } from 'ts-enum-util';
+import r6 from '../../r6api';
 import ENV from '../../utils/env';
-import { syncRoles } from '../../utils/utils';
+import { syncNicknames, syncRoles } from '../../utils/sync';
 
 export default class Ready extends Listener {
     public constructor() {
@@ -41,15 +43,19 @@ export default class Ready extends Listener {
                 '414765737190621184',
             ],
             requiredVerification: VERIFICATION_LEVEL.NONE,
+            roomsRange: [10, 50],
             voiceCategories: {
                 casual: '414760349783556106',
                 custom: '414820154044710914',
                 ranked: '414761479430995968',
             },
         });
-        Guild.upsert({
+        Guild.upsert<Guild>({
             fixAfter: 20,
             id: '216649610511384576',
+            lfgChannels: {
+                ranked: '505831870735319055',
+            },
             platformRoles: {
                 PC: '473980291430613002',
                 PS4: '473980295196966922',
@@ -57,14 +63,51 @@ export default class Ready extends Listener {
             },
             premium: true,
             rankRoles: [
-                '416308522020765697',
-                '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
                 '330802325172125696',
+                '', '', '', '',
+                '', '', '', '',
+                '', '', '', '',
+                '416308534066675713', '416308534066675713', '416308534066675713', '416308534066675713',
+                '', '', '',
+                '416308522020765697',
             ],
+            roomsRange: [1, 10],
+            voiceCategories: {
+                ranked: '505831824765747230',
+            },
         });
 
-        console.log('[BOT] Updating scheduled');
-        setInterval(syncRoles, parseInt(ENV.COOLDOWN));
+        if (ENV.NODE_ENV !== 'development') {
+            console.log('[BOT] Updating scheduled');
+            this.startNickUpdating();
+            this.startRankUpdating();
+        }
 
+    }
+    private async startRankUpdating() {
+        while (true) {
+            try {
+                await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+                console.log('[BOT] Updating ranks...');
+                await syncRoles();
+                // console.log('[BOT] Updating ranks done');
+            } catch (err) {
+                r6.auth.login();
+                console.log(err);
+            }
+        }
+    }
+    private async startNickUpdating() {
+        while (true) {
+            try {
+                await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+                console.log('[BOT] Updating nicknames...');
+                await Promise.all($enum(PLATFORM).getValues().map((p) => syncNicknames(p)));
+                // console.log('[BOT] Updating nicknames done');
+            } catch (err) {
+                r6.auth.login();
+                console.log(err);
+            }
+        }
     }
 }

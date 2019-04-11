@@ -4,12 +4,13 @@ import * as humanizeDuration from 'humanize-duration';
 import { $enum } from 'ts-enum-util';
 
 import { Guild, User } from '@r6ru/db';
-import r6api from '../../r6api';
+import r6 from '../../r6api';
 
 import { IUbiBound, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
+import embeds from '../../utils/embeds';
 import ENV from '../../utils/env';
-import { embeds, syncMember } from '../../utils/utils';
+import { syncMember } from '../../utils/sync';
 import ubiGenomeFromNickname from '../types/ubiGenomeFromNickname';
 // import ubiNickname from '../types/ubiNickname';
 
@@ -34,7 +35,7 @@ export default class Rank extends Command {
                     time: 30000,
                     timeout: 'Время вышло. Начните регистрацию сначала.',
                 },
-                type: ubiGenomeFromNickname, // префетч - это слишком пиздато, при ошибках причину хуй поймешь
+                type: ubiGenomeFromNickname,
                 unordered: true,
             }, {
                 id: 'target',
@@ -77,9 +78,10 @@ export default class Rank extends Command {
                 if (adminAction) {
                     return message.reply(`пользователь уже зарегистрирован!`);
                 } else {
+                    syncMember(GInst, UInst);
                     return message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
                         humanizeDuration(
-                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(UInst.updatedAt).valueOf() - Date.now(),
+                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(UInst.rankUpdatedAt).valueOf() - Date.now(),
                             {conjunction: ' и ', language: 'ru', round: true},
                         )
                     }\``);
@@ -93,10 +95,10 @@ export default class Rank extends Command {
                 XBOX: currentRoles.includes(platformRoles.XBOX),
             };
             const activePlatform = $enum(PLATFORM).getValues().find((p) => platform[p]);
-            if ((activePlatform !== bound.platform) && !adminAction) {
+            if ((!adminAction) && (activePlatform !== bound.platform)) {
                     return message.reply('выбранная вами платформа не совпадает с платформой указанного аккаунта!');
             }
-            const rawRank = (await r6api.getRank(bound.platform, bound.genome))[bound.genome];
+            const rawRank = (await r6.api.getRank(bound.platform, bound.genome))[bound.genome];
 
             // console.log('​Rank -> publicexec -> rawRank', rawRank);
             const regionRank = $enum(REGIONS).getValues().map((r) => rawRank[r].rank);
@@ -105,21 +107,24 @@ export default class Rank extends Command {
             // console.log('TCL: Rank -> publicexec -> $enum(REGIONS).getValues()', $enum(REGIONS).getValues());
             // console.log('TCL: Rank -> publicexec -> REGIONS', REGIONS);
             // console.log('​Rank -> publicexec -> mainRegion', mainRegion);
-            const stats = (await r6api.getStats(bound.platform, bound.genome, {general: '*'}))[bound.genome];
+            const stats = (await r6.api.getStats(bound.platform, bound.genome, {general: '*'}))[bound.genome];
+
+            if (!(stats && stats.general)) {
+                return message.reply('указанный аккаунт не имеет Rainbow Six Siege');
+            }
             // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);
             platform[bound.platform] = true;
             UInst = new User({
                 genome: bound.genome,
-                genomeHistory: [{record: bound.genome, timestamp: Date.now()}],
                 id: target.id,
                 nickname: bound.nickname,
-                nicknameHistory: [{record: bound.nickname, timestamp: Date.now()}],
                 platform,
                 rank: rawRank[mainRegion].rank,
+                rankUpdatedAt: new Date(),
                 region: mainRegion,
                 requiredVerification:
-                    ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter) ? GInst.requiredVerification
-                        : VERIFICATION_LEVEL.NONE,
+                    ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter) ? VERIFICATION_LEVEL.QR
+                        : GInst.requiredVerification,
                 verificationLevel:
                     (target.nickname || '').includes(bound.nickname) ||
                         target.user.username.includes(bound.nickname) ? VERIFICATION_LEVEL.MATCHNICK
@@ -141,7 +146,7 @@ export default class Rank extends Command {
                 case 0: {
                     await UInst.save();
                     syncMember(GInst, UInst);
-                    return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\``);
+                    return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\`${UInst.requiredVerification >= VERIFICATION_LEVEL.QR ? `\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*` : ''}`);
                 }
             }
 

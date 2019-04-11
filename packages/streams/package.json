@@ -8,7 +8,7 @@
 	"author": "BadCoder1337",
 	"scripts": {
 		"build": "tsc -p .",
-		"dev": "lerna run build --parallel --ignore=@r6ru/streams && tsc-watch --onSuccess \"node ./build/index.js\"",
+		"dev": "lerna run build --parallel --ignore=@r6ru/streams --ignore=@r6ru/*-front && tsc-watch --onSuccess \"node ./build/index.js\"",
 		"start": "node ./build/index.js"
 	},
 	"dependencies": {
@@ -17,29 +17,29 @@
 		"@r6ru/utils": "0.0.0",
 		"discord-akairo": "8.0.0-beta.1",
 		"discord.js": "https://github.com/discordjs/discord.js#579283d",
-		"dotenv": "^6.2.0",
-		"jsonwebtoken": "^8.5.0",
+		"dotenv": "^7.0.0",
+		"jsonwebtoken": "^8.5.1",
 		"morgan": "^1.9.1",
 		"passport": "^0.4.0",
-		"passport-oauth2": "^1.4.0",
-		"pg": "^7.8.1",
+		"passport-oauth2": "^1.5.0",
+		"pg": "^7.9.0",
 		"reflect-metadata": "^0.1.13",
-		"restify": "^8.1.0",
+		"restify": "^8.2.0",
 		"restify-errors": "^7.0.0",
-		"sequelize": "^4.43.0",
-		"sequelize-typescript": "^0.6.7",
+		"sequelize": "^5.3.1",
+		"sequelize-typescript": "^0.6.8",
 		"socket.io": "^2.1.1",
 		"socketio-jwt": "^4.5.0"
 	},
 	"devDependencies": {
-		"@types/node": "^11.10.5",
+		"@types/node": "^11.11.7",
 		"@types/passport": "^1.0.0",
-		"@types/restify": "^7.2.8",
-		"@types/sequelize": "^4.27.39",
+		"@types/restify": "^7.2.9",
+		"@types/sequelize": "^4.27.44",
 		"@types/socket.io": "^2.1.2",
 		"cross-env": "^5.2.0",
 		"tsc-watch": "^2.1.2",
-		"tslint": "^5.13.1",
-		"typescript": "^3.3.3333"
+		"tslint": "^5.14.0",
+		"typescript": "^3.3.4000"
 	}
 }

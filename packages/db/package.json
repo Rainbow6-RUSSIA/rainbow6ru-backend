@@ -13,18 +13,19 @@
   "dependencies": {
     "@r6ru/types": "0.0.0",
     "@r6ru/utils": "0.0.0",
-    "pg": "^7.8.0",
+    "discord.js": "https://github.com/discordjs/discord.js#579283d",
+    "pg": "^7.9.0",
     "reflect-metadata": "^0.1.13",
-    "sequelize": "^4.42.0",
-    "sequelize-typescript": "^0.6.7",
-    "discord.js": "https://github.com/discordjs/discord.js#579283d"
+    "restify": "^8.2.0",
+    "sequelize": "^5.3.1",
+    "sequelize-typescript": "^0.6.8"
   },
   "devDependencies": {
-    "@types/node": "^10.12.18",
-    "@types/sequelize": "^4.27.34",
+    "@types/node": "^11.11.7",
+    "@types/sequelize": "^4.27.44",
     "@types/socket.io": "^2.1.2",
     "cross-env": "^5.2.0",
-    "typescript": "^3.3.3333",
-    "tslint": "^5.12.1"
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.4000"
   }
 }

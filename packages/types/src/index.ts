@@ -1,6 +1,3 @@
-import * as Discord from 'discord.js';
-// import * as Akairo from 'discord-akairo';
-
 export const RankResolvable = [
     'Unranked',
     'Copper IV', 'Copper III', 'Copper II', 'Copper I',
@@ -79,3 +76,12 @@ export interface IJWT {
 }
 
 export const ONLINE_TRACKER = 'https://r6tab.com/';
+
+export const DefaultSocial = {
+    discord: [],
+    steam: [],
+    twitch: [],
+    vk: [],
+    youtube: [],
+};
+

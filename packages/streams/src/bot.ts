@@ -1,7 +1,9 @@
 import { MapR6 } from '@r6ru/db';
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler} from 'discord-akairo';
-import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import ENV from './utils/env';
+
+const { Op } = Sequelize;
 
 class Bot extends AkairoClient {
     private commandHandler: CommandHandler;
@@ -18,6 +20,9 @@ class Bot extends AkairoClient {
             prefix: ENV.PREFIX,
             allowMention: true,
             defaultCooldown: 1000,
+            defaultPrompt: {
+                time: 120000,
+            },
         });
 
         this.inhibitorHandler = new InhibitorHandler(this, {

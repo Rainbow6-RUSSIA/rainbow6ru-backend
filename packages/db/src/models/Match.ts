@@ -2,8 +2,8 @@ import { MATCH_TYPE } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
 import { AllowNull, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
 import MapR6 from './MapR6';
-import Pool from './Pool';
 import Team from './Team';
+import Tournament from './Tournament';
 import User from './User';
 import Vote from './Vote';
 
@@ -34,9 +34,6 @@ export default class Match extends Model<Match> {
     @HasMany(() => Vote)
     public votes: Vote[];
 
-    @BelongsToMany(() => MapR6, () => Pool)
-    public pool: MapR6[];
-
     @Column(DataType.JSONB)
     public poolCache: MapR6[];
 
@@ -50,12 +47,13 @@ export default class Match extends Model<Match> {
     @BelongsTo(() => Team, 'team1Id')
     public team1: Team;
 
-    public async swap() {
-        const t0 = await this.$get('team0');
-        const t1 = await this.$get('team1');
-        await this.$set('team0', t1);
-        await this.$set('team1', t0);
-        await this.reload();
-        await this.save();
-    }
+    @ForeignKey(() => Tournament)
+    @Column
+    public tournamentId: number;
+
+    @BelongsTo(() => Tournament)
+    public tournament: Tournament;
+
+    @Column
+    public swapped: boolean;
 }
