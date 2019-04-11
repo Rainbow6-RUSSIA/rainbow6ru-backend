@@ -32,7 +32,7 @@ export default class Start extends Command {
         }
 
         await match.updateAttributes({
-            poolCache: match.pool.map((p) => p.toJSON()),
+            poolCache: match.tournament.pool.map((p) => p.toJSON()),
         });
 
         const c0 = await User.find({where: {teamId: match.team0Id}});
@@ -54,7 +54,7 @@ export default class Start extends Command {
                 });
                 if (prmpt + n === 1) {
                     console.log('Swapping...', [match.team0.dataValues, match.team1.dataValues]);
-                    await match.swap();
+                    // await match.swap();
                     [caps[0], caps[1]] = [caps[1], caps[0]];
                     [teamIds[0], teamIds[1]] = [teamIds[1], teamIds[0]];
                     await match.reload();
@@ -67,25 +67,25 @@ export default class Start extends Command {
 
         for (let i = 0; i < match.poolCache.length - 1; i++) {
             console.log('Vote №', i);
-            const poolStr = match.pool.map((m, j) => `${(j + 1).toString(36).toUpperCase()}. **${m.titleRu}**`).join('\n');
+            const poolStr = match.tournament.pool.map((m, j) => `${(j + 1).toString(36).toUpperCase()}. **${m.titleRu}**`).join('\n');
             console.log('TCL: Start -> publicexec -> poolStr', `<@${caps[i % 2]}>, **убирайте** одну из следующих карт:\n ${poolStr}`.length);
 
             const banOrNot = (match.matchType === 'bo1') || (match.matchType === 'bo3' && !([3, 2].includes(i))) || (match.matchType === 'bo5' && !([5, 4, 3, 2].includes(i)));
 
-            const texts = new Array(match.pool.length).fill(null).map((_, j) => [(j + 1).toString(36), match.pool[j].id, match.pool[j].titleEn.toLowerCase(), match.pool[j].titleRu.toLowerCase()]);
+            const texts = new Array(match.tournament.pool.length).fill(null).map((_, j) => [(j + 1).toString(36), match.tournament.pool[j].id, match.tournament.pool[j].titleEn.toLowerCase(), match.tournament.pool[j].titleRu.toLowerCase()]);
             console.log('TCL: Start -> publicexec -> texts', texts);
             const prmpt = await combinedPrompt(await message.channel.send(`<@${caps[i % 2]}>, **${banOrNot ? 'убирайте' : 'выбирайте'}** одну из следующих карт:\n ${poolStr}`) as Message, {
                 author: this.client.users.get(caps[i % 2]),
-                emojis: emojiNumbers(match.pool.length),
+                emojis: emojiNumbers(match.tournament.pool.length),
                 texts,
                 time: 15 * 60 * 1000,
             });
 
             console.log('Prompt resolved', prmpt);
 
-            const vote = await Vote.create<Vote>({type: banOrNot ? 'ban' : 'pick', teamId: teamIds[i % 2], mapId: match.pool[prmpt].id});
+            const vote = await Vote.create<Vote>({type: banOrNot ? 'ban' : 'pick', teamId: teamIds[i % 2], mapId: match.tournament.pool[prmpt].id});
             console.log('Purging pool');
-            await match.$remove('pool', match.pool[prmpt]);
+            await match.$remove('pool', match.tournament.pool[prmpt]);
             console.log('Appending vote');
             await match.$add('votes', vote);
 
@@ -95,9 +95,9 @@ export default class Start extends Command {
             io.to(match.id + '/map_vote').emit('map_vote', match.toJSON());
         }
 
-        const decider = await Vote.create<Vote>({type: 'decider', mapId: match.pool[0].id});
+        const decider = await Vote.create<Vote>({type: 'decider', mapId: match.tournament.pool[0].id});
         console.log('Purging pool');
-        await match.$remove('pool', match.pool[0]);
+        await match.$remove('pool', match.tournament.pool[0]);
         console.log('Appending vote');
         await match.$add('votes', decider);
 

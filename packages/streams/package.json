@@ -8,7 +8,7 @@
 	"author": "BadCoder1337",
 	"scripts": {
 		"build": "tsc -p .",
-		"dev": "lerna run build --parallel --ignore=@r6ru/streams && tsc-watch --onSuccess \"node ./build/index.js\"",
+		"dev": "lerna run build --parallel --ignore=@r6ru/streams --ignore=@r6ru/*-front && tsc-watch --onSuccess \"node ./build/index.js\"",
 		"start": "node ./build/index.js"
 	},
 	"dependencies": {
@@ -26,7 +26,7 @@
 		"reflect-metadata": "^0.1.13",
 		"restify": "^8.2.0",
 		"restify-errors": "^7.0.0",
-		"sequelize": "^5.1.1",
+		"sequelize": "^5.3.1",
 		"sequelize-typescript": "^0.6.8",
 		"socket.io": "^2.1.1",
 		"socketio-jwt": "^4.5.0"

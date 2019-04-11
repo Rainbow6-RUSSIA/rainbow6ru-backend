@@ -1,4 +1,4 @@
-import { ACCESS, IHistoryRecord, RANKS, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { ACCESS, RANKS, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
 import Guild from './Guild';
@@ -43,10 +43,10 @@ export default class User extends Model<User> {
     @Column(DataType.ARRAY(DataType.UUID))
     public genomeHistory: string[];
 
-    @Column(DataType.STRING(15))
+    @Column(DataType.STRING(20))
     public nickname: string;
 
-    @Column(DataType.ARRAY(DataType.STRING(15)))
+    @Column(DataType.ARRAY(DataType.STRING(20)))
     public nicknameHistory: string[];
 
     @Column

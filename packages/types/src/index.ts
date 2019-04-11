@@ -76,3 +76,12 @@ export interface IJWT {
 }
 
 export const ONLINE_TRACKER = 'https://r6tab.com/';
+
+export const DefaultSocial = {
+    discord: [],
+    steam: [],
+    twitch: [],
+    vk: [],
+    youtube: [],
+};
+

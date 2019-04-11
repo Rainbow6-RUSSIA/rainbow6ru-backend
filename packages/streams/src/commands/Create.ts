@@ -56,13 +56,6 @@ export default class Create extends Command {
                         infinite: true,
                     },
                 },
-                {
-                    id: 'legacy',
-                    type: ['yes', 'no'],
-                    prompt: {
-                        start: 'Провести жеребьёвку (yes/no)? Иначе начинает голосовать всегда первая команда.',
-                    },
-                },
             ],
             defaultPrompt: {
                 retries: 3,
@@ -95,7 +88,7 @@ export default class Create extends Command {
 
         const match = await Match.create<Match>({
             matchType: MATCH_TYPE[args.matchType.toUpperCase()],
-            legacy: args.legacy === 'no',
+            legacy: false,
             mapScore: [0, 0],
         });
         await match.$set('creator', await User.findByPk(message.author.id));
@@ -104,7 +97,7 @@ export default class Create extends Command {
         await match.$set('team1', dbTeam1);
         await match.reload({include: [{all: true}]});
         await match.updateAttributes({
-            poolCache: match.pool.map((p) => p.toJSON()),
+            poolCache: match.tournament.pool.map((p) => p.toJSON()),
         });
         message.reply(`матч создан, id: \`${match.id}\``);
     }

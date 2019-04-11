@@ -24,3 +24,4 @@ yarn-error.log*
 
 package.json.lerna_backup
 lerna-debug.log
+packages/*/tsconfig.tsbuildinfo

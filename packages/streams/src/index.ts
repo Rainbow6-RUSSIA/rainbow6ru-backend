@@ -3,8 +3,9 @@ dotenv.config();
 
 import db from '@r6ru/db';
 import ENV from './utils/env';
-db(ENV.DB);
 
-import './server';
-
-import './bot';
+(async () => {
+    await db(ENV.DB);
+    await import('./server');
+    await import('./bot');
+})();

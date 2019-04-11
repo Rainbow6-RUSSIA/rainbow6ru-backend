@@ -2,7 +2,6 @@ import { MATCH_TYPE } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
 import { AllowNull, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
 import MapR6 from './MapR6';
-import Pool from './Pool';
 import Team from './Team';
 import Tournament from './Tournament';
 import User from './User';
@@ -55,14 +54,6 @@ export default class Match extends Model<Match> {
     @BelongsTo(() => Tournament)
     public tournament: Tournament;
 
+    @Column
     public swapped: boolean;
-
-    public async swap() {
-        const t0 = await this.$get('team0');
-        const t1 = await this.$get('team1');
-        await this.$set('team0', t1);
-        await this.$set('team1', t0);
-        await this.reload();
-        await this.save();
-    }
 }

@@ -20,6 +20,9 @@ class Bot extends AkairoClient {
             prefix: ENV.PREFIX,
             allowMention: true,
             defaultCooldown: 1000,
+            defaultPrompt: {
+                time: 120000,
+            },
         });
 
         this.inhibitorHandler = new InhibitorHandler(this, {

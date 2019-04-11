@@ -7,16 +7,16 @@ import MapR6 from './models/MapR6';
 import Match from './models/Match';
 import Pool from './models/Pool';
 import Team from './models/Team';
+import Tournament from './models/Tournament';
+import TournamentMod from './models/TournamentMod';
 import User from './models/User';
 import Vote from './models/Vote';
 
 export default async (url: string, logging = false) => {
     const DB = new Sequelize({ url, logging });
     await DB.authenticate();
-    DB.addModels([Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, User, Vote]);
-    await DB.sync({ force: process.env.DROP_DB === 'true' });
+    DB.addModels([Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, Tournament, TournamentMod, User, Vote]);
+    await DB.sync({ force: process.env.DROP_DB === 'true', alter: process.env.ALTER_DB === 'true' });
 };
 
-export {
-    Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, User, Vote,
-};
+export { Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, Tournament, TournamentMod, User, Vote };

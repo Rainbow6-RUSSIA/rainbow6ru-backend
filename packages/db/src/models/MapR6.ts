@@ -1,6 +1,6 @@
-import { AllowNull, BelongsToMany, Column, DataType, ForeignKey, HasMany, Model, PrimaryKey, Table, Unique } from 'sequelize-typescript';
-import Match from './Match';
+import { AllowNull, BelongsToMany, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import Pool from './Pool';
+import Tournament from './Tournament';
 import Vote from './Vote';
 
 @Table({schema: 'streambot'})
@@ -21,8 +21,8 @@ export default class MapR6 extends Model<MapR6> {
     @Column
     public titleEn: string;
 
-    @BelongsToMany(() => Match, () => Pool)
-    public matchPools: Match[];
+    @BelongsToMany(() => Tournament, () => Pool)
+    public tournamentPools: Tournament[];
 
     @HasMany(() => Vote)
     public votes: Vote[];
