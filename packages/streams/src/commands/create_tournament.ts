@@ -104,7 +104,7 @@ export default class CreateTournament extends Command { // update all|newseason|
         const dbUsers = await User.findAll({
             where: {id: [message.guild.ownerID, message.author.id, ...members.map((m) => m.id)]},
         });
-        if (dbUsers.length !== members.length) {
+        if (members.filter((m) => !members.map((dbm) => dbm.id).includes(m.id)).length) {
             message.reply(`пользователь(-ли) <@${members.filter((m) => !members.map((dbm) => dbm.id).includes(m.id)).map((u) => u.id).join('>, <@')}> не зарегистрированы, поэтому не будут добавлены в состав модераторов.`);
         }
         await tournament.$set('guild', await Guild.findByPk(message.guild.id));

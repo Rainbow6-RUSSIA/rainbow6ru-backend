@@ -1,14 +1,14 @@
 import { handleActions } from 'redux-actions';
+import { TodoActions } from '../actions/todos';
+import { TodoModel } from '../models';
 import { RootState } from './state';
-import { TodoActions } from 'app/actions/todos';
-import { TodoModel } from 'app/models';
 
 const initialState: RootState.TodoState = [
   {
+    completed: false,
     id: 1,
     text: 'Use Redux',
-    completed: false
-  }
+  },
 ];
 
 export const todoReducer = handleActions<RootState.TodoState, TodoModel>(
@@ -17,11 +17,11 @@ export const todoReducer = handleActions<RootState.TodoState, TodoModel>(
       if (action.payload && action.payload.text) {
         return [
           {
-            id: state.reduce((max, todo) => Math.max(todo.id || 1, max), 0) + 1,
             completed: false,
-            text: action.payload.text
+            id: state.reduce((max, todo) => Math.max(todo.id || 1, max), 0) + 1,
+            text: action.payload.text,
           },
-          ...state
+          ...state,
         ];
       }
       return state;
@@ -39,7 +39,7 @@ export const todoReducer = handleActions<RootState.TodoState, TodoModel>(
     },
     [TodoActions.Type.COMPLETE_TODO]: (state, action) => {
       return state.map((todo) =>
-        todo.id === (action.payload as any) ? { ...todo, completed: !todo.completed } : todo
+        todo.id === (action.payload as any) ? { ...todo, completed: !todo.completed } : todo,
       );
     },
     [TodoActions.Type.COMPLETE_ALL]: (state, action) => {
@@ -47,7 +47,7 @@ export const todoReducer = handleActions<RootState.TodoState, TodoModel>(
     },
     [TodoActions.Type.CLEAR_COMPLETED]: (state, action) => {
       return state.filter((todo) => todo.completed === false);
-    }
+    },
   },
-  initialState
+  initialState,
 );

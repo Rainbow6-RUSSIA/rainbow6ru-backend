@@ -40,16 +40,6 @@ export default class Create extends Command {
                     },
                 },
                 {
-                    id: 'pool',
-                    match: 'none',
-                    type: pool,
-                    prompt: {
-                        start: `Введите пул карт в матче. Называйте по одной карте в сообщении. Введите \`stop\` для остановки.\nДоступные карты: \`${pool.join('`, `')}\``,
-                        limit: pool.length,
-                        infinite: true,
-                    },
-                },
-                {
                     id: 'teams',
                     match: 'none',
                     type: 'number',
@@ -75,7 +65,7 @@ export default class Create extends Command {
             where: {[Op.and]:
                 [{guildId: message.guild.id}, {active: true}],
             },
-            order: ['id', 'DESC'],
+            order: [['id', 'DESC']],
             include: [{all: true}],
         });
         if (!dbTournament) {
@@ -97,11 +87,11 @@ export default class Create extends Command {
         });
         await match.$set('team0', dbTeam0);
         await match.$set('team1', dbTeam1);
+        await match.$set('tournament', dbTournament);
         await match.reload({include: [{all: true}]});
-        await match.updateAttributes({
-            poolCache: match.tournament.pool.map((p) => p.toJSON()),
-        });
-        message.reply(`матч создан, id: \`${match.id}\``);
+        match.poolCache = dbTournament.pool.map((p) => p.toJSON());
+        await match.save();
+        message.reply(`матч создан!\nОверлей банов https://cdn.rainbow6russia.ru/streams/map_vote#${match.id}\nХуд https://cdn.rainbow6russia.ru/streams/header#${match.id}`);
         message.reply('```js\n' + JSON.stringify(match, null, 2) + '```', {split: {prepend: '```js\n', append: '```'}});
     }
 }

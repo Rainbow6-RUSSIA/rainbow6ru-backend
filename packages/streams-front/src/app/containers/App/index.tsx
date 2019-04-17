@@ -1,22 +1,22 @@
 import * as React from 'react';
-import * as style from './style.css';
 import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router';
-import { TodoActions } from 'app/actions';
-import { RootState } from 'app/reducers';
-import { TodoModel } from 'app/models';
-import { omit } from 'app/utils';
-import { Header, TodoList, Footer } from 'app/components';
+import { bindActionCreators, Dispatch } from 'redux';
+import { TodoActions } from '../../actions';
+import { Footer, Header, TodoList } from '../../components';
+import { TodoModel } from '../../models';
+import { RootState } from '../../reducers';
+import { omit } from '../../utils';
+import * as style from './style.css';
 
-const FILTER_VALUES = (Object.keys(TodoModel.Filter) as (keyof typeof TodoModel.Filter)[]).map(
-  (key) => TodoModel.Filter[key]
+const FILTER_VALUES = (Object.keys(TodoModel.Filter) as Array<keyof typeof TodoModel.Filter>).map(
+  (key) => TodoModel.Filter[key],
 );
 
 const FILTER_FUNCTIONS: Record<TodoModel.Filter, (todo: TodoModel) => boolean> = {
   [TodoModel.Filter.SHOW_ALL]: () => true,
   [TodoModel.Filter.SHOW_ACTIVE]: (todo) => !todo.completed,
-  [TodoModel.Filter.SHOW_COMPLETED]: (todo) => todo.completed
+  [TodoModel.Filter.SHOW_COMPLETED]: (todo) => todo.completed,
 };
 
 export namespace App {
@@ -34,12 +34,12 @@ export namespace App {
     return { todos: state.todos, filter };
   },
   (dispatch: Dispatch): Pick<App.Props, 'actions'> => ({
-    actions: bindActionCreators(omit(TodoActions, 'Type'), dispatch)
-  })
+    actions: bindActionCreators(omit(TodoActions, 'Type'), dispatch),
+  }),
 )
 export class App extends React.Component<App.Props> {
-  static defaultProps: Partial<App.Props> = {
-    filter: TodoModel.Filter.SHOW_ALL
+  public static defaultProps: Partial<App.Props> = {
+    filter: TodoModel.Filter.SHOW_ALL,
   };
 
   constructor(props: App.Props, context?: any) {
@@ -48,18 +48,18 @@ export class App extends React.Component<App.Props> {
     this.handleFilterChange = this.handleFilterChange.bind(this);
   }
 
-  handleClearCompleted(): void {
+  public handleClearCompleted(): void {
     const hasCompletedTodo = this.props.todos.some((todo) => todo.completed || false);
     if (hasCompletedTodo) {
       this.props.actions.clearCompleted();
     }
   }
 
-  handleFilterChange(filter: TodoModel.Filter): void {
+  public handleFilterChange(filter: TodoModel.Filter): void {
     this.props.history.push(`#${filter}`);
   }
 
-  render() {
+  public render() {
     const { todos, actions, filter } = this.props;
     const activeCount = todos.length - todos.filter((todo) => todo.completed).length;
     const filteredTodos = filter ? todos.filter(FILTER_FUNCTIONS[filter]) : todos;

@@ -1,5 +1,5 @@
 import { createAction } from 'redux-actions';
-import { TodoModel } from 'app/models';
+import { TodoModel } from '../models';
 
 export namespace TodoActions {
   export enum Type {
@@ -8,7 +8,7 @@ export namespace TodoActions {
     DELETE_TODO = 'DELETE_TODO',
     COMPLETE_TODO = 'COMPLETE_TODO',
     COMPLETE_ALL = 'COMPLETE_ALL',
-    CLEAR_COMPLETED = 'CLEAR_COMPLETED'
+    CLEAR_COMPLETED = 'CLEAR_COMPLETED',
   }
 
   export const addTodo = createAction<PartialPick<TodoModel, 'text'>>(Type.ADD_TODO);
