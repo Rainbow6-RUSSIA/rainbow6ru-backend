@@ -8,7 +8,7 @@
 	"author": "BadCoder1337",
 	"scripts": {
 		"build": "tsc -p .",
-		"dev": "lerna run build --parallel --ignore=@r6ru/streams --ignore=@r6ru/*-front && tsc-watch --onSuccess \"node ./build/index.js\"",
+		"dev": "lerna run build --parallel --scope=@r6ru/streams --include-filtered-dependencies && tsc-watch --onSuccess \"node ./build/index.js\"",
 		"start": "node ./build/index.js"
 	},
 	"dependencies": {

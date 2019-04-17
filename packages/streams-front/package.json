@@ -30,7 +30,9 @@
     "@types/react-dom": "^16.8.0",
     "@types/react-redux": "^7.0.0",
     "@types/react-router": "^4.4.3",
+    "@types/react-router-dom": "^4.3.2",
     "@types/redux-actions": "^2.3.1",
+    "@types/socket.io-client": "^1.4.32",
     "@types/webpack": "^4.4.23",
     "@types/webpack-env": "^1.13.6",
     "babel-loader": "^8.0.5",
@@ -60,12 +62,15 @@
     "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
+    "@r6ru/db": "0.0.0",
     "classnames": "^2.2.6",
     "history": "^4.9.0",
     "react": "^16.8.1",
+    "react-animations": "^1.0.0",
     "react-dom": "^16.8.1",
     "react-redux": "^6.0.0",
     "react-router": "^4.3.1",
+    "react-router-dom": "^5.0.0",
     "redux": "^4.0.1",
     "redux-actions": "^2.6.4",
     "socket.io-client": "^2.2.0"

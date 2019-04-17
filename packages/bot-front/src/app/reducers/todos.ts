@@ -5,9 +5,9 @@ import { RootState } from './state';
 
 const initialState: RootState.TodoState = [
   {
+    completed: false,
     id: 1,
     text: 'Use Redux',
-    completed: false,
   },
 ];
 
@@ -17,8 +17,8 @@ export const todoReducer = handleActions<RootState.TodoState, TodoModel>(
       if (action.payload && action.payload.text) {
         return [
           {
-            id: state.reduce((max, todo) => Math.max(todo.id || 1, max), 0) + 1,
             completed: false,
+            id: state.reduce((max, todo) => Math.max(todo.id || 1, max), 0) + 1,
             text: action.payload.text,
           },
           ...state,
