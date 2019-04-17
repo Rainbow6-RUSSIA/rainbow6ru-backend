@@ -14,11 +14,11 @@
 	"dependencies": {
 		"dotenv": "^7.0.0",
 		"node-fetch": "^2.3.0",
-		"pg": "^7.8.1",
+		"pg": "^7.10.0",
 		"reflect-metadata": "^0.1.12",
 		"restify": "^8.1.0",
 		"restify-errors": "^7.0.0",
-		"sequelize": "^5.3.1",
+		"sequelize": "^5.6.0",
 		"sequelize-typescript": "^0.6.8",
 		"ts-enum-util": "^4.0.0"
 	},
@@ -28,7 +28,7 @@
 		"@types/node-fetch": "^2.1.7",
 		"@types/restify": "^7.2.9",
 		"tsc-watch": "^2.1.2",
-		"tslint": "^5.13.1",
+		"tslint": "^5.16.0",
 		"typescript": "^3.3.4000"
 	}
 }

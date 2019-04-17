@@ -10,9 +10,6 @@
   "devDependencies": {
     "@types/node": "^11.11.7",
     "@types/socket.io": "^2.1.2",
-    "tslint": "^5.14.0"
-  },
-  "dependencies": {
-    "restify": "^8.2.0"
+    "tslint": "^5.16.0"
   }
 }
