@@ -1,7 +1,8 @@
 import { MATCH_TYPE } from '@r6ru/types';
-import { AllowNull, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
+import { AllowNull, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
 import MapR6 from './MapR6';
 import Team from './Team';
+import TeamMatch from './TeamMatch';
 import Tournament from './Tournament';
 import Vote from './Vote';
 
@@ -30,15 +31,8 @@ export default class Match extends Model<Match> {
     @Column(DataType.JSONB)
     public poolCache: MapR6[];
 
-    @ForeignKey(() => Team)
-    public team0Id: number;
-    @BelongsTo(() => Team, 'team0Id')
-    public team0: Team;
-
-    @ForeignKey(() => Team)
-    public team1Id: number;
-    @BelongsTo(() => Team, 'team1Id')
-    public team1: Team;
+    @BelongsToMany(() => Team, () => TeamMatch)
+    public teams: Array<Team & {TeamMatch: TeamMatch}>;
 
     @ForeignKey(() => Tournament)
     @Column
@@ -47,6 +41,7 @@ export default class Match extends Model<Match> {
     @BelongsTo(() => Tournament)
     public tournament: Tournament;
 
+    @Default(false)
     @Column
     public swapped: boolean;
 }

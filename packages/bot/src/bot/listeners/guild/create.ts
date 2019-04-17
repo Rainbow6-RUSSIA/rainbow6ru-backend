@@ -1,3 +1,5 @@
+import { Guild as G } from '@r6ru/db';
+import { VERIFICATION_LEVEL } from '@r6ru/types';
 import { Listener } from 'discord-akairo';
 import { Guild } from 'discord.js';
 
@@ -8,7 +10,17 @@ export default class Create extends Listener {
             event: 'guildCreate',
         });
     }
-    public exec(guild: Guild) {
+    public async exec(guild: Guild) {
         console.log('​Create -> publicexec -> guild', guild);
+        await new G({
+            id: guild.id,
+            lfgChannels: {},
+            logsChannel: '',
+            platformRoles: {},
+            premium: false,
+            requiredVerification: VERIFICATION_LEVEL.NONE,
+            roomsRange: [0, 5],
+            voiceCategories: {},
+        }).save();
     }
 }

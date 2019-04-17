@@ -19,7 +19,10 @@ export default class Start extends Command {
                 [{guildId: message.guild.id}, {active: true}],
             },
             order: ['id', 'DESC'],
-            include: [{all: true}],
+            include: [
+                {all: true},
+                {model: Match, include: [{all: true}]},
+            ],
         });
         if (!dbTournament) {
             return message.reply('на сервере нет активных турниров!');
@@ -33,7 +36,7 @@ export default class Start extends Command {
         }
         let match: Match;
         if (matches.length > 1) {
-            const pick = await combinedPrompt(await message.reply(`уточните, какой матч вы хотите запустить:\n${matches.map((m, i) => `${i + 1}. ${m.team0.name} vs. ${m.team1.name}, id: \`${m.id}\``).join('\n')}`) as Message,
+            const pick = await combinedPrompt(await message.reply(`уточните, какой матч вы хотите запустить:\n${matches.map((m, i) => `${i + 1}. ${m.teams[0].name} vs. ${m.teams[1].name}, id: \`${m.id}\``).join('\n')}`) as Message,
                 {
                     author: message.author,
                     texts: new Array(matches.length).fill(0).map((_, i) => (i + 1).toString()),
@@ -51,10 +54,10 @@ export default class Start extends Command {
             poolCache: match.tournament.pool.map((p) => p.toJSON()),
         });
 
-        const c0 = await User.find({where: {teamId: match.team0Id}});
-        const c1 = await User.find({where: {teamId: match.team1Id}});
+        const c0 = await User.find({where: {teamId: match.teams[0].id}});
+        const c1 = await User.find({where: {teamId: match.teams[1].id}});
         const caps = [c0.id, c1.id];
-        const teamIds = [match.team0Id, match.team1Id];
+        const teamIds = [match.teams[0].id, match.teams[1].id];
 
         await match.$set('votes', null);
 
@@ -69,7 +72,7 @@ export default class Start extends Command {
                     time: 15 * 60 * 1000,
                 });
                 if (prmpt + n === 1) {
-                    console.log('Swapping...', [match.team0.dataValues, match.team1.dataValues]);
+                    console.log('Swapping...', [match.teams[0].id.dataValues, match.teams[1].id.dataValues]);
                     // await match.swap();
                     [caps[0], caps[1]] = [caps[1], caps[0]];
                     [teamIds[0], teamIds[1]] = [teamIds[1], teamIds[0]];
@@ -77,7 +80,7 @@ export default class Start extends Command {
                     await match.save();
                     io.to(match.id + '/map_vote').emit('swap', match.toJSON());
                     io.to(match.id + '/header').emit('swap', match.toJSON());
-                    console.log('After...', [match.team0.dataValues, match.team1.dataValues]);
+                    console.log('After...', [match.teams[0].dataValues, match.teams[1].dataValues]);
                 }
             }
 

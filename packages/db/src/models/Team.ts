@@ -1,5 +1,6 @@
 import { BelongsToMany, Column, DataType, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
 import Match from './Match';
+import TeamMatch from './TeamMatch';
 import User from './User';
 import Vote from './Vote';
 
@@ -23,11 +24,8 @@ export default class Team extends Model<Team> {
     @HasMany(() => User)
     public members: User[];
 
-    @HasMany(() => Match, 'team0Id')
-    public matchesLeft: Match[];
-
-    @HasMany(() => Match, 'team1Id')
-    public matchesRight: Match[];
+    @BelongsToMany(() => Match, () => TeamMatch)
+    public matches: Array<Match & {TeamMatch: TeamMatch}>;
 
     @HasMany(() => Vote)
     public votes: Vote[];

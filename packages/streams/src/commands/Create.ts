@@ -36,7 +36,7 @@ export default class Create extends Command {
                     id: 'matchType',
                     type: ['bo1', 'bo2', 'bo3', 'bo5', 'bo7'],
                     prompt: {
-                        start: 'Сколько игр будет в матче (1, 2, 3, 5, 7)?',
+                        start: 'Сколько игр будет в матче (bo1, bo2, bo3, bo5, 7)?',
                     },
                 },
                 {
@@ -74,9 +74,8 @@ export default class Create extends Command {
         if (!dbTournament.moderators.map((u) => u.id).includes(message.author.id)) {
             return message.reply('вы не являетесь модератором турнира');
         }
-        const dbTeam0 = await Team.findByPk(args.teams[0]);
-        const dbTeam1 = await Team.findByPk(args.teams[1]);
-        if (!dbTeam0 || !dbTeam1) {
+        const dbTeams = await Team.findAll({ where: { id: args.teams }});
+        if (dbTeams.length < 2) {
             return message.reply('команда(-ы) не найдена(-ы)');
         }
 
@@ -84,9 +83,9 @@ export default class Create extends Command {
             matchType: MATCH_TYPE[args.matchType.toUpperCase()],
             legacy: false,
             mapScore: [0, 0],
+            swapped: args.teams[0] > args.teams[1],
         });
-        await match.$set('team0', dbTeam0);
-        await match.$set('team1', dbTeam1);
+        await match.$set('teams', dbTeams);
         await match.$set('tournament', dbTournament);
         await match.reload({include: [{all: true}]});
         match.poolCache = dbTournament.pool.map((p) => p.toJSON());

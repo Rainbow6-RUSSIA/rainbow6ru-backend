@@ -16,10 +16,10 @@ export default class Guild extends Model<Guild> {
     public id: Snowflake; // discord snowflake
 
     @Column(DataType.INTEGER)
-    public fixAfter: RANKS; // siege rank to fix
+    public fixAfter: RANKS;
 
     @Column(DataType.JSONB)
-    public rankRoles: string[]; // any rank to any role
+    public rankRoles: string[];
 
     @Column(DataType.JSONB)
     public platformRoles: {
