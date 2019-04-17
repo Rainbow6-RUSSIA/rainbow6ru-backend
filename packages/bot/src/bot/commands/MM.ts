@@ -4,7 +4,7 @@ import { Message } from 'discord.js';
 export default class MM extends Command {
     public constructor() {
         super('MM', {
-            aliases: ['MM', 'casual', 'ranked'],
+            aliases: ['MM', 'party'],
         });
     }
     public exec(message: Message) {

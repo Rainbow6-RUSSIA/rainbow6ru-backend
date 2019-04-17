@@ -16,6 +16,10 @@ export default class Tournament extends Model<Tournament> {
     @Column
     public shortName: string;
 
+    @Default(true)
+    @Column
+    public active: boolean;
+
     @Column(DataType.ARRAY(DataType.STRING))
     public sponsors: string[];
 
@@ -43,8 +47,8 @@ export default class Tournament extends Model<Tournament> {
     public matches: Match[];
 
     @BelongsToMany(() => MapR6, () => Pool)
-    public pool: MapR6[];
+    public pool: Array<MapR6 & {Pool: Pool}>;
 
     @BelongsToMany(() => User, () => TournamentMod)
-    public moderators: User[];
+    public moderators: Array<User & {TournamentMod: TournamentMod}>;
 }

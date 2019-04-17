@@ -10,7 +10,7 @@
 	"typings": "build/index.d.ts",
 	"scripts": {
 		"build": "tsc -p .",
-		"dev": "lerna run build --parallel --ignore=@r6ru/bot && tsc-watch --onSuccess \"node ./build/index.js\"",
+		"dev": "lerna run build --parallel --scope=@r6ru/bot --include-filtered-dependencies && tsc-watch --onSuccess \"node ./build/index.js\"",
 		"start": "node ./build/index.js"
 	},
 	"dependencies": {
@@ -31,33 +31,35 @@
 		"passport": "^0.4.0",
 		"passport-jwt": "^4.0.0",
 		"passport-oauth2": "^1.4.0",
-		"pg": "^7.8.1",
+		"pg": "^7.10.0",
 		"pngjs": "^3.4.0",
+		"pretty-bytes": "^5.1.0",
 		"reflect-metadata": "^0.1.12",
-		"restify": "^8.1.0",
+		"restify": "^8.3.0",
 		"restify-errors": "^7.0.0",
-		"sequelize": "^5.3.1",
-		"sequelize-typescript": "^0.6.8",
+		"sequelize": "^5.6.0",
+		"sequelize-typescript": "^0.6.10",
 		"ts-enum-util": "^4.0.0"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^3.0.0",
-		"@types/dotenv": "^6.1.0",
+		"@types/dotenv": "^6.1.1",
 		"@types/jsonwebtoken": "^8.3.1",
-		"@types/node": "^11.12.1",
-		"@types/node-fetch": "^2.1.7",
+		"@types/node": "^11.13.4",
+		"@types/node-fetch": "^2.3.2",
 		"@types/passport": "^1.0.0",
 		"@types/passport-jwt": "^3.0.1",
 		"@types/passport-local": "^1.0.33",
 		"@types/pngjs": "^3.3.2",
+		"@types/pretty-bytes": "^5.1.0",
 		"@types/redis": "^2.8.12",
 		"@types/restify": "^7.2.9",
 		"@types/socket.io": "^2.1.2",
-		"bluebird": "^3.5.3",
+		"bluebird": "^3.5.4",
 		"cross-env": "^5.2.0",
 		"redis": "^2.8.0",
 		"tsc-watch": "^2.1.2",
-		"tslint": "^5.13.1",
-		"typescript": "^3.3.4000"
+		"tslint": "^5.16.0",
+		"typescript": "^3.4.3"
 	}
 }

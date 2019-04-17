@@ -51,7 +51,7 @@ export default class Guild extends Model<Guild> {
     public premium: boolean; // idk mb unused in future
 
     @BelongsToMany(() => User, () => GuildBlacklist)
-    public blacklist: User[];
+    public blacklist: Array<User & {GuildBlacklist: GuildBlacklist}>;
 
     @Column(DataType.INTEGER)
     public requiredVerification: VERIFICATION_LEVEL;

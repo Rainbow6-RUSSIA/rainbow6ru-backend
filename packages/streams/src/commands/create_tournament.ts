@@ -80,6 +80,7 @@ export default class CreateTournament extends Command { // update all|newseason|
                 },
             ],
             channel: 'guild',
+            userPermissions: 'MANAGE_ROLES',
         });
     }
     public async exec(message: Message, args: IArgs) {

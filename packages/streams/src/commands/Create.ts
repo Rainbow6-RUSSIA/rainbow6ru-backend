@@ -1,7 +1,8 @@
-import { MapR6, Match, Team, User } from '@r6ru/db';
+import { Guild, MapR6, Match, Team, Tournament, User } from '@r6ru/db';
 import { MATCH_TYPE } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
+import { Sequelize } from 'sequelize-typescript';
 import { pool } from '../bot';
 
 interface IArgs {
@@ -12,6 +13,8 @@ interface IArgs {
 }
 
 let teamPool: Team[] = [];
+
+const { Op } = Sequelize;
 
 function getTeams() {
     (async () => {
@@ -57,6 +60,7 @@ export default class Create extends Command {
                     },
                 },
             ],
+            channel: 'guild',
             defaultPrompt: {
                 retries: 3,
                 time: 60 * 1000,
@@ -67,19 +71,19 @@ export default class Create extends Command {
     }
 
     public async exec(message: Message, args: IArgs) {
-        // Match.create({
-        //     creator: await User.findByPk(message.author.id)
-        // })
-        // console.log(args);
-        const dbPool = await MapR6.findAll({
-            where: {
-                id: args.pool,
+        const dbTournament = await Tournament.findOne({
+            where: {[Op.and]:
+                [{guildId: message.guild.id}, {active: true}],
             },
+            order: ['id', 'DESC'],
+            include: [{all: true}],
         });
-        if (dbPool.length % 2 === 0) {
-            return message.reply('Количество карт в пуле должно быть нечетным!');
+        if (!dbTournament) {
+            return message.reply('на сервере нет активных турниров!');
         }
-
+        if (!dbTournament.moderators.map((u) => u.id).includes(message.author.id)) {
+            return message.reply('вы не являетесь модератором турнира');
+        }
         const dbTeam0 = await Team.findByPk(args.teams[0]);
         const dbTeam1 = await Team.findByPk(args.teams[1]);
         if (!dbTeam0 || !dbTeam1) {
@@ -91,8 +95,6 @@ export default class Create extends Command {
             legacy: false,
             mapScore: [0, 0],
         });
-        await match.$set('creator', await User.findByPk(message.author.id));
-        await match.$set('pool', dbPool);
         await match.$set('team0', dbTeam0);
         await match.$set('team1', dbTeam1);
         await match.reload({include: [{all: true}]});
@@ -100,5 +102,6 @@ export default class Create extends Command {
             poolCache: match.tournament.pool.map((p) => p.toJSON()),
         });
         message.reply(`матч создан, id: \`${match.id}\``);
+        message.reply('```js\n' + JSON.stringify(match, null, 2) + '```', {split: {prepend: '```js\n', append: '```'}});
     }
 }

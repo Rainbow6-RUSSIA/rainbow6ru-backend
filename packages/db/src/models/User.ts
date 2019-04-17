@@ -1,13 +1,15 @@
 import { ACCESS, RANKS, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
+import { Snowflake } from 'discord.js';
+
 import Guild from './Guild';
 import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
-import Team from './Team';
-
-import { Snowflake } from 'discord.js';
 import Match from './Match';
+import Team from './Team';
+import Tournament from './Tournament';
+import TournamentMod from './TournamentMod';
 
 @Table({schema: 'siegebot', timestamps: true})
 export default class User extends Model<User> {
@@ -75,11 +77,11 @@ export default class User extends Model<User> {
     @BelongsTo(() => Team)
     public team: Team;
 
-    @HasMany(() => Match)
-    public matches: Match[];
+    @BelongsToMany(() => Tournament, () => TournamentMod)
+    public tournaments: Array<Tournament & {TournamentMod: TournamentMod}>;
 
     @BelongsToMany(() => Guild, () => GuildBlacklist)
-    public bannedAt: Guild[];
+    public bannedAt: Array<Guild & {GuildBlacklist: GuildBlacklist}>;
 
     @Column(DataType.INTEGER)
     public rank: RANKS;

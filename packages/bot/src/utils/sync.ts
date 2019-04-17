@@ -86,21 +86,21 @@ export async function syncMember(dbGuild: G, dbUser: U) {
     const currentRankRoles = member.roles.keyArray().filter((r) => dbGuild.rankRoles.includes(r));
 
     if (currentRankRoles.length > 1) {
-      await member.roles.remove(dbGuild.rankRoles.filter(Boolean), 'удаляю роли перед обновлением...');
+      member = await member.roles.remove(dbGuild.rankRoles.filter(Boolean), 'удаляю роли перед обновлением...');
       if (dbGuild.rankRoles[dbUser.rank]) {
-        await member.roles.add(dbGuild.rankRoles[dbUser.rank], '...готово');
+        member = await member.roles.add(dbGuild.rankRoles[dbUser.rank], '...готово');
       }
       console.log(`[BOT] User ${member.user.tag} updated!`);
     } else if (currentRankRoles.length === 1) {
       const currentRank = dbGuild.rankRoles.indexOf(currentRankRoles[0]);
       if ((dbUser.rank > currentRank || currentRank < dbGuild.fixAfter || dbUser.rank === 0) && currentRankRoles[0] !== dbGuild.rankRoles[dbUser.rank]) {
-        await member.roles.remove(dbGuild.rankRoles[currentRank], 'удаляю роли перед обновлением...');
-        await member.roles.add(dbGuild.rankRoles[dbUser.rank], '...готово');
+        member = await member.roles.remove(dbGuild.rankRoles[currentRank], 'удаляю роли перед обновлением...');
+        member = await member.roles.add(dbGuild.rankRoles[dbUser.rank], '...готово');
         console.log(`[BOT] User ${member.user.tag} updated!`);
       }
     } else {
       if (dbGuild.rankRoles[dbUser.rank]) {
-        await member.roles.add(dbGuild.rankRoles[dbUser.rank], 'пользователь обновлен');
+        member = await member.roles.add(dbGuild.rankRoles[dbUser.rank], 'пользователь обновлен');
         console.log(`[BOT] User ${member.user.tag} updated!`);
       }
     }

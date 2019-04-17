@@ -1,5 +1,6 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
 import ENV from './utils/env';
+import { update } from './utils/lobby';
 
 class Bot extends AkairoClient {
     private commandHandler: CommandHandler;
@@ -47,6 +48,10 @@ class Bot extends AkairoClient {
 }
 
 const bot = new Bot();
-bot.login(ENV.DISCORD_TOKEN);
+
+(async () => {
+    await bot.login(ENV.DISCORD_TOKEN);
+    await update();
+})();
 
 export default bot;

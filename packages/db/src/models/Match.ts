@@ -1,19 +1,12 @@
 import { MATCH_TYPE } from '@r6ru/types';
-import { Snowflake } from 'discord.js';
-import { AllowNull, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
+import { AllowNull, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
 import MapR6 from './MapR6';
 import Team from './Team';
 import Tournament from './Tournament';
-import User from './User';
 import Vote from './Vote';
 
 @Table({schema: 'streambot'})
 export default class Match extends Model<Match> {
-    @ForeignKey(() => User)
-    public creatorId: string;
-
-    @BelongsTo(() => User)
-    public creator: User;
 
     @Column(DataType.STRING(5))
     public matchType: MATCH_TYPE;

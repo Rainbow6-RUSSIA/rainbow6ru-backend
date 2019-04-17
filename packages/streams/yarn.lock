@@ -2,15 +2,10 @@
 # yarn lockfile v1
 
 
-"@types/bluebird@*":
+"@types/bluebird@*", "@types/bluebird@3.5.26":
   version "3.5.26"
   resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.26.tgz#a38c438ae84fa02431d6892edf86e46edcbca291"
   integrity sha512-aj2mrBLn5ky0GmAg6IPXrQjnN0iB/ulozuJ+oZdrHRAzRbXjGmu4UXsNCjFvPbSaaPZmniocdOzsM392qLOlmQ==
-
-"@types/bluebird@3.5.18":
-  version "3.5.18"
-  resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.18.tgz#6a60435d4663e290f3709898a4f75014f279c4d6"
-  integrity sha512-OTPWHmsyW18BhrnG5x8F7PzeZ2nFxmHGb42bZn79P9hl+GI5cMzyPgQTwNjbem0lJhoru/8vtjAFCUOu3+gE2w==
 
 "@types/body-parser@*":
   version "1.17.0"
@@ -73,10 +68,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.7.tgz#f1c35a906b82adae76ede5ab0d2088e58fa37843"
   integrity sha512-bHbRcyD6XpXVLg42QYaQCjvDXaCFkvb3WbCIxSDmhGbJYVroxvYzekk9QGg1beeIawfvSLkdZpP0h7jxE4ihnA==
 
-"@types/node@6.0.41":
-  version "6.0.41"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.41.tgz#578cf53aaec65887bcaf16792f8722932e8ff8ea"
-  integrity sha1-V4z1Oq7GWIe8rxZ5L4ciky6P+Oo=
+"@types/node@11.12.2":
+  version "11.12.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.12.2.tgz#d7f302e74b10e9801d52852137f652d9ee235da8"
+  integrity sha512-c82MtnqWB/CqqK7/zit74Ob8H1dBdV7bK+BcErwtXbe0+nUGkgzq5NTDmRW/pAv2lFtmeNmW95b0zK2hxpeklg==
 
 "@types/passport@^1.0.0":
   version "1.0.0"
@@ -99,10 +94,10 @@
     "@types/node" "*"
     "@types/spdy" "*"
 
-"@types/sequelize@4.27.34":
-  version "4.27.34"
-  resolved "https://registry.yarnpkg.com/@types/sequelize/-/sequelize-4.27.34.tgz#8ac436f23015d8a8ef3163db4400908b17ce3f91"
-  integrity sha512-s2NjoIbZewDn64SrZlHZWqJcotK/Ae9m9nh0jcV/5r3ufcHWguLfEr+165Un9eZtRZszY5vDDNzy4jWc5gptDQ==
+"@types/sequelize@4.27.46":
+  version "4.27.46"
+  resolved "https://registry.yarnpkg.com/@types/sequelize/-/sequelize-4.27.46.tgz#f4bc7aafa45f264837200364b31172ad8aff4a33"
+  integrity sha512-hqosowwLJsLrR+A8IOVgGQaToaBAZE54WLJmjxARaoHC4hl4lmfzXPNY/JGn3hmxNIhb6klHs7skQ2uJPrlXSA==
   dependencies:
     "@types/bluebird" "*"
     "@types/continuation-local-storage" "*"
@@ -1525,13 +1520,13 @@ sequelize-pool@^1.0.2:
     bluebird "^3.5.3"
 
 sequelize-typescript@^0.6.8:
-  version "0.6.8"
-  resolved "https://registry.yarnpkg.com/sequelize-typescript/-/sequelize-typescript-0.6.8.tgz#29c7ee4e14f0fdb1756f8d9915c30695975b7b8c"
-  integrity sha512-mJqXeXwEwpFtr66aTWiNccp1itlunVqafHNWMzkoLDMHQVZ3+gEIeMFe2Pv2m7FoEYa9G/5tnM7pSZ79iksldw==
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/sequelize-typescript/-/sequelize-typescript-0.6.9.tgz#89a35b7e8e0afd6be74e781df5cc06c2884ff8fc"
+  integrity sha512-8A5gi8BpKx4Gk9BjD3Dxrv7Ps/7PpZuYfoVkQXNMuL9a4M2d2fKZiBLurSA/5KmNgdVrLKKRkyJxghBpFR7tNg==
   dependencies:
-    "@types/bluebird" "3.5.18"
-    "@types/node" "6.0.41"
-    "@types/sequelize" "4.27.34"
+    "@types/bluebird" "3.5.26"
+    "@types/node" "11.12.2"
+    "@types/sequelize" "4.27.46"
     es6-shim "0.35.3"
     glob "7.1.2"
 

@@ -22,7 +22,7 @@ export default class MapR6 extends Model<MapR6> {
     public titleEn: string;
 
     @BelongsToMany(() => Tournament, () => Pool)
-    public tournamentPools: Tournament[];
+    public tournamentPools: Array<Tournament & {Pool: Pool}>;
 
     @HasMany(() => Vote)
     public votes: Vote[];

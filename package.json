@@ -4,9 +4,9 @@
   "main": "bootstrap.js",
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build",
+    "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
     "postinstall": "yarn bootstrap && yarn build",
-    "start": "node bootstrap.js"
+    "start": "node ./packages/$PACKAGE_NAME/build/index.js"
   },
   "engines": {
     "node": "10.15.x",

@@ -1,8 +1,11 @@
-import { MapR6, Match, Team, User, Vote } from '@r6ru/db';
+import { MapR6, Match, Team, Tournament, User, Vote } from '@r6ru/db';
 import { combinedPrompt, emojiNumbers } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
+import { Sequelize } from 'sequelize-typescript';
 import { io } from '../server';
+
+const { Op } = Sequelize;
 
 export default class Start extends Command {
     public constructor() {
@@ -11,7 +14,20 @@ export default class Start extends Command {
         });
     }
     public async exec(message: Message) {
-        const matches = await Match.findAll({where: {creatorId: message.author.id}, include: [{all: true}], order: ['id']});
+        const dbTournament = await Tournament.findOne({
+            where: {[Op.and]:
+                [{guildId: message.guild.id}, {active: true}],
+            },
+            order: ['id', 'DESC'],
+            include: [{all: true}],
+        });
+        if (!dbTournament) {
+            return message.reply('на сервере нет активных турниров!');
+        }
+        if (!dbTournament.moderators.map((u) => u.id).includes(message.author.id)) {
+            return message.reply('вы не являетесь модератором турнира');
+        }
+        const { matches } = dbTournament;
         if (!matches.length) {
             return message.reply('вы не создали ни одного матча!');
         }
