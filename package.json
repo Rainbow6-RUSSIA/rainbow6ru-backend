@@ -3,7 +3,7 @@
   "private": true,
   "main": "bootstrap.js",
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "bootstrap": "lerna bootstrap --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
     "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
     "postinstall": "yarn bootstrap && yarn build",
     "start": "node ./packages/$PACKAGE_NAME/build/index.js"
