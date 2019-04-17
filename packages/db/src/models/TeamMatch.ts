@@ -3,7 +3,7 @@ import {AutoIncrement, Column, DataType, ForeignKey, Model, PrimaryKey, Table, U
 import Match from './Match';
 import Team from './Team';
 
-@Table({schema: 'siegebot'})
+@Table({schema: 'streambot'})
 export default class TeamMatch extends Model<TeamMatch> {
     @ForeignKey(() => Team)
     @Column
