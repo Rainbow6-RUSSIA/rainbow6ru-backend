@@ -19,6 +19,7 @@ export default class Massban extends Command { // update all|newseason|numofpack
                 prompt: {
                     infinite: true,
                     start: 'Кого забанить нахуй?. Упоминайте по одному участнику в сообщении. Введите \`stop\` для остановки.',
+                    time: 60 * 1000,
                 },
                 type: 'user',
             }],

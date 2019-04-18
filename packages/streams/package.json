@@ -9,7 +9,8 @@
 	"scripts": {
 		"build": "tsc -p .",
 		"dev": "lerna run build --parallel --scope=@r6ru/streams --include-filtered-dependencies && tsc-watch --onSuccess \"node ./build/index.js\"",
-		"start": "node ./build/index.js"
+		"start": "node ./build/index.js",
+		"bootstrap": "lerna bootstrap --scope=@r6ru/streams --include-filtered-dependencies"
 	},
 	"dependencies": {
 		"@r6ru/db": "0.0.0",

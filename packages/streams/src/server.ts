@@ -1,4 +1,4 @@
-import { MapR6, Match, Team, User, Vote } from '@r6ru/db';
+import { MapR6, Match, Pool, Team, Tournament, User, Vote } from '@r6ru/db';
 import * as restify from 'restify';
 import * as socketio from 'socket.io';
 
@@ -21,8 +21,17 @@ io.sockets.on('connection', (socket) => {
         if (!e.id || !e.room) { return; }
         console.log('Moving new listener to', e.id + '/' + e.room);
         socket.join(e.id + '/' + e.room);
-        const match = await Match.findByPk(e.id, {include: [{all: true}]});
-        socket.emit('init', match && match.toJSON());
+        console.log('start eager loading');
+        const match = await Match.findByPk(e.id, {include: [
+            {all: true},
+            // {model: Tournament, include: [
+            //     {all: true},
+            //     {model: MapR6, include: [{all: true}]},
+            // ]},
+            {model: Vote, include: [{all: true}]},
+        ]});
+        console.log('init sent');
+        socket.emit('init', match && match.dataValues);
     });
 });
 

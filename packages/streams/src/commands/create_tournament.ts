@@ -80,6 +80,12 @@ export default class CreateTournament extends Command { // update all|newseason|
                 },
             ],
             channel: 'guild',
+            defaultPrompt: {
+                retries: 3,
+                time: 120 * 1000,
+                cancel: 'Отмена!',
+                retry: 'Неверный ввод!',
+            },
             userPermissions: 'MANAGE_ROLES',
         });
     }
