@@ -45,7 +45,7 @@ export class Decider extends React.Component<IDeciderProps, IDeciderState> {
         </div>
         <div className={style.decider} style={{backgroundImage: `url(${this.props.vote.map.splash})`}}>
             <div className={style.glyphPlaceholder} style={{backgroundPosition: 'center center'}}>
-                <img src="../../../assets/icons/handshake.svg"/>
+                <img src="https://cdn.rainbow6russia.ru/streams/assets/icons/handshake.svg"/>
             </div>
             <p className={style.teamActionText}>{this.props.vote.map.titleRu}</p>
         </div>

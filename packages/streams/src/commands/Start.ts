@@ -32,9 +32,9 @@ export default class Start extends Command {
         if (!dbTournament.moderators.map((u) => u.id).includes(message.author.id)) {
             return message.reply('вы не являетесь модератором турнира');
         }
-        const { matches } = dbTournament;
+        const matches = dbTournament.matches.filter((m) => m.active);
         if (!matches.length) {
-            return message.reply('вы не создали ни одного матча!');
+            return message.reply('нет активных матчей!');
         }
         let match: Match;
         if (matches.length > 1) {

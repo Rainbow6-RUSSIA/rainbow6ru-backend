@@ -1,6 +1,5 @@
 import { Team, Vote as V } from '@r6ru/db';
 import { Textfit } from '@wootencl/react-textfit';
-import { easing } from 'popmotion';
 import * as React from 'react';
 import posed, { PoseGroup } from 'react-pose';
 import { FadeInDown } from '.';
@@ -18,8 +17,8 @@ export interface ILogState {
 }
 
 const PoseWrapper = posed.div({
-  enter: { opacity: 1, ease: easing.easeIn },
-  exit: { opacity: 0, ease: easing.easeIn },
+  enter: { opacity: 1, transition: { opacity: {ease: 'easeIn'} } },
+  exit: { opacity: 0, transition: { opacity: {ease: 'easeIn'} } },
 });
 
 export class Log extends React.Component<ILogProps, ILogState> {

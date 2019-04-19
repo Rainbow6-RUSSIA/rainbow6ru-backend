@@ -20,10 +20,10 @@ export default class Match extends Model<Match> {
     @Column
     public legacy: boolean;
 
-    @Default(false)
+    @Default(true)
     @AllowNull(false)
     @Column
-    public ready: boolean;
+    public active: boolean;
 
     @HasMany(() => Vote)
     public votes: Vote[];

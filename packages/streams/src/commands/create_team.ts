@@ -72,6 +72,6 @@ export default class CreateTeam extends Command { // update all|newseason|numofp
             message.reply(`пользователь(-ли) <@${args.members.filter((m) => !dbUsers.map((dbm) => dbm.id).includes(m.id)).map((u) => u.id).join('>, <@')}> не зарегистрированы, поэтому не будут добавлены в команду.`);
         }
     team.$set('members', dbUsers);
-    message.reply('команда создана');
+    return message.reply('команда создана');
     }
 }
