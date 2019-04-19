@@ -1,4 +1,4 @@
-import { BelongsToMany, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { BelongsToMany, Column, DataType, Default, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
 import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
@@ -47,6 +47,7 @@ export default class Guild extends Model<Guild> {
     @Column(DataType.ARRAY(DataType.INTEGER))
     public roomsRange: [number, number];
 
+    @Default(false)
     @Column
     public premium: boolean; // idk mb unused in future
 

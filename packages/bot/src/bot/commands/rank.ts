@@ -29,7 +29,7 @@ export default class Rank extends Command {
                 id: 'bound',
                 prompt: {
                     ended: 'Слишком много попыток. Проверьте правильность и начните регистрацию сначала.',
-                    retries: 3,
+                    retries: 0,
                     retry: 'Некорректный ник Uplay! Проверьте правильность и попробуйте еще раз.',
                     start: 'Введите корректный ник в Uplay!',
                     time: 30000,
@@ -59,11 +59,15 @@ export default class Rank extends Command {
                 throw bound.err;
             }
             const GInst = await Guild.findByPk(message.guild.id);
-            const { platformRoles } = GInst;
+            const nonPremium = GInst.premium === false;
+            const platformRoles = nonPremium ? null : GInst.platformRoles;
 
             let adminAction: boolean = null;
 
+            // console.log(target, member);
+
             if (target && member.id !== target.id && (member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id))) {
+                console.log('switch admin mode');
                 adminAction = true;
             } else if (target && member.id !== target.id) {
                 return message.reply('регистрация других пользователей доступна **только администрации**');
@@ -89,13 +93,13 @@ export default class Rank extends Command {
             }
 
             const currentRoles = target.roles.keyArray();
-            const platform = {
+            const platform = nonPremium ? null : {
                 PC: currentRoles.includes(platformRoles.PC),
                 PS4: currentRoles.includes(platformRoles.PS4),
                 XBOX: currentRoles.includes(platformRoles.XBOX),
             };
-            const activePlatform = $enum(PLATFORM).getValues().find((p) => platform[p]);
-            if ((!adminAction) && (activePlatform !== bound.platform)) {
+            const activePlatform = nonPremium ? null : $enum(PLATFORM).getValues().find((p) => platform[p]);
+            if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
                     return message.reply('выбранная вами платформа не совпадает с платформой указанного аккаунта!');
             }
             const rawRank = (await r6.api.getRank(bound.platform, bound.genome))[bound.genome];
@@ -113,7 +117,9 @@ export default class Rank extends Command {
                 return message.reply('указанный аккаунт не имеет Rainbow Six Siege');
             }
             // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);
-            platform[bound.platform] = true;
+            if (!nonPremium) {
+                platform[bound.platform] = true;
+            }
             UInst = new User({
                 genome: bound.genome,
                 id: target.id,
@@ -123,8 +129,9 @@ export default class Rank extends Command {
                 rankUpdatedAt: new Date(),
                 region: mainRegion,
                 requiredVerification:
-                    ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter) ? VERIFICATION_LEVEL.QR
-                        : GInst.requiredVerification,
+                    nonPremium ? VERIFICATION_LEVEL.NONE
+                     : ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter) ? VERIFICATION_LEVEL.QR
+                            : GInst.requiredVerification,
                 verificationLevel:
                     (target.nickname || '').includes(bound.nickname) ||
                         target.user.username.includes(bound.nickname) ? VERIFICATION_LEVEL.MATCHNICK

@@ -16,6 +16,8 @@ class Bot extends AkairoClient {
             defaultCooldown: 1000,
             directory: __dirname + '/bot/commands/',
             fetchMembers: true,
+            ignoreCooldown: this.ownerID,
+            ignorePermissions: this.ownerID,
             loadFilter: (path) => path.split('.').pop() === 'js',
             prefix: ENV.PREFIX,
             // handleEdits: true,
