@@ -1,16 +1,15 @@
 import { Listener } from 'discord-akairo';
-import { MapR6 } from '@r6ru/db';
 
 class ReadyListener extends Listener {
     constructor() {
         super('ready', {
             emitter: 'client',
-            event: 'ready'
+            event: 'ready',
         });
     }
 
     public exec() {
-        console.log('[BOT] I\'m ready!');
+        console.log('[BOT] Logged as', this.client.user.tag);
     }
 }
 
