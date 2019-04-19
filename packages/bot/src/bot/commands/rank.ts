@@ -63,7 +63,7 @@ export default class Rank extends Command {
 
             let adminAction: boolean = null;
 
-            if (target && member.id !== target.id && member.hasPermission('MANAGE_ROLES')) {
+            if (target && member.id !== target.id && (member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id))) {
                 adminAction = true;
             } else if (target && member.id !== target.id) {
                 return message.reply('регистрация других пользователей доступна **только администрации**');
