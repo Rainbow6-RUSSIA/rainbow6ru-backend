@@ -18,6 +18,8 @@ class Bot extends AkairoClient {
             directory: __dirname + '/commands',
             loadFilter,
             prefix: ENV.PREFIX,
+            ignoreCooldown: this.ownerID,
+            ignorePermissions: this.ownerID,
             allowMention: true,
             defaultCooldown: 1000,
             defaultPrompt: {
