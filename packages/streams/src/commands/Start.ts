@@ -38,16 +38,20 @@ export default class Start extends Command {
         }
         let match: Match;
         if (matches.length > 1) {
-            const pick = await combinedPrompt(await message.reply(`уточните, какой матч вы хотите запустить:\n${matches.map((m, i) => `${i + 1}. ${m.teams[0].name} vs. ${m.teams[1].name}, id: \`${m.id}\``).join('\n')}`) as Message,
+            const pick = await combinedPrompt(await message.reply(`уточните, какой матч вы хотите запустить:\n0. Отмена\n${matches.map((m, i) => `${i + 1}. ${m.teams[0].name} vs. ${m.teams[1].name}, id: \`${m.id}\``).join('\n')}`) as Message,
                 {
                     author: message.author,
-                    texts: new Array(matches.length).fill(0).map((_, i) => (i + 1).toString()),
+                    texts: new Array(matches.length + 1).fill(0).map((_, i) => (i).toString()),
                 },
             );
-            if (pick === -1) {
-                return message.reply('время вышло.');
+            switch (pick) {
+                case -1:
+                    return message.reply('время вышло.');
+                case 0:
+                    return message.reply('отмена!');
+                default:
+                    match = matches[pick - 1];
             }
-            match = matches[pick];
         } else {
             match = matches[0];
         }
