@@ -2,19 +2,36 @@ import { Guild, User } from '@r6ru/db';
 import { VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, User as U } from 'discord.js';
 import ENV from '../../utils/env';
 import { verify } from '../../utils/qr';
 import { syncMember } from '../../utils/sync';
+
+interface IArgs {
+    target: U;
+}
 
 export default class Verify extends Command {
     public constructor() {
         super('verify', {
             aliases: ['verify', 'V'],
+            args: [{
+                default: (msg: Message) => msg.author,
+                id: 'target',
+                type: 'user',
+            }],
             cooldown: 5000,
         });
     }
-    public async exec(message: Message) {
+    public async exec(message: Message, args: IArgs) {
+        const { target } = args;
+        if (target.id !== message.author.id && (!(message.member.hasPermission('MANAGE_ROLES')) || ![...this.client.ownerID].includes(message.author.id))) {
+            message.reply('верификация других пользователей доступна только администрации!');
+        } else {
+            return message.channel.type === 'text'
+                ? this.verifyMember(message, await User.findByPk(target.id))
+                : message.reply('верификация других пользователей возможна только на серверах!');
+        }
         const UInst = await User.findByPk(message.author.id);
         if (UInst && UInst.genome) {
             if (UInst.verificationLevel >= VERIFICATION_LEVEL.QR) {
@@ -28,6 +45,12 @@ export default class Verify extends Command {
         } else {
             return message.reply('вы должны сначала зарегистрироваться!');
         }
+    }
+
+    private async verifyMember(message: Message, UInst: User) {
+        UInst.requiredVerification = VERIFICATION_LEVEL.QR;
+        await UInst.save();
+        await syncMember(await Guild.findByPk(message.guild.id), UInst);
     }
 
     private async verifyDM(message: Message, UInst: User) {

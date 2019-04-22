@@ -25,7 +25,7 @@ export default class Update extends Command { // update all|newseason|numofpacks
     }
     public async exec(message: Message, args: IUpdateArgs) {
         const UInst = await U.findByPk(args.user.id);
-        UInst.requiredVerification = args.verification || UInst.requiredVerification;
+        UInst.verificationLevel = args.verification || UInst.verificationLevel;
         await UInst.save();
         await syncMember(await G.findByPk(message.guild.id), UInst);
         return message.reply('обновлено!');
