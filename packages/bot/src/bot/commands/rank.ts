@@ -130,7 +130,7 @@ export default class Rank extends Command {
                 region: mainRegion,
                 requiredVerification:
                     nonPremium ? VERIFICATION_LEVEL.NONE
-                     : ((Date.now() - target.user.createdTimestamp) < 1000 * 60 * 60 * 24 * 7 || rawRank[mainRegion].rank >= GInst.fixAfter || (await r6.api.getLevel(bound.platform, bound.genome))[bound.genome].level < 75) ? VERIFICATION_LEVEL.QR
+                     : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= GInst.fixAfter || (await r6.api.getLevel(bound.platform, bound.genome))[bound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
                             : GInst.requiredVerification,
                 verificationLevel:
                     (target.nickname || '').includes(bound.nickname) ||

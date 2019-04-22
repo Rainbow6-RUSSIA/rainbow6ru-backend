@@ -11,6 +11,8 @@ class IEnv {
     // public MIGRATE = '';
     public COOLDOWN = '';
     public KEY256 = '';
+    public REQUIRED_ACCOUNT_AGE = '';
+    public REQUIRED_LEVEL = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file
