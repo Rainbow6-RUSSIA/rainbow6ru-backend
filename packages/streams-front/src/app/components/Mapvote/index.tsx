@@ -76,9 +76,9 @@ export class Mapvote extends React.Component<IMapvoteProps, IMapvoteState> {
     return (
       <FadeInDown className={style.container} pose={isVisible ? 'out' : 'in'}>
         <div className={style.logs}>
-          <Log votes={votes.filter((v, i) => Boolean(i % 2) === !match.swapped && v.type !== 'decider')} team={match.teams[0]}/>
+          <Log votes={votes.filter((v, i) => Boolean(i % 2) === match.swapped && v.type !== 'decider')} team={match.teams[0]}/>
           {match.votes[match.poolCache.length - 1] ? <Decider vote={match.votes[match.poolCache.length - 1]} teams={match.teams}/> : null}
-          <Log votes={votes.filter((v, i) => Boolean(i % 2) === match.swapped && v.type !== 'decider')} team={match.teams[1]}/>
+          <Log votes={votes.filter((v, i) => Boolean(i % 2) === !match.swapped && v.type !== 'decider')} team={match.teams[1]}/>
         </div>
         {match.poolCache.length > 7 ? null : <Footer votes={match.votes} poolCache={match.poolCache} />}
       </FadeInDown>

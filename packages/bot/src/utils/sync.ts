@@ -54,7 +54,7 @@ export async function sendQrRequest(dbGuild: G, dbUser: U, member: GuildMember) 
   await (await bot.guilds.get(dbGuild.id).members.fetch(dbUser.id)).roles.remove([...dbGuild.rankRoles.filter(Boolean), ...Object.values(dbGuild.platformRoles).filter(Boolean)], 'запрос верификации');
   const QR = await generate(dbUser.genome, dbUser.id);
   await member.send(
-    `Здравствуйте!\n\nДля дальнейшей игры вам необходимо подтвердить факт владения указанным аккаунтом Осады - вам нужно будет поставить прикрепленное изображение c QR-кодом на аватар **Uplay**.\nПосле смены аватара введите здесь команду \`${ENV.PREFIX}verify\`\nСменить аватар можно на https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar`,
+    `Здравствуйте!\n\nДля дальнейшей игры вам необходимо подтвердить факт владения указанным аккаунтом Осады (\`${dbUser.nickname}\`) - вам нужно будет поставить прикрепленное изображение c QR-кодом на аватар **Uplay**.\nПосле смены аватара введите здесь команду \`${ENV.PREFIX}verify\`\nСменить аватар можно на https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar`,
     new MessageAttachment(Buffer.from(QR.buffer), 'QR-verification.png'),
   );
   return false;
