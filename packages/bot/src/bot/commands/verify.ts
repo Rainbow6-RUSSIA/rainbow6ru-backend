@@ -25,12 +25,8 @@ export default class Verify extends Command {
     }
     public async exec(message: Message, args: IArgs) {
         const { target } = args;
-        if (target.id !== message.author.id && (!(message.member.hasPermission('MANAGE_ROLES')) || ![...this.client.ownerID].includes(message.author.id))) {
-            message.reply('верификация других пользователей доступна только администрации!');
-        } else {
-            return message.channel.type === 'text'
-                ? this.verifyMember(message, await User.findByPk(target.id))
-                : message.reply('верификация других пользователей возможна только на серверах!');
+        if (target.id !== message.author.id && ((message.channel.type === 'text' && message.member.hasPermission('MANAGE_ROLES')) || [...this.client.ownerID].includes(message.author.id))) {
+            return this.verifyMember(message, await User.findByPk(target.id));
         }
         const UInst = await User.findByPk(message.author.id);
         if (UInst && UInst.genome) {
