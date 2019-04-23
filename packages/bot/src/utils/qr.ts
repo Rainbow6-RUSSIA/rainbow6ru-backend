@@ -21,7 +21,7 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
             colorDark: 'rgba(0, 0, 0, 0.8)',
             colorLight: 'rgba(255, 255, 255, 1)',
             correctLevel: QRErrorCorrectLevel.H,
-            dotScale: 0.35,
+            dotScale: 0.6,
             drawPosition : false,
             logoCornerRadius: 8,
             margin: 5,
