@@ -34,11 +34,18 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
 }
 
 export async function verify(genome: UUID, id: string): Promise<boolean> {
-    const res = await fetch(`https://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`);
-    const buff = await res.buffer();
-    const img = PNG.sync.read(buff);
-    // const img = await new Promise<PNG>((resolve, reject) => png.parse(buff, (err, data) => err ? reject(err) : resolve(data)));
-    const code = readerQR(Uint8ClampedArray.from(img.data), img.width, img.height);
+    let res = await fetch(`https://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`);
+    let buff = await res.buffer();
+    let img = PNG.sync.read(buff);
+    let code = readerQR(Uint8ClampedArray.from(img.data), img.width, img.height);
+    if (code) {
+        const args = [code.data.slice(0, 18), code.data.slice(18)];
+        return createHash('md5').update(`${genome}_${args[0]}_${ENV.KEY256}`).digest('base64') === args[1] && args[0] === id;
+    }
+    res = await fetch(`http://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`);
+    buff = await res.buffer();
+    img = PNG.sync.read(buff);
+    code = readerQR(Uint8ClampedArray.from(img.data), img.width, img.height);
     if (code) {
         const args = [code.data.slice(0, 18), code.data.slice(18)];
         return createHash('md5').update(`${genome}_${args[0]}_${ENV.KEY256}`).digest('base64') === args[1] && args[0] === id;
