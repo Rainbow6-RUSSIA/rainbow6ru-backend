@@ -13,6 +13,8 @@ class IEnv {
     public KEY256 = '';
     public REQUIRED_ACCOUNT_AGE = '';
     public REQUIRED_LEVEL = '';
+    public LOGGING_WEBHOOK = '';
+    public EVENT_QUEUE_LENGTH = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file
@@ -22,7 +24,6 @@ class IDefaultEnv extends IEnv {
     public PORT = '';
     public REDIS_DB = '';
     public NODE_ENV = '';
-    public LOGGING_WEBHOOK = '';
     public VERIFIED_BADGE = '<:verified:562059822279819265>';
 }
 

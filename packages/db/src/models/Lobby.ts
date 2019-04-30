@@ -3,7 +3,7 @@ import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, Forei
 import Guild from './Guild';
 import User from './User';
 
-import { CategoryChannel, Guild as G, GuildMember, Invite, Snowflake, VoiceChannel } from 'discord.js';
+import { CategoryChannel, Guild as G, GuildMember, Invite, Message, Snowflake, VoiceChannel } from 'discord.js';
 
 interface IOpts {
     dcGuild?: G; // 1
@@ -42,6 +42,8 @@ export default class Lobby extends Model<Lobby> {
     public invite: string;
     public dcInvite: Invite;
 
+    public appealMessage: Message;
+
     @Column
     public type: string;
     public dcCategory: CategoryChannel;
@@ -60,6 +62,7 @@ export default class Lobby extends Model<Lobby> {
 
     @HasOne(() => User)
     public leader: User;
+    public dcLeader: GuildMember;
 
     @HasMany(() => User)
     public members: User[];

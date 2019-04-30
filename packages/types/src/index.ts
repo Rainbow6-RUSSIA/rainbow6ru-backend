@@ -85,3 +85,10 @@ export const DefaultSocial = {
     youtube: [],
 };
 
+export enum LobbyStoreEventType {
+    JOIN, LEAVE, MOVE, KICK
+}
+
+export enum LobbyStoreStatus {
+    LOADING, TRANSACTING, AVAILABLE
+}
