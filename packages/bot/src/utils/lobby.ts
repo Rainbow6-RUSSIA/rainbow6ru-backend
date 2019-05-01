@@ -174,7 +174,7 @@ export class LobbyStore extends EventEmitter {
 export const lobbyStores: Map<Snowflake, LobbyStore> = new Map();
 
 export async function update() {
-    const dbGuilds = await Guild.findAll({ where: { premium: true } }).filter((g) => g.id === '216649610511384576');
+    const dbGuilds = await Guild.findAll({ where: { premium: true } }).filter((g) => g.id === 'none'); // .filter((g) => g.id === '216649610511384576');
     dbGuilds.map((g) => {
         Object.entries(g.voiceCategories).map((ent) => lobbyStores.set(ent[1], new LobbyStore(ent[1], ent[0], g)));
     });

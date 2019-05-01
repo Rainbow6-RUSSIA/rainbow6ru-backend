@@ -123,6 +123,7 @@ export default class Rank extends Command {
             UInst = new User({
                 genome: bound.genome,
                 id: target.id,
+                inactive: false,
                 nickname: bound.nickname,
                 platform,
                 rank: rawRank[mainRegion].rank,

@@ -1,5 +1,5 @@
 import { ACCESS, RANKS, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
-import { BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AllowNull, BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, NotNull, PrimaryKey, Table } from 'sequelize-typescript';
 
 import { Snowflake } from 'discord.js';
 
@@ -57,6 +57,8 @@ export default class User extends Model<User> {
     @Column
     public nicknameUpdatedAt: Date;
 
+    @AllowNull(false)
+    @Default(false)
     @Column
     public inactive: boolean;
 
