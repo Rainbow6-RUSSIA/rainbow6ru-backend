@@ -51,9 +51,11 @@ export default class User extends Model<User> {
     @Column(DataType.ARRAY(DataType.STRING(20)))
     public nicknameHistory: string[];
 
+    @Default(new Date())
     @Column
     public rankUpdatedAt: Date;
 
+    @Default(new Date())
     @Column
     public nicknameUpdatedAt: Date;
 
@@ -62,6 +64,7 @@ export default class User extends Model<User> {
     @Column
     public inactive: boolean;
 
+    @Default(false)
     @Column
     public syncNickname: boolean;
 

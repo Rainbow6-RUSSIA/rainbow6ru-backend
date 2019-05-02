@@ -8,6 +8,6 @@ export default class Votekick extends Command {
         });
     }
     public exec(message: Message) {
-        console.log('​Votekick -> publicexec -> message', message);
+        return message.reply('команда скоро™ будет доступна');
     }
 }

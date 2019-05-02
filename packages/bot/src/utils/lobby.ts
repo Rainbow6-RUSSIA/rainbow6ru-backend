@@ -1,6 +1,6 @@
 import { Guild, Lobby, User } from '@r6ru/db';
-import { LobbyStoreStatus as LSS } from '@r6ru/types';
-import { CategoryChannel, GuildMember, Snowflake, VoiceChannel } from 'discord.js';
+import { IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
+import { CategoryChannel, GuildMember, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import { EventEmitter } from 'events';
 import { Sequelize } from 'sequelize-typescript';
 import bot from '../bot';
@@ -23,17 +23,123 @@ interface IActivityCounter {
 }
 
 export class LobbyStore extends EventEmitter {
+    public static detectIngameStatus = (presence: Presence): IngameStatus => {
+        const { activity } = presence;
+        if (activity && activity.applicationID === R6_PRESENCE_ID) {
+            const i = R6_PRESENCE_REGEXPS.map((a) => a.some((r) => r.test(activity.name))).findIndex(Boolean);
+            return i === -1 ? IngameStatus.OTHER : IngameStatus[IngameStatus[i]];
+        } else {
+            return IngameStatus.OTHER;
+        }
+    }
+
     public categoryId: Snowflake;
     public category: CategoryChannel;
+    public lfgChannel: TextChannel;
+    public lfgChannelId: Snowflake;
     public guild: Guild;
     public type: string;
-    public lobbys: Lobby[];
+    public lobbies: Lobby[];
     public voices: VoiceChannel[];
     // public blacklist: GuildMember[] = [];
     public events: Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;
 
-    public generateLobby = async (voice: VoiceChannel) => {
+    public init = async () => {
+        this.lobbies = await Promise.all(this.voices.map(this.generateLobby));
+        console.log('VOICES', this.voices.length, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
+        this.status = LSS.AVAILABLE;
+        console.log('STATUS', LSS[this.status]);
+
+        setInterval(this.watchEvents, 500);
+        setInterval(() => this.events.pop(), 1000);
+        // setInterval(this.blacklist.pop, 60000);
+    }
+    public kick = async (member: GuildMember) => {
+
+    }
+    public join = async (member: GuildMember, to: VoiceChannel) => {
+        console.log('VOICES', this.voices && this.voices.length, 'LOBBIES', this.lobbies && this.lobbies.length);
+        await this.waitReady();
+        console.log('Awaited');
+        this.status = LSS.TRANSACTING;
+        if (to.members.size === 1 && this.voices.length <= this.guild.roomsRange[1]) {
+            const lobby = this.lobbies.find((l) => l.dcChannel.id === to.id);
+            await lobby.$set('leader', await User.findById(member.id));
+            lobby.dcLeader = member;
+            const channelToClone = this.voices[this.voices.length - 1];
+            const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
+            this.voices = [...this.voices, clonedChannel];
+            this.lobbies.push(await this.generateLobby(clonedChannel));
+        }
+        this.addEvent({
+            member,
+            type: 'join',
+            voice: to,
+        });
+        this.status = LSS.AVAILABLE;
+    }
+    public leave = async (member: GuildMember, from: VoiceChannel) => {
+        console.log('VOICES', this.voices && this.voices.length, 'LOBBIES', this.lobbies && this.lobbies.length);
+        await this.waitReady();
+        console.log('Awaited');
+        this.status = LSS.TRANSACTING;
+        if (from.members.size === 0 && this.voices.length >= this.guild.roomsRange[0]) {
+            const lobbyToDisable = this.lobbies.find((l) => l.dcChannel === from);
+            const k = this.lobbies.findIndex((l) => l.dcChannel === from);
+            lobbyToDisable.active = false;
+            await lobbyToDisable.save();
+            this.lobbies.splice(k, 1);
+
+            const j = this.voices.findIndex((v) => v === from);
+            this.voices.splice(j, 1);
+            await from.delete();
+            await Promise.all(this.voices.sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
+        }
+        this.addEvent({
+            member,
+            type: 'leave',
+            voice: from,
+        });
+        this.status = LSS.AVAILABLE;
+    }
+    public internal = async (member: GuildMember, from: VoiceChannel, to: VoiceChannel) => {
+
+    }
+    public reportIngameStatus = async (member: GuildMember, status: IngameStatus) => {
+
+    }
+    constructor(id: Snowflake, type: string, dbGuild: Guild) {
+        super();
+        this.guild = dbGuild;
+        this.events = [];
+        this.categoryId = id;
+        this.category = bot.channels.get(this.categoryId) as CategoryChannel;
+        this.voices = this.category.children.filter((ch) => ch.type === 'voice').array().sort((a, b) => a.position - b.position) as VoiceChannel[];
+        this.type = type;
+        this.lfgChannelId = dbGuild.lfgChannels[this.type];
+        this.lfgChannel = bot.channels.get(this.lfgChannelId) as TextChannel;
+        if (this.lfgChannel.type === 'text') {
+            this.init();
+        }
+    }
+
+    private updateAppealMsg = async (lobby: Lobby) => {
+        const embed = {};
+        if (lobby.appealMessage) {
+            lobby.appealMessage.edit('@here');
+        } else {
+            this.lfgChannel.send('@here');
+        }
+    }
+
+    private addEvent = async (e: Partial<ILobbyStoreEvent>) => {
+        if (this.events.length >= parseInt(ENV.EVENT_QUEUE_LENGTH)) {
+            this.events.pop();
+        }
+        this.events.unshift(e);
+    }
+    private generateLobby = async (voice: VoiceChannel) => {
         const inv = await voice.createInvite();
         const lobby = new Lobby({
             channel: voice.id,
@@ -53,26 +159,7 @@ export class LobbyStore extends EventEmitter {
         await lobby.reload({ include: [{all: true}] });
         return lobby;
     }
-    public init = async () => {
-        this.lobbys = await Promise.all(this.voices.map(this.generateLobby));
-        console.log('VOICES', this.voices.length, 'LOBBYS', this.lobbys.length, 'ROOMS RANGE', this.guild.roomsRange);
-        this.status = LSS.AVAILABLE;
-        console.log('STATUS', LSS[this.status]);
-
-        setInterval(this.watchEvents, 500);
-        setInterval(() => this.events.pop(), 1000);
-        // setInterval(this.blacklist.pop, 60000);
-    }
-    public kick = async (member: GuildMember) => {
-
-    }
-    public addEvent = async (e: Partial<ILobbyStoreEvent>) => {
-        if (this.events.length >= parseInt(ENV.EVENT_QUEUE_LENGTH)) {
-            this.events.pop();
-        }
-        this.events.unshift(e);
-    }
-    public watchEvents = () => {
+    private watchEvents = () => {
         const grouppedByMember = this.events
             // .sort((a, b) => parseInt(a.member.id) - parseInt(b.member.id))
             .reduce((a: IActivityCounter[], b) => {
@@ -97,63 +184,6 @@ export class LobbyStore extends EventEmitter {
                 break;
         }
     }
-    public join = async (member: GuildMember, to: VoiceChannel) => {
-        console.log('VOICES', this.voices && this.voices.length, 'LOBBYS', this.lobbys && this.lobbys.length);
-        await this.waitReady();
-        console.log('Awaited');
-        this.status = LSS.TRANSACTING;
-        if (to.members.size === 1 && this.voices.length <= this.guild.roomsRange[1]) {
-            const channelToClone = this.voices[this.voices.length - 1];
-            const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
-            this.voices = [...this.voices, clonedChannel];
-            this.lobbys.push(await this.generateLobby(clonedChannel));
-        }
-        this.addEvent({
-            member,
-            type: 'join',
-            voice: to,
-        });
-        this.status = LSS.AVAILABLE;
-    }
-    public leave = async (member: GuildMember, from: VoiceChannel) => {
-        console.log('VOICES', this.voices && this.voices.length, 'LOBBYS', this.lobbys && this.lobbys.length);
-        await this.waitReady();
-        console.log('Awaited');
-        this.status = LSS.TRANSACTING;
-        if (from.members.size === 0 && this.voices.length >= this.guild.roomsRange[0]) {
-            const lobbyToDisable = this.lobbys.find((l) => l.dcChannel === from);
-            const k = this.lobbys.findIndex((l) => l.dcChannel === from);
-            lobbyToDisable.active = false;
-            await lobbyToDisable.save();
-            this.lobbys.splice(k, 1);
-
-            const j = this.voices.findIndex((v) => v === from);
-            this.voices.splice(j, 1);
-            await from.delete();
-            await Promise.all(this.voices.sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
-        }
-        this.addEvent({
-            member,
-            type: 'leave',
-            voice: from,
-        });
-        this.status = LSS.AVAILABLE;
-    }
-    public internal = async (member: GuildMember, from: VoiceChannel, to: VoiceChannel) => {
-
-    }
-    constructor(id: Snowflake, type: string, dbGuild: Guild) {
-        super();
-        this.categoryId = id;
-        this.category = bot.channels.get(this.categoryId) as CategoryChannel;
-        this.voices = this.category.children.filter((ch) => ch.type === 'voice').array().sort((a, b) => a.position - b.position) as VoiceChannel[];
-        this.type = type;
-        this.guild = dbGuild;
-        // this.blacklist = [];
-        this.events = [];
-        this.init();
-    }
-
     private atomicLeave = async () => {
 
     }

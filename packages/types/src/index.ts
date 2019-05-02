@@ -92,3 +92,20 @@ export enum LobbyStoreEventType {
 export enum LobbyStoreStatus {
     LOADING, TRANSACTING, AVAILABLE
 }
+
+export enum IngameStatus {
+    MENU, CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, OTHER
+}
+
+export const R6_PRESENCE_ID = '445956193924546560';
+export const R6_PRESENCE_REGEXPS = [
+    [/В\s+МЕНЮ/g,/in\s+MENU/g],
+    [/ОБЫЧНАЯ\s+ИГРА\:\s+раунд/g,/CASUAL\s+match\s+\-\s+Round/g],
+    [/Поиск\s+игры\:\s+ОБЫЧНАЯ\s+ИГРА/g,/Looking\s+for\s+CASUAL\s+match/g],
+    [/Игра\s+РЕЙТ\.\s+ИГРА\s+\-\s+раунд/g,/RANKED\s+match\s+\-\s+Round/g],
+    [/Поиск\s+игры\:\s+РЕЙТ\.\s+ИГРА/g,/Looking\s+for\s+RANKED\s+match/g],
+    [/Завершение\s+операции\s+"Антитеррор"/g,/Completing\s+a\s+TERRORIST\s+HUNT\s+mission/g],
+    [/Игра\s+ПОЛЬЗ\.\s+ИГРА\s+\-\s+раунд/g],
+    [/Поиск\s+игры\:\s+ПОЛЬЗ\.\s+ИГРА/g]
+
+]

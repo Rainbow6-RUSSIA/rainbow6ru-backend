@@ -125,18 +125,19 @@ export default class Rank extends Command {
                 id: target.id,
                 inactive: false,
                 nickname: bound.nickname,
+                nicknameUpdatedAt: new Date(),
                 platform,
                 rank: rawRank[mainRegion].rank,
                 rankUpdatedAt: new Date(),
                 region: mainRegion,
                 requiredVerification:
-                    nonPremium ? VERIFICATION_LEVEL.NONE
-                     : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= GInst.fixAfter || (await r6.api.getLevel(bound.platform, bound.genome))[bound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
-                            : GInst.requiredVerification,
+                nonPremium ? VERIFICATION_LEVEL.NONE
+                : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= GInst.fixAfter || (await r6.api.getLevel(bound.platform, bound.genome))[bound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
+                : GInst.requiredVerification,
                 verificationLevel:
-                    (target.nickname || '').includes(bound.nickname) ||
-                        target.user.username.includes(bound.nickname) ? VERIFICATION_LEVEL.MATCHNICK
-                            : VERIFICATION_LEVEL.NONE,
+                (target.nickname || '').includes(bound.nickname) ||
+                target.user.username.includes(bound.nickname) ? VERIFICATION_LEVEL.MATCHNICK
+                : VERIFICATION_LEVEL.NONE,
             });
 
             const prompt = await combinedPrompt(
