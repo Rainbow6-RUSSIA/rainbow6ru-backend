@@ -3,6 +3,7 @@ import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, Forei
 import Guild from './Guild';
 import User from './User';
 
+import { IngameStatus } from '@r6ru/types';
 import { CategoryChannel, Guild as G, GuildMember, Invite, Message, Snowflake, VoiceChannel } from 'discord.js';
 
 interface IOpts {
@@ -11,6 +12,7 @@ interface IOpts {
     dcCategory?: CategoryChannel; // 1
     dcMembers?: GuildMember[]; // 1
     dcInvite?: Invite;
+    dcLeader?: GuildMember;
 }
 
 @Table({schema: 'siegebot', timestamps: true})
@@ -43,6 +45,7 @@ export default class Lobby extends Model<Lobby> {
     public dcInvite: Invite;
 
     public appealMessage: Message;
+    public status: IngameStatus;
 
     @Column
     public type: string;
@@ -60,8 +63,6 @@ export default class Lobby extends Model<Lobby> {
     public guild: Guild;
     public dcGuild: G;
 
-    @HasOne(() => User)
-    public leader: User;
     public dcLeader: GuildMember;
 
     @HasMany(() => User)
@@ -81,6 +82,7 @@ export default class Lobby extends Model<Lobby> {
         this.dcChannel = addArgs.dcChannel;
         this.dcMembers = addArgs.dcMembers;
         this.dcInvite = addArgs.dcInvite;
+        this.dcLeader = addArgs.dcLeader;
         return this;
     }
 }
