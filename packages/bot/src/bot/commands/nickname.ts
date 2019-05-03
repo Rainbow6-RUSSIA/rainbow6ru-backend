@@ -1,5 +1,5 @@
 import { Guild, User } from '@r6ru/db';
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
 import { debug } from '../..';
@@ -22,7 +22,7 @@ export default class Nickname extends Command {
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
         let { target } = args;
         if (target.id !== message.author.id && ((message.channel.type !== 'text' && !(message.member.hasPermission('MANAGE_ROLES'))) || ![...this.client.ownerID].includes(message.author.id))) {

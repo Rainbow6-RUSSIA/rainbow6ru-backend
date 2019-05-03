@@ -1,4 +1,4 @@
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { Listener } from 'discord-akairo';
 import { Guild } from 'discord.js';
 import { debug } from '../../..';
@@ -11,7 +11,7 @@ export default class Delete extends Listener {
         });
     }
 
-    @TryCatch(debug)
+// @TryCatch(debug)
     public exec = async (guild: Guild) => {
         console.log('​Delete -> publicexec -> guild', guild);
     }

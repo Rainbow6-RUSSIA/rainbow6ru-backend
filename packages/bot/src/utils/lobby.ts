@@ -1,6 +1,6 @@
 import { Guild, Lobby, User } from '@r6ru/db';
 import { IngameStatus, LobbyStoreStatus, LobbyStoreStatus as LSS, ONLINE_TRACKER, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS, RANK_COLORS, VERIFICATION_LEVEL } from '@r6ru/types';
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { CategoryChannel, GuildMember, MessageEmbedOptions, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import { EventEmitter } from 'events';
 import { Sequelize } from 'sequelize-typescript';
@@ -67,7 +67,7 @@ export class LobbyStore {
         })();
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public init = async () => {
         this.lobbies = await Promise.all(this.voices.map(this.generateLobby));
         console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.length, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
@@ -79,12 +79,12 @@ export class LobbyStore {
         // setInterval(this.blacklist.pop, 60000);
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public kick = async (member: GuildMember) => {
         console.log('soon™');
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public join = async (member: GuildMember, to: VoiceChannel) => {
         // debug.log(`VOICES ${this.voices && this.voices.length}, LOBBIES ${this.lobbies && this.lobbies.length}`);
         await this.waitReady();
@@ -106,7 +106,7 @@ export class LobbyStore {
         this.status = LSS.AVAILABLE;
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public leave = async (member: GuildMember, from: VoiceChannel) => {
         // debug.log(`VOICES ${this.voices && this.voices.length}, LOBBIES ${this.lobbies && this.lobbies.length}`);
         await this.waitReady();
@@ -133,13 +133,13 @@ export class LobbyStore {
         this.status = LSS.AVAILABLE;
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public internal = async (member: GuildMember, from: VoiceChannel, to: VoiceChannel) => {
         await this.atomicLeave(member, from);
         await this.atomicJoin(member, to);
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public reportIngameStatus = async (member: GuildMember, status: IngameStatus) => {
         // console.log(member.user.tag, 'NOW', IngameStatus[status]);
     }
@@ -147,7 +147,7 @@ export class LobbyStore {
     // @TryCatch(debug)
     // public generateAppealEmbed = (lobby: Lobby): MessageEmbedOptions => ()
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private updateAppealMsg = async (lobby: Lobby) => {
 
         if (lobby.appealMessage) {
@@ -159,7 +159,7 @@ export class LobbyStore {
         }
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private addEvent = async (e: Partial<ILobbyStoreEvent>) => {
         if (this.events.length >= parseInt(ENV.EVENT_QUEUE_LENGTH)) {
             this.events.pop();
@@ -167,7 +167,7 @@ export class LobbyStore {
         this.events.unshift(e);
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private generateLobby = async (voice: VoiceChannel) => {
         // const inv = await voice.createInvite();
         const members = [...voice.members.values()];
@@ -191,7 +191,7 @@ export class LobbyStore {
         return lobby;
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private watchEvents = () => {
         const grouppedByMember = this.events
             .reduce((a: IActivityCounter[], b) => {
@@ -215,7 +215,7 @@ export class LobbyStore {
         }
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private atomicLeave = async (member: GuildMember, from: VoiceChannel) => {
         const lobby = this.lobbies.find((l) => l.dcChannel.id === from.id);
         await lobby.$remove('members', await User.findByPk(member.id));
@@ -237,7 +237,7 @@ export class LobbyStore {
         }
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private atomicJoin = async (member: GuildMember, to: VoiceChannel) => {
         const lobby = this.lobbies.find((l) => l.dcChannel.id === to.id);
         await lobby.$add('members', await User.findByPk(member.id));
@@ -246,7 +246,7 @@ export class LobbyStore {
         this.updateAppealMsg(lobby);
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private waitReady = async () => {
         return new Promise((resolve) => {
             const waiter = () => {

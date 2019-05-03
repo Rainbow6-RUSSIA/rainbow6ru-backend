@@ -1,4 +1,4 @@
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
@@ -14,7 +14,7 @@ export default class System extends Command { // update all|newseason|numofpacks
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message) => {
         message.reply(`Free RAM: ${PrettyBytes(os.freemem())}
 Total RAM: ${PrettyBytes(os.totalmem())}

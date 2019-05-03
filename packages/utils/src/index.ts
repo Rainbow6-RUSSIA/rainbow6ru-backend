@@ -1,5 +1,5 @@
 import { ClientUser, EmojiResolvable, Message, MessageOptions, MessageReaction, User, WebhookClient } from 'discord.js';
-import 'reflect-metadata';
+// import 'reflect-metadata';
 
 interface IPromptOptions {
     [prop: string]: any;
@@ -85,8 +85,8 @@ export class Log {
         this.webhook = webhook;
     }
 
-    public sendWebhook(context: Context, type: 'Information' | 'Warning' | 'Error', body: string, color: number) {
-        return this.webhook && this.webhook.send('', { embeds: [{
+    public sendWebhook<T>(context: Context, type: 'Information' | 'Warning' | 'Error', body: T, color: number) {
+        return this.webhook && this.webhook.send(body instanceof Error ? '@here' : '', { embeds: [{
             author: {
                 iconURL: this.client.displayAvatarURL(),
                 name: this.client.tag,
@@ -95,7 +95,7 @@ export class Log {
             description: `**${type}** Message`,
             fields: [{
                 name: `_${context}_:`,
-                value: type === 'Error' ? `\`\`\`js\n${body}\n\`\`\`` : body,
+                value: body instanceof Error ? `\`\`\`js\n${body.stack}\n\`\`\`` : body,
             }],
             timestamp: Date.now(),
         }] });
@@ -118,21 +118,29 @@ export class Log {
 }
 
 // tslint:disable-next-line:ban-types
-export function TryCatch(logger: Log): Function {
-  return (target: any, descriptor: PropertyDescriptor) => {
-    const origin = descriptor.value as () => void;
+// export function TryCatch(logger: Log) {
+//   return (target: any, key: string) => {
+//     let origin = this[key];
 
-    if (typeof origin === 'function') {
-      if (origin.constructor.name !== 'AsyncFunction') {
-        throw new TypeError(`TryCatch decorator require async method but ${target.constructor.name}.${descriptor} is sync`);
-      }
-      descriptor.value = async function(...args) {
-        try {
-          return await origin.apply(this, args);
-        } catch (err) {
-          logger.error(err);
-        }
-      };
-    }
-  };
-}
+//     if (typeof origin === 'function') {
+//       if (origin.constructor.name !== 'AsyncFunction') {
+//         throw new TypeError(`TryCatch decorator require async method but ${target.constructor.name}.${key} is sync`);
+//       }
+//       if (delete this[key]) {
+//         Object.defineProperty(target, key, {
+//           get: () => origin,
+//           set: (newVal) => {origin = newVal; },
+//           value: async (...args) => {
+//             try {
+//               const result = await origin.apply(this, args);
+//               return result;
+//             } catch (err) {
+//               console.log(err);
+//               logger.error(err);
+//             }
+//           },
+//         });
+//       }
+//     }
+// };
+// }

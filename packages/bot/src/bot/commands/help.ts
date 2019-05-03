@@ -1,4 +1,4 @@
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import { debug } from '../..';
@@ -11,7 +11,7 @@ export default class Help extends Command {
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message) => {
         return message.reply('some help');
     }

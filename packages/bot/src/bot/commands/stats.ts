@@ -1,6 +1,6 @@
 import { Guild, User } from '@r6ru/db';
 import { RANKS } from '@r6ru/types';
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import {  Command } from 'discord-akairo';
 import { CategoryChannel, Message, VoiceChannel } from 'discord.js';
 import { $enum } from 'ts-enum-util';
@@ -22,7 +22,7 @@ export default class Stats extends Command {
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
         switch (true) {
             case message.channel.type !== 'text':

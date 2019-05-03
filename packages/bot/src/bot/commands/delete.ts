@@ -1,5 +1,5 @@
 import { Guild, User } from '@r6ru/db';
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, TextChannel, User as U } from 'discord.js';
 import { debug } from '../..';
@@ -21,7 +21,7 @@ export default class Delete extends Command {
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message, args: IDeleteArgs) => {
         const { target } = args;
         await User.destroy({where: {

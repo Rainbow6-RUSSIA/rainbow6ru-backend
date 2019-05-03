@@ -1,6 +1,6 @@
 import { Guild, User } from '@r6ru/db';
 import { VERIFICATION_LEVEL } from '@r6ru/types';
-import { combinedPrompt, TryCatch } from '@r6ru/utils';
+import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
 import { debug } from '../..';
@@ -25,7 +25,7 @@ export default class Verify extends Command {
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
         const { target } = args;
         if (target.id !== message.author.id && ((message.channel.type === 'text' && message.member.hasPermission('MANAGE_ROLES')) || [...this.client.ownerID].includes(message.author.id))) {
@@ -46,14 +46,14 @@ export default class Verify extends Command {
         }
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private verifyMember = async (message: Message, UInst: User) => {
         UInst.requiredVerification = VERIFICATION_LEVEL.QR;
         await UInst.save();
         await syncMember(await Guild.findByPk(message.guild.id), UInst);
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private verifyDM = async (message: Message, UInst: User) => {
         try {
             if (await verify(UInst.genome, message.author.id)) {
@@ -74,7 +74,7 @@ export default class Verify extends Command {
         }
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     private verifyGuild = async (message: Message, UInst: User) => {
         const prmpt = await combinedPrompt(await message.reply('вы действительно хотите пройти процедуру верификации с помощью QR-кода?\nВам потребуется доступ к панели управления аккаунтом Uplay и немного желания 😀.\nУбедитесь, что не заблокировали ЛС с ботом.') as Message, {
             author: message.author,

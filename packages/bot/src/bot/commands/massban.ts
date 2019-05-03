@@ -1,7 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
 import { debug } from '../..';
-import { combinedPrompt, TryCatch } from '../../../../utils/build';
+import { combinedPrompt } from '../../../../utils/build';
 
 interface IArgs {
     reason: string;
@@ -29,7 +29,7 @@ export default class Massban extends Command { // update all|newseason|numofpack
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
         const { reason, targets } = args;
         const prmt = await combinedPrompt(await message.reply(`будут забанены \`${targets.length}\` пользователей по причине \`${reason}\`. Продолжить?`) as Message, {

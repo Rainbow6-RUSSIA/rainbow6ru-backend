@@ -1,4 +1,4 @@
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, Snowflake, User } from 'discord.js';
 import { debug } from '../..';
@@ -26,7 +26,7 @@ export default class Locate extends Command { // update all|newseason|numofpacks
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
         const user = await (args.user || this.client.users.fetch(args.id.match[0]));
         let member = null;

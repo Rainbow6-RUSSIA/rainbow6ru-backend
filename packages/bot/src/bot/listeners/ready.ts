@@ -1,6 +1,6 @@
 import { Guild } from '@r6ru/db';
 import { PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { Listener } from 'discord-akairo';
 import { $enum } from 'ts-enum-util';
 import { debug } from '../..';
@@ -17,7 +17,7 @@ export default class Ready extends Listener {
         });
     }
 
-    @TryCatch(debug)
+// @TryCatch(debug)
     public exec = async () => {
         console.log('[INFO][BOT] Logged as', this.client.user.tag);
 
@@ -90,7 +90,7 @@ export default class Ready extends Listener {
 
     }
 
-    @TryCatch(debug)
+// @TryCatch(debug)
     private startRankUpdating = async () => {
         while (true) {
             try {
@@ -105,7 +105,7 @@ export default class Ready extends Listener {
         }
     }
 
-    @TryCatch(debug)
+// @TryCatch(debug)
     private startNickUpdating = async () => {
         while (true) {
             try {

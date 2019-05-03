@@ -1,5 +1,5 @@
 import { Guild as G, Lobby, User as U } from '@r6ru/db';
-import { TryCatch } from '@r6ru/utils';
+// import { TryCatch } from '@r6ru/utils';
 import { Listener } from 'discord-akairo';
 import { CategoryChannel, Guild, GuildMember, Snowflake, VoiceChannel, VoiceState } from 'discord.js';
 import { EventEmitter } from 'events';
@@ -14,7 +14,7 @@ export default class VoiceStateUpdate extends Listener {
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
         // if (!(oldState.guild.id === '216649610511384576' || newState.guild.id === '216649610511384576')) { return; }
         // console.log('OLD', oldState);

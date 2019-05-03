@@ -7,7 +7,7 @@ import { Guild, User } from '@r6ru/db';
 import r6 from '../../r6api';
 
 import { IUbiBound, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
-import { combinedPrompt, TryCatch } from '@r6ru/utils';
+import { combinedPrompt } from '@r6ru/utils';
 import { debug } from '../..';
 import embeds from '../../utils/embeds';
 import ENV from '../../utils/env';
@@ -49,7 +49,7 @@ export default class Rank extends Command {
         });
     }
 
-    @TryCatch(debug)
+    // @TryCatch(debug)
     public exec = async (message: Message, args: IRankArgs) => {
         console.log('[Log] rank called');
         try {

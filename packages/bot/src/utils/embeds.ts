@@ -15,7 +15,7 @@ export default {
       description: `${lobby.members.map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n')}\n${lobby.description ? `▫${lobby.description}` : ''}\nПрисоединиться: ${lobby.dcInvite.url} 👈`,
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
-          text: 'В игре ники участников отличаются от вышеуказанных - сообщите администрации.\nВероятно, с вами игрок с плохой репутацией!',
+          text: 'В игре ники участников отличаются от вышеуказанных? Cообщите администрации.\nС вами игрок с плохой репутацией!',
       },
       thumbnail: {
           url: 'https://i.imgur.com/fM2oMLk.png',

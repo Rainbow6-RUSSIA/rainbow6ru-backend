@@ -18,7 +18,7 @@ export default class Eval extends Command {
         });
     }
 
-    @util.TryCatch(debug)
+    // @util.TryCatch(debug)
     public exec = async (message: Message, args) => {
         if (false) { console.log(util, utils, db); }
         // tslint:disable-next-line:no-eval
