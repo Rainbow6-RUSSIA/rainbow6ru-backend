@@ -1,8 +1,10 @@
+import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import * as os from 'os';
 import * as PrettyBytes from 'pretty-bytes';
+import { debug } from '../..';
 
 export default class System extends Command { // update all|newseason|numofpacks
     public constructor() {
@@ -11,7 +13,9 @@ export default class System extends Command { // update all|newseason|numofpacks
             ownerOnly: true,
         });
     }
-    public async exec(message: Message) {
+
+    @TryCatch(debug)
+    public exec = async (message: Message) => {
         message.reply(`Free RAM: ${PrettyBytes(os.freemem())}
 Total RAM: ${PrettyBytes(os.totalmem())}
 Load: ${os.loadavg()}

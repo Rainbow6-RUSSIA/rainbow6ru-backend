@@ -1,6 +1,8 @@
 import { Guild as G, User as U } from '@r6ru/db';
+import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
+import { debug } from '../..';
 import { syncMember } from '../../utils/sync';
 
 interface IUpdateArgs {
@@ -23,7 +25,9 @@ export default class Update extends Command { // update all|newseason|numofpacks
             userPermissions: 'MANAGE_ROLES',
         });
     }
-    public async exec(message: Message, args: IUpdateArgs) {
+
+    @TryCatch(debug)
+    public exec = async (message: Message, args: IUpdateArgs) => {
         const UInst = await U.findByPk(args.user.id);
         UInst.verificationLevel = args.verification || UInst.verificationLevel;
         await UInst.save();

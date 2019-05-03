@@ -1,5 +1,7 @@
+import { TryCatch } from '@r6ru/utils';
 import { Listener } from 'discord-akairo';
 import { Guild } from 'discord.js';
+import { debug } from '../../..';
 
 export default class Delete extends Listener {
     public constructor() {
@@ -8,7 +10,9 @@ export default class Delete extends Listener {
             event: 'guildDelete',
         });
     }
-    public exec(guild: Guild) {
+
+    @TryCatch(debug)
+    public exec = async (guild: Guild) => {
         console.log('​Delete -> publicexec -> guild', guild);
     }
 }

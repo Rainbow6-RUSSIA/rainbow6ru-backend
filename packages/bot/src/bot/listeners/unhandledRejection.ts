@@ -1,4 +1,6 @@
+import { TryCatch } from '@r6ru/utils';
 import { Listener } from 'discord-akairo';
+import { debug } from '../..';
 
 export default class UnhandledRejection extends Listener {
     public constructor() {
@@ -7,8 +9,10 @@ export default class UnhandledRejection extends Listener {
             event: 'unhandledRejection',
         });
     }
-    public exec(error) {
+
+    @TryCatch(debug)
+    public exec = async (error) => {
         // error reporting
-        console.error(error);
+        throw error;
     }
 }

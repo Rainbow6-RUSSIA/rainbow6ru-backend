@@ -7,7 +7,8 @@ import { Guild, User } from '@r6ru/db';
 import r6 from '../../r6api';
 
 import { IUbiBound, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
-import { combinedPrompt } from '@r6ru/utils';
+import { combinedPrompt, TryCatch } from '@r6ru/utils';
+import { debug } from '../..';
 import embeds from '../../utils/embeds';
 import ENV from '../../utils/env';
 import { syncMember } from '../../utils/sync';
@@ -47,7 +48,9 @@ export default class Rank extends Command {
             ratelimit: 1,
         });
     }
-    public async exec(message: Message, args: IRankArgs) {
+
+    @TryCatch(debug)
+    public exec = async (message: Message, args: IRankArgs) => {
         console.log('[Log] rank called');
         try {
             const { bound } = args;
@@ -154,15 +157,16 @@ export default class Rank extends Command {
                 case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
                 case 0: {
                     await UInst.save();
-                    syncMember(GInst, UInst);
+                    setTimeout(() => syncMember(GInst, UInst), 3000);
                     return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\`${UInst.requiredVerification >= VERIFICATION_LEVEL.QR ? `\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*` : ''}`);
                 }
             }
 
         } catch (err) {
             const code = Math.random().toString(36).substring(2, 6);
-            [...this.client.ownerID].map(async (id) => (await this.client.users.fetch(id)).send(`Ошибка: \`\`\`js\n${err.stack}\`\`\`Код: \`${code}\``));
-            return message.reply(`произошла ошибка! Код: \`${code}\` (данные для поддержки)`);
+            message.reply(`произошла ошибка! Код: \`${code}\` (данные для поддержки)`);
+            err.message = `CODE: ${code}, ${err.message}`;
+            throw err;
         }
     }
 }

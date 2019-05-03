@@ -1,8 +1,9 @@
 import { Guild, User } from '@r6ru/db';
 import { VERIFICATION_LEVEL } from '@r6ru/types';
-import { combinedPrompt } from '@r6ru/utils';
+import { combinedPrompt, TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
+import { debug } from '../..';
 import ENV from '../../utils/env';
 import { verify } from '../../utils/qr';
 import { syncMember } from '../../utils/sync';
@@ -23,7 +24,9 @@ export default class Verify extends Command {
             cooldown: 5000,
         });
     }
-    public async exec(message: Message, args: IArgs) {
+
+    @TryCatch(debug)
+    public exec = async (message: Message, args: IArgs) => {
         const { target } = args;
         if (target.id !== message.author.id && ((message.channel.type === 'text' && message.member.hasPermission('MANAGE_ROLES')) || [...this.client.ownerID].includes(message.author.id))) {
             return this.verifyMember(message, await User.findByPk(target.id));
@@ -43,13 +46,15 @@ export default class Verify extends Command {
         }
     }
 
-    private async verifyMember(message: Message, UInst: User) {
+    @TryCatch(debug)
+    private verifyMember = async (message: Message, UInst: User) => {
         UInst.requiredVerification = VERIFICATION_LEVEL.QR;
         await UInst.save();
         await syncMember(await Guild.findByPk(message.guild.id), UInst);
     }
 
-    private async verifyDM(message: Message, UInst: User) {
+    @TryCatch(debug)
+    private verifyDM = async (message: Message, UInst: User) => {
         try {
             if (await verify(UInst.genome, message.author.id)) {
                 UInst.verificationLevel = VERIFICATION_LEVEL.QR;
@@ -69,7 +74,8 @@ export default class Verify extends Command {
         }
     }
 
-    private async verifyGuild(message: Message, UInst: User) {
+    @TryCatch(debug)
+    private verifyGuild = async (message: Message, UInst: User) => {
         const prmpt = await combinedPrompt(await message.reply('вы действительно хотите пройти процедуру верификации с помощью QR-кода?\nВам потребуется доступ к панели управления аккаунтом Uplay и немного желания 😀.\nУбедитесь, что не заблокировали ЛС с ботом.') as Message, {
             author: message.author,
             emojis: ['✅', '❎'],

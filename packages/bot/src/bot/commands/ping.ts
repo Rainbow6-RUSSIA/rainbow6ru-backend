@@ -1,5 +1,7 @@
+import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
+import { debug } from '../..';
 
 export default class Ping extends Command {
     public constructor() {
@@ -7,8 +9,10 @@ export default class Ping extends Command {
             aliases: ['ping', 'P'],
         });
     }
-    public async exec(message: Message) {
+
+    @TryCatch(debug)
+    public exec = async (message: Message) => {
         const sent = await message.channel.send('Пинг...') as any;
-        sent.edit(`Понг! Задержка ${sent.createdTimestamp - message.createdTimestamp}мс`);
+        return sent.edit(`Понг! Задержка ${sent.createdTimestamp - message.createdTimestamp}мс`);
     }
 }

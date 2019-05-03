@@ -3,9 +3,10 @@ import { Message, User } from 'discord.js';
 
 import { Guild as G, User as U } from '@r6ru/db';
 import { ONLINE_TRACKER, PLATFORM, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
-import { combinedPrompt } from '@r6ru/utils';
+import { combinedPrompt, TryCatch } from '@r6ru/utils';
 import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
+import { debug } from '../..';
 import r6 from '../../r6api';
 import ENV from '../../utils/env';
 import ubiGenome from '../types/ubiGenome';
@@ -43,7 +44,9 @@ export default class Info extends Command {
                 }],
         });
     }
-    public async exec(message: Message, args: IInfoArgs) {
+
+    @TryCatch(debug)
+    public exec = async (message: Message, args: IInfoArgs) => {
         let { user, genome } = args;
         const { nickname, id } = args;
         if (!user && id) {

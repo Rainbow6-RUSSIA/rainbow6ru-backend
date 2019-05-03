@@ -1,6 +1,8 @@
 import { Guild, User } from '@r6ru/db';
+import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
+import { debug } from '../..';
 import { syncMember } from '../../utils/sync';
 
 interface IArgs {
@@ -20,7 +22,8 @@ export default class Nickname extends Command {
         });
     }
 
-    public async exec(message: Message, args: IArgs) {
+    @TryCatch(debug)
+    public exec = async (message: Message, args: IArgs) => {
         let { target } = args;
         if (target.id !== message.author.id && ((message.channel.type !== 'text' && !(message.member.hasPermission('MANAGE_ROLES'))) || ![...this.client.ownerID].includes(message.author.id))) {
             message.reply('изменение синхронизации ников других пользователей доступно только администрации!');

@@ -1,8 +1,9 @@
-import { Listener } from 'discord-akairo';
-
 import { Guild } from '@r6ru/db';
 import { PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
+import { TryCatch } from '@r6ru/utils';
+import { Listener } from 'discord-akairo';
 import { $enum } from 'ts-enum-util';
+import { debug } from '../..';
 import r6 from '../../r6api';
 import ENV from '../../utils/env';
 import { syncNicknames, syncRoles } from '../../utils/sync';
@@ -14,7 +15,9 @@ export default class Ready extends Listener {
             event: 'ready',
         });
     }
-    public async exec() {
+
+    @TryCatch(debug)
+    public exec = async () => {
         console.log('[BOT] Logged as', this.client.user.tag);
 
         // some Rainbow6-RUSSIA specific code
@@ -84,7 +87,9 @@ export default class Ready extends Listener {
         }
 
     }
-    private async startRankUpdating() {
+
+    @TryCatch(debug)
+    private startRankUpdating = async () => {
         while (true) {
             try {
                 await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
@@ -97,7 +102,9 @@ export default class Ready extends Listener {
             }
         }
     }
-    private async startNickUpdating() {
+
+    @TryCatch(debug)
+    private startNickUpdating = async () => {
         while (true) {
             try {
                 await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));

@@ -1,6 +1,8 @@
 import { Guild, User } from '@r6ru/db';
+import { TryCatch } from '@r6ru/utils';
 import { Listener } from 'discord-akairo';
 import { GuildMember } from 'discord.js';
+import { debug } from '../../..';
 import { syncMember } from '../../../utils/sync';
 
 export default class MemberAdd extends Listener {
@@ -10,7 +12,9 @@ export default class MemberAdd extends Listener {
             event: 'guildMemberAdd',
         });
     }
-    public async exec(member: GuildMember) {
+
+    @TryCatch(debug)
+    public exec = async (member: GuildMember) => {
             // чек на регистрацию
             User.update({
                 inactive: false,
