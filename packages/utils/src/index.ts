@@ -1,4 +1,5 @@
 import { ClientUser, EmojiResolvable, Message, MessageOptions, MessageReaction, User, WebhookClient } from 'discord.js';
+import 'reflect-metadata';
 
 interface IPromptOptions {
     [prop: string]: any;
@@ -94,7 +95,7 @@ export class Log {
             description: `**${type}** Message`,
             fields: [{
                 name: `_${context}_:`,
-                value: body,
+                value: type === 'Error' ? `\`\`\`js\n${body}\n\`\`\`` : body,
             }],
             timestamp: Date.now(),
         }] });
@@ -114,4 +115,24 @@ export class Log {
         console.error(`[${context}]`, msg);
         this.sendWebhook(context, 'Error', msg, 13382400);
     }
+}
+
+// tslint:disable-next-line:ban-types
+export function TryCatch(logger: Log): Function {
+  return (target: any, key: string, descriptor: PropertyDescriptor) => {
+    const origin = descriptor.value as () => void;
+
+    if (typeof origin === 'function') {
+      if (origin.constructor.name !== 'AsyncFunction') {
+        throw new TypeError(`TryCatch decorator require async method but ${key} is sync`);
+      }
+      descriptor.value = async function(...args) {
+        try {
+          return await origin.apply(this, args);
+        } catch (err) {
+          logger.error(err);
+        }
+      };
+    }
+  };
 }
