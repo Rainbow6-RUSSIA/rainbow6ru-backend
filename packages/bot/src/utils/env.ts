@@ -16,6 +16,7 @@ class IEnv {
     public LOGGING_WEBHOOK = '';
     public EVENT_QUEUE_LENGTH = '';
     public VERIFIED_BADGE = '<:verified:562059822279819265>';
+    public INVITE_AGE = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file

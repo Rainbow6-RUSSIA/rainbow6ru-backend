@@ -4,6 +4,7 @@ import { Command } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 import { debug } from '../..';
 import embeds from '../../utils/embeds';
+import ENV from '../../utils/env';
 import { lobbyStores } from '../../utils/lobby';
 
 interface IArgs {
@@ -37,7 +38,7 @@ export default class MM extends Command {
             if (Object.entries(LS.guild.lfgChannels).find((ent) => ent[1] === channel.id)[0] !== Object.entries(LS.guild.voiceCategories).find((ent) => ent[1] === channel.parentID)[0]) {
                 return message.author.send('поиск пати нужно проводить в соответствующем канале поиска!');
             }
-            const inv = await lobby.dcChannel.createInvite({maxAge: (message.channel as TextChannel).rateLimitPerUser });
+            const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
             lobby.invite = inv.url;
             lobby.description = args.description;
             await lobby.save();
