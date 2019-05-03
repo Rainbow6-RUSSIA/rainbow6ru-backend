@@ -94,21 +94,22 @@ export enum LobbyStoreStatus {
 }
 
 export enum IngameStatus {
-    MENU, CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, OTHER
+    OTHER = -1,
+    MENU = 0,
+    CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH
 }
 
 export const R6_PRESENCE_ID = '445956193924546560';
 
 export const R6_PRESENCE_REGEXPS = [
-    [/В\s+МЕНЮ/g,/in\s+MENU/g],
-    [/ОБЫЧНАЯ\s+ИГРА\:\s+раунд/g,/CASUAL\s+match\s+\-\s+Round/g],
-    [/Поиск\s+игры\:\s+ОБЫЧНАЯ\s+ИГРА/g,/Looking\s+for\s+CASUAL\s+match/g],
-    [/Игра\s+РЕЙТ\.\s+ИГРА\s+\-\s+раунд/g,/RANKED\s+match\s+\-\s+Round/g],
-    [/Поиск\s+игры\:\s+РЕЙТ\.\s+ИГРА/g,/Looking\s+for\s+RANKED\s+match/g],
-    [/Завершение\s+операции\s+"Антитеррор"/g,/Completing\s+a\s+TERRORIST\s+HUNT\s+mission/g],
-    [/Игра\s+ПОЛЬЗ\.\s+ИГРА\s+\-\s+раунд/g],
-    [/Поиск\s+игры\:\s+ПОЛЬЗ\.\s+ИГРА/g]
-
+    [/МЕНЮ/g, /MENU/g],
+    [/ОБЫЧНАЯ.+раунд/g, /CASUAL.+Round/g],
+    [/Поиск.+ОБЫЧНАЯ/g, /Looking.+CASUAL/g],
+    [/РЕЙТ.+раунд/g, /RANKED.+Round/g],
+    [/Поиск.+РЕЙТ/g, /Looking.+RANKED/g],
+    [/Антитеррор/g, /TERRORIST HUNT/g],
+    [/Игра.+ПОЛЬЗ/g],
+    [/Поиск.+ПОЛЬЗ/g]
 ];
 
 export const RANK_COLORS = [

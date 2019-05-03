@@ -102,18 +102,18 @@ export class Log {
     }
 
     public log(msg: any, context: Context = this.defaultContext) {
-        console.log(`[${context}]`, msg);
-        this.sendWebhook(context, 'Information', msg, 6513507);
+        console.log(`[INFO][${context}]`, msg);
+        return this.sendWebhook(context, 'Information', msg, 6513507);
     }
 
     public warn(msg: any, context: Context = this.defaultContext) {
-        console.warn(`[${context}]`, msg);
-        this.sendWebhook(context, 'Warning', msg, 16763904);
+        console.warn(`[WARN][${context}]`, msg);
+        return this.sendWebhook(context, 'Warning', msg, 16763904);
     }
 
     public error(msg: any, context: Context = this.defaultContext) {
-        console.error(`[${context}]`, msg);
-        this.sendWebhook(context, 'Error', msg, 13382400);
+        console.error(`[ERROR][${context}]`, msg);
+        return this.sendWebhook(context, 'Error', msg, 13382400);
     }
 }
 

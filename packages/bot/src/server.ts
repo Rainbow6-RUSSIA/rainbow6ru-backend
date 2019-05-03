@@ -17,4 +17,4 @@ server.use(restify.plugins.bodyParser());
 
 server.get('/auth/login', respond);
 
-server.listen(ENV.PORT || 3000, () => console.log(`${server.name} listening at ${server.url}`));
+server.listen(ENV.PORT || 3000, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));

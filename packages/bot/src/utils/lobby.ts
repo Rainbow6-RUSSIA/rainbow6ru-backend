@@ -25,13 +25,14 @@ interface IActivityCounter {
     times: number;
 }
 
-export class LobbyStore extends EventEmitter {
+export class LobbyStore {
     public static detectIngameStatus = (presence: Presence): IngameStatus => {
         const { activity } = presence;
         if (activity && activity.applicationID === R6_PRESENCE_ID) {
-            const i = R6_PRESENCE_REGEXPS.map((a) => a.some((r) => r.test(activity.name))).findIndex(Boolean);
-            return i === -1 ? IngameStatus.OTHER : IngameStatus[IngameStatus[i]];
+            // console.log(presence.user.tag, '|', activity.details.normalize(), '|', IngameStatus[i]);
+            return R6_PRESENCE_REGEXPS.findIndex((ar) => ar.some((r) => r.test(activity.details.normalize())));
         } else {
+            // console.log('NO ACTIVITY');
             return IngameStatus.OTHER;
         }
     }
@@ -48,12 +49,30 @@ export class LobbyStore extends EventEmitter {
     public events: Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;
 
+    public constructor(id: Snowflake, type: string, dbGuild: Guild) {
+        (async () => {
+            this.guild = dbGuild;
+            this.events = [];
+            this.categoryId = id;
+            this.category = await bot.channels.fetch(this.categoryId) as CategoryChannel;
+            // this.category = bot.channels.get(this.categoryId) as CategoryChannel;
+            this.voices = this.category.children.filter((ch) => ch.type === 'voice').array().sort((a, b) => a.position - b.position) as VoiceChannel[];
+            this.type = type;
+            this.lfgChannelId = dbGuild.lfgChannels[this.type];
+            this.lfgChannel = await bot.channels.fetch(this.lfgChannelId) as TextChannel;
+            // this.lfgChannel = bot.channels.get(this.lfgChannelId) as TextChannel;
+            if (this.lfgChannel.type === 'text') {
+                this.init();
+            }
+        })();
+    }
+
     @TryCatch(debug)
     public init = async () => {
         this.lobbies = await Promise.all(this.voices.map(this.generateLobby));
-        console.log('VOICES', this.voices.length, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
+        console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.length, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
         this.status = LSS.AVAILABLE;
-        console.log('STATUS', LSS[this.status]);
+        console.log(this.lfgChannel.guild.name, 'STATUS', LSS[this.status]);
 
         setInterval(this.watchEvents, 500);
         setInterval(() => this.events.pop(), 60000);
@@ -67,9 +86,8 @@ export class LobbyStore extends EventEmitter {
 
     @TryCatch(debug)
     public join = async (member: GuildMember, to: VoiceChannel) => {
-        console.log('VOICES', this.voices && this.voices.length, 'LOBBIES', this.lobbies && this.lobbies.length);
+        // debug.log(`VOICES ${this.voices && this.voices.length}, LOBBIES ${this.lobbies && this.lobbies.length}`);
         await this.waitReady();
-        console.log('Awaited');
         this.status = LSS.TRANSACTING;
         if (to.members.size === 1 && this.voices.length <= this.guild.roomsRange[1]) {
             const lobby = this.lobbies.find((l) => l.dcChannel.id === to.id);
@@ -90,9 +108,9 @@ export class LobbyStore extends EventEmitter {
 
     @TryCatch(debug)
     public leave = async (member: GuildMember, from: VoiceChannel) => {
-        console.log('VOICES', this.voices && this.voices.length, 'LOBBIES', this.lobbies && this.lobbies.length);
+        // debug.log(`VOICES ${this.voices && this.voices.length}, LOBBIES ${this.lobbies && this.lobbies.length}`);
         await this.waitReady();
-        console.log('Awaited');
+        // console.log('Awaited');
         this.status = LSS.TRANSACTING;
         await this.atomicLeave(member, from);
         if (from.members.size === 0 && this.voices.length >= this.guild.roomsRange[0]) {
@@ -123,22 +141,7 @@ export class LobbyStore extends EventEmitter {
 
     @TryCatch(debug)
     public reportIngameStatus = async (member: GuildMember, status: IngameStatus) => {
-        console.log(member.user.tag, 'NOW', IngameStatus[status]);
-    }
-
-    constructor(id: Snowflake, type: string, dbGuild: Guild) {
-        super();
-        this.guild = dbGuild;
-        this.events = [];
-        this.categoryId = id;
-        this.category = bot.channels.get(this.categoryId) as CategoryChannel;
-        this.voices = this.category.children.filter((ch) => ch.type === 'voice').array().sort((a, b) => a.position - b.position) as VoiceChannel[];
-        this.type = type;
-        this.lfgChannelId = dbGuild.lfgChannels[this.type];
-        this.lfgChannel = bot.channels.get(this.lfgChannelId) as TextChannel;
-        if (this.lfgChannel.type === 'text') {
-            this.init();
-        }
+        // console.log(member.user.tag, 'NOW', IngameStatus[status]);
     }
 
     // @TryCatch(debug)
@@ -260,8 +263,13 @@ export class LobbyStore extends EventEmitter {
 
 export const lobbyStores: Map<Snowflake, LobbyStore> = new Map();
 
-export async function update() {
-    const dbGuilds = ENV.ENABLE_LOBBIES === 'true' ? await Guild.findAll({ where: { premium: true } }) : [];
+export async function initLobbyStores() {
+    if (ENV.ENABLE_LOBBIES !== 'true') {
+        return debug.warn('Lobbies disabled');
+    } else {
+        debug.warn('Lobbies enabled');
+    }
+    const dbGuilds = await Guild.findAll({ where: { premium: true } });
     dbGuilds.map((g) => {
         Object.entries(g.voiceCategories).map((ent) => lobbyStores.set(ent[1], new LobbyStore(ent[1], ent[0], g)));
     });
@@ -277,5 +285,4 @@ export async function update() {
         l.active = false;
         return l.save();
     }));
-    // console.log(lobbyStores);
 }

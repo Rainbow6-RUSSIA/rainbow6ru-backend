@@ -1,7 +1,5 @@
-import { Log } from '@r6ru/utils';
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
 import ENV from './utils/env';
-import { update } from './utils/lobby';
 
 class Bot extends AkairoClient {
     private commandHandler: CommandHandler;
@@ -54,7 +52,6 @@ const bot = new Bot();
 
 const login = async () => {
     await bot.login(ENV.DISCORD_TOKEN);
-    await update();
 };
 
 const state = login();

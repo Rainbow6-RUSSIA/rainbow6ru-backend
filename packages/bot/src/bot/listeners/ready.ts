@@ -6,6 +6,7 @@ import { $enum } from 'ts-enum-util';
 import { debug } from '../..';
 import r6 from '../../r6api';
 import ENV from '../../utils/env';
+import { initLobbyStores } from '../../utils/lobby';
 import { syncNicknames, syncRoles } from '../../utils/sync';
 
 export default class Ready extends Listener {
@@ -18,7 +19,7 @@ export default class Ready extends Listener {
 
     @TryCatch(debug)
     public exec = async () => {
-        console.log('[BOT] Logged as', this.client.user.tag);
+        console.log('[INFO][BOT] Logged as', this.client.user.tag);
 
         // some Rainbow6-RUSSIA specific code
         Guild.upsert<Guild>({
@@ -81,10 +82,11 @@ export default class Ready extends Listener {
         });
 
         if (ENV.NODE_ENV !== 'development') {
-            console.log('[BOT] Updating scheduled');
+            console.log('[INFO][BOT] Updating scheduled');
             this.startNickUpdating();
             this.startRankUpdating();
         }
+        await initLobbyStores();
 
     }
 
@@ -93,7 +95,7 @@ export default class Ready extends Listener {
         while (true) {
             try {
                 await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
-                console.log('[BOT] Updating ranks...');
+                console.log('[INFO][BOT] Updating ranks...');
                 await syncRoles();
                 // console.log('[BOT] Updating ranks done');
             } catch (err) {

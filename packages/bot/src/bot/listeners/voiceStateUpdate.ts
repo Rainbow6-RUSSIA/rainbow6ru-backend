@@ -16,7 +16,7 @@ export default class VoiceStateUpdate extends Listener {
 
     @TryCatch(debug)
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
-        if (!(oldState.guild.id === '216649610511384576' || newState.guild.id === '216649610511384576')) { return; }
+        // if (!(oldState.guild.id === '216649610511384576' || newState.guild.id === '216649610511384576')) { return; }
         // console.log('OLD', oldState);
         // console.log('NEW', newState);
         // if (oldState.guild.id) { return; }
