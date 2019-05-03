@@ -1,6 +1,9 @@
 import { Lobby } from '@r6ru/db';
+import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
+import { debug } from '../..';
+import embeds from '../../utils/embeds';
 import { lobbyStores } from '../../utils/lobby';
 
 interface IArgs {
@@ -18,17 +21,26 @@ export default class MM extends Command {
             channel: 'guild',
         });
     }
-    public exec(message: Message, args: IArgs) {
-        if (!message.member.voice.channelID) { return message.reply('вы должны сначала зайти в голосовой канал игровой категории'); }
+
+    @TryCatch(debug)
+    public exec = async (message: Message, args: IArgs) => {
+        if (!message.member.voice.channelID) { return message.author.send('вы должны сначала зайти в голосовой канал игровой категории'); }
         const channel = message.channel as TextChannel;
         if (!lobbyStores.has(channel.parentID)) {
-            return message.reply('поиск пати доступен только в соответствующем канале поиска игровой категории!');
+            return message.author.send('поиск пати доступен только в соответствующем канале поиска игровой категории!');
         } else {
             const LS = lobbyStores.get(channel.parentID);
-            if (Object.entries(LS.guild.lfgChannels).find((ent) => ent[1] === channel.id)[0] !== Object.entries(LS.guild.voiceCategories).find((ent) => ent[1] === channel.parentID)[0]) {
-                return message.reply('поиск пати нужно проводить в соответствующем канале поиска!');
+            const lobby = LS.lobbies.find((l) => l.channel === message.member.voice.channelID);
+            if (lobby.dcLeader.id !== message.author.id) {
+                return message.author.send(`поиск пати доступен только для <@${lobby.dcLeader.id}> - лидера лобби`);
             }
-
+            if (Object.entries(LS.guild.lfgChannels).find((ent) => ent[1] === channel.id)[0] !== Object.entries(LS.guild.voiceCategories).find((ent) => ent[1] === channel.parentID)[0]) {
+                return message.author.send('поиск пати нужно проводить в соответствующем канале поиска!');
+            }
+            lobby.description = args.description;
+            await lobby.save();
+            lobby.appealMessage = await LS.lfgChannel.send('@here', { embed: embeds.appealMsg(lobby) }) as Message;
         }
+        return message.delete();
     }
 }
