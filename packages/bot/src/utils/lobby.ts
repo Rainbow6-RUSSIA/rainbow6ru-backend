@@ -169,18 +169,18 @@ export class LobbyStore {
 
     @TryCatch(debug)
     private generateLobby = async (voice: VoiceChannel) => {
-        const inv = await voice.createInvite();
+        // const inv = await voice.createInvite();
         const members = [...voice.members.values()];
         const lobby = new Lobby({
             channel: voice.id,
             initiatedAt,
-            invite: inv.url,
+            // invite: inv.url,
             type: this.type,
         }).init({
             dcCategory: this.category,
             dcChannel: voice,
             dcGuild: voice.guild,
-            dcInvite: inv,
+            // dcInvite: inv,
             dcLeader: members[Math.floor(Math.random() * members.length)],
             dcMembers: members,
         });
@@ -194,21 +194,18 @@ export class LobbyStore {
     @TryCatch(debug)
     private watchEvents = () => {
         const grouppedByMember = this.events
-            // .sort((a, b) => parseInt(a.member.id) - parseInt(b.member.id))
             .reduce((a: IActivityCounter[], b) => {
                 const i = a.findIndex((x) => x.id === b.member.id);
                 i === -1 ? a.push({ id : b.member.id, times : 1 }) : a[i].times++;
                 return a;
             }, []);
         const grouppedByLeave = this.events
-        // .sort((a, b) => parseInt(a.member.id) - parseInt(b.member.id))
             .filter((e) => e.type === 'leave')
             .reduce((a: IActivityCounter[], b) => {
                 const i = a.findIndex((x) => x.id === b.voice.id);
                 i === -1 ? a.push({ id : b.voice.id, times : 1 }) : a[i].times++;
                 return a;
             }, []);
-        // console.log(grouppedByMember);
         switch (true) {
             case true: {
                 break;

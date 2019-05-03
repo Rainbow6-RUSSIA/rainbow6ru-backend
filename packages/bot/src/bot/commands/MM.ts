@@ -37,8 +37,11 @@ export default class MM extends Command {
             if (Object.entries(LS.guild.lfgChannels).find((ent) => ent[1] === channel.id)[0] !== Object.entries(LS.guild.voiceCategories).find((ent) => ent[1] === channel.parentID)[0]) {
                 return message.author.send('поиск пати нужно проводить в соответствующем канале поиска!');
             }
+            const inv = await lobby.dcChannel.createInvite({maxAge: (message.channel as TextChannel).rateLimitPerUser });
+            lobby.invite = inv.url;
             lobby.description = args.description;
             await lobby.save();
+            lobby.dcInvite = inv;
             lobby.appealMessage = await LS.lfgChannel.send('@here', { embed: embeds.appealMsg(lobby) }) as Message;
         }
         return message.delete();
