@@ -15,6 +15,7 @@ class IEnv {
     public REQUIRED_LEVEL = '';
     public LOGGING_WEBHOOK = '';
     public EVENT_QUEUE_LENGTH = '';
+    public VERIFIED_BADGE = '<:verified:562059822279819265>';
 }
 
 // tslint:disable-next-line:max-classes-per-file
@@ -24,7 +25,7 @@ class IDefaultEnv extends IEnv {
     public PORT = '';
     public REDIS_DB = '';
     public NODE_ENV = '';
-    public VERIFIED_BADGE = '<:verified:562059822279819265>';
+    public ENABLE_LOBBIES = '';
 }
 
 for (const key in new IEnv()) {
