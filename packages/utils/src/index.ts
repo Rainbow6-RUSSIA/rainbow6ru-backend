@@ -119,12 +119,12 @@ export class Log {
 
 // tslint:disable-next-line:ban-types
 export function TryCatch(logger: Log): Function {
-  return (target: any, key: string, descriptor: PropertyDescriptor) => {
+  return (target: any, descriptor: PropertyDescriptor) => {
     const origin = descriptor.value as () => void;
 
     if (typeof origin === 'function') {
       if (origin.constructor.name !== 'AsyncFunction') {
-        throw new TypeError(`TryCatch decorator require async method but ${key} is sync`);
+        throw new TypeError(`TryCatch decorator require async method but ${target.constructor.name}.${descriptor} is sync`);
       }
       descriptor.value = async function(...args) {
         try {
