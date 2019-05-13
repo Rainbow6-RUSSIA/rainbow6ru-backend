@@ -3,4 +3,11 @@ import ENV from './utils/env';
 
 import { RainbowSixAPI } from '@r6s.media/r6.api';
 
-export default new RainbowSixAPI({email: ENV.R6API_LOGIN, password: ENV.R6API_PASSWORD});
+let API = null;
+
+export function refresh() {
+    API = new RainbowSixAPI({email: ENV.R6API_LOGIN, password: ENV.R6API_PASSWORD});
+}
+refresh();
+
+export default API;
