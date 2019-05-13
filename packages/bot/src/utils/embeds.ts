@@ -13,6 +13,10 @@ export default {
       },
       color: RANK_COLORS[lobby.members.find((m) => m.id === lobby.dcLeader.id).rank],
       description: `${lobby.members.map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n')}\n${lobby.description ? `▫${lobby.description}` : ''}\nПрисоединиться: ${lobby.dcInvite.url} 👈`,
+      fields: [{
+        name: '_',
+        value: '_',
+      }],
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
           text: 'В игре ники участников отличаются от вышеуказанных? Cообщите администрации.\nС вами игрок с плохой репутацией!',

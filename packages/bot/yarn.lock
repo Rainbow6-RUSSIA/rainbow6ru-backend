@@ -18,9 +18,9 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@r6s.media/r6.api@https://github.com/BadCoder1337/r6api#23c359c":
+"@r6s.media/r6.api@https://github.com/BadCoder1337/r6api#77a4916":
   version "1.5.6"
-  resolved "https://github.com/BadCoder1337/r6api#23c359c64be4fae6b3ee0be17e7b2e3718aaec17"
+  resolved "https://github.com/BadCoder1337/r6api#77a491606d9805e04e766f786bd92028fd761609"
   dependencies:
     bluebird "^3.5.3"
     lodash.merge "^4.6.0"

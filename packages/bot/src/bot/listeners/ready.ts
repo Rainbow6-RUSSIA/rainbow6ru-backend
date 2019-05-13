@@ -2,6 +2,7 @@ import { Guild } from '@r6ru/db';
 import { PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
 // import { TryCatch } from '@r6ru/utils';
 import { Listener } from 'discord-akairo';
+import { TextChannel } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { debug } from '../..';
 import r6, { refresh } from '../../r6api';
@@ -20,7 +21,16 @@ export default class Ready extends Listener {
 // @TryCatch(debug)
     public exec = async () => {
         console.log('[INFO][BOT] Logged as', this.client.user.tag);
-
+        // const logs = this.client.channels.get('509437965068533780') as TextChannel;
+        // while (true) {
+        //     const msgs = (await logs.messages.fetch({limit: 100})).array().filter((m) => !m.deleted && m.embeds[0].fields[0] && m.embeds[0].fields[0].value.includes('Creds not found on login'));
+        //     if (msgs.length) {
+        //         msgs.map((m) => m.delete());
+        //     } else {
+        //         break;
+        //     }
+        // }
+        // console.log('Done purging');
         // some Rainbow6-RUSSIA specific code
         // Guild.upsert<Guild>({
         //     fixAfter: 20,

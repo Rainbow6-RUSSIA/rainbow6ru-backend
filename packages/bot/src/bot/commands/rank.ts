@@ -163,6 +163,13 @@ export default class Rank extends Command {
             }
 
         } catch (err) {
+            switch (true) {
+                case err.message.includes('The gateway was unable to forward the request to the backend service.'):
+                    debug.error(err, 'UBI');
+                    return message.reply('сервера Ubisoft недоступны, попробуйте позднее.');
+                default:
+                    break;
+            }
             const code = Math.random().toString(36).substring(2, 6);
             message.reply(`произошла ошибка! Код: \`${code}\` (данные для поддержки)`);
             err.message = `CODE: ${code}, ${err.message}`;

@@ -7,6 +7,7 @@ let API = new RainbowSixAPI({email: ENV.R6API_LOGIN, password: ENV.R6API_PASSWOR
 
 export function refresh() {
     API = new RainbowSixAPI({email: ENV.R6API_LOGIN, password: ENV.R6API_PASSWORD});
+    console.log('R6API refreshed');
 }
 // refresh();
 
