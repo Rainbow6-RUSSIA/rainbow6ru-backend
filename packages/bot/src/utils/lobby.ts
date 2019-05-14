@@ -29,10 +29,9 @@ export class LobbyStore {
     public static detectIngameStatus = (presence: Presence): IngameStatus => {
         const { activity } = presence;
         if (activity && activity.applicationID === R6_PRESENCE_ID) {
-            // console.log(presence.user.tag, '|', activity.details.normalize(), '|', IngameStatus[i]);
-            return R6_PRESENCE_REGEXPS.findIndex((ar) => ar.some((r) => r.test(activity.details.normalize())));
+            return R6_PRESENCE_REGEXPS.findIndex((ar) => ar.some((r) => r.test(activity.details)));
         } else {
-            // console.log('NO ACTIVITY');
+            // console.log('NOT SIEGE', activity);
             return IngameStatus.OTHER;
         }
     }
@@ -139,15 +138,26 @@ export class LobbyStore {
         await this.atomicJoin(member, to);
     }
 
-    // @TryCatch(debug)
-    public reportIngameStatus = async (member: GuildMember, status: IngameStatus) => {
-        const lobby = this.lobbies.find((l) => l.dcChannel.id === member.voice.channelID);
-        const statuses = lobby.dcChannel.members.array().map((m) => LobbyStore.detectIngameStatus(m.presence)).sort((a, b) => a - b);
-        lobby.status = statuses.reduce((acc, el) => {
+    public refreshIngameStatus = async (lobby: Lobby) => {
+        const statuses = lobby.dcChannel.members.array().map((m) => LobbyStore.detectIngameStatus(m.presence)).filter((s) => s !== IngameStatus.OTHER);
+        statuses.unshift(IngameStatus.OTHER);
+        console.log(statuses);
+        lobby.status = lobby.status = statuses.reduce((acc, el) => {
             acc.k[el] = acc.k[el] ? acc.k[el] + 1 : 1;
             acc.max = acc.max ? acc.max < acc.k[el] ? el : acc.max : el;
             return acc;
           }, { k: {}, max: null }).max;
+    }
+
+    // @TryCatch(debug)
+    public reportIngameStatus = async (member: GuildMember, status: IngameStatus) => {
+        console.log(member.user.tag, IngameStatus[status]);
+        const lobby = this.lobbies.find((l) => l.dcChannel.id === member.voice.channelID);
+        const s = lobby.status;
+        await this.refreshIngameStatus(lobby);
+        if (lobby.status !== s) {
+            this.updateAppealMsg(lobby);
+        }
     }
 
     // @TryCatch(debug)
@@ -240,7 +250,8 @@ export class LobbyStore {
             console.log('leader left');
         }
         if (lobby.dcMembers.length) {
-            this.updateAppealMsg(lobby);
+            await this.refreshIngameStatus(lobby);
+            await this.updateAppealMsg(lobby);
         } else {
             await (lobby.appealMessage && lobby.appealMessage.delete());
         }
@@ -255,7 +266,8 @@ export class LobbyStore {
             lobby.dcLeader = member;
         }
         lobby.dcMembers.push(member);
-        this.updateAppealMsg(lobby);
+        await this.refreshIngameStatus(lobby);
+        await this.updateAppealMsg(lobby);
     }
 
     // @TryCatch(debug)

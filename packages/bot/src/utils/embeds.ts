@@ -22,7 +22,7 @@ export default {
               case IngameStatus.OTHER:
               case IngameStatus.MENU:
               default:
-                return lobby.dcMembers.length < lobby.dcChannel.userLimit
+                return lobby.dcMembers.length >= lobby.dcChannel.userLimit
                   ? `Готовы играть в ${lobby.dcChannel.name}`
                   : `Ищут +${lobby.dcChannel.userLimit - lobby.dcMembers.length} в ${lobby.dcChannel.name}`;
             }
