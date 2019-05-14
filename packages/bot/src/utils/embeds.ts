@@ -1,5 +1,5 @@
 import { Lobby } from '@r6ru/db';
-import { IngameStatus, IUbiBound, ONLINE_TRACKER, RANK_COLORS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_COLORS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { MessageEmbedOptions } from 'discord.js';
 import ENV from './env';
 
@@ -9,18 +9,24 @@ export default {
           iconURL: `${lobby.dcLeader.user.displayAvatarURL()}`,
           name: ((_) => {
             switch (_) {
-              case IngameStatus.CASUAL_SEARCH:
-              case IngameStatus.RANKED_SEARCH:
-              case IngameStatus.CUSTOM_SEARCH:
-                return `Поиск матча в ${lobby.dcChannel.name}${lobby.dcMembers.length < lobby.dcChannel.userLimit ? ` (+${lobby.dcChannel.userLimit - lobby.dcMembers.length} слот(-а))` : ''}`;
-              case IngameStatus.CASUAL:
-              case IngameStatus.RANKED:
-              case IngameStatus.CUSTOM:
+              case IS.CASUAL_SEARCH:
+              case IS.RANKED_SEARCH:
+              case IS.CUSTOM_SEARCH:
+                return `Поиск матча в ${lobby.dcChannel.name}`
+                + (lobby.dcMembers.length < lobby.dcChannel.userLimit)
+                  ? ` (+${lobby.dcChannel.userLimit - lobby.dcMembers.length} слот(-а))`
+                  : '';
+              case IS.CASUAL:
+              case IS.RANKED:
+              case IS.CUSTOM:
                 return `Играют в ${lobby.dcChannel.name}`;
-              case IngameStatus.TERRORIST_HUNT:
-                return `${lobby.dcChannel.name} разминается в Антитерроре${lobby.dcMembers.length < lobby.dcChannel.userLimit ? ` (+${lobby.dcChannel.userLimit - lobby.dcMembers.length} слот(-а))` : ''}`;
-              case IngameStatus.OTHER:
-              case IngameStatus.MENU:
+              case IS.TERRORIST_HUNT:
+                return `${lobby.dcChannel.name} разминается в Антитерроре`
+                + (lobby.dcMembers.length < lobby.dcChannel.userLimit)
+                  ? ` (+${lobby.dcChannel.userLimit - lobby.dcMembers.length} слот(-а))`
+                  : '';
+              case IS.OTHER:
+              case IS.MENU:
               default:
                 return lobby.dcMembers.length >= lobby.dcChannel.userLimit
                   ? `Готовы играть в ${lobby.dcChannel.name}`
@@ -29,7 +35,13 @@ export default {
           })(lobby.status),
       },
       color: RANK_COLORS[lobby.members.find((m) => m.id === lobby.dcLeader.id).rank],
-      description: `${lobby.members.map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n')}\n${lobby.description ? `▫${lobby.description}` : ''}\nПрисоединиться: ${lobby.dcInvite.url} 👈`,
+      description: lobby.members.map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n')
+        + lobby.description
+          ? `\n▫${lobby.description}`
+          : ''
+        + ![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status)
+          ? `\nПрисоединиться: ${lobby.dcInvite.url} 👈`
+          : '',
       fields: [],
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
