@@ -141,7 +141,13 @@ export class LobbyStore {
 
     // @TryCatch(debug)
     public reportIngameStatus = async (member: GuildMember, status: IngameStatus) => {
-        // console.log(member.user.tag, 'NOW', IngameStatus[status]);
+        const lobby = this.lobbies.find((l) => l.dcChannel.id === member.voice.channelID);
+        const statuses = lobby.dcChannel.members.array().map((m) => LobbyStore.detectIngameStatus(m.presence)).sort((a, b) => a - b);
+        lobby.status = statuses.reduce((acc, el) => {
+            acc.k[el] = acc.k[el] ? acc.k[el] + 1 : 1;
+            acc.max = acc.max ? acc.max < acc.k[el] ? el : acc.max : el;
+            return acc;
+          }, { k: {}, max: null }).max;
     }
 
     // @TryCatch(debug)
@@ -221,7 +227,10 @@ export class LobbyStore {
         await lobby.$remove('members', await User.findByPk(member.id));
         await lobby.reload({include: [{all: true}]});
         lobby.dcMembers = lobby.dcMembers.filter((m) => m.id !== member.id);
-        if (member.id === lobby.dcLeader.id && from.members.size !== 0) {
+        if (!lobby.dcMembers.length) {
+            lobby.dcLeader = null;
+        }
+        if (from.members.size !== 0 && member.id === lobby.dcLeader.id) {
             console.log(lobby.dcLeader.user.tag, lobby.log);
             lobby.log = [];
             await lobby.save();
@@ -242,6 +251,9 @@ export class LobbyStore {
         const lobby = this.lobbies.find((l) => l.dcChannel.id === to.id);
         await lobby.$add('members', await User.findByPk(member.id));
         await lobby.reload({include: [{all: true}]});
+        if (!lobby.dcLeader) {
+            lobby.dcLeader = member;
+        }
         lobby.dcMembers.push(member);
         this.updateAppealMsg(lobby);
     }

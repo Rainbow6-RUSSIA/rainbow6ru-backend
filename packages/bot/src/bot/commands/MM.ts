@@ -17,6 +17,7 @@ export default class MM extends Command {
             aliases: ['MM', 'party'],
             args: [{
                 id: 'description',
+                match: 'text',
                 type: 'string',
             }],
             channel: 'guild',
@@ -25,14 +26,17 @@ export default class MM extends Command {
 
     // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
-        if (!message.member.voice.channelID) { return message.author.send('вы должны сначала зайти в голосовой канал игровой категории'); }
+        if (!message.member.voice.channelID) { return message.author.send('вы должны сначала зайти в голосовой канал игровой категории!'); }
         const channel = message.channel as TextChannel;
         if (!lobbyStores.has(channel.parentID)) {
             return message.author.send('поиск пати доступен только в соответствующем канале поиска игровой категории!');
         } else {
             const LS = lobbyStores.get(channel.parentID);
             const lobby = LS.lobbies.find((l) => l.channel === message.member.voice.channelID);
-            if (lobby.dcLeader.id !== message.author.id) {
+            if (!lobby) {
+                return message.author.send('вы должны сначала зайти в голосовой канал игровой категории!');
+            }
+            if (lobby.dcLeader && lobby.dcLeader.id !== message.author.id) {
                 return message.author.send(`поиск пати доступен только для <@${lobby.dcLeader.id}> - лидера лобби`);
             }
             if (Object.entries(LS.guild.lfgChannels).find((ent) => ent[1] === channel.id)[0] !== Object.entries(LS.guild.voiceCategories).find((ent) => ent[1] === channel.parentID)[0]) {
@@ -45,6 +49,6 @@ export default class MM extends Command {
             lobby.dcInvite = inv;
             lobby.appealMessage = await LS.lfgChannel.send('@here', { embed: embeds.appealMsg(lobby) }) as Message;
         }
-        return message.delete();
+        // return message.delete();
     }
 }
