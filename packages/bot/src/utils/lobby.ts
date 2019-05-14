@@ -134,8 +134,11 @@ export class LobbyStore {
 
     // @TryCatch(debug)
     public internal = async (member: GuildMember, from: VoiceChannel, to: VoiceChannel) => {
+        await this.waitReady();
+        this.status = LSS.TRANSACTING;
         await this.atomicLeave(member, from);
         await this.atomicJoin(member, to);
+        this.status = LSS.AVAILABLE;
     }
 
     public refreshIngameStatus = async (lobby: Lobby) => {

@@ -1,5 +1,5 @@
 import { Guild, User } from '@r6ru/db';
-import { VERIFICATION_LEVEL } from '@r6ru/types';
+import { ONLINE_TRACKER, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
@@ -60,6 +60,7 @@ export default class Verify extends Command {
                 UInst.verificationLevel = VERIFICATION_LEVEL.QR;
                 UInst.inactive = false;
                 await UInst.save();
+                debug.log(`<@${message.author.id}> верифицировал аккаунт ${ONLINE_TRACKER}${UInst.genome}`);
                 const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
                 const guilds = await Guild.findAll({where: {premium: true}});
                 await Promise.all(guilds.map((g) => this.client.guilds.get(g.id).members.fetch()));

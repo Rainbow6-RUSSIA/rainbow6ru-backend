@@ -22,7 +22,7 @@ export default class MSG extends Listener {
                 &&
             lobbyStores.has((message.channel as TextChannel).parentID)
                 &&
-            !message.member.permissions.has('MANAGE_CHANNELS')) {
+            !message.member.permissions.has('MANAGE_ROLES')) {
             await message.delete();
         }
     }
