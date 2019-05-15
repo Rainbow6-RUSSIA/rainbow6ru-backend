@@ -8,23 +8,20 @@ export default {
       author: {
           iconURL: `${lobby.dcLeader.user.displayAvatarURL()}`,
           name: ((_) => {
+            const slot = lobby.dcMembers.length < lobby.dcChannel.userLimit
+              ? ` | +${lobby.dcChannel.userLimit - lobby.dcMembers.length} слот(-а)`
+              : '';
             switch (_) {
               case IS.CASUAL_SEARCH:
               case IS.RANKED_SEARCH:
               case IS.CUSTOM_SEARCH:
-                return `Поиск матча в ${lobby.dcChannel.name}`
-                + (lobby.dcMembers.length < lobby.dcChannel.userLimit)
-                  ? ` (+${lobby.dcChannel.userLimit - lobby.dcMembers.length} слот(-а))`
-                  : '';
+                return `Поиск матча в ${lobby.dcChannel.name}` + slot;
               case IS.CASUAL:
               case IS.RANKED:
               case IS.CUSTOM:
                 return `Играют в ${lobby.dcChannel.name}`;
               case IS.TERRORIST_HUNT:
-                return `${lobby.dcChannel.name} разминается в Антитерроре`
-                + (lobby.dcMembers.length < lobby.dcChannel.userLimit)
-                  ? ` (+${lobby.dcChannel.userLimit - lobby.dcMembers.length} слот(-а))`
-                  : '';
+                return `${lobby.dcChannel.name} разминается в Антитерроре` + slot;
               case IS.OTHER:
               case IS.MENU:
               default:
@@ -35,13 +32,13 @@ export default {
           })(lobby.status),
       },
       color: RANK_COLORS[lobby.members.find((m) => m.id === lobby.dcLeader.id).rank],
-      description: lobby.members.map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n')
-        + lobby.description
+      description: (lobby.members.map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n'))
+        + (lobby.description
           ? `\n▫${lobby.description}`
-          : ''
-        + ![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status)
+          : '')
+        + (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status)
           ? `\nПрисоединиться: ${lobby.dcInvite.url} 👈`
-          : '',
+          : ''),
       fields: [],
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',

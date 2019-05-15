@@ -3,7 +3,9 @@ import { IngameStatus, LobbyStoreStatus, LobbyStoreStatus as LSS, ONLINE_TRACKER
 // import { TryCatch } from '@r6ru/utils';
 import { CategoryChannel, GuildMember, MessageEmbedOptions, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import { EventEmitter } from 'events';
+import 'reflect-metadata';
 import { Sequelize } from 'sequelize-typescript';
+import * as uuid from 'uuid/v4';
 import { debug } from '..';
 import bot from '../bot';
 import embeds from './embeds';
@@ -47,6 +49,7 @@ export class LobbyStore {
     // public blacklist: GuildMember[] = [];
     public events: Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;
+    public promiseQueue = [];
 
     public constructor(id: Snowflake, type: string, dbGuild: Guild) {
         (async () => {
@@ -55,38 +58,40 @@ export class LobbyStore {
             this.categoryId = id;
             this.category = await bot.channels.fetch(this.categoryId) as CategoryChannel;
             // this.category = bot.channels.get(this.categoryId) as CategoryChannel;
-            this.voices = this.category.children.filter((ch) => ch.type === 'voice').array().sort((a, b) => a.position - b.position) as VoiceChannel[];
             this.type = type;
             this.lfgChannelId = dbGuild.lfgChannels[this.type];
             this.lfgChannel = await bot.channels.fetch(this.lfgChannelId) as TextChannel;
             // this.lfgChannel = bot.channels.get(this.lfgChannelId) as TextChannel;
             if (this.lfgChannel.type === 'text') {
-                this.init();
-            }
+                const voices = (this.category.children.filter((ch) => ch.type === 'voice').array() as VoiceChannel[]).sort((a, b) => b.members.size - a.members.size); // .sort((a, b) => a.position - b.position) as VoiceChannel[];
+                const cond = (v, i, a) => i >= this.guild.roomsRange[0] && !v.members.size && i !== a.length;
+                const toDelete = voices.filter((...args) => cond(...args));
+                const rest = voices.filter((...args) => !cond(...args));
+                if (rest[0].members.size !== 0) {
+                    rest.push(toDelete.pop());
+                }
+                await Promise.all(toDelete.map((v) => v.delete()));
+                this.voices = rest.sort((a, b) => a.position - b.position);
+                await this.syncChannels();
+                this.lobbies = await Promise.all(this.voices.map(this.generateLobby));
+                console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.length, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
+                this.status = LSS.AVAILABLE;
+                console.log(this.lfgChannel.guild.name, 'STATUS', LSS[this.status]);
+
+                setInterval(this.watchEvents, 500);
+                setInterval(() => this.events.pop(), 60000);
+    }
         })();
     }
 
-    // @TryCatch(debug)
-    public init = async () => {
-        this.lobbies = await Promise.all(this.voices.map(this.generateLobby));
-        console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.length, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
-        this.status = LSS.AVAILABLE;
-        console.log(this.lfgChannel.guild.name, 'STATUS', LSS[this.status]);
+    public syncChannels = () => Promise.all(this.voices.sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
 
-        setInterval(this.watchEvents, 500);
-        setInterval(() => this.events.pop(), 60000);
-        // setInterval(this.blacklist.pop, 60000);
-    }
-
-    // @TryCatch(debug)
-    public kick = async (member: GuildMember) => {
+    public async kick(member: GuildMember) {
         console.log('soon™');
     }
 
-    // @TryCatch(debug)
-    public join = async (member: GuildMember, to: VoiceChannel) => {
-        // debug.log(`VOICES ${this.voices && this.voices.length}, LOBBIES ${this.lobbies && this.lobbies.length}`);
-        await this.waitReady();
+    @Atomic
+    public async join(member: GuildMember, to: VoiceChannel) {
         this.status = LSS.TRANSACTING;
         if (to.members.size === 1 && this.voices.length <= this.guild.roomsRange[1]) {
             const lobby = this.lobbies.find((l) => l.dcChannel.id === to.id);
@@ -105,14 +110,11 @@ export class LobbyStore {
         this.status = LSS.AVAILABLE;
     }
 
-    // @TryCatch(debug)
-    public leave = async (member: GuildMember, from: VoiceChannel) => {
-        // debug.log(`VOICES ${this.voices && this.voices.length}, LOBBIES ${this.lobbies && this.lobbies.length}`);
-        await this.waitReady();
-        // console.log('Awaited');
+    @Atomic
+    public async leave(member: GuildMember, from: VoiceChannel) {
         this.status = LSS.TRANSACTING;
         await this.atomicLeave(member, from);
-        if (from.members.size === 0 && this.voices.length >= this.guild.roomsRange[0]) {
+        if (from.members.size === 0 && this.voices.length > this.guild.roomsRange[0]) {
             const lobbyToDisable = this.lobbies.find((l) => l.dcChannel === from);
             const k = this.lobbies.findIndex((l) => l.dcChannel === from);
             lobbyToDisable.active = false;
@@ -122,7 +124,7 @@ export class LobbyStore {
             const j = this.voices.findIndex((v) => v === from);
             this.voices.splice(j, 1);
             await from.delete();
-            await Promise.all(this.voices.sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
+            await this.syncChannels();
         }
         this.addEvent({
             member,
@@ -132,9 +134,8 @@ export class LobbyStore {
         this.status = LSS.AVAILABLE;
     }
 
-    // @TryCatch(debug)
-    public internal = async (member: GuildMember, from: VoiceChannel, to: VoiceChannel) => {
-        await this.waitReady();
+    @Atomic
+    public async internal(member: GuildMember, from: VoiceChannel, to: VoiceChannel) {
         this.status = LSS.TRANSACTING;
         await this.atomicLeave(member, from);
         await this.atomicJoin(member, to);
@@ -152,7 +153,6 @@ export class LobbyStore {
           }, { k: {}, max: null }).max;
     }
 
-    // @TryCatch(debug)
     public reportIngameStatus = async (member: GuildMember, status: IngameStatus) => {
         console.log(member.user.tag, IngameStatus[status]);
         const lobby = this.lobbies.find((l) => l.dcChannel.id === member.voice.channelID);
@@ -163,10 +163,6 @@ export class LobbyStore {
         }
     }
 
-    // @TryCatch(debug)
-    // public generateAppealEmbed = (lobby: Lobby): MessageEmbedOptions => ()
-
-    // @TryCatch(debug)
     private updateAppealMsg = async (lobby: Lobby) => {
 
         if (lobby.appealMessage) {
@@ -178,7 +174,6 @@ export class LobbyStore {
         }
     }
 
-    // @TryCatch(debug)
     private addEvent = async (e: Partial<ILobbyStoreEvent>) => {
         if (this.events.length >= parseInt(ENV.EVENT_QUEUE_LENGTH)) {
             this.events.pop();
@@ -186,7 +181,6 @@ export class LobbyStore {
         this.events.unshift(e);
     }
 
-    // @TryCatch(debug)
     private generateLobby = async (voice: VoiceChannel) => {
         // const inv = await voice.createInvite();
         const members = [...voice.members.values()];
@@ -210,7 +204,6 @@ export class LobbyStore {
         return lobby;
     }
 
-    // @TryCatch(debug)
     private watchEvents = () => {
         const grouppedByMember = this.events
             .reduce((a: IActivityCounter[], b) => {
@@ -234,7 +227,6 @@ export class LobbyStore {
         }
     }
 
-    // @TryCatch(debug)
     private atomicLeave = async (member: GuildMember, from: VoiceChannel) => {
         const lobby = this.lobbies.find((l) => l.dcChannel.id === from.id);
         await lobby.$remove('members', await User.findByPk(member.id));
@@ -256,11 +248,10 @@ export class LobbyStore {
             await this.refreshIngameStatus(lobby);
             await this.updateAppealMsg(lobby);
         } else {
-            await (lobby.appealMessage && lobby.appealMessage.delete());
+            await (lobby.appealMessage && !lobby.appealMessage.deleted && lobby.appealMessage.delete());
         }
     }
 
-    // @TryCatch(debug)
     private atomicJoin = async (member: GuildMember, to: VoiceChannel) => {
         const lobby = this.lobbies.find((l) => l.dcChannel.id === to.id);
         await lobby.$add('members', await User.findByPk(member.id));
@@ -273,11 +264,10 @@ export class LobbyStore {
         await this.updateAppealMsg(lobby);
     }
 
-    // @TryCatch(debug)
     private waitReady = async () => {
         return new Promise((resolve) => {
             const waiter = () => {
-                if (this.status === LSS.AVAILABLE) { return resolve(); }
+                if (!this.promiseQueue.length && this.status === LSS.AVAILABLE) { return resolve(); }
                 setTimeout(waiter, 50);
             };
             waiter();
@@ -309,4 +299,24 @@ export async function initLobbyStores() {
         l.active = false;
         return l.save();
     }));
+}
+
+function Atomic(target: LobbyStore, propertyName: string, propertyDesciptor: PropertyDescriptor): PropertyDescriptor {
+    const method = propertyDesciptor.value;
+
+    propertyDesciptor.value = async function(...args: any[]) {
+        try {
+            // console.log('before');
+            await this.waitReady();
+            const id = uuid();
+            this.promiseQueue.push(id);
+            const result = await method.apply(this, args);
+            this.promiseQueue = this.promiseQueue.filter((i) => i !== id);
+            // console.log('after');
+            return result;
+        } catch (err) {
+            debug.error(err);
+        }
+    };
+    return propertyDesciptor;
 }
