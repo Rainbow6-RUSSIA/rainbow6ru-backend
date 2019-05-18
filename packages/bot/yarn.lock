@@ -302,9 +302,9 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha1-x57Zf380y48robyXkLzDZkdLS3k=
 
-"awesome-qr@https://github.com/BadCoder1337/Awesome-qr.js#d8caf48":
+"awesome-qr@https://github.com/BadCoder1337/Awesome-qr.js#7f1589f":
   version "1.2.1"
-  resolved "https://github.com/BadCoder1337/Awesome-qr.js#d8caf486d42d5fa0801e328e7b6860cd511f85b9"
+  resolved "https://github.com/BadCoder1337/Awesome-qr.js#7f1589f80ce69e1452eaa9de53fdd872627382bd"
   dependencies:
     canvas "^2.5.0"
 
