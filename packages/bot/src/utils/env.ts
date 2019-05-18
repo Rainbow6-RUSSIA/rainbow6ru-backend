@@ -17,6 +17,8 @@ class IEnv {
     public EVENT_QUEUE_LENGTH = '';
     public VERIFIED_BADGE = '<:verified:562059822279819265>';
     public INVITE_AGE = '';
+    public R6API_CREDS_LOGIN = '';
+    public R6API_CREDS_PASS = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file
