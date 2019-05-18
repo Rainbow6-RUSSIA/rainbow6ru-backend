@@ -89,7 +89,7 @@ export class LobbyStore extends LSBase {
             const j = this.voices.findIndex((v) => v === from);
             this.voices.splice(j, 1);
             try {
-                await from.delete();
+                await (!from.deleted && from.delete());
             } catch (err) {
                 err.stack = (new Error('from.delete() 86:36')).stack;
                 debug.error(err, 'BOT');
