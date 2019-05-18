@@ -6,8 +6,14 @@ Canvas.registerFont(__dirname + '/../../assets/BebasNeue Bold.otf', { family: 'B
 export async function createLobbyPreview(n: number, m: number, k: number = 0) {
     if (!(Number.isInteger(n) && Number.isInteger(m) && Number.isInteger(k))) { return; }
     if (n === m) {
-        n = n - n % 4 + 1;
-        m = m - m % 4 + 4;
+        if (n === 0) {
+            n = 0;
+            m = 20;
+        } else {
+            n--;
+            n = n - n % 4 + 1;
+            m = n + 3;
+        }
     }
     const preview = Canvas.createCanvas(160, 160);
     const ctx = preview.getContext('2d');

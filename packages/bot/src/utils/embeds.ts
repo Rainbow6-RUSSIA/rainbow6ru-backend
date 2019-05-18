@@ -2,7 +2,7 @@ import { Lobby } from '@r6ru/db';
 import { IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_COLORS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { MessageAttachment, MessageOptions } from 'discord.js';
 import ENV from './env';
-import { createLobbyPreview } from './image';
+import { createLobbyPreview } from './preview';
 
 export default {
   appealMsg: async (lobby: Lobby): Promise<MessageOptions> => ({

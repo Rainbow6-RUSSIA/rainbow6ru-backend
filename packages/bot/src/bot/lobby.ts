@@ -1,14 +1,12 @@
 import { Guild, Lobby, User } from '@r6ru/db';
-import { IActivityCounter, ILobbyStoreEventType, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
-import { CategoryChannel, GuildMember, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
-import 'reflect-metadata';
+import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS } from '@r6ru/types';
+import { CategoryChannel, GuildMember, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import { Sequelize } from 'sequelize-typescript';
 import { debug } from '..';
 import bot from '../bot';
 import embeds from '../utils/embeds';
 import ENV from '../utils/env';
-import { createLobbyPreview } from '../utils/image';
-import { Atomic, ILobbyStoreEvent, LSBase, Ratelimiter, WaitLoaded } from '../utils/lobby_utils';
+import { Atomic, LSBase, Ratelimiter, WaitLoaded } from '../utils/lobby_utils';
 
 const { Op } = Sequelize;
 const initiatedAt = new Date();
