@@ -13,6 +13,5 @@ export default class Votekick extends Command {
     public exec = async (message: Message) => {
         console.log('votekick');
         await message.reply('команда скоро™ будет доступна');
-        throw new Error('test');
     }
 }

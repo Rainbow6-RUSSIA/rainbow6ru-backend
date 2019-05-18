@@ -17,6 +17,7 @@ export default class Reboot extends Command {
     public exec = async (message: Message) => {
         const dbGuild = await Guild.findByPk(message.guild.id);
         Object.entries(dbGuild.voiceCategories).map((ent) => lobbyStores.set(ent[1], new LobbyStore(ent[1], ent[0], dbGuild)));
+        debug.log(`лобби на ${message.guild.name} перезагружены`);
         return message.reply('перезагружаем лобби');
     }
 }

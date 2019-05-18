@@ -51,6 +51,8 @@ export default class Verify extends Command {
         UInst.requiredVerification = VERIFICATION_LEVEL.QR;
         await UInst.save();
         await syncMember(await Guild.findByPk(message.guild.id), UInst);
+        debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${UInst.id}> ${ONLINE_TRACKER}${UInst.genome}`);
+        return message.reply('верификация запрошена');
     }
 
     // @TryCatch(debug)
@@ -90,6 +92,7 @@ export default class Verify extends Command {
                 UInst.requiredVerification = 3;
                 await UInst.save();
                 await syncMember(await Guild.findByPk(message.guild.id), UInst);
+                debug.log(`самостоятельно запрошена верификация аккаунта <@${UInst.id}> ${ONLINE_TRACKER}${UInst.genome}`);
                 return message.reply('инструкции отправлены вам в ЛС.');
             }
         }

@@ -111,7 +111,7 @@ export class LobbyStore extends LSBase {
     @WaitLoaded
     public async reportIngameStatus(member: GuildMember, status: IngameStatus) {
         console.log(member.user.tag, IngameStatus[status]);
-        const lobby = this.lobbies.find((l) => l.dcChannel.id === member.voice.channelID);
+        const lobby = this.lobbies.find((l) => l.channel === member.voice.channelID);
         const s = lobby.status;
         await this.refreshIngameStatus(lobby);
         if (lobby.status !== s) {
@@ -202,7 +202,6 @@ export class LobbyStore extends LSBase {
     }
 
     private atomicJoin = async (member: GuildMember, lobby: Lobby) => {
-        // const lobby = this.lobbies.find((l) => l.dcChannel.id === to.id);
         await lobby.$add('members', await User.findByPk(member.id));
         await lobby.reload({include: [{all: true}]});
         if (!lobby.dcLeader) {

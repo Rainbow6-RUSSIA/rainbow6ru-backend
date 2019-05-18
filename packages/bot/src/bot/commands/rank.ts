@@ -6,7 +6,7 @@ import { $enum } from 'ts-enum-util';
 import { Guild, User } from '@r6ru/db';
 import r6 from '../../r6api';
 
-import { IUbiBound, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
+import { IUbiBound, ONLINE_TRACKER, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { debug } from '../..';
 import embeds from '../../utils/embeds';
@@ -157,8 +157,15 @@ export default class Rank extends Command {
                 case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
                 case 0: {
                     await UInst.save();
-                    setTimeout(() => syncMember(GInst, UInst), UInst.requiredVerification >= VERIFICATION_LEVEL.QR ? 5000 : 0);
-                    return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\`${UInst.requiredVerification >= VERIFICATION_LEVEL.QR ? `\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*` : ''}`);
+                    debug.log(`<@${UInst.id}> зарегистрировался как ${ONLINE_TRACKER}${UInst.genome}`);
+                    if (UInst.requiredVerification >= VERIFICATION_LEVEL.QR) {
+                        debug.log(`автоматически запрошена верификация аккаунта <@${UInst.id}> ${ONLINE_TRACKER}${UInst.genome}`);
+                        setTimeout(() => syncMember(GInst, UInst), 5000);
+                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\`\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*`);
+                    } else {
+                        syncMember(GInst, UInst);
+                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\``);
+                    }
                 }
             }
 

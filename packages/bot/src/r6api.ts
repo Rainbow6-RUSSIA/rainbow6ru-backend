@@ -2,6 +2,7 @@
 import ENV from './utils/env';
 
 import { RainbowSixAPI } from '@r6s.media/r6.api';
+import { debug } from '.';
 
 const emails = ENV.R6API_CREDS_LOGIN.split(',');
 const passwords = ENV.R6API_CREDS_PASS.split(',');
@@ -14,9 +15,8 @@ export function refresh() {
         i = 0;
     }
     API = new RainbowSixAPI({email: emails[i], password: passwords[i]});
+    debug.warn(`R6API refreshed to ${emails[i]}`);
     i++;
-    console.log('R6API refreshed');
 }
-// refresh();
 
 export default API;
