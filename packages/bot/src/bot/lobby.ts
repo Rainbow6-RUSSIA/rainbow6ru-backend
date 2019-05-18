@@ -46,7 +46,7 @@ export class LobbyStore extends LSBase {
         })();
     }
 
-    public syncChannels = () => Promise.all(this.voices.sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
+    public syncChannels = () => Promise.all(this.voices.filter(Boolean).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
 
     public async kick(member: GuildMember) {
         console.log('soon™');
@@ -61,8 +61,14 @@ export class LobbyStore extends LSBase {
             lobby.dcLeader = member;
             const channelToClone = this.voices[this.voices.length - 1];
             await channelToClone.fetch();
-            const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
-            this.voices = [...this.voices, clonedChannel];
+            let clonedChannel = null;
+            try {
+                clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
+            } catch (err) {
+                err.stack = (new Error('channelToClone.clone() 66:59')).stack;
+                debug.error(err, 'BOT');
+            }
+            this.voices.push(clonedChannel);
             this.lobbies.push(await this.generateLobby(clonedChannel));
         }
         await this.atomicJoin(member, lobby);
@@ -82,8 +88,18 @@ export class LobbyStore extends LSBase {
 
             const j = this.voices.findIndex((v) => v === from);
             this.voices.splice(j, 1);
-            await from.delete();
-            await this.syncChannels();
+            try {
+                await from.delete();
+            } catch (err) {
+                err.stack = (new Error('from.delete() 86:36')).stack;
+                debug.error(err, 'BOT');
+            }
+            try {
+                await this.syncChannels();
+            } catch (err) {
+                err.stack = (new Error('this.syncChannels() 92:42')).stack;
+                debug.error(err, 'BOT');
+            }
         }
     }
 
@@ -134,6 +150,9 @@ export class LobbyStore extends LSBase {
 
     // @Atomic
     public async generateLobby(voice: VoiceChannel) {
+        if (!voice) {
+            return null;
+        }
         const members = [...voice.members.values()];
         const lobby = new Lobby({
             channel: voice.id,
