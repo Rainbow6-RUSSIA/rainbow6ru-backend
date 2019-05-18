@@ -93,6 +93,13 @@ export enum LobbyStoreStatus {
     LOADING, TRANSACTING, AVAILABLE
 }
 
+export type ILobbyStoreEventType = 'join' | 'leave' | 'move' | 'report';
+
+export interface IActivityCounter {
+    id: string;
+    times: number;
+}
+
 export enum IngameStatus {
     OTHER = -1,
     MENU = 0,

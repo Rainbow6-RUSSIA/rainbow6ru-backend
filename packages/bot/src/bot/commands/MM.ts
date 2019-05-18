@@ -1,11 +1,10 @@
 import { Lobby } from '@r6ru/db';
-// import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 import { debug } from '../..';
 import embeds from '../../utils/embeds';
 import ENV from '../../utils/env';
-import { lobbyStores } from '../../utils/lobby';
+import { lobbyStores } from '../lobby';
 
 interface IArgs {
     description: string;
@@ -42,12 +41,16 @@ export default class MM extends Command {
             if (Object.entries(LS.guild.lfgChannels).find((ent) => ent[1] === channel.id)[0] !== Object.entries(LS.guild.voiceCategories).find((ent) => ent[1] === channel.parentID)[0]) {
                 return message.author.send('поиск пати нужно проводить в соответствующем канале поиска!');
             }
+            if (!lobby.dcLeader) {
+                lobby.dcLeader = message.member;
+            }
             const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
             lobby.invite = inv.url;
             lobby.description = args.description;
             await lobby.save();
             lobby.dcInvite = inv;
-            lobby.appealMessage = await LS.lfgChannel.send('@here', { embed: embeds.appealMsg(lobby) }) as Message;
+            await (lobby.appealMessage && !lobby.appealMessage.deleted && lobby.appealMessage.delete());
+            lobby.appealMessage = await LS.lfgChannel.send('@here', await embeds.appealMsg(lobby)) as Message;
         }
         // return message.delete();
     }
