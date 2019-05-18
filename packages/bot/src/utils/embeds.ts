@@ -44,22 +44,13 @@ export default {
       fields: [],
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
-          text: 'В игре ники участников отличаются от вышеуказанных? Cообщите администрации.\nС вами игрок с плохой репутацией!',
+          text: `В игре ники участников отличаются от вышеуказанных? Cообщите администрации.\nС вами игрок с плохой репутацией!${ENV.NODE_ENV === 'development' ? ` | ID: ${lobby.id}` : ''}`,
       },
       thumbnail: {
-          url: 'attachment://thumb.png',
+          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?${Math.random().toString(36).substring(2, 6)}`,
       },
       timestamp: new Date(),
     },
-    files: [new MessageAttachment(
-      await createLobbyPreview(
-        Math.min(...lobby.members.map((m) => m.rank)),
-        Math.max(...lobby.members.map((m) => m.rank)),
-        (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcMembers.length < lobby.dcChannel.userLimit
-          ? lobby.dcChannel.userLimit - lobby.dcMembers.length
-          : 0)),
-      'thumb.png',
-      )],
   }),
 
   rank: (bound: IUbiBound, stats: {won?: any, lost?: any, kills?: any, deaths?: any}): MessageOptions => ({
