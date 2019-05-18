@@ -1,5 +1,4 @@
 import { Guild as G, User as U } from '@r6ru/db';
-// import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
 import { debug } from '../..';

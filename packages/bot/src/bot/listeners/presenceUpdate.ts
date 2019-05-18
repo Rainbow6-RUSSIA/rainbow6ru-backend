@@ -1,7 +1,5 @@
-import { IngameStatus, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
 import { Listener } from 'discord-akairo';
-import { Activity, Guild, GuildMember, Presence } from 'discord.js';
-import { debug } from '../..';
+import { GuildMember, Presence } from 'discord.js';
 import { LobbyStore, lobbyStores } from '../lobby';
 
 export default class PresenceUpdate extends Listener {
@@ -12,7 +10,7 @@ export default class PresenceUpdate extends Listener {
         });
     }
 
-    public exec = async (oldPresence: Presence, newPresence: any) => {
+    public exec = async (_: Presence, newPresence: Presence) => {
         const member = newPresence.member as GuildMember;
         if (member.voice.channelID && lobbyStores.has(member.voice.channel.parentID)) {
             lobbyStores

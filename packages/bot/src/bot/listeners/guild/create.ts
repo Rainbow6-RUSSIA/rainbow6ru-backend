@@ -1,6 +1,5 @@
 import { Guild as G } from '@r6ru/db';
 import { VERIFICATION_LEVEL } from '@r6ru/types';
-// import { TryCatch } from '@r6ru/utils';
 import { Listener } from 'discord-akairo';
 import { Guild } from 'discord.js';
 import { debug } from '../../..';
@@ -13,7 +12,6 @@ export default class Create extends Listener {
         });
     }
 
-// @TryCatch(debug)
     public exec = async (guild: Guild) => {
         console.log('​Create -> publicexec -> guild', guild);
         await new G({
