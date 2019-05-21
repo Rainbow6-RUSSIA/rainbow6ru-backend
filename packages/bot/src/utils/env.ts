@@ -19,6 +19,8 @@ class IEnv {
     public INVITE_AGE = '';
     public R6API_CREDS_LOGIN = '';
     public R6API_CREDS_PASS = '';
+    public ENABLE_LOBBIES = '';
+    public KICK_LIMIT = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file
@@ -28,11 +30,10 @@ class IDefaultEnv extends IEnv {
     public PORT = '';
     public REDIS_DB = '';
     public NODE_ENV = '';
-    public ENABLE_LOBBIES = '';
 }
 
 for (const key in new IEnv()) {
-    if (!process.env[key] && process.env.ENV_CHECK) { throw new Error(`Enviromental variable ${key} not specified`); }
+    if (!process.env[key] && !process.env.NO_ENV_CHECK) { throw new Error(`Enviromental variable ${key} not specified`); }
 }
 
 export default process.env as any as IDefaultEnv;

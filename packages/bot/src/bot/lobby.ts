@@ -33,11 +33,12 @@ export class LobbyStore extends LSBase {
                     rest.push(toDelete.pop());
                 }
                 await Promise.all(toDelete.map((v) => v.delete()));
-                this.voices = rest.sort((a, b) => a.position - b.position);
+                await this.category.fetch();
+                // this.voices = rest.sort((a, b) => a.position - b.position);
                 this.lobbies = await Promise.all(this.voices.map(this.generateLobby));
                 this.status = LSS.AVAILABLE;
                 await this.syncChannels();
-                console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.length, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
+                console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.size, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
                 console.log(this.lfgChannel.guild.name, 'STATUS', LSS[this.status]);
 
                 setInterval(this.watchEvents, 500);
@@ -46,7 +47,7 @@ export class LobbyStore extends LSBase {
         })();
     }
 
-    public syncChannels = () => Promise.all(this.voices.filter(Boolean).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
+    public syncChannels = () => Promise.all(this.voices.array().sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
 
     public async kick(member: GuildMember) {
         console.log('soon™');
@@ -57,18 +58,11 @@ export class LobbyStore extends LSBase {
     @Atomic
     public async join(member: GuildMember, to: VoiceChannel) {
         const lobby = this.lobbies.find((l) => l.channel === to.id);
-        if (to.members.size === 1 && this.voices.length <= this.guild.roomsRange[1]) {
+        if (to.members.size === 1 && this.voices.size <= this.guild.roomsRange[1]) {
             lobby.dcLeader = member;
-            const channelToClone = this.voices[this.voices.length - 1];
-            await channelToClone.fetch();
-            let clonedChannel = null;
-            try {
-                clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
-            } catch (err) {
-                err.stack = (new Error('channelToClone.clone() 66:59')).stack;
-                debug.error(err, 'BOT');
-            }
-            this.voices.push(clonedChannel);
+            const channelToClone = this.voices.last();
+            await this.category.fetch();
+            const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
             this.lobbies.push(await this.generateLobby(clonedChannel));
         }
         await this.atomicJoin(member, lobby);
@@ -80,26 +74,16 @@ export class LobbyStore extends LSBase {
     public async leave(member: GuildMember, from: VoiceChannel) {
         const lobby = this.lobbies.find((l) => l.channel === from.id);
         await this.atomicLeave(member, lobby);
-        if (from.members.size === 0 && this.voices.length > this.guild.roomsRange[0]) {
-            const k = this.lobbies.findIndex((l) => l.dcChannel === from);
+        if (from.members.size === 0 && this.voices.size > this.guild.roomsRange[0]) {
             lobby.active = false;
             await lobby.save();
-            this.lobbies.splice(k, 1);
+            this.lobbies = this.lobbies.filter((l) => l.channel !== from.id);
 
-            const j = this.voices.findIndex((v) => v === from);
-            this.voices.splice(j, 1);
-            try {
-                await (!from.deleted && from.delete());
-            } catch (err) {
-                err.stack = (new Error('from.delete() 86:36')).stack;
-                debug.error(err, 'BOT');
-            }
-            try {
-                await this.syncChannels();
-            } catch (err) {
-                err.stack = (new Error('this.syncChannels() 92:42')).stack;
-                debug.error(err, 'BOT');
-            }
+            const toDelete = this.voices.get(from.id);
+            toDelete.deleted = true; // наеб блядского кэша discord.js
+            await this.syncChannels();
+            toDelete.delete();
+            await this.category.fetch();
         }
     }
 
@@ -116,7 +100,6 @@ export class LobbyStore extends LSBase {
     public refreshIngameStatus = async (lobby: Lobby) => {
         const statuses = lobby.dcChannel.members.array().map((m) => LobbyStore.detectIngameStatus(m.presence)).filter((s) => s !== IngameStatus.OTHER);
         statuses.unshift(IngameStatus.OTHER);
-        // console.log(statuses);
         lobby.status = lobby.status = statuses.reduce((acc, el) => {
             acc.k[el] = acc.k[el] ? acc.k[el] + 1 : 1;
             acc.max = acc.max ? acc.max < acc.k[el] ? el : acc.max : el;
@@ -135,7 +118,18 @@ export class LobbyStore extends LSBase {
         }
     }
 
+    private async checkLobbyHealth(lobby: Lobby) {
+        if (lobby.members.length !== lobby.dcChannel.members.size) {
+            await lobby.dcChannel.fetch();
+            await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
+            if (lobby.members.length === lobby.dcChannel.members.size) {
+                await Promise.all(lobby.dcChannel.members.filter((m) => Boolean(lobby.members.find((dbm) => dbm.id === m.id))).map(this.kick));
+            }
+        }
+    }
+
     private updateAppealMsg = async (lobby: Lobby) => {
+        await this.checkLobbyHealth(lobby);
         if (lobby.appealMessage) {
             if (lobby.dcInvite.expiresTimestamp < Date.now()) {
                 return (!lobby.appealMessage.deleted && lobby.appealMessage.delete());
@@ -153,7 +147,6 @@ export class LobbyStore extends LSBase {
         if (!voice) {
             return null;
         }
-        const members = [...voice.members.values()];
         const lobby = new Lobby({
             channel: voice.id,
             initiatedAt,
@@ -162,12 +155,11 @@ export class LobbyStore extends LSBase {
             dcCategory: this.category,
             dcChannel: voice,
             dcGuild: voice.guild,
-            dcLeader: members[Math.floor(Math.random() * members.length)],
-            dcMembers: members,
+            dcLeader: voice.members.random(),
         });
         await lobby.save();
         await lobby.$set('guild', this.guild);
-        await lobby.$set('members', await User.findAll({ where: { id: lobby.dcMembers.map((m) => m.id) } }));
+        await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
         await lobby.reload({ include: [{all: true}] });
         return lobby;
     }
@@ -186,7 +178,9 @@ export class LobbyStore extends LSBase {
         //         i === -1 ? a.push({ id : b.voice.id, times : 1 }) : a[i].times++;
         //         return a;
         //     }, []);
-        // console.log('watchEvents', grouppedByMember);
+        if (grouppedByMember.length) {
+            // console.log('watchEvents', grouppedByMember);
+        }
         switch (true) {
             case true: {
                 break;
@@ -199,20 +193,19 @@ export class LobbyStore extends LSBase {
     private atomicLeave = async (member: GuildMember, lobby: Lobby) => {
         await lobby.$remove('members', await User.findByPk(member.id));
         await lobby.reload({include: [{all: true}]});
-        lobby.dcMembers = lobby.dcMembers.filter((m) => m.id !== member.id);
-        if (!lobby.dcMembers.length) {
+        if (!lobby.dcChannel.members.size) {
             lobby.dcLeader = null;
         }
         if (lobby.dcChannel.members.size !== 0 && member.id === lobby.dcLeader.id) {
             console.log(lobby.dcLeader.user.tag, lobby.log);
             lobby.log = [];
             await lobby.save();
-            const newLeader = lobby.dcMembers[Math.floor(Math.random() * lobby.dcMembers.length)];
+            const newLeader = lobby.dcChannel.members.random();
             newLeader.send('теперь Вы - лидер лобби');
             lobby.dcLeader = newLeader;
             console.log('leader left');
         }
-        if (lobby.dcMembers.length) {
+        if (lobby.dcChannel.members.size) {
             await this.refreshIngameStatus(lobby);
             await this.updateAppealMsg(lobby);
         } else {
@@ -226,7 +219,6 @@ export class LobbyStore extends LSBase {
         if (!lobby.dcLeader) {
             lobby.dcLeader = member;
         }
-        lobby.dcMembers.push(member);
         await this.refreshIngameStatus(lobby);
         await this.updateAppealMsg(lobby);
     }
