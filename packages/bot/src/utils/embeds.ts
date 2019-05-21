@@ -10,8 +10,8 @@ export default {
       author: {
           iconURL: `${lobby.dcLeader.user.displayAvatarURL()}`,
           name: ((_) => {
-            const slot = lobby.dcMembers.length < lobby.dcChannel.userLimit
-              ? ` | +${lobby.dcChannel.userLimit - lobby.dcMembers.length} слот(-а)`
+            const slot = lobby.dcChannel.members.size < lobby.dcChannel.userLimit
+              ? ` | +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} слот(-а)`
               : '';
             switch (_) {
               case IS.CASUAL_SEARCH:
@@ -27,9 +27,9 @@ export default {
               case IS.OTHER:
               case IS.MENU:
               default:
-                return lobby.dcMembers.length >= lobby.dcChannel.userLimit
+                return lobby.dcChannel.members.size >= lobby.dcChannel.userLimit
                   ? `Готовы играть в ${lobby.dcChannel.name}`
-                  : `Ищут +${lobby.dcChannel.userLimit - lobby.dcMembers.length} в ${lobby.dcChannel.name}`;
+                  : `Ищут +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} в ${lobby.dcChannel.name}`;
             }
           })(lobby.status),
       },
@@ -38,7 +38,7 @@ export default {
         + (lobby.description
           ? `\n▫${lobby.description}`
           : '')
-        + (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status)
+        + (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
           ? `\nПрисоединиться: <#${lobby.dcChannel.id}> 👈\n${lobby.dcInvite.url}`
           : ''),
       fields: [],
@@ -47,7 +47,7 @@ export default {
           text: `В игре ники участников отличаются от вышеуказанных? Cообщите администрации.\nС вами игрок с плохой репутацией!${ENV.NODE_ENV === 'development' ? ` | ID: ${lobby.id}` : ''}`,
       },
       thumbnail: {
-          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?${Math.random().toString(36).substring(2, 6)}`,
+          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?${Math.random().toString(36).substring(2, 6)}=1`,
       },
       timestamp: new Date(),
     },

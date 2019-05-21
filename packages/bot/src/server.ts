@@ -42,8 +42,8 @@ server.get('/lobby/:id/preview', async (req, res, next) => {
     const pic = await createLobbyPreview(
       Math.min(...lobby.members.map((m) => m.rank)),
       Math.max(...lobby.members.map((m) => m.rank)),
-      (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcMembers.length < lobby.dcChannel.userLimit
-        ? lobby.dcChannel.userLimit - lobby.dcMembers.length
+      (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
+        ? lobby.dcChannel.userLimit - lobby.dcChannel.members.size
         : 0));
 
     return res.sendRaw(200, pic, {
