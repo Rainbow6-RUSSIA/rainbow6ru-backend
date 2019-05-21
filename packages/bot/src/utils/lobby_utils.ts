@@ -32,7 +32,9 @@ export class LSBase {
     public guild: Guild;
     public type: string;
     public lobbies: Lobby[];
-    public voices: VoiceChannel[];
+    get voices() {
+        return this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted);
+    }
     public events: Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;
     public promiseQueue = [];

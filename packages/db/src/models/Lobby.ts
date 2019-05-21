@@ -67,7 +67,9 @@ export default class Lobby extends Model<Lobby> {
 
     @HasMany(() => User)
     public members: User[];
-    public dcMembers: GuildMember[];
+    get dcMembers() {
+        return this.dcChannel.members;
+    }
 
     @Default([])
     @Column(DataType.ARRAY(DataType.STRING))
@@ -80,7 +82,7 @@ export default class Lobby extends Model<Lobby> {
         this.dcGuild = addArgs.dcGuild;
         this.dcCategory = addArgs.dcCategory;
         this.dcChannel = addArgs.dcChannel;
-        this.dcMembers = addArgs.dcMembers;
+        // this.dcMembers = addArgs.dcMembers;
         this.dcInvite = addArgs.dcInvite;
         this.dcLeader = addArgs.dcLeader;
         return this;
