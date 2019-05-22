@@ -1031,10 +1031,10 @@ sequelize-typescript@^0.6.10:
     es6-shim "0.35.3"
     glob "7.1.2"
 
-sequelize@^5.6.8:
-  version "5.8.6"
-  resolved "https://registry.yarnpkg.com/sequelize/-/sequelize-5.8.6.tgz#22cd5b9443fa303552f925f99a08c9a5236f86cb"
-  integrity sha512-u6KJuMBNLAE44PkGUTlevBseb6BV/n5r8CDGmYe1VxcGxdlWXYUiNXlEFEW0OL6ie+yXYV7dnPHa/fDi1M7gMw==
+sequelize@^5.6.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/sequelize/-/sequelize-5.6.0.tgz#c7ed41f3a311d2696a9352ecb42991b8864628be"
+  integrity sha512-H2NOr5ugqrH5YpjHoI52skiV1xABFlfXmwQYvGSXwbX4byNhAkE8gdbBf0hB/zAgCbdmIuSB/zEMv0/W0OdZCg==
   dependencies:
     bluebird "^3.5.0"
     cls-bluebird "^2.1.0"

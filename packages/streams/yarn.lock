@@ -94,10 +94,10 @@
     "@types/node" "*"
     "@types/spdy" "*"
 
-"@types/sequelize@4.28.1":
-  version "4.28.1"
-  resolved "https://registry.yarnpkg.com/@types/sequelize/-/sequelize-4.28.1.tgz#9f111fba37527cf1d6c99da9203c278b7df275aa"
-  integrity sha512-fitAlHqmoZ2rn7KJOo+1lF+uC7zeUSoW2kTiEaEzgVSFD03nPkkKIZss4XrL34KCn+7wtKvmBO1Kb6NCmLF1Fw==
+"@types/sequelize@4.27.46":
+  version "4.27.46"
+  resolved "https://registry.yarnpkg.com/@types/sequelize/-/sequelize-4.27.46.tgz#f4bc7aafa45f264837200364b31172ad8aff4a33"
+  integrity sha512-hqosowwLJsLrR+A8IOVgGQaToaBAZE54WLJmjxARaoHC4hl4lmfzXPNY/JGn3hmxNIhb6klHs7skQ2uJPrlXSA==
   dependencies:
     "@types/bluebird" "*"
     "@types/continuation-local-storage" "*"
@@ -1519,21 +1519,21 @@ sequelize-pool@^1.0.2:
   dependencies:
     bluebird "^3.5.3"
 
-sequelize-typescript@^0.6.10:
-  version "0.6.11"
-  resolved "https://registry.yarnpkg.com/sequelize-typescript/-/sequelize-typescript-0.6.11.tgz#3ed957adbb14c95c1b05da1d2d0e669dbc8e1bf8"
-  integrity sha512-O9Rmb9F+3Wsn5dkN6dJWSFGh8XUiSIteZsF7e95OdJG73f7KMoc+OTYzvtl/wDHA2HhdFqF9b6OzkxFFdaKVhw==
+sequelize-typescript@^0.6.8:
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/sequelize-typescript/-/sequelize-typescript-0.6.9.tgz#89a35b7e8e0afd6be74e781df5cc06c2884ff8fc"
+  integrity sha512-8A5gi8BpKx4Gk9BjD3Dxrv7Ps/7PpZuYfoVkQXNMuL9a4M2d2fKZiBLurSA/5KmNgdVrLKKRkyJxghBpFR7tNg==
   dependencies:
     "@types/bluebird" "3.5.26"
     "@types/node" "11.12.2"
-    "@types/sequelize" "4.28.1"
+    "@types/sequelize" "4.27.46"
     es6-shim "0.35.3"
     glob "7.1.2"
 
-sequelize@^5.8.2:
-  version "5.8.6"
-  resolved "https://registry.yarnpkg.com/sequelize/-/sequelize-5.8.6.tgz#22cd5b9443fa303552f925f99a08c9a5236f86cb"
-  integrity sha512-u6KJuMBNLAE44PkGUTlevBseb6BV/n5r8CDGmYe1VxcGxdlWXYUiNXlEFEW0OL6ie+yXYV7dnPHa/fDi1M7gMw==
+sequelize@^5.3.1:
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/sequelize/-/sequelize-5.3.1.tgz#1ef5f1b38a0f728659a05605e58cabf5976b3091"
+  integrity sha512-h79d4ZvXee/pgwuPhqxHZ8Llz/v4vufspn0tfBR2ggYJBL9K1GTuYg5Bp848Y642scanJKwz3LfiyT/ZPfBcxQ==
   dependencies:
     bluebird "^3.5.0"
     cls-bluebird "^2.1.0"
