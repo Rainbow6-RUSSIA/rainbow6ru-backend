@@ -1,5 +1,4 @@
 import { ClientUser, EmojiResolvable, Message, MessageOptions, MessageReaction, User, WebhookClient } from 'discord.js';
-// import 'reflect-metadata';
 
 interface IPromptOptions {
     [prop: string]: any;
