@@ -1,13 +1,14 @@
 import { Lobby } from '@r6ru/db';
 import { Message, TextChannel } from 'discord.js';
-import { LobbyStore, lobbyStores } from '../bot/lobby';
+import 'reflect-metadata';
+import { LobbyStore, lobbyStores } from '../../bot/lobby';
 
 export interface IArgsPartyCommand {
     lobby: Lobby;
     LS: LobbyStore;
 }
 
-export function PartyCommand(target: any, propertyName: string, propertyDesciptor: PropertyDescriptor): PropertyDescriptor {
+export default function PartyCommand(target: any, propertyName: string, propertyDesciptor: PropertyDescriptor): PropertyDescriptor {
     const method = propertyDesciptor.value;
 
     propertyDesciptor.value = async function(message: Message, args) {
@@ -17,7 +18,7 @@ export function PartyCommand(target: any, propertyName: string, propertyDescipto
             return message.author.send('команды пати доступны только в соответствующем канале поиска игровой категории!');
         } else {
             const LS = lobbyStores.get(channel.parentID);
-            const lobby = LS.lobbies.find((l) => l.channel === message.member.voice.channelID);
+            const lobby = LS.lobbies.get(message.member.voice.channelID);
             if (!lobby) {
                 return message.author.send('вы должны сначала зайти в голосовой канал игровой категории!');
             }

@@ -35,7 +35,7 @@ server.get('/lobby/:id/preview', async (req, res, next) => {
 
     if (!dcChannel) {return next(new NotFoundError()); }
 
-    const lobby = lobbyStores.get(dcChannel.parentID).lobbies.find((l) => l && l.channel === dcChannel.id);
+    const lobby = lobbyStores.get(dcChannel.parentID).lobbies.get(dcChannel.id);
 
     if (!lobby) {return next(new NotFoundError()); }
 

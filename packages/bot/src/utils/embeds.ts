@@ -39,7 +39,7 @@ export default {
           ? `\n▫${lobby.description}`
           : '')
         + (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
-          ? `\nПрисоединиться: <#${lobby.dcChannel.id}> 👈\n${lobby.dcInvite.url}`
+          ? `\nПрисоединиться: ${lobby.dcInvite.url} 👈`
           : ''),
       fields: [],
       footer: {

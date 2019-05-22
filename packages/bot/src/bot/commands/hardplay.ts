@@ -1,9 +1,9 @@
 import { Command } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 import { debug } from '../..';
+import PartyCommand, { IArgsPartyCommand } from '../../utils/decorators/party_command';
 import embeds from '../../utils/embeds';
 import ENV from '../../utils/env';
-import { IArgsPartyCommand, PartyCommand } from '../../utils/party_command';
 
 export default class MM extends Command {
     public constructor() {

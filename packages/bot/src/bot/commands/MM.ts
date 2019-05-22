@@ -1,9 +1,9 @@
 import { Command } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 import { debug } from '../..';
+import PartyCommand, { IArgsPartyCommand } from '../../utils/decorators/party_command';
 import embeds from '../../utils/embeds';
 import ENV from '../../utils/env';
-import { IArgsPartyCommand, PartyCommand } from '../../utils/party_command';
 interface IArgs extends IArgsPartyCommand {
     description: string;
 }
@@ -29,7 +29,9 @@ export default class MM extends Command {
         lobby.description = description;
         await lobby.save();
         lobby.dcInvite = inv;
-        await (lobby.appealMessage && !lobby.appealMessage.deleted && lobby.appealMessage.delete());
+        if (lobby.appealMessage && !lobby.appealMessage.deleted) {
+            await lobby.appealMessage.delete();
+        }
         lobby.appealMessage = await LS.lfgChannel.send('@here', await embeds.appealMsg(lobby)) as Message;
         return debug.log(`<@${message.author.id}> ищет пати в \`${lobby.type}\` с описанием: \`${lobby.description}\`. ID пати \`${lobby.id}\``);
     }

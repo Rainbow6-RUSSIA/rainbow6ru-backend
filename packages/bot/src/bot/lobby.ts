@@ -1,12 +1,15 @@
 import { Guild, Lobby, User } from '@r6ru/db';
 import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS } from '@r6ru/types';
-import { CategoryChannel, GuildMember, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import { CategoryChannel, Collection, GuildMember, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import { Sequelize } from 'sequelize-typescript';
 import { debug } from '..';
 import bot from '../bot';
+import Atomic from '../utils/decorators/atomic';
+import Ratelimiter from '../utils/decorators/ratelimiter';
+import WaitLoaded from '../utils/decorators/wait_loaded';
 import embeds from '../utils/embeds';
 import ENV from '../utils/env';
-import { Atomic, LSBase, Ratelimiter, WaitLoaded } from '../utils/lobby_utils';
+import { LSBase } from '../utils/lobby_utils';
 
 const { Op } = Sequelize;
 const initiatedAt = new Date();
@@ -35,10 +38,11 @@ export class LobbyStore extends LSBase {
                 await Promise.all(toDelete.map((v) => v.delete()));
                 await this.category.fetch();
                 // this.voices = rest.sort((a, b) => a.position - b.position);
-                this.lobbies = await Promise.all(this.voices.map(this.generateLobby));
+                const generatedLobbies = await Promise.all(this.voices.map(this.generateLobby));
+                this.lobbies = new Collection(generatedLobbies.map((l) => [l.channel, l]));
                 this.status = LSS.AVAILABLE;
                 await this.syncChannels();
-                console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.size, 'LOBBIES', this.lobbies.length, 'ROOMS RANGE', this.guild.roomsRange);
+                console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.size, 'LOBBIES', this.lobbies.size, 'ROOMS RANGE', this.guild.roomsRange);
                 console.log(this.lfgChannel.guild.name, 'STATUS', LSS[this.status]);
 
                 setInterval(this.watchEvents, 500);
@@ -57,13 +61,13 @@ export class LobbyStore extends LSBase {
     @WaitLoaded
     @Atomic
     public async join(member: GuildMember, to: VoiceChannel) {
-        const lobby = this.lobbies.find((l) => l.channel === to.id);
+        const lobby = this.lobbies.get(to.id);
         if (to.members.size === 1 && this.voices.size <= this.guild.roomsRange[1]) {
             lobby.dcLeader = member;
             const channelToClone = this.voices.last();
             await this.category.fetch();
             const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
-            this.lobbies.push(await this.generateLobby(clonedChannel));
+            this.lobbies.set(clonedChannel.id, await this.generateLobby(clonedChannel));
         }
         await this.atomicJoin(member, lobby);
     }
@@ -72,12 +76,12 @@ export class LobbyStore extends LSBase {
     @WaitLoaded
     @Atomic
     public async leave(member: GuildMember, from: VoiceChannel) {
-        const lobby = this.lobbies.find((l) => l.channel === from.id);
+        const lobby = this.lobbies.get(from.id);
         await this.atomicLeave(member, lobby);
         if (from.members.size === 0 && this.voices.size > this.guild.roomsRange[0]) {
             lobby.active = false;
             await lobby.save();
-            this.lobbies = this.lobbies.filter((l) => l.channel !== from.id);
+            this.lobbies.delete(from.id);
 
             const toDelete = this.voices.get(from.id);
             toDelete.deleted = true; // наеб блядского кэша discord.js
@@ -91,8 +95,8 @@ export class LobbyStore extends LSBase {
     @WaitLoaded
     @Atomic
     public async internal(member: GuildMember, from: VoiceChannel, to: VoiceChannel) {
-        const lobbyFrom = this.lobbies.find((l) => l.channel === from.id);
-        const lobbyTo = this.lobbies.find((l) => l.channel === to.id);
+        const lobbyFrom = this.lobbies.get(from.id);
+        const lobbyTo = this.lobbies.get(to.id);
         await this.atomicLeave(member, lobbyFrom);
         await this.atomicJoin(member, lobbyTo);
     }
@@ -110,11 +114,12 @@ export class LobbyStore extends LSBase {
     @WaitLoaded
     public async reportIngameStatus(member: GuildMember, status: IngameStatus) {
         console.log(member.user.tag, IngameStatus[status]);
-        const lobby = this.lobbies.find((l) => l.channel === member.voice.channelID);
+        const lobby = this.lobbies.get(member.voice.channelID);
+        if (!lobby) { return; }
         const s = lobby.status;
         await this.refreshIngameStatus(lobby);
         if (lobby.status !== s) {
-            this.updateAppealMsg(lobby);
+            this.updateAppealMsg(lobby); // добавить логгирование начавшейся катки
         }
     }
 
@@ -207,9 +212,9 @@ export class LobbyStore extends LSBase {
         }
         if (lobby.dcChannel.members.size) {
             await this.refreshIngameStatus(lobby);
-            await this.updateAppealMsg(lobby);
+            return this.updateAppealMsg(lobby);
         } else {
-            await (lobby.appealMessage && !lobby.appealMessage.deleted && lobby.appealMessage.delete());
+            return (lobby.appealMessage && !lobby.appealMessage.deleted && lobby.appealMessage.delete());
         }
     }
 
