@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"private": true,
 	"description": "third generation of r6rutils",
-	"repository": "https://github.com/badcoder1337/r6rutilsv3",
+	"repository": "https://github.com/Rainbow6-RUSSIA/rainbow6ru-backend",
 	"author": "BadCoder1337",
 	"license": "MIT",
 	"main": "build/index.js",
