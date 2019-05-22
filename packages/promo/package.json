@@ -18,8 +18,8 @@
 		"reflect-metadata": "^0.1.12",
 		"restify": "^8.3.2",
 		"restify-errors": "^8.0.0",
-		"sequelize": "^5.8.6",
-		"sequelize-typescript": "^0.6.11",
+		"sequelize": "^5.8.2",
+		"sequelize-typescript": "^0.6.10",
 		"ts-enum-util": "^4.0.1"
 	},
 	"devDependencies": {
