@@ -17,6 +17,6 @@
     "url": "https://github.com/BadCoder1337/rainbow6ru-backend/issues"
   },
   "dependencies": {
-    "restify": "^8.3.2"
+    "restify": "^8.2.0"
   }
 }
