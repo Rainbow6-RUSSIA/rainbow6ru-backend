@@ -1,3 +1,5 @@
+import { GuildMember } from 'discord.js';
+
 export const RankResolvable = [
     'Unranked',
     'Copper IV', 'Copper III', 'Copper II', 'Copper I',
@@ -96,8 +98,10 @@ export enum LobbyStoreStatus {
 export type ILobbyStoreEventType = 'join' | 'leave' | 'move' | 'report';
 
 export interface IActivityCounter {
-    id: string;
+    member: GuildMember;
     times: number;
+    warned: boolean;
+    kicked: boolean;
 }
 
 export enum IngameStatus {

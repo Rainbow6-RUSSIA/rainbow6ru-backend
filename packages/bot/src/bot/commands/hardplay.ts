@@ -1,9 +1,7 @@
 import { Command } from 'discord-akairo';
-import { Message, TextChannel } from 'discord.js';
+import { Message } from 'discord.js';
 import { debug } from '../..';
 import PartyCommand, { IArgsPartyCommand } from '../../utils/decorators/party_command';
-import embeds from '../../utils/embeds';
-import ENV from '../../utils/env';
 
 export default class MM extends Command {
     public constructor() {
@@ -13,7 +11,7 @@ export default class MM extends Command {
         });
     }
 
-    @PartyCommand
+    @PartyCommand()
     public async exec(message: Message, args: IArgsPartyCommand) {
         const { lobby, LS } = args;
         lobby.open = !lobby.open;

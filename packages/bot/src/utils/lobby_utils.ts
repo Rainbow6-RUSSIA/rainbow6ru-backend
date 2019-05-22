@@ -1,15 +1,7 @@
-import { Guild, Lobby, User } from '@r6ru/db';
-import { ILobbyStoreEventType, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
-import { CategoryChannel, Collection, GuildMember, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import { Guild, Lobby } from '@r6ru/db';
+import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
+import { CategoryChannel, Collection, Presence, Snowflake, TextChannel } from 'discord.js';
 import ENV from '../utils/env';
-
-export interface ILobbyStoreEvent {
-    type: ILobbyStoreEventType;
-    user: User;
-    member: GuildMember;
-    voice: VoiceChannel;
-    lobby: Lobby;
-}
 
 export class LSBase {
     public static detectIngameStatus = (presence: Presence): IngameStatus => {
@@ -31,7 +23,7 @@ export class LSBase {
     get voices() {
         return this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted);
     }
-    public events: Array<Partial<ILobbyStoreEvent>> = [];
+    public actionCounter: Collection<Snowflake, IActivityCounter>; // : Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;
     public promiseQueue = [];
 
@@ -45,11 +37,14 @@ export class LSBase {
         });
     }
 
-    public addEvent = async (e: Partial<ILobbyStoreEvent>) => {
-        if (this.events.length >= parseInt(ENV.EVENT_QUEUE_LENGTH)) {
-            this.events.pop();
-        }
-        this.events.unshift(e);
+    public purgeActions = async () => {
+        this.actionCounter.forEach((a, key, map) => {
+            if (a.times < 2) {
+                map.delete(key);
+            } else {
+                a.times--;
+            }
+        });
     }
 
     public waitLoaded = async () => {

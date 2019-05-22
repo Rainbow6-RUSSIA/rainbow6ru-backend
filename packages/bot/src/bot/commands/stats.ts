@@ -3,7 +3,6 @@ import { RANKS } from '@r6ru/types';
 import {  Command } from 'discord-akairo';
 import { CategoryChannel, Message, VoiceChannel } from 'discord.js';
 import { $enum } from 'ts-enum-util';
-import { debug } from '../..';
 
 interface IArgs {
     type: 'global' | 'voice';
@@ -45,7 +44,7 @@ export default class Stats extends Command {
                                 .map((ent) => [...ent, (guild.channels.get(ent[1]) as CategoryChannel).children
                                     .filter((ch) => ch.type === 'voice')
                                     .reduce((acc, val: VoiceChannel) => acc + val.members.size, 0)])
-                                .sort((a, b) => b[2] - a[2])
+                                .sort((a, b) => (b[2] as number) - (a[2] as number))
                                 .map((ent) => `Категория \`${ent[0]}\` - \`${ent[2]}\` пользователей`)
                                 .join('\n'));
             }

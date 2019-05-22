@@ -1,6 +1,7 @@
 import { Guild, Lobby, User } from '@r6ru/db';
-import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS } from '@r6ru/types';
+import { IngameStatus, LobbyStoreStatus as LSS, RANKS } from '@r6ru/types';
 import { CategoryChannel, Collection, GuildMember, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import * as humanizeDuration from 'humanize-duration';
 import { Sequelize } from 'sequelize-typescript';
 import { debug } from '..';
 import bot from '../bot';
@@ -10,6 +11,7 @@ import WaitLoaded from '../utils/decorators/wait_loaded';
 import embeds from '../utils/embeds';
 import ENV from '../utils/env';
 import { LSBase } from '../utils/lobby_utils';
+import { syncMember } from '../utils/sync';
 
 const { Op } = Sequelize;
 const initiatedAt = new Date();
@@ -21,7 +23,7 @@ export class LobbyStore extends LSBase {
         this.generateLobby = this.generateLobby.bind(this); // СУКА БЛЯДСКИЙ КОНТЕКСТ ОТВАЛИЛСЯ
         (async () => {
             this.guild = dbGuild;
-            this.events = [];
+            this.actionCounter = new Collection();
             this.categoryId = id;
             this.category = await bot.channels.fetch(this.categoryId) as CategoryChannel;
             this.type = type;
@@ -45,53 +47,59 @@ export class LobbyStore extends LSBase {
                 console.log(this.lfgChannel.guild.name, 'VOICES', this.voices.size, 'LOBBIES', this.lobbies.size, 'ROOMS RANGE', this.guild.roomsRange);
                 console.log(this.lfgChannel.guild.name, 'STATUS', LSS[this.status]);
 
-                setInterval(this.watchEvents, 500);
-                setInterval(() => this.events.pop(), 10000);
+                setInterval(this.watchActions, 500);
+                setInterval(this.purgeActions, 10000);
     }
         })();
     }
 
     public syncChannels = () => Promise.all(this.voices.array().sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
 
-    public async kick(member: GuildMember) {
-        console.log('soon™');
+    public async kick(member: GuildMember, timeout: number = 10000, reason?: string) {
+        await member.voice.setChannel(null, reason);
+        await member.send(reason);
+        if (timeout > 1000) {
+            await member.roles.set(member.roles.filter((r) => ![...Object.values(this.guild.platformRoles), ...Object.values(this.guild.rankRoles)].includes(r.id)));
+            debug.log(`<@${member.id}> исключен из \`${this.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}"`);
+            setTimeout(async () => syncMember(this.guild, await User.findByPk(member.id)), timeout);
+        }
     }
 
-    @Ratelimiter('join')
+    @Atomic
+    public async handleForceLeave(id: Snowflake) {
+        const lobby = this.lobbies.find((l) => Boolean(l.members.find((m) => m.id === id)));
+        if (lobby) {
+            this.checkLobbyHealth(lobby);
+            if (lobby.dcChannel.members.size === 0 && this.voices.size > this.guild.roomsRange[0]) {
+                this.closeLobby(lobby);
+            }
+        }
+    }
+
+    @Ratelimiter
     @WaitLoaded
     @Atomic
     public async join(member: GuildMember, to: VoiceChannel) {
         const lobby = this.lobbies.get(to.id);
         if (to.members.size === 1 && this.voices.size <= this.guild.roomsRange[1]) {
             lobby.dcLeader = member;
-            const channelToClone = this.voices.last();
-            await this.category.fetch();
-            const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
-            this.lobbies.set(clonedChannel.id, await this.generateLobby(clonedChannel));
+            await this.openLobby(lobby);
         }
         await this.atomicJoin(member, lobby);
     }
 
-    @Ratelimiter('leave')
+    @Ratelimiter
     @WaitLoaded
     @Atomic
     public async leave(member: GuildMember, from: VoiceChannel) {
         const lobby = this.lobbies.get(from.id);
         await this.atomicLeave(member, lobby);
         if (from.members.size === 0 && this.voices.size > this.guild.roomsRange[0]) {
-            lobby.active = false;
-            await lobby.save();
-            this.lobbies.delete(from.id);
-
-            const toDelete = this.voices.get(from.id);
-            toDelete.deleted = true; // наеб блядского кэша discord.js
-            await this.syncChannels();
-            toDelete.delete();
-            await this.category.fetch();
+            await this.closeLobby(lobby);
         }
     }
 
-    @Ratelimiter('move')
+    @Ratelimiter
     @WaitLoaded
     @Atomic
     public async internal(member: GuildMember, from: VoiceChannel, to: VoiceChannel) {
@@ -123,30 +131,6 @@ export class LobbyStore extends LSBase {
         }
     }
 
-    private async checkLobbyHealth(lobby: Lobby) {
-        if (lobby.members.length !== lobby.dcChannel.members.size) {
-            await lobby.dcChannel.fetch();
-            await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
-            if (lobby.members.length === lobby.dcChannel.members.size) {
-                await Promise.all(lobby.dcChannel.members.filter((m) => Boolean(lobby.members.find((dbm) => dbm.id === m.id))).map(this.kick));
-            }
-        }
-    }
-
-    private updateAppealMsg = async (lobby: Lobby) => {
-        await this.checkLobbyHealth(lobby);
-        if (lobby.appealMessage) {
-            if (lobby.dcInvite.expiresTimestamp < Date.now()) {
-                return (!lobby.appealMessage.deleted && lobby.appealMessage.delete());
-            }
-            try {
-                return lobby.appealMessage.edit('@here', await embeds.appealMsg(lobby));
-            } catch (err) {
-                return this.lfgChannel.send('@here', await embeds.appealMsg(lobby));
-            }
-        }
-    }
-
     // @Atomic
     public async generateLobby(voice: VoiceChannel) {
         if (!voice) {
@@ -169,30 +153,60 @@ export class LobbyStore extends LSBase {
         return lobby;
     }
 
-    private watchEvents = () => {
-        const grouppedByMember = this.events
-            .reduce((a: IActivityCounter[], b) => {
-                const i = a.findIndex((x) => x.id === b.member.id);
-                i === -1 ? a.push({ id : b.member.id, times : 1 }) : a[i].times++;
-                return a;
-            }, []);
-        // const grouppedByLeave = this.events
-        //     .filter((e) => e.type === 'leave')
-        //     .reduce((a: IActivityCounter[], b) => {
-        //         const i = a.findIndex((x) => x.id === b.voice.id);
-        //         i === -1 ? a.push({ id : b.voice.id, times : 1 }) : a[i].times++;
-        //         return a;
-        //     }, []);
-        if (grouppedByMember.length) {
-            // console.log('watchEvents', grouppedByMember);
-        }
-        switch (true) {
-            case true: {
-                break;
+    private async checkLobbyHealth(lobby: Lobby) {
+        if (lobby.members.length !== lobby.dcChannel.members.size) {
+            await lobby.dcChannel.fetch();
+            await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
+            if (lobby.members.length === lobby.dcChannel.members.size) {
+                await Promise.all(lobby.dcChannel.members.filter((m) => Boolean(lobby.members.find((dbm) => dbm.id === m.id))).map((m) => this.kick(m, 10000, 'Требуется регистрация. Используйте `$rank ваш_Uplay` в канале для команд бота.')));
             }
-            default:
-                break;
         }
+    }
+
+    private updateAppealMsg = async (lobby: Lobby) => {
+        await this.checkLobbyHealth(lobby);
+        if (lobby.appealMessage) {
+            if (lobby.dcInvite.expiresTimestamp < Date.now()) {
+                return (!lobby.appealMessage.deleted && lobby.appealMessage.delete());
+            }
+            try {
+                return lobby.appealMessage.edit('@here', await embeds.appealMsg(lobby));
+            } catch (err) {
+                return this.lfgChannel.send('@here', await embeds.appealMsg(lobby));
+            }
+        }
+    }
+
+    private async openLobby(lobby: Lobby) {
+        const channelToClone = this.voices.last();
+        await this.category.fetch();
+        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
+        this.lobbies.set(clonedChannel.id, await this.generateLobby(clonedChannel));
+    }
+
+    private async closeLobby(lobby: Lobby) {
+        lobby.active = false;
+        await lobby.save();
+        this.lobbies.delete(lobby.channel);
+
+        const toDelete = this.voices.get(lobby.channel);
+        toDelete.deleted = true; // наеб блядского кэша discord.js
+        await this.syncChannels();
+        toDelete.delete();
+        await this.category.fetch();
+    }
+
+    private watchActions = () => {
+        this.actionCounter.forEach((a, key, map) => {
+            if (!a.kicked && a.times >= parseInt(ENV.KICK_LIMIT)) {
+                a.kicked = true;
+                return this.kick(a.member, 10000 * a.times, 'Вы временно отстранены от поиска за чрезмерную активность!');
+            }
+            if (!a.warned && a.times >= parseInt(ENV.KICK_LIMIT) * 0.75) {
+                a.warned = true;
+                a.member.send('Вы совершаете слишком много действий! Умерьте пыл, или вы будете временно отстранены!');
+            }
+        });
     }
 
     private atomicLeave = async (member: GuildMember, lobby: Lobby) => {
@@ -206,7 +220,7 @@ export class LobbyStore extends LSBase {
             lobby.log = [];
             await lobby.save();
             const newLeader = lobby.dcChannel.members.random();
-            newLeader.send('теперь Вы - лидер лобби');
+            newLeader.send('Теперь Вы - лидер лобби');
             lobby.dcLeader = newLeader;
             console.log('leader left');
         }
@@ -219,7 +233,13 @@ export class LobbyStore extends LSBase {
     }
 
     private atomicJoin = async (member: GuildMember, lobby: Lobby) => {
-        await lobby.$add('members', await User.findByPk(member.id));
+        const dbUser = await User.findByPk(member.id);
+        const min = Math.min(...lobby.members.map((m) => m.rank));
+        const max = Math.max(...lobby.members.map((m) => m.rank));
+        if (!lobby.open && !(min <= dbUser.rank && dbUser.rank <= max)) {
+            return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[min]}\` - \`${RANKS[max]}\``);
+        }
+        await lobby.$add('members', dbUser);
         await lobby.reload({include: [{all: true}]});
         if (!lobby.dcLeader) {
             lobby.dcLeader = member;

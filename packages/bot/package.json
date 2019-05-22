@@ -21,7 +21,7 @@
 		"awesome-qr": "https://github.com/BadCoder1337/Awesome-qr.js#7f1589f",
 		"canvas": "^2.5.0",
 		"discord-akairo": "8.0.0-beta.1",
-		"discord.js": "https://github.com/discordjs/discord.js#0d9bc86",
+		"discord.js": "https://github.com/discordjs/discord.js#b3060ea",
 		"dotenv": "^7.0.0",
 		"humanize-duration": "^3.16.0",
 		"jsonwebtoken": "^8.5.0",

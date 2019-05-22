@@ -1,3 +1,4 @@
+import { Guild } from '@r6ru/db';
 import { Listener } from 'discord-akairo';
 import { VoiceState } from 'discord.js';
 import { lobbyStores } from '../lobby';
@@ -11,6 +12,8 @@ export default class VoiceStateUpdate extends Listener {
     }
 
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
+        // if (oldState.guild.id !== '216649610511384576') {return; }
+        // console.log({ oldState, newState });
         switch (true) {
             case !oldState.channelID && Boolean(newState.channelID): {
                 if (!lobbyStores.has(newState.channel.parentID)) { return; }
@@ -24,6 +27,15 @@ export default class VoiceStateUpdate extends Listener {
                 lobbyStores
                     .get(oldState.channel.parentID)
                     .leave(oldState.member, oldState.channel);
+                break;
+            }
+            case oldState.channelID === undefined && newState.channelID === null: {
+                const dbGuild = await Guild.findByPk(newState.guild.id);
+                Object.values(dbGuild.voiceCategories).map((id) => {
+                    lobbyStores
+                        .get(id)
+                        .handleForceLeave(newState.id);
+                });
                 break;
             }
             case oldState.channelID && newState.channelID && oldState.channelID !== newState.channelID && (lobbyStores.has(oldState.channel.parentID) || lobbyStores.has(newState.channel.parentID)): {

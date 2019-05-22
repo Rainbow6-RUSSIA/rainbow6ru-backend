@@ -7,6 +7,9 @@
   "scripts": {
     "build": "tsc -p ."
   },
+  "dependencies": {
+    "discord.js": "https://github.com/discordjs/discord.js#b3060ea"
+  },
   "devDependencies": {
     "@types/node": "^11.11.7",
     "@types/socket.io": "^2.1.2",

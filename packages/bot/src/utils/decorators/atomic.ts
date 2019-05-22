@@ -14,12 +14,10 @@ export default function Atomic(target: LobbyStore, propertyName: string, propert
             } else {
                 await this.waitReady();
             }
-            console.log('Atomic +', propertyName);
             const id = uuid();
             this.promiseQueue.push(id);
             const result = await method.apply(this, args);
             this.promiseQueue = this.promiseQueue.filter((i) => i !== id);
-            console.log('Atomic -', propertyName);
             return result;
         } catch (err) {
             debug.error(err);
