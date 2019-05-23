@@ -28,13 +28,20 @@ export default class Update extends Command { // update all|newseason|numofpacks
 
     // @TryCatch(debug)
     public exec = async (message: Message, args: IUpdateArgs) => {
-        const UInst = await U.findByPk(args.user.id);
+        const dbUser = await U.findByPk(args.user.id);
         if (args.verification === 3) {
-            debug.log(`<@${message.author.id}> верифицировал аккаунт <@${UInst.id}> ${ONLINE_TRACKER}${UInst.genome}`);
+            debug.log(`${message.author} верифицировал аккаунт <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+            try {
+                if (await message.guild.members.fetch(args.user.id)) {
+                    dbUser.inactive = false;
+                }
+            } catch (err) {
+                console.log(err);
+            }
         }
-        UInst.verificationLevel = args.verification || UInst.verificationLevel;
-        await UInst.save();
-        await syncMember(await G.findByPk(message.guild.id), UInst);
+        dbUser.verificationLevel = args.verification || dbUser.verificationLevel;
+        await dbUser.save();
+        await syncMember(await G.findByPk(message.guild.id), dbUser);
         return message.reply('обновлено!');
     }
 }
