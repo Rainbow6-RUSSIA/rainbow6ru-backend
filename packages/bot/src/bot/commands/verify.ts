@@ -31,15 +31,15 @@ export default class Verify extends Command {
         if (target.id !== message.author.id && ((message.channel.type === 'text' && message.member.hasPermission('MANAGE_ROLES')) || [...this.client.ownerID].includes(message.author.id))) {
             return this.verifyMember(message, await User.findByPk(target.id));
         }
-        const UInst = await User.findByPk(message.author.id);
-        if (UInst && UInst.genome) {
-            if (UInst.verificationLevel >= VERIFICATION_LEVEL.QR) {
+        const dbUser = await User.findByPk(message.author.id);
+        if (dbUser && dbUser.genome) {
+            if (dbUser.verificationLevel >= VERIFICATION_LEVEL.QR) {
                 return message.reply('вы уже подтвердили свой аккаунт!');
             }
             if (message.channel.type === 'dm') {
-                return this.verifyDM(message, UInst);
+                return this.verifyDM(message, dbUser);
             } else {
-                return this.verifyGuild(message, UInst);
+                return this.verifyGuild(message, dbUser);
             }
         } else {
             return message.reply('вы должны сначала зарегистрироваться!');
@@ -47,26 +47,26 @@ export default class Verify extends Command {
     }
 
     // @TryCatch(debug)
-    private verifyMember = async (message: Message, UInst: User) => {
-        UInst.requiredVerification = VERIFICATION_LEVEL.QR;
-        await UInst.save();
-        await syncMember(await Guild.findByPk(message.guild.id), UInst);
-        debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${UInst.id}> ${ONLINE_TRACKER}${UInst.genome}`);
+    private verifyMember = async (message: Message, dbUser: User) => {
+        dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
+        await dbUser.save();
+        await syncMember(await Guild.findByPk(message.guild.id), dbUser);
+        debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
         return message.reply('верификация запрошена');
     }
 
     // @TryCatch(debug)
-    private verifyDM = async (message: Message, UInst: User) => {
+    private verifyDM = async (message: Message, dbUser: User) => {
         try {
-            if (await verify(UInst.genome, message.author.id)) {
-                UInst.verificationLevel = VERIFICATION_LEVEL.QR;
-                UInst.inactive = false;
-                await UInst.save();
-                debug.log(`<@${message.author.id}> верифицировал аккаунт ${ONLINE_TRACKER}${UInst.genome}`);
+            if (await verify(dbUser.genome, message.author.id)) {
+                dbUser.verificationLevel = VERIFICATION_LEVEL.QR;
+                dbUser.inactive = false;
+                await dbUser.save();
+                debug.log(`${message.author} верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
                 const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
                 const guilds = await Guild.findAll({where: {premium: true}});
                 await Promise.all(guilds.map((g) => this.client.guilds.get(g.id).members.fetch()));
-                await Promise.all(guilds.filter((g) => this.client.guilds.get(g.id).members.has(UInst.id)).map((g) => syncMember(g, UInst)));
+                await Promise.all(guilds.filter((g) => this.client.guilds.get(g.id).members.has(dbUser.id)).map((g) => syncMember(g, dbUser)));
                 return msg.edit(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Роли возвращены, приятной игры!`);
             } else {
                 return message.reply('Неккоректный QR-код!');
@@ -78,7 +78,7 @@ export default class Verify extends Command {
     }
 
     // @TryCatch(debug)
-    private verifyGuild = async (message: Message, UInst: User) => {
+    private verifyGuild = async (message: Message, dbUser: User) => {
         const prmpt = await combinedPrompt(await message.reply('вы действительно хотите пройти процедуру верификации с помощью QR-кода?\nВам потребуется доступ к панели управления аккаунтом Uplay и немного желания 😀.\nУбедитесь, что не заблокировали ЛС с ботом.') as Message, {
             author: message.author,
             emojis: ['✅', '❎'],
@@ -89,10 +89,10 @@ export default class Verify extends Command {
             case 1: return message.reply('вы отклонили подтверждение.');
             case -1: return message.reply('время на подтверждение истекло.');
             case 0: {
-                UInst.requiredVerification = 3;
-                await UInst.save();
-                await syncMember(await Guild.findByPk(message.guild.id), UInst);
-                debug.log(`самостоятельно запрошена верификация аккаунта <@${UInst.id}> ${ONLINE_TRACKER}${UInst.genome}`);
+                dbUser.requiredVerification = 3;
+                await dbUser.save();
+                await syncMember(await Guild.findByPk(message.guild.id), dbUser);
+                debug.log(`самостоятельно запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
                 return message.reply('инструкции отправлены вам в ЛС.');
             }
         }

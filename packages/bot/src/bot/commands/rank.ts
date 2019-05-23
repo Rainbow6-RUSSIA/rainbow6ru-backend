@@ -61,9 +61,9 @@ export default class Rank extends Command {
             if (bound && bound.err) {
                 throw bound.err;
             }
-            const GInst = await Guild.findByPk(message.guild.id);
-            const nonPremium = GInst.premium === false;
-            const platformRoles = nonPremium ? null : GInst.platformRoles;
+            const dbGuild = await Guild.findByPk(message.guild.id);
+            const nonPremium = dbGuild.premium === false;
+            const platformRoles = nonPremium ? null : dbGuild.platformRoles;
 
             let adminAction: boolean = null;
 
@@ -79,16 +79,16 @@ export default class Rank extends Command {
                 target = member;
             }
 
-            let UInst = await User.findByPk(target.id);
+            let dbUser = await User.findByPk(target.id);
 
-            if (UInst && UInst.genome) {
+            if (dbUser && dbUser.genome) {
                 if (adminAction) {
                     return message.reply(`пользователь уже зарегистрирован!`);
                 } else {
-                    syncMember(GInst, UInst);
+                    syncMember(dbGuild, dbUser);
                     return message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
                         humanizeDuration(
-                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(UInst.rankUpdatedAt).valueOf() - Date.now(),
+                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(dbUser.rankUpdatedAt).valueOf() - Date.now(),
                             {conjunction: ' и ', language: 'ru', round: true},
                         )
                     }\``);
@@ -123,7 +123,7 @@ export default class Rank extends Command {
             if (!nonPremium) {
                 platform[bound.platform] = true;
             }
-            UInst = new User({
+            dbUser = new User({
                 genome: bound.genome,
                 id: target.id,
                 inactive: false,
@@ -135,8 +135,8 @@ export default class Rank extends Command {
                 region: mainRegion,
                 requiredVerification:
                 nonPremium ? VERIFICATION_LEVEL.NONE
-                : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= GInst.fixAfter || (await r6.api.getLevel(bound.platform, bound.genome))[bound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
-                : GInst.requiredVerification,
+                : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= dbGuild.fixAfter || (await r6.api.getLevel(bound.platform, bound.genome))[bound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
+                : dbGuild.requiredVerification,
                 verificationLevel:
                 (target.nickname || '').includes(bound.nickname) ||
                 target.user.username.includes(bound.nickname) ? VERIFICATION_LEVEL.MATCHNICK
@@ -156,15 +156,15 @@ export default class Rank extends Command {
                 case 1: return message.reply('вы отклонили регистрацию. Попробуйте снова, указав нужный аккаунт.');
                 case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
                 case 0: {
-                    await UInst.save();
-                    debug.log(`<@${UInst.id}> зарегистрировался как ${ONLINE_TRACKER}${UInst.genome}`);
-                    if (UInst.requiredVerification >= VERIFICATION_LEVEL.QR) {
-                        debug.log(`автоматически запрошена верификация аккаунта <@${UInst.id}> ${ONLINE_TRACKER}${UInst.genome}`);
-                        setTimeout(() => syncMember(GInst, UInst), 5000);
-                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\`\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*`);
+                    await dbUser.save();
+                    debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}`);
+                    if (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR) {
+                        debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+                        setTimeout(() => syncMember(dbGuild, dbUser), 5000);
+                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\`\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*`);
                     } else {
-                        syncMember(GInst, UInst);
-                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали <@${target.id}>` : 'зарегистрировались'}! Ник: \`${UInst.nickname}\`, ранг \`${RANKS[UInst.rank]}\``);
+                        syncMember(dbGuild, dbUser);
+                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\``);
                     }
                 }
             }

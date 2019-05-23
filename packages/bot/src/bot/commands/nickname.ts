@@ -30,13 +30,13 @@ export default class Nickname extends Command {
             message.reply('изменение синхронизации ников других пользователей доступно только администрации!');
             target = message.author;
         }
-        const UInst = await User.findByPk(target.id);
-        if (UInst && UInst.genome) {
-            UInst.syncNickname = !UInst.syncNickname;
-            await UInst.save();
-            await syncMember(await Guild.findByPk(message.guild.id), UInst);
-            debug.log(`синхронизация ника <@${UInst.id}> ${UInst.syncNickname ? 'включена' : 'отключена'}!`);
-            return message.reply(`синхронизация игрового ника ${UInst.syncNickname ? 'включена' : 'отключена'}!`);
+        const dbUser = await User.findByPk(target.id);
+        if (dbUser && dbUser.genome) {
+            dbUser.syncNickname = !dbUser.syncNickname;
+            await dbUser.save();
+            await syncMember(await Guild.findByPk(message.guild.id), dbUser);
+            debug.log(`синхронизация ника <@${dbUser.id}> ${dbUser.syncNickname ? 'включена' : 'отключена'}!`);
+            return message.reply(`синхронизация игрового ника ${dbUser.syncNickname ? 'включена' : 'отключена'}!`);
         } else {
             return message.reply(target.id !== message.author.id ? 'пользователь не зарегистрирован!' : 'вы должны сначала зарегистрироваться!');
         }

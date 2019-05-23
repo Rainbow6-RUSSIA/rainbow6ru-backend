@@ -11,7 +11,7 @@ export default class UnhandledRejection extends Listener {
     }
 
     public exec = async (error: Error) => {
-        if (['Creds not found on login', 'too many requests', '[ERR_INVALID_CALLBACK]: Callback must be a function'].some((t) => error.message.includes(t))) {
+        if (['Creds not found on login', 'too many requests', 'Callback must be a function'].some((t) => error.message.includes(t))) {
             return refresh();
         }
         debug.error(error);

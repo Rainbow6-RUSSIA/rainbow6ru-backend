@@ -54,7 +54,7 @@ export default class Info extends Command {
         }
         if (!(!user || !nickname)) {
             const prompt = await combinedPrompt(
-                await message.reply(`вы ищите информацию о пользователе:\n1) Discord <@${user.id}> или\n2) Uplay \`${nickname}\`?`) as Message,
+                await message.reply(`вы ищите информацию о пользователе:\n1) Discord ${user} или\n2) Uplay \`${nickname}\`?`) as Message,
                 {
                     author: message.author,
                     emojis: ['1⃣', '2⃣'],
@@ -77,7 +77,7 @@ export default class Info extends Command {
                 return message.reply(U0 ? `ваш профиль: ${ONLINE_TRACKER}${U0.genome}${await addBadge(U0.verificationLevel)}` : 'вы не зарегистрированы!');
             case !user:
                 const U1 = await U.findByPk(user.id);
-                return message.reply(U1 ? `профиль <@${user.id}> \`${(await this.client.users.fetch(user.id)).tag}\`: ${ONLINE_TRACKER}${U1.genome}${await addBadge(U1.verificationLevel)}` : 'пользователь не найден!');
+                return message.reply(U1 ? `профиль ${user} \`${(await this.client.users.fetch(user.id)).tag}\`: ${ONLINE_TRACKER}${U1.genome}${await addBadge(U1.verificationLevel)}` : 'пользователь не найден!');
             case !nickname:
                 let genomes: string[] = null;
                 try {

@@ -34,6 +34,6 @@ export default class MM extends Command {
             await lobby.appealMessage.delete();
         }
         lobby.appealMessage = await LS.lfgChannel.send('@here', await embeds.appealMsg(lobby)) as Message;
-        return debug.log(`<@${message.author.id}> ищет пати в \`${lobby.type}\` с описанием: \`${lobby.description}\`. ID пати \`${lobby.id}\``);
+        return debug.log(`${message.author} ищет пати в \`${lobby.type}\` с описанием: \`${lobby.description}\`. ID пати \`${lobby.id}\``);
     }
 }

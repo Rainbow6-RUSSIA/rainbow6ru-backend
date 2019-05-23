@@ -8,17 +8,16 @@ import ENV from './env';
 import { generate } from './qr';
 
 export async function syncNicknames(platform: PLATFORM) {
-  const UInsts = await U.findAll({
+  const dbUsers = await U.findAll({
     limit: 40,
     order: [['nicknameUpdatedAt', 'ASC']],
     where: {platform: {
       [platform]: true,
     }},
   });
-  // console.log(UInsts.map((u) => u.nickname).join(', '));
-  if (!UInsts.length) { return []; }
-  const res = await r6.api.getCurrentName(platform, UInsts.map((u) => u.genome));
-  return Promise.all(UInsts.map((u) => {
+  if (!dbUsers.length) { return []; }
+  const res = await r6.api.getCurrentName(platform, dbUsers.map((u) => u.genome));
+  return Promise.all(dbUsers.map((u) => {
     if (res[u.genome] && (u.nickname !== res[u.genome].name)) {
       console.log('[BOT]', u.nickname, '-->', res[u.genome].name);
       u.nickname = res[u.genome].name;
@@ -29,17 +28,16 @@ export async function syncNicknames(platform: PLATFORM) {
 }
 
 export async function syncRank(platform: PLATFORM) {
-  const UInsts = await U.findAll({
+  const dbUsers = await U.findAll({
     limit: parseInt(ENV.PACK_SIZE),
     order: [['rankUpdatedAt', 'ASC']],
     where: {
       inactive: false,
       platform: {[platform]: true}},
   });
-  // console.log(UInsts.map((u) => u.nickname).join(', '));
-  if (!UInsts.length) { return []; }
-  const res = await r6.api.getRank(platform, UInsts.map((u) => u.genome));
-  return Promise.all(UInsts.map((u) => {
+  if (!dbUsers.length) { return []; }
+  const res = await r6.api.getRank(platform, dbUsers.map((u) => u.genome));
+  return Promise.all(dbUsers.map((u) => {
     if (res[u.genome]) {
       u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
     }

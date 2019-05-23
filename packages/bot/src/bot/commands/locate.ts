@@ -29,9 +29,7 @@ export default class Locate extends Command { // update all|newseason|numofpacks
     // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
         const user = await (args.user || this.client.users.fetch(args.id.match[0]));
-        let member = null;
-        member = await message.guild.members.fetch(user.id);
-
-        return message.reply(`пользователь <@${user.id}> \`${user.tag}\`: ${!member ? 'не на сервере' : !member.voice.channel ? 'не в голосовом канале' : `находится в \`${member.voice.channel.name}\` ${await member.voice.channel.createInvite({maxUses: 5, maxAge: 600, reason: 'поиск по голосовым каналам'})}`}`);
+        const member = await message.guild.members.fetch(user.id);
+        return message.reply(`пользователь ${user} \`${user.tag}\`: ${!member ? 'не на сервере' : !member.voice.channel ? 'не в голосовом канале' : `находится в <#${member.voice.channel.id}> ${await member.voice.channel.createInvite({maxUses: 5, maxAge: 600, reason: 'поиск по голосовым каналам'})}`}`);
     }
 }

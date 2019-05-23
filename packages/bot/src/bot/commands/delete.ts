@@ -24,12 +24,12 @@ export default class Delete extends Command {
     // @TryCatch(debug)
     public exec = async (message: Message, args: IDeleteArgs) => {
         const { target } = args;
-        const UInst = await User.findByPk(target.id);
-        if (!UInst) {
+        const dbUser = await User.findByPk(target.id);
+        if (!dbUser) {
             return message.reply('пользователь не найден');
         }
-        debug.log(`аккаунт удален <@${UInst.id}> ${ONLINE_TRACKER}${UInst.genome}`);
-        await UInst.destroy();
+        debug.log(`аккаунт удален <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+        await dbUser.destroy();
         const { guild } = message;
         const { platformRoles, rankRoles} = await Guild.findByPk(guild.id);
         const member = await guild.members.fetch(target.id);
