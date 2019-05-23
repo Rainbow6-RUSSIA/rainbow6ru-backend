@@ -10,7 +10,7 @@ export default class Reboot extends Command {
             aliases: ['reboot'],
             channel: 'guild',
             cooldown: 5000,
-            ownerOnly: true,
+            userPermissions: 'MANAGE_GUILD',
         });
     }
 
