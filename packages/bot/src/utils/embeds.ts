@@ -34,7 +34,7 @@ export default {
           })(lobby.status),
       },
       color: RANK_COLORS[(lobby.members.find((m) => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id)).rank],
-      description: (lobby.members.sort((a, b) => b.rank - a.rank).map((m) => `${m} (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n'))
+      description: (lobby.members.sort((a, b) => b.rank - a.rank).map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n'))
         + (lobby.description
           ? `\n▫${lobby.description}`
           : '')
