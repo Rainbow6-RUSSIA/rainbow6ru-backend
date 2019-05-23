@@ -25,7 +25,7 @@ export default class Votekick extends Command {
         if (!voice.members.has(target.id)) {
             return message.author.send('Вы не можете голосовать за исключение участника из другого канала!');
         }
-        const vote = await message.channel.send(`Голосование за исключение ${target} (15 сек.)\n${voice.members.filter((m) => m.id !== target.id).map((m) => m.id).join(', ')}`) as Message;
+        const vote = await message.channel.send(`Голосование за исключение ${target} (15 сек.)\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`) as Message;
         const emojis = ['❎', '✅'];
         await Promise.all(emojis.map((e) => vote.react(e)));
         const votes: Collection<string, boolean> = new Collection();

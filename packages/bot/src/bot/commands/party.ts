@@ -9,9 +9,9 @@ interface IArgs extends IArgsPartyCommand {
     description: string;
 }
 
-export default class MM extends Command {
+export default class Party extends Command {
     public constructor() {
-        super('MM', {
+        super('party', {
             aliases: ['MM', 'party'],
             args: [{
                 id: 'description',
