@@ -1,4 +1,4 @@
-import { Lobby } from '@r6ru/db';
+import { Lobby, User } from '@r6ru/db';
 import { IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_COLORS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { MessageAttachment, MessageOptions } from 'discord.js';
 import ENV from './env';
@@ -33,8 +33,8 @@ export default {
             }
           })(lobby.status),
       },
-      color: RANK_COLORS[lobby.members.find((m) => m.id === lobby.dcLeader.id).rank],
-      description: (lobby.members.map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n'))
+      color: RANK_COLORS[(lobby.members.find((m) => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id)).rank],
+      description: (lobby.members.sort((a, b) => b.rank - a.rank).map((m) => `${m} (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n'))
         + (lobby.description
           ? `\n▫${lobby.description}`
           : '')
