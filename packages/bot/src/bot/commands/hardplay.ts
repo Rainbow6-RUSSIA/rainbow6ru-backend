@@ -16,7 +16,11 @@ export default class MM extends Command {
         const { lobby, LS } = args;
         lobby.open = !lobby.open;
         await lobby.save();
-        debug.log(`<@${message.author.id}> ${lobby.open ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${lobby.id}\``);
-        return message.author.send(`HardPlay лобби ${lobby.open ? 'деактивировано' : 'активировано'}!`);
+        debug.log(`${message.author.id} ${lobby.open ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${lobby.id}\``);
+        try {
+            message.author.send(`HardPlay лобби ${lobby.open ? 'деактивировано' : 'активировано'}!`);
+        } catch (error) {
+            message.reply(`HardPlay лобби ${lobby.open ? 'деактивировано' : 'активировано'}!`);
+        }
     }
 }
