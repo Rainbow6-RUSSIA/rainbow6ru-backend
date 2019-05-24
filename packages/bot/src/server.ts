@@ -46,7 +46,7 @@ server.get('/lobby/:id/preview', async (req, res, next) => {
         ? lobby.dcChannel.userLimit - lobby.dcChannel.members.size
         : 0));
 
-    return res.sendRaw(200, pic, {
+    return res.sendRaw(200, pic || 'Error', {
       'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
       'Content-Type': 'image/png',
     });

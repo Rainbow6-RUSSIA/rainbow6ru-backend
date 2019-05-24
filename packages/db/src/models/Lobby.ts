@@ -40,6 +40,10 @@ export default class Lobby extends Model<Lobby> {
     @Column
     public open: boolean;
 
+    @Default(false)
+    @Column
+    public hardplay: boolean;
+
     @Column
     public invite: string;
     public dcInvite: Invite;

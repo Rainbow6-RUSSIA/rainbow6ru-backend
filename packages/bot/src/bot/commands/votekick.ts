@@ -22,8 +22,21 @@ export default class Votekick extends Command {
     public async exec(message: Message, args: IArgs) {
         const { target, lobby, LS } = args;
         const voice = lobby.dcChannel;
+        if (message.author.id === target.id) {
+            try {
+                message.author.send('Вы не можете голосовать за исключение себя!');
+            } catch (error) {
+                (await message.reply('вы не можете голосовать за исключение себя!') as Message).delete({ timeout: 30000 });
+            }
+            return;
+        }
         if (!voice.members.has(target.id)) {
-            return message.author.send('Вы не можете голосовать за исключение участника из другого канала!');
+            try {
+                message.author.send('Вы не можете голосовать за исключение участника из другого канала!');
+            } catch (error) {
+                (await message.reply('вы не можете голосовать за исключение участника из другого канала!') as Message).delete({ timeout: 30000 });
+            }
+            return;
         }
         const vote = await message.channel.send(`Голосование за исключение ${target} (15 сек.)\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`) as Message;
         const emojis = ['❎', '✅'];
@@ -40,12 +53,12 @@ export default class Votekick extends Command {
         collector.on('end', async (collected) => {
             if (!voice.members.filter((m) => m.id !== target.id).every((m) => votes.filter(Boolean).has(m.id))) {
                 await vote.reactions.clear();
-                await vote.edit(`Недостаточно голосов для исключения ${target.id}\n${voice.members.filter((m) => m.id !== target.id).map((m) => m.id).join(', ')}`);
-                return vote.delete({ timeout: 30000 });
+                await vote.edit(`Недостаточно голосов для исключения ${target.id}\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`);
             } else {
                 await LS.kick(target, 120000, 'Вы временно отстранены от поиска по результатам голосования!');
-                return vote.edit(`${target} исключен\n${voice.members.filter((m) => m.id !== target.id).map((m) => m.id).join(', ')}`);
+                await vote.edit(`${target} исключен\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`);
             }
+            return vote.delete({ timeout: 30000 });
         });
     }
 }
