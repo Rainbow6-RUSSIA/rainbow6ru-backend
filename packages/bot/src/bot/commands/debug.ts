@@ -26,6 +26,6 @@ export default class Debug extends Command {
     public exec = async (message: Message, args: IArgs) => {
         const { target } = args;
         const LS = lobbyStores.get(target.parentID);
-        console.log(LS.lobbies.get(target.id));
+        console.log({ l: LS.lobbies.get(target.id) });
     }
 }

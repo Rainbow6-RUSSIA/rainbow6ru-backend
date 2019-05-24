@@ -21,7 +21,7 @@ export class LSBase {
     public type: string;
     public lobbies: Collection<Snowflake, Lobby>;
     get voices() {
-        return this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted);
+        return this.lobbies ? new Collection(this.lobbies.map((l) => [l.dcChannel.id, l.dcChannel])) : this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted) ;
     }
     public actionCounter: Collection<Snowflake, IActivityCounter>; // : Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;

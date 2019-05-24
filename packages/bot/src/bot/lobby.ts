@@ -69,7 +69,7 @@ export class LobbyStore extends LSBase {
         } catch (error) {
             await this.lfgChannel.send(`${member}, ${reason}`);
         }
-        if (timeout > 1000) {
+        if (timeout > 10000) {
             await member.roles.set(member.roles.filter((r) => ![...Object.values(this.guild.platformRoles), ...Object.values(this.guild.rankRoles)].includes(r.id)));
             debug.log(`${member} исключен из \`${this.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}"`);
             setTimeout(async () => syncMember(this.guild, await User.findByPk(member.id)), timeout);
@@ -92,6 +92,7 @@ export class LobbyStore extends LSBase {
     // @Atomic
     public async join(member: GuildMember, to: VoiceChannel) {
         const lobby = this.lobbies.get(to.id);
+        if (!lobby) {return; }
         if (to.members.size === 1 && this.lobbies.size <= this.guild.roomsRange[1]) {
             lobby.dcLeader = member;
             await this.openLobby(lobby);
@@ -105,6 +106,7 @@ export class LobbyStore extends LSBase {
     // @Atomic
     public async leave(member: GuildMember, from: VoiceChannel) {
         const lobby = this.lobbies.get(from.id);
+        if (!lobby) {return; }
         await this.atomicLeave(member, lobby);
         if (from.members.size === 0 && this.lobbies.size > this.guild.roomsRange[0]) {
             await this.closeLobby(lobby);
@@ -183,22 +185,27 @@ export class LobbyStore extends LSBase {
     }
 
     private async checkLobbyHealth(lobby: Lobby) {
-        await lobby.dcChannel.fetch();
-        if (lobby.members.length !== lobby.dcChannel.members.size) {
-            await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
-            await lobby.reload({ include: [{all: true}] });
+        try {
+            await lobby.dcChannel.fetch();
             if (lobby.members.length !== lobby.dcChannel.members.size) {
-                await Promise.all(lobby.dcChannel.members.filter((m) => Boolean(lobby.members.find((dbm) => dbm.id === m.id))).map((m) => this.kick(m, 10000, 'Требуется регистрация. Используйте `$rank ваш_Uplay` в канале для команд бота.')));
-                await this.checkLobbyHealth(lobby);
+                await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
+                await lobby.reload({ include: [{all: true}] });
+                if (lobby.members.length !== lobby.dcChannel.members.size) {
+                    await Promise.all(lobby.dcChannel.members.filter((m) => !Boolean(lobby.members.find((dbm) => dbm.id === m.id))).map((m) => this.kick(m, 10000, 'Требуется регистрация. Используйте `$rank ваш_Uplay` в канале для команд бота.')));
+                    await this.checkLobbyHealth(lobby);
+                }
             }
-        }
-        if (lobby.dcLeader) {
-            if (lobby.dcChannel.members.size === 0) {
-                lobby.dcLeader = null;
-            } else if (!lobby.dcChannel.members.has(lobby.dcLeader.id)) {
+            if (lobby.dcLeader) {
+                if (lobby.dcChannel.members.size === 0) {
+                    lobby.dcLeader = null;
+                } else if (!lobby.dcChannel.members.has(lobby.dcLeader.id)) {
+                    lobby.dcLeader = lobby.dcChannel.members.random();
+                }
                 lobby.dcLeader = lobby.dcChannel.members.random();
             }
-            lobby.dcLeader = lobby.dcChannel.members.random();
+        } catch (error) {
+            this.lobbies.delete(lobby.channel);
+            console.log('ФЭК');
         }
     }
 
@@ -216,9 +223,9 @@ export class LobbyStore extends LSBase {
     }
 
     private async openLobby(lobby: Lobby) {
-        const channelToClone = this.lobbies.last().dcChannel;
+        const channelToClone = await this.lobbies.last().dcChannel.fetch() as VoiceChannel;
         await this.category.fetch();
-        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (this.lobbies.size + 1).toString()) }) as VoiceChannel;
+        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()) }) as VoiceChannel;
         this.lobbies.set(clonedChannel.id, await this.generateLobby(clonedChannel));
     }
 
@@ -229,7 +236,7 @@ export class LobbyStore extends LSBase {
         const toDelete = lobby.dcChannel; // this.voices.get(lobby.channel);
         toDelete.deleted = true; // наеб блядского кэша discord.js
         await this.syncChannels();
-        toDelete.delete();
+        await toDelete.delete();
         this.lobbies.delete(lobby.channel);
         await this.category.fetch();
     }

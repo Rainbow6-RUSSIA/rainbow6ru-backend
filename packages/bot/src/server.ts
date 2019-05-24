@@ -1,10 +1,10 @@
 import { Lobby } from '@r6ru/db';
-import { IngameStatus as IS } from '@r6ru/types';
+import { IngameStatus as IS, LobbyStoreStatus as LSS } from '@r6ru/types';
 import { VoiceChannel } from 'discord.js';
 import * as restify from 'restify';
 import { NotFoundError } from 'restify-errors';
 import bot from './bot';
-import { lobbyStores } from './bot/lobby';
+import { LobbyStore, lobbyStores } from './bot/lobby';
 import ENV from './utils/env';
 import { createLobbyPreview } from './utils/preview';
 
@@ -35,7 +35,10 @@ server.get('/lobby/:id/preview', async (req, res, next) => {
 
     if (!dcChannel) {return next(new NotFoundError()); }
 
-    const lobby = lobbyStores.get(dcChannel.parentID).lobbies.get(dcChannel.id);
+    const LS = lobbyStores.get(dcChannel.parentID);
+    await waitLoaded(LS);
+
+    const lobby = LS.lobbies.get(dcChannel.id);
 
     if (!lobby) {return next(new NotFoundError()); }
 
@@ -57,3 +60,13 @@ server.get('/lobby/:id/preview', async (req, res, next) => {
 });
 
 server.listen(ENV.PORT || 3000, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));
+
+async function waitLoaded(LS: LobbyStore) {
+  return new Promise((resolve) => {
+      const waiter = () => {
+          if (LS.status === LSS.AVAILABLE) { return resolve(); }
+          setTimeout(waiter, 25);
+      };
+      waiter();
+  });
+}
