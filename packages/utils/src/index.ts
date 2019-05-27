@@ -92,10 +92,13 @@ export class Log {
             },
             color,
             description: `**${type}** Message`,
-            fields: [{
+            fields: (body instanceof Error
+              ? body.stack.match(/.{1,1000}/g).map((ch) => `\`\`\`js\n${ch}\n\`\`\``)
+              : body.toString().match(/.{1,1000}/g))
+              .map((ch) => ({
                 name: `_${context}_:`,
-                value: body instanceof Error ? `\`\`\`js\n${body.stack}\n\`\`\`` : body,
-            }],
+                value: ch,
+              })),
             timestamp: Date.now(),
         }] });
     }
@@ -115,31 +118,3 @@ export class Log {
         return this.sendWebhook(context, 'Error', msg, 13382400);
     }
 }
-
-// tslint:disable-next-line:ban-types
-// export function TryCatch(logger: Log) {
-//   return (target: any, key: string) => {
-//     let origin = this[key];
-
-//     if (typeof origin === 'function') {
-//       if (origin.constructor.name !== 'AsyncFunction') {
-//         throw new TypeError(`TryCatch decorator require async method but ${target.constructor.name}.${key} is sync`);
-//       }
-//       if (delete this[key]) {
-//         Object.defineProperty(target, key, {
-//           get: () => origin,
-//           set: (newVal) => {origin = newVal; },
-//           value: async (...args) => {
-//             try {
-//               const result = await origin.apply(this, args);
-//               return result;
-//             } catch (err) {
-//               console.log(err);
-//               logger.error(err);
-//             }
-//           },
-//         });
-//       }
-//     }
-// };
-// }

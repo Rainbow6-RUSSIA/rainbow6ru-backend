@@ -52,6 +52,7 @@ export default class Verify extends Command {
         await dbUser.save();
         await syncMember(await Guild.findByPk(message.guild.id), dbUser);
         debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+        await (message.member && message.member.voice && message.member.voice.setChannel(null));
         return message.reply('верификация запрошена');
     }
 
@@ -89,10 +90,11 @@ export default class Verify extends Command {
             case 1: return message.reply('вы отклонили подтверждение.');
             case -1: return message.reply('время на подтверждение истекло.');
             case 0: {
-                dbUser.requiredVerification = 3;
+                dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
                 await dbUser.save();
                 await syncMember(await Guild.findByPk(message.guild.id), dbUser);
                 debug.log(`самостоятельно запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+                await (message.member && message.member.voice && message.member.voice.setChannel(null));
                 return message.reply('инструкции отправлены вам в ЛС.');
             }
         }

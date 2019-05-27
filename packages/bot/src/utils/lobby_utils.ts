@@ -1,6 +1,6 @@
 import { Guild, Lobby } from '@r6ru/db';
 import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
-import { CategoryChannel, Collection, Presence, Snowflake, TextChannel } from 'discord.js';
+import { CategoryChannel, Collection, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import ENV from '../utils/env';
 
 export class LSBase {
@@ -21,11 +21,12 @@ export class LSBase {
     public type: string;
     public lobbies: Collection<Snowflake, Lobby>;
     get voices() {
-        return this.lobbies ? new Collection(this.lobbies.map((l) => [l.dcChannel.id, l.dcChannel])) : this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted) ;
+        return this.lobbies ? new Collection(this.lobbies.map((l) => [l.dcChannel.id, l.dcChannel])) : this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted) as Collection<Snowflake, VoiceChannel> ;
     }
     public actionCounter: Collection<Snowflake, IActivityCounter>; // : Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;
     public promiseQueue = [];
+    public roomSize: number = 5;
 
     public waitReady = async () => {
         return new Promise((resolve) => {

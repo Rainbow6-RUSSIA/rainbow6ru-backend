@@ -27,7 +27,7 @@ export default class Nickname extends Command {
             target = message.author;
         }
         if (target.id !== message.author.id && ((message.channel.type !== 'text' && !(message.member.hasPermission('MANAGE_ROLES'))) || ![...this.client.ownerID].includes(message.author.id))) {
-            message.reply('изменение синхронизации ников других пользователей доступно только администрации!');
+            await message.reply('изменение синхронизации ников других пользователей доступно только администрации!');
             target = message.author;
         }
         const dbUser = await User.findByPk(target.id);
@@ -35,6 +35,13 @@ export default class Nickname extends Command {
             dbUser.syncNickname = !dbUser.syncNickname;
             await dbUser.save();
             await syncMember(await Guild.findByPk(message.guild.id), dbUser);
+            if (!dbUser.syncNickname) {
+                try {
+                    await (await message.guild.members.fetch(target)).setNickname(null);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
             debug.log(`синхронизация ника <@${dbUser.id}> ${dbUser.syncNickname ? 'включена' : 'отключена'}!`);
             return message.reply(`синхронизация игрового ника ${dbUser.syncNickname ? 'включена' : 'отключена'}!`);
         } else {

@@ -47,6 +47,7 @@ export class LobbyStore extends LSBase {
                 await Promise.all(toDelete.map((v) => v.delete()));
                 await this.category.fetch();
                 // this.voices = rest.sort((a, b) => a.position - b.position);
+                this.roomSize = this.voices.first().userLimit;
                 const generatedLobbies = await Promise.all(this.voices.map(this.generateLobby));
                 this.lobbies = new Collection(generatedLobbies.map((l) => [l.channel, l]));
                 this.status = LSS.AVAILABLE;
@@ -120,8 +121,18 @@ export class LobbyStore extends LSBase {
     public async internal(member: GuildMember, from: VoiceChannel, to: VoiceChannel) {
         const lobbyFrom = this.lobbies.get(from.id);
         const lobbyTo = this.lobbies.get(to.id);
-        await this.atomicLeave(member, lobbyFrom);
-        await this.atomicJoin(member, lobbyTo);
+        if (lobbyFrom) {
+            await this.atomicLeave(member, lobbyFrom);
+        }
+        if (lobbyTo) {
+            await this.atomicJoin(member, lobbyTo);
+        }
+        if (lobbyFrom) {
+            await this.checkLobbyHealth(lobbyFrom);
+        }
+        if (lobbyTo) {
+            await this.checkLobbyHealth(lobbyTo);
+        }
     }
 
     public refreshIngameStatus = async (lobby: Lobby) => {
@@ -136,7 +147,7 @@ export class LobbyStore extends LSBase {
 
     @WaitLoaded
     public async reportIngameStatus(member: GuildMember, status: IngameStatus) {
-        console.log(member.user.tag, IngameStatus[status]);
+        // console.log(member.user.tag, IngameStatus[status]);
         const lobby = this.lobbies.get(member.voice.channelID);
         if (!lobby) { return; }
         const s = lobby.status;
@@ -201,7 +212,6 @@ export class LobbyStore extends LSBase {
                 } else if (!lobby.dcChannel.members.has(lobby.dcLeader.id)) {
                     lobby.dcLeader = lobby.dcChannel.members.random();
                 }
-                lobby.dcLeader = lobby.dcChannel.members.random();
             }
         } catch (error) {
             this.lobbies.delete(lobby.channel);
@@ -214,6 +224,7 @@ export class LobbyStore extends LSBase {
             if (lobby.dcInvite.expiresTimestamp < Date.now()) {
                 return (!lobby.appealMessage.deleted && lobby.appealMessage.delete());
             }
+            await lobby.dcChannel.fetch();
             try {
                 return lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
             } catch (err) {
@@ -268,6 +279,7 @@ export class LobbyStore extends LSBase {
             console.log(lobby.dcLeader.user.tag, lobby.log);
             lobby.log = [];
             lobby.open = true;
+            lobby.hardplay = false;
             await lobby.save();
             const newLeader = lobby.dcChannel.members.random();
             try {
@@ -293,7 +305,7 @@ export class LobbyStore extends LSBase {
     private async atomicJoin(member: GuildMember, lobby: Lobby) {
         const dbUser = await User.findByPk(member.id);
         const min = Math.min(...lobby.members.map((m) => m.rank));
-        if (!lobby.open && dbUser.rank < min) {
+        if (lobby.hardplay && dbUser.rank < min) {
             return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[min]}\` и выше!`);
         }
         await lobby.$add('members', dbUser);

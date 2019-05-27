@@ -14,6 +14,10 @@ export default class Votekick extends Command {
             args: [{
                 id: 'target',
                 type: 'member',
+            }, {
+                id: 'description',
+                match: 'rest',
+                type: 'string',
             }],
         });
     }
@@ -21,6 +25,14 @@ export default class Votekick extends Command {
     @PartyCommand(true)
     public async exec(message: Message, args: IArgs) {
         const { target, lobby, LS } = args;
+        if (!target) {
+            try {
+                message.author.send('Вы не указали цель голосования!');
+            } catch (error) {
+                (await message.reply('Вы не указали цель голосования!') as Message).delete({ timeout: 30000 });
+            }
+            return;
+        }
         const voice = lobby.dcChannel;
         if (message.author.id === target.id) {
             try {
@@ -53,9 +65,9 @@ export default class Votekick extends Command {
         collector.on('end', async (collected) => {
             if (!voice.members.filter((m) => m.id !== target.id).every((m) => votes.filter(Boolean).has(m.id))) {
                 await vote.reactions.clear();
-                await vote.edit(`Недостаточно голосов для исключения ${target.id}\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`);
+                await vote.edit(`Недостаточно голосов для исключения ${target}\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`);
             } else {
-                await LS.kick(target, 120000, 'Вы временно отстранены от поиска по результатам голосования!');
+                await LS.kick(target, 300000, 'Вы временно отстранены от поиска по результатам голосования!');
                 await vote.edit(`${target} исключен\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`);
             }
             return vote.delete({ timeout: 30000 });

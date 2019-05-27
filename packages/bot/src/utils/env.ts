@@ -30,6 +30,7 @@ class IDefaultEnv extends IEnv {
     public PORT = '';
     public REDIS_DB = '';
     public NODE_ENV = '';
+    public QR_CHANCE = '';
 }
 
 for (const key in new IEnv()) {
