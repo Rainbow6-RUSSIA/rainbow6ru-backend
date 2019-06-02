@@ -93,8 +93,8 @@ export class Log {
             color,
             description: `**${type}** Message`,
             fields: (body instanceof Error
-              ? body.stack.match(/.{1,1000}/g).map((ch) => `\`\`\`js\n${ch}\n\`\`\``)
-              : body.toString().match(/.{1,1000}/g))
+              ? body.stack.match(/.{1,1000}/gs).map((ch) => `\`\`\`js\n${ch}\n\`\`\``)
+              : body.toString().match(/.{1,1000}/gs))
               .map((ch) => ({
                 name: `_${context}_:`,
                 value: ch,

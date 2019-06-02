@@ -61,7 +61,13 @@ export class LobbyStore extends LSBase {
         })();
     }
 
-    public syncChannels = () => Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
+    public async syncChannels() {
+        const voices = await Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
+        this.lobbies.map((l) => {
+            l.dcChannel = voices.find((v) => v.id === l.channel) as VoiceChannel;
+            this.updateAppealMsg(l);
+        });
+    }
 
     public async kick(member: GuildMember, timeout: number = 10000, reason?: string) {
         await member.voice.setChannel(null, reason);
@@ -79,11 +85,12 @@ export class LobbyStore extends LSBase {
 
     // @Atomic
     public async handleForceLeave(id: Snowflake) {
+        console.log('FORCE LEAVE');
         const lobby = this.lobbies.find((l) => Boolean(l.members.find((m) => m.id === id)));
         if (lobby) {
-            this.checkLobbyHealth(lobby);
+            await this.checkLobbyHealth(lobby);
             if (lobby.dcChannel.members.size === 0 && this.lobbies.size > this.guild.roomsRange[0]) {
-                this.closeLobby(lobby);
+                await this.closeLobby(lobby);
             }
         }
     }
@@ -92,6 +99,7 @@ export class LobbyStore extends LSBase {
     @WaitLoaded
     // @Atomic
     public async join(member: GuildMember, to: VoiceChannel) {
+        // console.log('JOIN');
         const lobby = this.lobbies.get(to.id);
         if (!lobby) {return; }
         if (to.members.size === 1 && this.lobbies.size <= this.guild.roomsRange[1]) {
@@ -106,6 +114,7 @@ export class LobbyStore extends LSBase {
     @WaitLoaded
     // @Atomic
     public async leave(member: GuildMember, from: VoiceChannel) {
+        // console.log('LEAVE');
         const lobby = this.lobbies.get(from.id);
         if (!lobby) {return; }
         await this.atomicLeave(member, lobby);
@@ -215,16 +224,16 @@ export class LobbyStore extends LSBase {
             }
         } catch (error) {
             this.lobbies.delete(lobby.channel);
-            console.log('ФЭК');
+            console.log('LOBBY CACHE MISS');
         }
     }
 
-    private async updateAppealMsg(lobby: Lobby) {
+    public async updateAppealMsg(lobby: Lobby) {
         if (lobby.appealMessage) {
             if (lobby.dcInvite.expiresTimestamp < Date.now()) {
                 return (!lobby.appealMessage.deleted && lobby.appealMessage.delete());
             }
-            await lobby.dcChannel.fetch();
+            // await lobby.dcChannel.fetch();
             try {
                 return lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
             } catch (err) {

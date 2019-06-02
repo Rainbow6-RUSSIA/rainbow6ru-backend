@@ -22,6 +22,8 @@ export default class HardPlay extends Command {
         } else {
             await vc.setName(vc.name.replace(' ', ' HardPlay '));
         }
+        lobby.dcChannel = vc;
+        await LS.updateAppealMsg(lobby);
         debug.log(`${message.author} ${lobby.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${lobby.id}\``);
         try {
             message.author.send(`HardPlay лобби ${lobby.hardplay ? 'деактивировано' : 'активировано'}!`);

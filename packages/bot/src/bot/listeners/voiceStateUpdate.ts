@@ -13,41 +13,40 @@ export default class VoiceStateUpdate extends Listener {
 
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
         // if (oldState.guild.id !== '216649610511384576') {return; }
-        // console.log({ oldState, newState });
         switch (true) {
             case !oldState.channelID && Boolean(newState.channelID): {
                 if (!lobbyStores.has(newState.channel.parentID)) { return; }
-                lobbyStores
+                await lobbyStores
                     .get(newState.channel.parentID)
                     .join(newState.member, newState.channel);
                 break;
             }
             case oldState.channelID && !newState.channelID: {
                 if (!lobbyStores.has(oldState.channel.parentID)) { return; }
-                lobbyStores
+                await lobbyStores
                     .get(oldState.channel.parentID)
                     .leave(oldState.member, oldState.channel);
                 break;
             }
             case oldState.channelID === undefined && newState.channelID === null: {
                 const dbGuild = await Guild.findByPk(newState.guild.id);
-                Object.values(dbGuild.voiceCategories).map((id) => {
+                await Promise.all(Object.values(dbGuild.voiceCategories).map((id) => {
                     lobbyStores
                         .get(id)
                         .handleForceLeave(newState.id);
-                });
+                }));
                 break;
             }
             case oldState.channelID && newState.channelID && oldState.channelID !== newState.channelID && (lobbyStores.has(oldState.channel.parentID) || lobbyStores.has(newState.channel.parentID)): {
                 switch (true) {
                     case !lobbyStores.has(oldState.channel.parentID): {
-                        lobbyStores
+                        await lobbyStores
                             .get(newState.channel.parentID)
                             .join(newState.member, newState.channel);
                         break;
                     }
                     case !lobbyStores.has(newState.channel.parentID): {
-                        lobbyStores
+                        await lobbyStores
                             .get(oldState.channel.parentID)
                             .leave(oldState.member, oldState.channel);
                         break;
@@ -59,7 +58,7 @@ export default class VoiceStateUpdate extends Listener {
                         break;
                     }
                     default: {
-                        lobbyStores.get(newState.channel.parentID).internal(newState.member, oldState.channel, newState.channel);
+                        await lobbyStores.get(newState.channel.parentID).internal(newState.member, oldState.channel, newState.channel);
                         break;
                     }
                 }
@@ -68,5 +67,6 @@ export default class VoiceStateUpdate extends Listener {
             default:
                 break;
         }
+        // console.log({ a: { oldState, newState } });
     }
 }
