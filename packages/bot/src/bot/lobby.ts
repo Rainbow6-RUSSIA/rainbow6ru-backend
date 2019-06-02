@@ -61,13 +61,7 @@ export class LobbyStore extends LSBase {
         })();
     }
 
-    public async syncChannels() {
-        const voices = await Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
-        this.lobbies.map((l) => {
-            l.dcChannel = voices.find((v) => v.id === l.channel) as VoiceChannel;
-            this.updateAppealMsg(l);
-        });
-    }
+    public syncChannels = () => Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
 
     public async kick(member: GuildMember, timeout: number = 10000, reason?: string) {
         await member.voice.setChannel(null, reason);
@@ -173,7 +167,9 @@ export class LobbyStore extends LSBase {
         }
         const lobby = new Lobby({
             channel: voice.id,
+            hardplay: false,
             initiatedAt,
+            open: true,
             type: this.type,
         });
 
@@ -233,7 +229,7 @@ export class LobbyStore extends LSBase {
             if (lobby.dcInvite.expiresTimestamp < Date.now()) {
                 return (!lobby.appealMessage.deleted && lobby.appealMessage.delete());
             }
-            // await lobby.dcChannel.fetch();
+            lobby.dcChannel = await lobby.dcChannel.fetch() as VoiceChannel;
             try {
                 return lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
             } catch (err) {
