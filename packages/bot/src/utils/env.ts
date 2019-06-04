@@ -21,6 +21,7 @@ class IEnv {
     public R6API_CREDS_PASS = '';
     public ENABLE_LOBBIES = '';
     public KICK_LIMIT = '';
+    public REBOOT_TIME = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file

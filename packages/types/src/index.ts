@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import { GuildMember, Snowflake } from 'discord.js';
 
 export const RankResolvable = [
     'Unranked',
@@ -132,3 +132,6 @@ export const RANK_COLORS = [
     15586990,15586990,15586990,
     7977902
 ];
+
+export type DonateRecord = [Snowflake, number, string, Snowflake[]]
+//                          roleId     price   name    allowedUsers

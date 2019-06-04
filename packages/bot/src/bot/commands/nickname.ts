@@ -38,8 +38,8 @@ export default class Nickname extends Command {
             if (!dbUser.syncNickname) {
                 try {
                     await (await message.guild.members.fetch(target)).setNickname(null);
-                } catch (error) {
-                    console.log(error);
+                } catch (err) {
+                    console.log(err);
                 }
             }
             debug.log(`синхронизация ника <@${dbUser.id}> ${dbUser.syncNickname ? 'включена' : 'отключена'}!`);

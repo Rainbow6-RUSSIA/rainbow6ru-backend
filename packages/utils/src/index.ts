@@ -20,6 +20,15 @@ export function emojiNumbers(n: number) {
   return ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇺', '🇻', '🇼', '🇽', '🇾', '🇿'].slice(0, n);
 }
 
+export async function DMReply(message: Message, text: string, timeout: number = 30000) {
+  try {
+    return (message.author.send(text[0].toUpperCase() + text.slice(1)) as Promise<Message>);
+  } catch (err) {
+    const msg = await message.reply(text[0].toLowerCase() + text.slice(1)) as Message;
+    return msg.delete({timeout});
+  }
+}
+
 export async function combinedPrompt(prompt: Message, options: {
   emojis?: string[] | EmojiResolvable[],
   texts?: Array<string | string[]>,
@@ -84,6 +93,17 @@ export class Log {
         this.webhook = webhook;
     }
 
+    public paragraphSplit = (a: string[], b: string) => {
+      if (a.length === 0) { return [b]; }
+      const c = a[a.length - 1] + '\n' + b;
+      if (c.length <= 1000) {
+        a[a.length - 1] = c;
+      } else {
+        a.push(b);
+      }
+      return a;
+    }
+
     public sendWebhook<T>(context: Context, type: 'Information' | 'Warning' | 'Error', body: T, color: number) {
         return this.webhook && this.webhook.send(body instanceof Error ? '@here' : '', { embeds: [{
             author: {
@@ -93,8 +113,8 @@ export class Log {
             color,
             description: `**${type}** Message`,
             fields: (body instanceof Error
-              ? body.stack.match(/.{1,1000}/gs).map((ch) => `\`\`\`js\n${ch}\n\`\`\``)
-              : body.toString().match(/.{1,1000}/gs))
+              ? body.stack.split('\n').reduce(this.paragraphSplit, []).map((ch) => `\`\`\`js\n${ch}\n\`\`\``)
+              : body.toString().split('\n').reduce(this.paragraphSplit, []))
               .map((ch) => ({
                 name: `_${context}_:`,
                 value: ch,
