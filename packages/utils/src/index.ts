@@ -93,9 +93,9 @@ export class Log {
         this.webhook = webhook;
     }
 
-    public paragraphSplit = (joinWith: string) => (a: string[], b: string) => {
+    public paragraphSplit = (a: string[], b: string) => {
       if (a.length === 0) { return [b]; }
-      const c = a[a.length - 1] + joinWith + b;
+      const c = a[a.length - 1] + '\n' + b;
       if (c.length <= 1000) {
         a[a.length - 1] = c;
       } else {
@@ -113,11 +113,8 @@ export class Log {
             color,
             description: `**${type}** Message`,
             fields: (body instanceof Error
-              ? body.stack.split('\n').reduce(this.paragraphSplit('\n'), []).map((ch) => `\`\`\`js\n${ch}\n\`\`\``)
-              : (() => {
-                const chunks = body.toString().split('\n').reduce(this.paragraphSplit('\n'), []);
-                return chunks.some((ch) => ch.length > 1000) ? body.toString().split(' ').reduce(this.paragraphSplit(' '), []) : chunks;
-              })())
+              ? body.stack.split('\n').reduce(this.paragraphSplit, []).map((ch) => `\`\`\`js\n${ch}\n\`\`\``)
+              : body.toString().split('\n').reduce(this.paragraphSplit, []))
               .map((ch) => ({
                 name: `_${context}_:`,
                 value: ch,

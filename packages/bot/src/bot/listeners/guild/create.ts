@@ -15,18 +15,13 @@ export default class Create extends Listener {
     public exec = async (guild: Guild) => {
         console.log('​Create -> publicexec -> guild', guild);
         await new G({
-            donateRoles: {
-                default: [guild.roles.highest.id, 0, 'Default', []],
-            },
             id: guild.id,
             lfgChannels: {},
             logsChannel: '',
             platformRoles: {},
             premium: false,
             requiredVerification: VERIFICATION_LEVEL.NONE,
-            roomsRange: {
-                default: [0, 5],
-            },
+            roomsRange: [0, 5],
             voiceCategories: {},
         }).save();
     }
