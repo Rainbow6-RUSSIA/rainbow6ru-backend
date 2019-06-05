@@ -56,8 +56,8 @@ export class LobbyStore extends LSBase {
                 this.lobbies = new Collection(generatedLobbies.map((l) => [l.channel, l]));
                 this.status = LSS.AVAILABLE;
                 await this.syncChannels();
-                console.log(this.lfgChannel.guild.name, 'VOICES', this.rawVoices.size, 'LOBBIES', this.lobbies.size, 'ROOMS RANGE', this.roomsRange);
-                console.log(this.lfgChannel.guild.name, 'STATUS', LSS[this.status]);
+                console.log(this.lfgChannel.guild.name, this.type, 'VOICES', this.rawVoices.size, 'LOBBIES', this.lobbies.size, 'ROOMS RANGE', this.roomsRange);
+                console.log(this.lfgChannel.guild.name, this.type, 'STATUS', LSS[this.status]);
 
                 setInterval(this.watchActions, 500);
                 setInterval(this.purgeActions, 10000);
@@ -348,6 +348,10 @@ export class LobbyStore extends LSBase {
             lobby.dcLeader = member;
         }
         if (lobby.dcChannel.members.size >= this.roomSize && !lobby.appealMessage) {
+            const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
+            lobby.invite = inv.url;
+            await lobby.save();
+            lobby.dcInvite = inv;
             lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
         } else {
             await this.updateAppealMsg(lobby);
