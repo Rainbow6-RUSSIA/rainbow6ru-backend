@@ -153,7 +153,7 @@ export class LobbyStore extends LSBase {
             acc.max = acc.max ? acc.max < acc.k[el] ? el : acc.max : el;
             return acc;
           }, { k: {}, max: null }).max;
-        if (s !== lobby.status) {
+        if (s !== lobby.status && ![s, lobby.status].includes(IS.OTHER)) {
             const playing = [IS.CASUAL, IS.RANKED, IS.CUSTOM];
             if (playing.includes(s)) {
                 debug.log(`<@${lobby.members.map((m) => m.id).join('>, <@')}> закончили играть (\`${IS[s]} --> ${IS[lobby.status]}\`). ID пати \`${lobby.id}\``);
