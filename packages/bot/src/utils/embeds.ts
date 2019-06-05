@@ -49,7 +49,7 @@ export default {
           text: `В игре ники участников отличаются от вышеуказанных? Cообщите администрации.\nС вами игрок с плохой репутацией!${ENV.NODE_ENV === 'development' ? ` | ID: ${lobby.id}` : ''}`,
       },
       thumbnail: {
-          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?${Math.random().toString(36).substring(2, 6)}=1`,
+          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?${'v'/* Math.random().toString(36).substring(2, 6) */}=1`,
       },
       timestamp: new Date(),
     },

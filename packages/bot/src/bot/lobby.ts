@@ -312,7 +312,6 @@ export class LobbyStore extends LSBase {
         if (lobby.dcChannel.members.size !== 0 && member.id === lobby.dcLeader.id) {
             const newLeader = lobby.dcChannel.members.random();
             debug.log(`Лидер ${lobby.dcLeader} покинул комнату. Новый лидер - ${newLeader}. Через комнату прошли <@${lobby.log.join('>, <@')}>. ID пати \`${lobby.id}\``);
-            console.log(lobby.dcLeader.user.tag, lobby.log);
             lobby.log = [];
             lobby.open = true;
             lobby.hardplay = false;
