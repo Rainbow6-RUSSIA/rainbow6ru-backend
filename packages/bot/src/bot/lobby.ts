@@ -120,8 +120,9 @@ export class LobbyStore extends LSBase {
         await this.atomicLeave(member, lobby);
         if (!this.staticRooms && from.members.size === 0 && this.lobbies.size > this.roomsRange[0]) {
             await this.closeLobby(lobby);
+        } else {
+            await this.checkLobbyHealth(lobby);
         }
-        await this.checkLobbyHealth(lobby);
     }
 
     @Ratelimiter

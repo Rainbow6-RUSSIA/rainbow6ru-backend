@@ -39,6 +39,8 @@ export default class Party extends Command {
         } else {
             const { description } = args;
             switch (true) {
+                case !description:
+                    return this.execDefaultParty(message, args);
                 case description.startsWith('donate'):
                 case description.startsWith('premium'): {
                     const dbGuild = await Guild.findByPk(message.guild.id);
