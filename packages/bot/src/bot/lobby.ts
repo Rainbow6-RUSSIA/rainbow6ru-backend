@@ -35,7 +35,7 @@ export class LobbyStore extends LSBase {
             this.staticRooms = this.roomsRange[0] === this.roomsRange[1];
             this.lfgChannelId = dbGuild.lfgChannels[this.type];
             this.lfgChannel = await bot.channels.fetch(this.lfgChannelId) as TextChannel;
-            this.roomSize = 2;
+            this.roomSize = 5;
             await this.lfgChannel.messages.fetch();
             await this.lfgChannel.bulkDelete(this.lfgChannel.messages.filter((m) => m.author.id === bot.user.id));
             if (this.lfgChannel.type === 'text') {
