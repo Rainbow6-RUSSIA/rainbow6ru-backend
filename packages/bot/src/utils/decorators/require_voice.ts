@@ -5,9 +5,9 @@ import 'reflect-metadata';
 export default function RequireVoice<T extends Command, K extends keyof T>(target: Pick<T, keyof T>, propertyName: K, propertyDesciptor: TypedPropertyDescriptor<T['exec']>) {
         const method = propertyDesciptor.value;
 
-        propertyDesciptor.value = async (...args) => {
+        propertyDesciptor.value = async function(...args) {
             if (!args[0].member.voice.channelID) {
-                return DMReply(args[0], 'Вы должны сначала зайти в голосовой канал игровой категории!');
+                return DMReply(args[0], 'Вы должны сначала зайти в голосовой канал!');
             }
             return method.apply(this, args);
         };

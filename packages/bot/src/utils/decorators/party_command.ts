@@ -15,9 +15,6 @@ export default function PartyCommand(skipLeadership: boolean = false) {
         const method = propertyDesciptor.value;
 
         propertyDesciptor.value = async function(message: Message, args) {
-            if (!message.member.voice.channelID) {
-                return DMReply(message, 'Вы должны сначала зайти в голосовой канал игровой категории!');
-            }
             const channel = message.channel as TextChannel;
             if (!lobbyStores.has(channel.parentID)) {
                 return DMReply(message, 'Команды пати доступны только в соответствующем канале поиска игровой категории!');
