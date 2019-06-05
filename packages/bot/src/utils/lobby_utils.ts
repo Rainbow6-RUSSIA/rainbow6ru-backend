@@ -21,12 +21,17 @@ export class LSBase {
     public type: string;
     public lobbies: Collection<Snowflake, Lobby>;
     get voices() {
-        return this.lobbies ? new Collection(this.lobbies.map((l) => [l.dcChannel.id, l.dcChannel])) : this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted) as Collection<Snowflake, VoiceChannel> ;
+        return this.lobbies ? new Collection(this.lobbies.map((l) => [l.dcChannel.id, l.dcChannel])) : this.rawVoices;
+    }
+    get rawVoices() {
+        return this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted) as Collection<Snowflake, VoiceChannel>;
     }
     public actionCounter: Collection<Snowflake, IActivityCounter>; // : Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;
     public promiseQueue = [];
     public roomSize: number = 5;
+    public roomsRange: [number, number];
+    public staticRooms: boolean;
 
     public waitReady = async () => {
         return new Promise((resolve) => {

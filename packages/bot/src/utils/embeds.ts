@@ -1,14 +1,13 @@
 import { Lobby, User } from '@r6ru/db';
 import { IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_COLORS, VERIFICATION_LEVEL } from '@r6ru/types';
-import { MessageAttachment, MessageOptions } from 'discord.js';
+import { GuildMember, MessageOptions } from 'discord.js';
 import ENV from './env';
-import { createLobbyPreview } from './preview';
 
 export default {
   appealMsg: async (lobby: Lobby): Promise<MessageOptions> => ({
     embed: {
       author: {
-          iconURL: `${lobby.dcLeader.user.displayAvatarURL()}`,
+          iconURL: lobby.dcLeader.user.displayAvatarURL(),
           name: ((_) => {
             const slot = lobby.dcChannel.members.size < lobby.dcChannel.userLimit
               ? ` | +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} слот(-а)`
@@ -32,16 +31,19 @@ export default {
                   : `Ищут +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} в ${lobby.dcChannel.name}`;
             }
           })(lobby.status),
+          url: ![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit ? lobby.dcInvite.url : '',
       },
       color: RANK_COLORS[(lobby.members.find((m) => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id)).rank],
       description: (lobby.members.sort((a, b) => b.rank - a.rank).map((m) => `<@${m.id}> (Uplay - [**${m.nickname}**](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n'))
         + (lobby.description
           ? `\n▫${lobby.description}`
-          : '')
-        + (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
-          ? `\nПрисоединиться: ${lobby.dcInvite.url} 👈`
           : ''),
-      fields: [],
+      fields: (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
+      ? [{
+        name: 'Присоединиться',
+        value: `${lobby.dcInvite.url} 👈`,
+      }]
+      : undefined),
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
           text: `В игре ники участников отличаются от вышеуказанных? Cообщите администрации.\nС вами игрок с плохой репутацией!${ENV.NODE_ENV === 'development' ? ` | ID: ${lobby.id}` : ''}`,
@@ -75,6 +77,34 @@ export default {
       thumbnail: {
         url: `https://ubisoft-avatars.akamaized.net/${bound.genome}/default_146_146.png`,
       },
+    },
+  }),
+
+  appealMsgPremium: (member: GuildMember, description: string, invite: string): MessageOptions => ({
+    embed: {
+      author: {
+        iconURL: member.user.displayAvatarURL(),
+        name: `${member.user.tag} ищет +${member.voice.channel.userLimit - member.voice.channel.members.size} в свою уютную комнату | ${member.voice.channel.name}`,
+      },
+      color: 12458289,
+      fields: [
+        {
+          name: '❤❤❤',
+          value: description || ' ឵឵ ឵឵',
+        },
+        {
+          name: 'Присоединиться',
+          value: `${invite} 👈`,
+        },
+      ],
+      footer: {
+        iconURL: 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1',
+        text: `Хотите так же? Обратитесь к ${member.guild.members.filter((m) => !m.user.bot && m.hasPermission('MANAGE_GUILD')).map((m) => m.user.tag).join(', ')} или в ЛС Сервера`,
+      },
+      thumbnail: {
+        url: member.user.displayAvatarURL(),
+      },
+      timestamp: new Date(),
     },
   }),
 };

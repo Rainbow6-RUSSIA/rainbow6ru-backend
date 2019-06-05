@@ -4,7 +4,7 @@ import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
 import User from './User';
 
-import { RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { DonateRecord, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 
 import { Snowflake } from 'discord.js';
 import Tournament from './Tournament';
@@ -44,12 +44,21 @@ export default class Guild extends Model<Guild> {
     @HasMany(() => Tournament)
     public tournaments: Tournament[];
 
-    @Column(DataType.ARRAY(DataType.INTEGER))
-    public roomsRange: [number, number];
+    @Column(DataType.JSONB)
+    public roomsRange: {
+        default: [number, number];
+        [key: string]: [number, number];
+    };
 
     @Default(false)
     @Column
-    public premium: boolean; // idk mb unused in future
+    public premium: boolean;
+
+    @Column(DataType.JSONB)
+    public donateRoles: {
+        default: DonateRecord,
+        [key: string]: DonateRecord,
+    };
 
     @BelongsToMany(() => User, () => GuildBlacklist)
     public blacklist: Array<User & {GuildBlacklist: GuildBlacklist}>;
@@ -58,7 +67,9 @@ export default class Guild extends Model<Guild> {
     public requiredVerification: VERIFICATION_LEVEL;
 
     @Column(DataType.JSONB)
-    public options: any;
+    public options: {
+        externalRooms: Snowflake[],
+    };
 
     @Column
     public logsChannel: string;
