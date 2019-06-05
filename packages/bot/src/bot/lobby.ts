@@ -346,8 +346,8 @@ export class LobbyStore extends LSBase {
         if (!lobby.dcLeader) {
             lobby.dcLeader = member;
         }
-        if (lobby.dcChannel.members.size >= this.roomSize && !(lobby.appealMessage && !lobby.appealMessage.deleted)) {
-            await this.lfgChannel.send('', await embeds.appealMsg(lobby));
+        if (lobby.dcChannel.members.size >= this.roomSize && !lobby.appealMessage) {
+            lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
         } else {
             await this.updateAppealMsg(lobby);
         }
