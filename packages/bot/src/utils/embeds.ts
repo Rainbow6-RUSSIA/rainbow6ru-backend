@@ -46,7 +46,7 @@ export default {
       : undefined),
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
-          text: `В игре ники участников отличаются от вышеуказанных? Cообщите администрации.\nС вами игрок с плохой репутацией!${ENV.NODE_ENV === 'development' ? ` | ID: ${lobby.id}` : ''}`,
+          text: `В игре ники Uplay отличаются? Cообщите администрации.\nС вами ненадежный игрок! | ID: ${lobby.id}`,
       },
       thumbnail: {
           url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?${Math.random().toString(36).substring(2, 6)}=1`,
@@ -99,7 +99,7 @@ export default {
       ],
       footer: {
         iconURL: 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1',
-        text: `Хотите так же? Обратитесь к ${member.guild.members.filter((m) => !m.user.bot && m.hasPermission('MANAGE_GUILD')).map((m) => m.user.tag).join(', ')} или в ЛС Сервера`,
+        text: `Хотите так же? Обратитесь в ЛС Сервера, к ${member.guild.members.filter((m) => !m.user.bot && m.hasPermission('MANAGE_GUILD')).map((m) => m.user.tag).join(', ')} или активируйте Nitro Boost`,
       },
       thumbnail: {
         url: member.user.displayAvatarURL(),

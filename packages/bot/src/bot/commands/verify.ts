@@ -66,7 +66,11 @@ export default class Verify extends Command {
                 debug.log(`${message.author} верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
                 const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
                 const guilds = await Guild.findAll({where: {premium: true}});
-                await Promise.all(guilds.map((g) => this.client.guilds.get(g.id).members.fetch()));
+                try {
+                    await Promise.all(guilds.map((g) => this.client.guilds.get(g.id).members.fetch(message.author.id)));
+                } catch (err) {
+                    console.log(err);
+                }
                 await Promise.all(guilds.filter((g) => this.client.guilds.get(g.id).members.has(dbUser.id)).map((g) => syncMember(g, dbUser)));
                 return msg.edit(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Роли возвращены, приятной игры!`);
             } else {

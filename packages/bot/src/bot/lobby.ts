@@ -313,7 +313,7 @@ export class LobbyStore extends LSBase {
         if (lobby.dcChannel.members.size !== 0 && member.id === lobby.dcLeader.id) {
             const newLeader = lobby.dcChannel.members.random();
             debug.log(`Лидер ${lobby.dcLeader} покинул комнату. Новый лидер - ${newLeader}. Через комнату прошли <@${lobby.log.join('>, <@')}>. ID пати \`${lobby.id}\``);
-            lobby.log = [];
+            // lobby.log = [];
             lobby.open = true;
             lobby.hardplay = false;
             try {
@@ -339,7 +339,7 @@ export class LobbyStore extends LSBase {
     private async atomicJoin(member: GuildMember, lobby: Lobby) {
         const dbUser = await User.findByPk(member.id);
         const min = Math.min(...lobby.members.map((m) => m.rank));
-        if (lobby.hardplay && dbUser.rank < min) {
+        if (min !== Infinity && lobby.hardplay && dbUser.rank < min) {
             return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[min]}\` и выше!`);
         }
         await lobby.$add('members', dbUser);
