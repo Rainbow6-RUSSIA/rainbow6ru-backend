@@ -44,11 +44,11 @@ export default class Party extends Command {
                 case description.startsWith('donate'):
                 case description.startsWith('premium'): {
                     const dbGuild = await Guild.findByPk(message.guild.id);
-                    if (message.member.roles.has(dbGuild.donateRoles.default[0])) {
+                    if (message.member.roles.has(dbGuild.donateRoles.default[0]) || message.member.premiumSince) {
                         args.description = description.slice(description.split(' ')[0].length).trim();
                         return this.execDonateParty(message, args);
                     } else {
-                        return message.author.send('Аргумент `donate` или `premium` доступен только донатерам');
+                        return message.author.send('Аргумент `donate` или `premium` доступен только донатерам или поддержавшим с помощью Нитро');
                     }
                 }
                 // case description.startsWith('youtube'):

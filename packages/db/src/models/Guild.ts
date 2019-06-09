@@ -63,6 +63,9 @@ export default class Guild extends Model<Guild> {
     @BelongsToMany(() => User, () => GuildBlacklist)
     public blacklist: Array<User & {GuildBlacklist: GuildBlacklist}>;
 
+    @Column(DataType.ARRAY(DataType.UUID))
+    public genomeBlacklist: string[];
+
     @Column(DataType.INTEGER)
     public requiredVerification: VERIFICATION_LEVEL;
 
