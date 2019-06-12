@@ -39,6 +39,7 @@ export class LobbyStore extends LSBase {
             await this.lfgChannel.messages.fetch();
             await this.lfgChannel.bulkDelete(this.lfgChannel.messages.filter((m) => m.author.id === bot.user.id));
             if (this.lfgChannel.type === 'text') {
+                const loadingMsg = await this.lfgChannel.send('Лобби загружаются, подождите минутку') as Message;
                 const voices = this.rawVoices.sort((a, b) => b.members.size - a.members.size).array();
                 const cond = (v, i, a) => i >= this.roomsRange[0] && !v.members.size && i !== a.length;
                 const toDelete = voices.filter((...args) => cond(...args));
@@ -56,8 +57,8 @@ export class LobbyStore extends LSBase {
                 this.lobbies = new Collection(generatedLobbies.map((l) => [l.channel, l]));
                 this.status = LSS.AVAILABLE;
                 await this.syncChannels();
-                console.log(this.lfgChannel.guild.name, this.type, 'VOICES', this.rawVoices.size, 'LOBBIES', this.lobbies.size, 'ROOMS RANGE', this.roomsRange);
-                console.log(this.lfgChannel.guild.name, this.type, 'STATUS', LSS[this.status]);
+                await loadingMsg.delete();
+                await debug.warn(`${this.lfgChannel.guild.name} ${this.type} VOICES ${this.rawVoices.size} LOBBIES ${this.lobbies.size} ROOMS RANGE ${this.roomsRange} STATUS ${LSS[this.status]}`);
 
                 setInterval(this.watchActions, 500);
                 setInterval(this.purgeActions, 10000);
