@@ -16,6 +16,7 @@ export default class Nickname extends Command {
                 id: 'target',
                 type: 'user',
             }],
+            channel: 'guild',
             cooldown: 5000,
         });
     }
@@ -26,7 +27,7 @@ export default class Nickname extends Command {
         if (!target) {
             target = message.author;
         }
-        if (target.id !== message.author.id && ((message.channel.type !== 'text' && !(message.member.hasPermission('MANAGE_ROLES'))) || ![...this.client.ownerID].includes(message.author.id))) {
+        if (target.id !== message.author.id && !(!message.member.hasPermission('MANAGE_ROLES') || ![...this.client.ownerID].includes(message.author.id))) {
             await message.reply('изменение синхронизации ников других пользователей доступно только администрации!');
             target = message.author;
         }
