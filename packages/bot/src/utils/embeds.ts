@@ -16,6 +16,7 @@ export default {
               case IS.CASUAL_SEARCH:
               case IS.RANKED_SEARCH:
               case IS.CUSTOM_SEARCH:
+              case IS.DISCOVERY_SEARCH:
                 return `Поиск матча в ${lobby.dcChannel.name}` + slot;
               case IS.CASUAL:
               case IS.RANKED:
@@ -23,6 +24,8 @@ export default {
                 return `Играют в ${lobby.dcChannel.name}`;
               case IS.TERRORIST_HUNT:
                 return `${lobby.dcChannel.name} разминается в Антитерроре` + slot;
+              case IS.DISCOVERY:
+                return `${lobby.dcChannel.name} играет Разведку (временное событие)` + slot;
               case IS.OTHER:
               case IS.MENU:
               default:
@@ -49,7 +52,7 @@ export default {
           text: `В игре ники Uplay отличаются? Cообщите администрации.\nС вами ненадежный игрок! | ID: ${lobby.id}`,
       },
       thumbnail: {
-          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?${Math.random().toString(36).substring(2, 6)}=1`,
+          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?${Math.min(...lobby.members.map((m) => m.rank))}.${Math.max(...lobby.members.map((m) => m.rank))}.${lobby.dcChannel.userLimit - lobby.dcChannel.members.size}=1`,
       },
       timestamp: new Date(),
     },
