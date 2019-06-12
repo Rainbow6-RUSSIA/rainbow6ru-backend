@@ -27,7 +27,7 @@ export default class Nickname extends Command {
         if (!target) {
             target = message.author;
         }
-        if (target.id !== message.author.id && !(!message.member.hasPermission('MANAGE_ROLES') || ![...this.client.ownerID].includes(message.author.id))) {
+        if (target.id !== message.author.id && !message.member.hasPermission('MANAGE_ROLES') && ![...this.client.ownerID].includes(message.author.id)) {
             await message.reply('изменение синхронизации ников других пользователей доступно только администрации!');
             target = message.author;
         }
@@ -38,7 +38,7 @@ export default class Nickname extends Command {
             await syncMember(await Guild.findByPk(message.guild.id), dbUser);
             if (!dbUser.syncNickname) {
                 try {
-                    await (await message.guild.members.fetch(target)).setNickname(null);
+                    await (await message.guild.members.fetch(target.id)).setNickname(null);
                 } catch (err) {
                     console.log(err);
                 }
