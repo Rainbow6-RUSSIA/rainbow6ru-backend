@@ -156,11 +156,12 @@ export class LobbyStore extends LSBase {
             return acc;
           }, { k: {}, max: null }).max;
         if (s !== lobby.status && ![s, lobby.status].includes(IS.OTHER)) {
-            const playing = [IS.CASUAL, IS.RANKED, IS.CUSTOM];
-            if (playing.includes(s)) {
+            const start = [[IS.CASUAL_SEARCH, IS.CASUAL], [IS.RANKED_SEARCH, IS.RANKED]];
+            const stop = [[IS.CASUAL, IS.MENU], [IS.RANKED, IS.MENU]];
+            if (stop.some((t) => JSON.stringify(t) === JSON.stringify([s, lobby.status]))) {
                 debug.log(`<@${lobby.members.map((m) => m.id).join('>, <@')}> закончили играть (\`${IS[s]} --> ${IS[lobby.status]}\`). ID пати \`${lobby.id}\``);
             }
-            if (playing.includes(lobby.status)) {
+            if (start.some((t) => JSON.stringify(t) === JSON.stringify([s, lobby.status]))) {
                 debug.log(`<@${lobby.members.map((m) => m.id).join('>, <@')}> начали играть (\`${IS[s]} --> ${IS[lobby.status]}\`). ID пати \`${lobby.id}\``);
             }
         }
