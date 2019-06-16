@@ -1,8 +1,9 @@
 import { IUbiBound, PLATFORM } from '@r6ru/types';
+import { Message } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import r6api from '../../r6api';
 
-export default async (phrase: string): Promise<IUbiBound | null> => {
+export default async (message: Message, phrase: string): Promise<IUbiBound | null> => {
     if (!phrase) { return null; }
 
     if (/^[a-zA-Z][\w-.]{2,14}$/g.test(phrase) && !phrase.toLowerCase().startsWith('ubi_') && !phrase.toLowerCase().endsWith('_ubi')) {
