@@ -6,11 +6,11 @@ import { ONLINE_TRACKER, PLATFORM, UUID, VERIFICATION_LEVEL } from '@r6ru/types'
 import { combinedPrompt } from '@r6ru/utils';
 import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
-import { debug } from '../..';
-import r6 from '../../r6api';
-import ENV from '../../utils/env';
-import ubiGenome from '../types/ubiGenome';
-import ubiNickname from '../types/ubiNickname';
+import { debug } from '../../..';
+import r6 from '../../../r6api';
+import ENV from '../../../utils/env';
+import ubiGenome from '../../types/ubiGenome';
+import ubiNickname from '../../types/ubiNickname';
 
 interface IInfoArgs {
     user: User | { id: string };

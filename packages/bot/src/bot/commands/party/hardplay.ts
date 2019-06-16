@@ -1,9 +1,9 @@
 import { DMReply } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { debug } from '../..';
-import PartyCommand, { IArgsPartyCommand } from '../../utils/decorators/party_command';
-import RequireVoice from '../../utils/decorators/require_voice';
+import { debug } from '../../..';
+import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party_command';
+import RequireVoice from '../../../utils/decorators/require_voice';
 
 export default class HardPlay extends Command {
     public constructor() {

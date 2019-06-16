@@ -2,8 +2,8 @@ import { Guild as G, User as U } from '@r6ru/db';
 import { ONLINE_TRACKER } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
-import { debug } from '../..';
-import { syncMember } from '../../utils/sync';
+import { debug } from '../../..';
+import { syncMember } from '../../../utils/sync';
 
 interface IUpdateArgs {
     user: User;

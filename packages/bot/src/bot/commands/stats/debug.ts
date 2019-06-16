@@ -2,8 +2,8 @@ import { Guild, User } from '@r6ru/db';
 import { ONLINE_TRACKER } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message, VoiceChannel } from 'discord.js';
-import { debug } from '../..';
-import { lobbyStores } from '../lobby';
+import { debug } from '../../..';
+import { lobbyStores } from '../../lobby';
 
 interface IArgs {
     target: VoiceChannel;

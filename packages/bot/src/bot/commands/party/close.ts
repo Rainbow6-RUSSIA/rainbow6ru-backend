@@ -1,9 +1,9 @@
 import { DMReply } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { debug } from '../..';
-import PartyCommand, { IArgsPartyCommand } from '../../utils/decorators/party_command';
-import RequireVoice from '../../utils/decorators/require_voice';
+import { debug } from '../../..';
+import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party_command';
+import RequireVoice from '../../../utils/decorators/require_voice';
 
 export default class MM extends Command {
     public constructor() {
@@ -25,6 +25,7 @@ export default class MM extends Command {
         } else {
             await vc.setUserLimit(vc.members.size);
         }
+        await LS.updateAppealMsg(lobby);
         debug.log(`${message.author} ${lobby.open ? 'открыл' : 'закрыл'} лобби!. ID пати \`${lobby.id}\``);
 
         return DMReply(message, `Лобби ${lobby.open ? 'открыто' : 'закрыто'}!`);

@@ -3,10 +3,10 @@ import { ONLINE_TRACKER, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
-import { debug } from '../..';
-import ENV from '../../utils/env';
-import { verify } from '../../utils/qr';
-import { syncMember } from '../../utils/sync';
+import { debug } from '../../..';
+import ENV from '../../../utils/env';
+import { verify } from '../../../utils/qr';
+import { syncMember } from '../../../utils/sync';
 
 interface IArgs {
     target: U;

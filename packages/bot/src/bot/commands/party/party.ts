@@ -1,12 +1,12 @@
 import { Guild } from '@r6ru/db';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { debug } from '../..';
-import PartyCommand, { IArgsPartyCommand } from '../../utils/decorators/party_command';
-import RequireVoice from '../../utils/decorators/require_voice';
-import embeds from '../../utils/embeds';
-import ENV from '../../utils/env';
-import { lobbyStores } from '../lobby';
+import { debug } from '../../..';
+import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party_command';
+import RequireVoice from '../../../utils/decorators/require_voice';
+import embeds from '../../../utils/embeds';
+import ENV from '../../../utils/env';
+import { lobbyStores } from '../../lobby';
 
 interface IArgs {
     description: string;

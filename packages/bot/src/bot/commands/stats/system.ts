@@ -4,9 +4,9 @@ import { Message, User } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import * as os from 'os';
 import * as PrettyBytes from 'pretty-bytes';
-import { debug } from '../..';
+import { debug } from '../../..';
 
-export default class System extends Command { // update all|newseason|numofpacks
+export default class System extends Command {
     public constructor() {
         super('system', {
             aliases: ['system'],
@@ -15,7 +15,7 @@ export default class System extends Command { // update all|newseason|numofpacks
     }
 
     // @TryCatch(debug)
-    public exec = async (message: Message) => {
+    public exec = (message: Message) => {
         message.reply(`Free RAM: ${PrettyBytes(os.freemem())}
 Total RAM: ${PrettyBytes(os.totalmem())}
 Load: ${os.loadavg()}

@@ -1,8 +1,8 @@
 import { Guild, User } from '@r6ru/db';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
-import { debug } from '../..';
-import { syncMember } from '../../utils/sync';
+import { debug } from '../../..';
+import { syncMember } from '../../../utils/sync';
 
 interface IArgs {
     target: U;

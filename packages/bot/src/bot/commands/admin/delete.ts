@@ -2,7 +2,7 @@ import { Guild, User } from '@r6ru/db';
 import { ONLINE_TRACKER } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message, TextChannel, User as U } from 'discord.js';
-import { debug } from '../..';
+import { debug } from '../../..';
 
 interface IDeleteArgs {
     target: U;

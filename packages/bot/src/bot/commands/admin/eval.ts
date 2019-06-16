@@ -2,8 +2,8 @@ import * as db from '@r6ru/db';
 import * as util from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { debug } from '../..';
-import * as utils from '../../utils/sync';
+import { debug } from '../../..';
+import * as utils from '../../../utils/sync';
 
 export default class Eval extends Command {
     constructor() {

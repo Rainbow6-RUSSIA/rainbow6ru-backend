@@ -3,15 +3,23 @@ import ENV from './utils/env';
 
 class Bot extends AkairoClient {
     private commandHandler: CommandHandler;
-    // private inhibitorHandler: InhibitorHandler;
+    private inhibitorHandler: InhibitorHandler;
     private listenerHandler: ListenerHandler;
     constructor() {
         super({
             ownerID: process.env.OWNERS.split(','),
-        }, {});
+        }, {
+            messageCacheLifetime: parseInt(ENV.INVITE_AGE),
+            messageCacheMaxSize: 500,
+            messageSweepInterval: 120,
+            ws: {
+                compress: true,
+            },
+        });
 
         this.commandHandler = new CommandHandler(this, {
             allowMention: true,
+            automateCategories: true,
             defaultCooldown: 1000,
             directory: __dirname + '/bot/commands/',
             fetchMembers: true,
@@ -25,24 +33,24 @@ class Bot extends AkairoClient {
         // this.commandHandler.resolver.addType('ubi_genome', ubiGenome);
         // this.commandHandler.resolver.addType('ubi_nickname', ubiNickname);
 
-        // this.inhibitorHandler = new InhibitorHandler(this, {
-        //     directory: __dirname + '/bot/inhibitors/',
-        //     loadFilter: (path) => path.split('.').pop() === 'js',
-        // });
+        this.inhibitorHandler = new InhibitorHandler(this, {
+            directory: __dirname + '/bot/inhibitors/',
+            loadFilter: (path) => path.split('.').pop() === 'js',
+        });
         this.listenerHandler = new ListenerHandler(this, {
             directory: __dirname + '/bot/listeners/',
             loadFilter: (path) => path.split('.').pop() === 'js',
         });
         this.listenerHandler.setEmitters({
             commandHandler: this.commandHandler,
-            // inhibitorHandler: this.inhibitorHandler,
+            inhibitorHandler: this.inhibitorHandler,
             listenerHandler: this.listenerHandler,
             process,
         });
         this.commandHandler.loadAll();
-        // this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
+        this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
         this.commandHandler.useListenerHandler(this.listenerHandler); // mb optional
-        // this.inhibitorHandler.loadAll();
+        this.inhibitorHandler.loadAll();
         this.listenerHandler.loadAll();
         // TODO: Special commandHandler+inhibitorHandler for premium commands
     }

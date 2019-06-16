@@ -262,6 +262,15 @@ export class LobbyStore extends LSBase {
             try {
                 return lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
             } catch (err) {
+                await debug.warn('Appeal Msg Cache MISS');
+                await debug.error(err);
+                try {
+                    await lobby.appealMessage.delete();
+                } catch (error) {
+                    await debug.error('Deletion failed!');
+                    await debug.error(err);
+                }
+
                 return this.lfgChannel.send('', await embeds.appealMsg(lobby));
             }
         }

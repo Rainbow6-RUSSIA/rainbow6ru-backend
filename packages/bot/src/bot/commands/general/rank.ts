@@ -4,15 +4,15 @@ import * as humanizeDuration from 'humanize-duration';
 import { $enum } from 'ts-enum-util';
 
 import { Guild, User } from '@r6ru/db';
-import r6 from '../../r6api';
+import r6 from '../../../r6api';
 
 import { IUbiBound, ONLINE_TRACKER, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
-import { debug } from '../..';
-import embeds from '../../utils/embeds';
-import ENV from '../../utils/env';
-import { syncMember } from '../../utils/sync';
-import ubiGenomeFromNickname from '../types/ubiGenomeFromNickname';
+import { debug } from '../../..';
+import embeds from '../../../utils/embeds';
+import ENV from '../../../utils/env';
+import { syncMember } from '../../../utils/sync';
+import ubiGenomeFromNickname from '../../types/ubiGenomeFromNickname';
 // import ubiNickname from '../types/ubiNickname';
 
 interface IRankArgs {

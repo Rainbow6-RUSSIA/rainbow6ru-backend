@@ -1,7 +1,7 @@
 // import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, Snowflake, User } from 'discord.js';
-import { debug } from '../..';
+import { debug } from '../../..';
 
 interface IArgs {
     user: User;
