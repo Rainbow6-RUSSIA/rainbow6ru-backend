@@ -55,7 +55,7 @@ export default class Votekick extends Command {
                 await vote.reactions.clear();
                 await vote.edit(`Недостаточно голосов для исключения ${target}\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`);
             } else {
-                await LS.kick(target, 300000, 'Вы временно отстранены от поиска по результатам голосования!');
+                await LS.kick(target, 300000, 'Вы временно отстранены от поиска по результатам голосования!', lobby.id);
                 await vote.edit(`${target} исключен\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`);
             }
             return vote.delete({ timeout: 30000 });
