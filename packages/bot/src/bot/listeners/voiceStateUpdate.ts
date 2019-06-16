@@ -13,6 +13,12 @@ export default class VoiceStateUpdate extends Listener {
 
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
         // if (oldState.guild.id !== '216649610511384576') {return; }
+        if (!newState.channel && newState.channelID) {
+            await this.client.channels.fetch(newState.channelID);
+        }
+        if (!oldState.channel && oldState.channelID) {
+            await this.client.channels.fetch(oldState.channelID);
+        }
         switch (true) {
             case !oldState.channelID && Boolean(newState.channelID): {
                 if (!lobbyStores.has(newState.channel.parentID)) { return; }
