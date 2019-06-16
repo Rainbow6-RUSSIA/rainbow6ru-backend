@@ -52,7 +52,12 @@ export default class Verify extends Command {
         await dbUser.save();
         await syncMember(await Guild.findByPk(message.guild.id), dbUser);
         debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
-        await (message.member && message.member.voice && message.member.voice.setChannel(null));
+        try {
+            const member = await message.guild.members.fetch(dbUser.id);
+            await (member.voice && member.voice.setChannel(null));
+        } catch (error) {
+            console.log('member not in voice');
+        }
         return message.reply('верификация запрошена');
     }
 
