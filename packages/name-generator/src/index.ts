@@ -13,7 +13,7 @@ const names = [
     'Driveway', 'Dumpster', 'Elevator', 'Elevators',
     'Engine', 'Exhibition', 'Farmlands', 'Festival',
     'Fountain', 'Foyer', 'Gallery', 'Garage',
-    'Garden', 'Gardens', 'Gargoyle', 'Garrage',
+    'Garden', 'Gargoyle', 'Garrage',
     'Gazeebo', 'Greenhouse', 'Gym', 'Hallway',
     'Hammam', 'Helipad', 'Infirmary', 'Jacuzzi',
     'Junkyard', 'Karaoke', 'Kennels', 'Kitchen',
