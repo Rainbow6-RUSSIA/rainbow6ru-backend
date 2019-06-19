@@ -51,12 +51,12 @@ export class LobbyStore extends LSBase {
                 await this.category.fetch();
                 if (!this.rawVoices.some((v) => v.members.size === 0)) {
                     const channelToClone = await this.rawVoices.last();
-                    await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()), userLimit: this.roomSize });
+                    await channelToClone.clone({ name: channelToClone.name.replace(/"([^"]*)"/g, `"${this.namegen.next()}"`), userLimit: this.roomSize });
                 }
                 const generatedLobbies = await Promise.all(this.rawVoices.map(this.generateLobby));
                 this.lobbies = new Collection(generatedLobbies.map((l) => [l.channel, l]));
                 this.status = LSS.AVAILABLE;
-                await this.syncChannels();
+                // await this.syncChannels();
                 await loadingMsg.delete();
                 await debug.warn(`${this.lfgChannel.guild.name} ${this.type} VOICES ${this.rawVoices.size} LOBBIES ${this.lobbies.size} ROOMS RANGE ${this.roomsRange} STATUS ${LSS[this.status]}`);
 
@@ -66,7 +66,7 @@ export class LobbyStore extends LSBase {
         })();
     }
 
-    public syncChannels = () => Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
+    // public syncChannels = () => Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
 
     public async kick(member: GuildMember, timeout: number = 10000, reason?: string, lobbyId?: number) {
         await member.voice.setChannel(null, reason);
@@ -278,7 +278,7 @@ export class LobbyStore extends LSBase {
 
     private async openLobby(lobby: Lobby) {
         const channelToClone = await this.rawVoices.last();
-        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (n) => (parseInt(n) + 1).toString()), userLimit: this.roomSize }) as VoiceChannel;
+        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/"([^"]*)"/g, `"${this.namegen.next()}"`), userLimit: this.roomSize }) as VoiceChannel;
         this.lobbies.set(clonedChannel.id, await this.generateLobby(clonedChannel));
     }
 
@@ -288,7 +288,7 @@ export class LobbyStore extends LSBase {
 
         const toDelete = lobby.dcChannel; // this.voices.get(lobby.channel);
         toDelete.deleted = true; // наеб блядского кэша discord.js
-        await this.syncChannels();
+        // await this.syncChannels();
         await toDelete.delete();
         this.lobbies.delete(lobby.channel);
         await this.category.fetch();
