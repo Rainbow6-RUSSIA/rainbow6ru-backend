@@ -48,7 +48,7 @@ export default class Party extends Command {
                         args.description = description.slice(description.split(' ')[0].length).trim();
                         return this.execDonateParty(message, args);
                     } else {
-                        return message.author.send('Аргумент `donate` или `premium` доступен только донатерам или поддержавшим с помощью Нитро');
+                        return message.author.send('Аргумент `donate` или `premium` доступен только донатерам или поддержавшим с помощью Nitro Boost');
                     }
                 }
                 // case description.startsWith('youtube'):

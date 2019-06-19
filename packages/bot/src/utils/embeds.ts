@@ -92,7 +92,7 @@ export default {
       color: 12458289,
       fields: [
         {
-          name: '❤❤❤',
+          name: '🇷6⃣🇷🇺',
           value: description || ' ឵឵ ឵឵',
         },
         {
