@@ -33,6 +33,16 @@ const names = [
     'Workshop', 'Zodiac',
 ];
 
-export default function generate() {
-    return names[Math.round(Math.random() * names.length)];
+export default class NameGen {
+    public names: string[];
+
+    constructor() {
+        this.names = names.sort(() => Math.random() - 0.5);
+    }
+
+    public next() {
+        const name = this.names.shift();
+        this.names.push(name);
+        return name;
+    }
 }
