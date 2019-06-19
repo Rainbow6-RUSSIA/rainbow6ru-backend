@@ -1,5 +1,5 @@
 import { Guild, Lobby, User } from '@r6ru/db';
-import { IngameStatus as IS, LobbyStoreStatus as LSS, RANKS} from '@r6ru/types';
+import { IngameStatus as IS, LobbyStoreStatus as LSS, ONLINE_TRACKER, RANKS, VERIFICATION_LEVEL} from '@r6ru/types';
 import { CategoryChannel, Collection, GuildMember, Message, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import { Sequelize } from 'sequelize-typescript';
@@ -312,7 +312,16 @@ export class LobbyStore extends LSBase {
     }
 
     private async atomicLeave(member: GuildMember, lobby: Lobby) {
-        await lobby.$remove('members', await User.findByPk(member.id));
+        const dbUser = await User.findByPk(member.id);
+        await lobby.$remove('members', dbUser);
+
+        if (Math.random() < parseFloat(ENV.QR_CHANCE) && dbUser.verificationLevel < VERIFICATION_LEVEL.QR) {
+            dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
+            await dbUser.save();
+            syncMember(await Guild.findByPk(member.guild.id), dbUser);
+            debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome} после выхода из лобби`);
+        }
+
         await lobby.reload({include: [{all: true}]});
         if (!lobby.open) {
             lobby.open = true;
