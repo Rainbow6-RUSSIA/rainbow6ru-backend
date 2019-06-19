@@ -49,10 +49,18 @@ export async function syncRank(platform: PLATFORM) {
 export async function sendQrRequest(dbGuild: G, dbUser: U, member: GuildMember) {
   dbUser.inactive = true;
   await dbUser.save();
-  await (await bot.guilds.get(dbGuild.id).members.fetch(dbUser.id)).roles.remove([...dbGuild.rankRoles.filter(Boolean), ...Object.values(dbGuild.platformRoles).filter(Boolean)], 'запрос верификации');
+  const guild = bot.guilds.get(dbGuild.id);
+  await (await guild.members.fetch(dbUser.id)).roles.remove([...dbGuild.rankRoles.filter(Boolean), ...Object.values(dbGuild.platformRoles).filter(Boolean)], 'запрос верификации');
   const QR = await generate(dbUser.genome, dbUser.id);
   await member.send(
-    `Здравствуйте!\n\nДля дальнейшей игры вам необходимо подтвердить факт владения указанным аккаунтом Осады (${ONLINE_TRACKER}${dbUser.genome}) - вам нужно будет поставить прикрепленное изображение c QR-кодом на аватар **Uplay**.\nПосле смены аватара введите здесь команду \`${ENV.PREFIX}verify\`\nРекомендуется скачать изображение по кнопке "Открыть оригинал" и сменить аватар на https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar`,
+    `Боец, пришло получить статус проверенного игрока 👌\n`
+    + `\n`
+    + `Для дальнейшей игры необходимо будет подтвердить факт владения аккаунтом Uplay привязанным на Discord канале **${guild.name}**\n`
+    + `Для этого нужно установить прикрепленное ниже изображение с QR-кодом на аватар в настройках Uplay и после смены ввести здесь команду \`$verify\`\n`
+    + `\n`
+    + `Ваш привязанный аккаунт - ${ONLINE_TRACKER}${dbUser.genome}\n`
+    + `Ссылка на сайт для смены аватара - https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar\n`
+    + `Рекомендуем скачать изображение по кнопке "Открыть оригинал" для исключения ошибок.\n`,
     new MessageAttachment(Buffer.from(QR.buffer), 'QR-verification.png'),
   );
   return false;
@@ -91,30 +99,29 @@ export async function syncMember(dbGuild: G, dbUser: U) {
     }
 
     const currentRankRoles = member.roles.keyArray().filter((r) => dbGuild.rankRoles.includes(r));
+    const platformRolesToApply = Object.entries(dbGuild.platformRoles).filter((k) => dbUser.platform[k[0]]).map((k) => k[1]);
+    let finalRoles = [...new Set([...member.roles.map((r) => r.id), ...platformRolesToApply])];
 
     if (currentRankRoles.length > 1) {
-      member = await member.roles.remove(dbGuild.rankRoles.filter(Boolean), 'удаляю роли перед обновлением...');
       if (dbGuild.rankRoles[dbUser.rank]) {
-        member = await member.roles.add(dbGuild.rankRoles[dbUser.rank], '...готово');
+        finalRoles = finalRoles.filter((r) => !dbGuild.rankRoles.includes(r));
+        finalRoles.push(dbGuild.rankRoles[dbUser.rank]);
       }
-      console.log(`[BOT] User ${member.user.tag} updated!`);
+      console.log(`[BOT] User ${member.user.tag} updated! 1 case`);
     } else if (currentRankRoles.length === 1) {
       const currentRank = dbGuild.rankRoles.indexOf(currentRankRoles[0]);
       if ((dbUser.rank > currentRank || currentRank < dbGuild.fixAfter || dbUser.rank === 0) && currentRankRoles[0] !== dbGuild.rankRoles[dbUser.rank]) {
-        member = await member.roles.set([...member.roles.array().map((r) => r.id), dbGuild.rankRoles[dbUser.rank]].filter((r) => r !== dbGuild.rankRoles[currentRank]), 'удаляю роли перед обновлением...готово');
-        console.log(`[BOT] User ${member.user.tag} updated!`);
+        finalRoles = [...new Set([...finalRoles, dbGuild.rankRoles[dbUser.rank]].filter((r) => r !== dbGuild.rankRoles[currentRank]))];
+        console.log(`[BOT] User ${member.user.tag} updated! 2 case`);
       }
     } else {
       if (dbGuild.rankRoles[dbUser.rank]) {
-        member = await member.roles.add(dbGuild.rankRoles[dbUser.rank], 'пользователь обновлен');
-        console.log(`[BOT] User ${member.user.tag} updated!`);
+        finalRoles = [...new Set([...finalRoles, dbGuild.rankRoles[dbUser.rank]])];
+        console.log(`[BOT] User ${member.user.tag} updated! 3 case`);
       }
     }
 
-    const platformRolesToApply = Object.entries(dbGuild.platformRoles).filter((k) => dbUser.platform[k[0]]).map((k) => k[1]); // .filter((r) => !member.roles.has(r));
-    // if (platformRolesToApply.length) {
-    await Promise.all(platformRolesToApply.map((r) => member.roles.add(r, 'синхронизация платформы')));
-    // }
+    await member.roles.set(finalRoles, 'обновление участника');
 
     return true;
   }
