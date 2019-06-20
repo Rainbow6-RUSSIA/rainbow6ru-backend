@@ -37,6 +37,7 @@ export class LSBase {
 
     constructor() {
         this.namegen = new NG();
+        this.namegen.names = new Array(100).fill(null).map((_, i) => (i + 1).toString());
     }
 
     public waitReady = async () => {

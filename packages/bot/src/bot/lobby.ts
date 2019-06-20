@@ -51,7 +51,7 @@ export class LobbyStore extends LSBase {
                 await this.category.fetch();
                 if (!this.rawVoices.some((v) => v.members.size === 0)) {
                     const channelToClone = await this.rawVoices.last();
-                    await channelToClone.clone({ name: channelToClone.name.replace(/"([^"]*)"/g, `"${this.namegen.next()}"`), userLimit: this.roomSize });
+                    await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, this.namegen.next()), userLimit: this.roomSize });
                 }
                 const generatedLobbies = await Promise.all(this.rawVoices.map(this.generateLobby));
                 this.lobbies = new Collection(generatedLobbies.map((l) => [l.channel, l]));
@@ -278,7 +278,7 @@ export class LobbyStore extends LSBase {
 
     private async openLobby(lobby: Lobby) {
         const channelToClone = await this.rawVoices.last();
-        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/"([^"]*)"/g, `"${this.namegen.next()}"`), userLimit: this.roomSize }) as VoiceChannel;
+        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, this.namegen.next()), userLimit: this.roomSize }) as VoiceChannel;
         this.lobbies.set(clonedChannel.id, await this.generateLobby(clonedChannel));
     }
 

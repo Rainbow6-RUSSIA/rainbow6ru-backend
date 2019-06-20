@@ -77,7 +77,7 @@ export default class Info extends Command {
                 return message.reply(U0 ? `ваш профиль: ${ONLINE_TRACKER}${U0.genome}${await addBadge(U0.verificationLevel)}` : 'вы не зарегистрированы!');
             case !user:
                 const U1 = await U.findByPk(user.id);
-                return message.reply(U1 ? `профиль ${user} \`${(await this.client.users.fetch(user.id)).tag}\`: ${ONLINE_TRACKER}${U1.genome}${await addBadge(U1.verificationLevel)}` : 'пользователь не найден!');
+                return message.reply(U1 ? `профиль <@${user.id}> \`${(await this.client.users.fetch(user.id)).tag}\`: ${ONLINE_TRACKER}${U1.genome}${await addBadge(U1.verificationLevel)}` : 'пользователь не найден!');
             case !nickname:
                 let genomes: string[] = null;
                 try {
