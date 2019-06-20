@@ -1,6 +1,6 @@
 import { Lobby, User } from '@r6ru/db';
-import { IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_COLORS, VERIFICATION_LEVEL } from '@r6ru/types';
-import { GuildMember, MessageOptions } from 'discord.js';
+import { IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { EmbedField, GuildMember, MessageOptions } from 'discord.js';
 import ENV from './env';
 
 export default {
@@ -41,12 +41,28 @@ export default {
         + (lobby.description
           ? `\n▫${lobby.description}`
           : ''),
-      fields: (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
-      ? [{
-        name: 'Присоединиться',
-        value: `${lobby.dcInvite.url} 👈`,
-      }]
-      : undefined),
+      fields: (() => {
+        const fields: EmbedField[] = [];
+        if (lobby.hardplay) {
+          fields.push({
+            name: 'HardPlay',
+            value: `Минимальный ранг для входа: \`${RANKS[Math.min(...lobby.members.map((m) => m.rank))]}\``,
+          });
+        }
+        if (!lobby.open) {
+          fields.push({
+            name: 'Закрытое лобби',
+            value: 'Лимит пользователей восстановится при выходе кого-либо из лобби.',
+          });
+        }
+        if (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit) {
+          fields.push({
+            name: 'Присоединиться',
+            value: `${lobby.dcInvite.url} 👈`,
+          });
+        }
+        return fields;
+      })(),
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
           text: `В игре ники Uplay отличаются? Cообщите администрации. С вами ненадежный игрок! ID: ${lobby.id}`,
