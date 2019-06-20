@@ -20,11 +20,7 @@ export default class MM extends Command {
         lobby.open = !lobby.open;
         await lobby.save();
         const vc = lobby.dcChannel; // message.member.voice.channel;
-        if (lobby.open) {
-            await vc.setUserLimit(LS.roomSize); // (vc.name.replace('HardPlay ', ''));
-        } else {
-            await vc.setUserLimit(vc.members.size);
-        }
+        await vc.setUserLimit(lobby.open ? LS.roomSize : vc.members.size); // (vc.name.replace('HardPlay ', ''));
         await LS.updateAppealMsg(lobby);
         debug.log(`${message.author} ${lobby.open ? 'открыл' : 'закрыл'} лобби!. ID пати \`${lobby.id}\``);
 
