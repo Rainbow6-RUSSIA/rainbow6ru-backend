@@ -1,6 +1,7 @@
 import { Guild } from '@r6ru/db';
 import { Listener } from 'discord-akairo';
 import { VoiceState } from 'discord.js';
+import ENV from '../../utils/env';
 import { lobbyStores } from '../lobby';
 
 export default class VoiceStateUpdate extends Listener {
@@ -11,14 +12,7 @@ export default class VoiceStateUpdate extends Listener {
         });
     }
 
-    public exec = async (oldState: VoiceState, newState: VoiceState) => {
-        // if (oldState.guild.id !== '216649610511384576') {return; }
-        if (!newState.channel && newState.channelID) {
-            await this.client.channels.fetch(newState.channelID);
-        }
-        if (!oldState.channel && oldState.channelID) {
-            await this.client.channels.fetch(oldState.channelID);
-        }
+    public static async handle(oldState: VoiceState, newState: VoiceState) {
         switch (true) {
             case !oldState.channelID && Boolean(newState.channelID): {
                 if (!lobbyStores.has(newState.channel.parentID)) { return; }
@@ -34,15 +28,15 @@ export default class VoiceStateUpdate extends Listener {
                     .leave(oldState.member, oldState.channel);
                 break;
             }
-            case oldState.channelID === undefined && newState.channelID === null: {
-                const dbGuild = await Guild.findByPk(newState.guild.id);
-                await Promise.all(Object.values(dbGuild.voiceCategories).map((id) => {
-                    lobbyStores
-                        .get(id)
-                        .handleForceLeave(newState.id);
-                }));
-                break;
-            }
+            // case oldState.channelID === undefined && newState.channelID === null: {
+            //     const dbGuild = await Guild.findByPk(newState.guild.id);
+            //     await Promise.all(Object.values(dbGuild.voiceCategories).map((id) => {
+            //         lobbyStores
+            //             .get(id)
+            //             .handleForceLeave(newState.id);
+            //     }));
+            //     break;
+            // }
             case oldState.channelID && newState.channelID && oldState.channelID !== newState.channelID && (lobbyStores.has(oldState.channel.parentID) || lobbyStores.has(newState.channel.parentID)): {
                 switch (true) {
                     case !lobbyStores.has(oldState.channel.parentID): {
@@ -73,6 +67,17 @@ export default class VoiceStateUpdate extends Listener {
             default:
                 break;
         }
+    }
+
+    public exec = async (oldState: VoiceState, newState: VoiceState) => {
+        if (ENV.NODE_ENV === 'development' && oldState.guild.id !== '216649610511384576') {return; }
+        if (!newState.channel && newState.channelID) {
+            await this.client.channels.fetch(newState.channelID);
+        }
+        if (!oldState.channel && oldState.channelID) {
+            await this.client.channels.fetch(oldState.channelID);
+        }
+        VoiceStateUpdate.handle(oldState, newState);
         // console.log({ a: { oldState, newState } });
     }
 }
