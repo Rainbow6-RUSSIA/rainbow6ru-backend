@@ -80,7 +80,7 @@ export default class Verify extends Command {
                         dbUser.verificationLevel = VERIFICATION_LEVEL.QR;
                         dbUser.inactive = false;
                         await dbUser.save();
-                        debug.log(`${dbUser.id} верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
+                        debug.log(`<@${dbUser.id}> верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
                         const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
                         const guilds = await Guild.findAll({where: {premium: true}});
                         await Promise.all(guilds.map((g) => syncMember(g, dbUser)));
