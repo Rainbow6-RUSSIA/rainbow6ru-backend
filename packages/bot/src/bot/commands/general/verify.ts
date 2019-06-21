@@ -10,6 +10,7 @@ import { syncMember } from '../../../utils/sync';
 
 interface IArgs {
     target: U;
+    scan: 'scan';
 }
 
 export default class Verify extends Command {
@@ -20,6 +21,11 @@ export default class Verify extends Command {
                 default: (msg: Message) => msg.author,
                 id: 'target',
                 type: 'user',
+                unordered: true,
+            }, {
+                id: 'scan',
+                type: ['scan'],
+                unordered: true,
             }],
             cooldown: 5000,
         });
@@ -27,9 +33,14 @@ export default class Verify extends Command {
 
     // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
-        const { target } = args;
+        const { target, scan } = args;
         if (target.id !== message.author.id && ((message.channel.type === 'text' && message.member.hasPermission('MANAGE_ROLES')) || [...this.client.ownerID].includes(message.author.id))) {
-            return this.verifyMember(message, await User.findByPk(target.id));
+            const dbUserTarget = await User.findByPk(target.id);
+            if (scan === 'scan') {
+                return this.verifyDM(await target.send('_...QR-код сканируется администратором..._') as Message, dbUserTarget);
+            } else {
+                return this.verifyMember(message, dbUserTarget);
+            }
         }
         const dbUser = await User.findByPk(message.author.id);
         if (dbUser && dbUser.genome) {
@@ -64,12 +75,12 @@ export default class Verify extends Command {
     // @TryCatch(debug)
     private verifyDM = async (message: Message, dbUser: User) => {
         try {
-            switch (await verify(dbUser.genome, message.author.id)) {
+            switch (await verify(dbUser.genome, dbUser.id)) {
                 case true: {
                         dbUser.verificationLevel = VERIFICATION_LEVEL.QR;
                         dbUser.inactive = false;
                         await dbUser.save();
-                        debug.log(`${message.author} верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
+                        debug.log(`${dbUser.id} верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
                         const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
                         const guilds = await Guild.findAll({where: {premium: true}});
                         await Promise.all(guilds.map((g) => syncMember(g, dbUser)));
