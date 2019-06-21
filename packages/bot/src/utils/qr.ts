@@ -45,7 +45,7 @@ export async function verify(genome: UUID, id: string): Promise<boolean> {
             return null;
         }
     });
-    console.log('verifying results', results);
+    console.log(id, 'verifying results', results);
     if (results.some((r) => r === true)) {
         return true;
     }
