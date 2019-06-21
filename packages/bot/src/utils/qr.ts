@@ -3,8 +3,8 @@ import { UUID } from '@r6ru/types';
 import { AwesomeQRCode, QRErrorCorrectLevel } from 'awesome-qr';
 import { createHash } from 'crypto';
 import * as jimp from 'jimp';
+import readerQR from 'jsqr';
 import fetch from 'node-fetch';
-import * as QRReader from 'qrcode-reader';
 import ENV from './env';
 
 export function generate(genome: UUID, id: string): Promise<Uint8Array> {
@@ -45,7 +45,7 @@ export async function verify(genome: UUID, id: string): Promise<boolean> {
             return null;
         }
     });
-    console.log(id, 'verifying results', results);
+    console.log(id, genome, 'verifying results', results);
     if (results.some((r) => r === true)) {
         return true;
     }
@@ -61,13 +61,13 @@ async function tryURL(url: string): Promise<string> {
     const res = await fetch(url);
     const buff = await res.buffer();
     const img = await jimp.read(buff);
-    const qr = new QRReader();
     try {
-        const code: { result: string } = await new Promise((resolve, reject) => {
-            qr.callback = (err, v) => err != null ? reject(err) : resolve(v);
-            qr.decode(img.bitmap);
-        });
-        return code.result;
+        const code = readerQR(Uint8ClampedArray.from(img.bitmap.data), img.bitmap.width, img.bitmap.height);
+        // { result: string } = await new Promise((resolve, reject) => {
+        //     qr.callback = (err, v) => err != null ? reject(err) : resolve(v);
+        //     qr.decode(img.bitmap);
+        // });
+        return code.data;
     } catch (err) {
         console.log(err);
         return null;

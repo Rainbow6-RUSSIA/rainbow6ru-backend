@@ -35,7 +35,7 @@
 		"passport-oauth2": "^1.4.0",
 		"pg": "^7.11.0",
 		"pretty-bytes": "^5.2.0",
-		"qrcode-reader": "^1.0.4",
+		"jsqr": "^1.2.0",
 		"reflect-metadata": "^0.1.12",
 		"restify": "^8.3.2",
 		"restify-errors": "^8.0.0",
