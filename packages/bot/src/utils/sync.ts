@@ -2,6 +2,7 @@ import { Guild as G, Team, User as U } from '@r6ru/db';
 import { ONLINE_TRACKER, PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
 import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
+import { debug } from '..';
 import bot from '../bot';
 import r6 from '../r6api';
 import ENV from './env';
@@ -52,18 +53,23 @@ export async function sendQrRequest(dbGuild: G, dbUser: U, member: GuildMember) 
   const guild = bot.guilds.get(dbGuild.id);
   await (await guild.members.fetch(dbUser.id)).roles.remove([...dbGuild.rankRoles.filter(Boolean), ...Object.values(dbGuild.platformRoles).filter(Boolean)], 'запрос верификации');
   const QR = await generate(dbUser.genome, dbUser.id);
-  await member.send(
-    `Боец, пришло получить статус проверенного игрока 👌\n`
-    + `\n`
-    + `Для дальнейшей игры необходимо будет подтвердить факт владения аккаунтом Uplay привязанным на Discord канале **${guild.name}**\n`
-    + `Для этого нужно установить прикрепленное ниже изображение с QR-кодом на аватар в настройках Uplay и после смены ввести здесь команду \`$verify\`\n`
-    + `\n`
-    + `Ваш привязанный аккаунт - ${ONLINE_TRACKER}${dbUser.genome}\n`
-    + `Ссылка на сайт для смены аватара - https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar\n`
-    + `Рекомендуем скачать изображение по кнопке "Открыть оригинал" для исключения ошибок.\n`
-    + `После верификации аватар можно сменить назад.`,
-    new MessageAttachment(Buffer.from(QR.buffer), 'QR-verification.png'),
-  );
+  try {
+    await member.send(
+      `Боец, пришло получить статус проверенного игрока 👌\n`
+      + `\n`
+      + `Для дальнейшей игры необходимо будет подтвердить факт владения аккаунтом Uplay привязанным на Discord канале **${guild.name}**\n`
+      + `Для этого нужно установить прикрепленное ниже изображение с QR-кодом на аватар в настройках Uplay и после смены ввести здесь команду \`$verify\`\n`
+      + `\n`
+      + `Ваш привязанный аккаунт - ${ONLINE_TRACKER}${dbUser.genome}\n`
+      + `Ссылка на сайт для смены аватара - https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar\n`
+      + `Рекомендуем скачать изображение по кнопке "Открыть оригинал" для исключения ошибок.\n`
+      + `После верификации аватар можно сменить назад.`,
+      new MessageAttachment(Buffer.from(QR.buffer), 'QR-verification.png'),
+    );
+  } catch (err) {
+    debug.error(`Не удается отправить сообщение о верификации <@${dbUser.id}>. Скорее всего ЛС закрыто.`);
+    debug.error(err);
+  }
   return false;
 }
 

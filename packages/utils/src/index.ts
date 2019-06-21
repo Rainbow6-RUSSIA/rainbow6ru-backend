@@ -105,7 +105,7 @@ export class Log {
     }
 
     public sendWebhook<T>(context: Context, type: 'Information' | 'Warning' | 'Error', body: T, color: number) {
-        return this.webhook && this.webhook.send(body instanceof Error ? '@here' : '', { embeds: [{
+        return this.webhook && this.webhook.send(type === 'Error' && !(body instanceof Error) ? '@everyone' : '', { embeds: [{
             author: {
                 iconURL: this.client.displayAvatarURL(),
                 name: this.client.tag,
