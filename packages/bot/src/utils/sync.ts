@@ -60,7 +60,8 @@ export async function sendQrRequest(dbGuild: G, dbUser: U, member: GuildMember) 
     + `\n`
     + `Ваш привязанный аккаунт - ${ONLINE_TRACKER}${dbUser.genome}\n`
     + `Ссылка на сайт для смены аватара - https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar\n`
-    + `Рекомендуем скачать изображение по кнопке "Открыть оригинал" для исключения ошибок.\n`,
+    + `Рекомендуем скачать изображение по кнопке "Открыть оригинал" для исключения ошибок.\n`
+    + `После верификации аватар можно сменить назад.`,
     new MessageAttachment(Buffer.from(QR.buffer), 'QR-verification.png'),
   );
   return false;

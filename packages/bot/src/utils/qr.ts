@@ -2,12 +2,10 @@
 import { UUID } from '@r6ru/types';
 import { AwesomeQRCode, QRErrorCorrectLevel } from 'awesome-qr';
 import { createHash } from 'crypto';
-import readerQR from 'jsqr';
+import * as jimp from 'jimp';
 import fetch from 'node-fetch';
-import { PNG } from 'pngjs';
+import * as QRReader from 'qrcode-reader';
 import ENV from './env';
-
-const png = new PNG();
 
 export function generate(genome: UUID, id: string): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
@@ -17,7 +15,7 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
             backgroundImage: __dirname + '/../../assets/r6rus.png',
             borderDark : 'rgba(0, 0, 0, .1)',
             borderLight : 'rgba(255, 255, 255, .1)',
-            callback: (data) => data ? resolve(data) : reject(new Error('QR No Data')),
+            callback: (data) => data ? resolve(data) : reject(new Error('QR No Data at generate')),
             colorDark: 'rgba(0, 0, 0, 0.8)',
             colorLight: 'rgba(255, 255, 255, 1)',
             correctLevel: QRErrorCorrectLevel.H,
@@ -34,22 +32,44 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
 }
 
 export async function verify(genome: UUID, id: string): Promise<boolean> {
-    let res = await fetch(`https://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`);
-    let buff = await res.buffer();
-    let img = PNG.sync.read(buff);
-    let code = readerQR(Uint8ClampedArray.from(img.data), img.width, img.height);
-    if (code) {
-        const args = [code.data.slice(0, 18), code.data.slice(18)];
-        return createHash('md5').update(`${genome}_${args[0]}_${ENV.KEY256}`).digest('base64') === args[1] && args[0] === id;
+    const codes = await Promise.all([
+        tryURL(`https://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`),
+        tryURL(`http://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`),
+        tryURL(`https://ubisoft-avatars.akamaized.net/${genome}/default_146_146.png`),
+        tryURL(`http://ubisoft-avatars.akamaized.net/${genome}/default_146_146.png`)]);
+    const results = codes.map((c) => {
+        if (c) {
+            const args = [c.slice(0, 18), c.slice(18)];
+            return createHash('md5').update(`${genome}_${args[0]}_${ENV.KEY256}`).digest('base64') === args[1] && args[0] === id;
+        } else {
+            return null;
+        }
+    });
+    console.log('verifying results', results);
+    if (results.some((r) => r === true)) {
+        return true;
     }
-    res = await fetch(`http://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`);
-    buff = await res.buffer();
-    img = PNG.sync.read(buff);
-    code = readerQR(Uint8ClampedArray.from(img.data), img.width, img.height);
-    if (code) {
-        const args = [code.data.slice(0, 18), code.data.slice(18)];
-        return createHash('md5').update(`${genome}_${args[0]}_${ENV.KEY256}`).digest('base64') === args[1] && args[0] === id;
-    } else {
-        throw new Error('QR No Data');
+    if (results.some((r) => r === false)) {
+        return false;
+    }
+    if (results.every((r) => r === null)) {
+        return null;
+    }
+}
+
+async function tryURL(url: string): Promise<string> {
+    const res = await fetch(url);
+    const buff = await res.buffer();
+    const img = await jimp.read(buff);
+    const qr = new QRReader();
+    try {
+        const code: { result: string } = await new Promise((resolve, reject) => {
+            qr.callback = (err, v) => err != null ? reject(err) : resolve(v);
+            qr.decode(img.bitmap);
+        });
+        return code.result;
+    } catch (err) {
+        console.log(err);
+        return null;
     }
 }

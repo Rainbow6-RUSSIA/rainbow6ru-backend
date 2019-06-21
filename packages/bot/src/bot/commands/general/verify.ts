@@ -64,21 +64,22 @@ export default class Verify extends Command {
     // @TryCatch(debug)
     private verifyDM = async (message: Message, dbUser: User) => {
         try {
-            if (await verify(dbUser.genome, message.author.id)) {
-                dbUser.verificationLevel = VERIFICATION_LEVEL.QR;
-                dbUser.inactive = false;
-                await dbUser.save();
-                debug.log(`${message.author} верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
-                const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
-                const guilds = await Guild.findAll({where: {premium: true}});
-                await Promise.all(guilds.map((g) => syncMember(g, dbUser)));
-                return msg.edit(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Роли возвращены, приятной игры!`);
-            } else {
-                return message.reply('Неккоректный QR-код!');
+            switch (await verify(dbUser.genome, message.author.id)) {
+                case true: {
+                        dbUser.verificationLevel = VERIFICATION_LEVEL.QR;
+                        dbUser.inactive = false;
+                        await dbUser.save();
+                        debug.log(`${message.author} верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
+                        const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
+                        const guilds = await Guild.findAll({where: {premium: true}});
+                        await Promise.all(guilds.map((g) => syncMember(g, dbUser)));
+                        return msg.edit(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Роли возвращены, приятной игры!`);
+                    }
+                case false: return message.reply('Неккоректный QR-код!');
+                case null: return message.reply('QR-код не установлен!');
             }
         } catch (err) {
             console.log(err);
-            return message.reply('QR-код не установлен!');
         }
     }
 
