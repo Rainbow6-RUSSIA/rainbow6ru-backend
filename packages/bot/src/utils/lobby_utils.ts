@@ -1,5 +1,4 @@
 import { Guild, Lobby } from '@r6ru/db';
-import NG from '@r6ru/name-generator';
 import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
 import { CategoryChannel, Collection, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import ENV from '../utils/env';
@@ -14,7 +13,6 @@ export class LSBase {
         }
     }
 
-    public namegen: NG;
     public categoryId: Snowflake;
     public category: CategoryChannel;
     public lfgChannel: TextChannel;
@@ -34,11 +32,6 @@ export class LSBase {
     public roomSize: number = 5;
     public roomsRange: [number, number];
     public staticRooms: boolean;
-
-    constructor() {
-        this.namegen = new NG();
-        this.namegen.names = new Array(100).fill(null).map((_, i) => (i + 1).toString());
-    }
 
     public waitReady = async () => {
         return new Promise((resolve) => {
