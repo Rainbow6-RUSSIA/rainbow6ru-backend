@@ -11,7 +11,8 @@ import { combinedPrompt } from '@r6ru/utils';
 import { debug } from '../../..';
 import embeds from '../../../utils/embeds';
 import ENV from '../../../utils/env';
-import { syncMember } from '../../../utils/sync';
+import Security from '../../../utils/security';
+import Sync from '../../../utils/sync';
 import ubiGenomeFromNickname from '../../types/ubiGenomeFromNickname';
 // import ubiNickname from '../types/ubiNickname';
 
@@ -19,7 +20,7 @@ interface IRankArgs {
     genome: UUID;
     nickname: string;
     target: GuildMember;
-    bound: IUbiBound;
+    bound: IUbiBound[] | null | Error;
 }
 
 export default class Rank extends Command {
@@ -58,8 +59,8 @@ export default class Rank extends Command {
             // console.log(bound, target);
             const { member } = message;
 
-            if (bound && bound.err) {
-                throw bound.err;
+            if (bound instanceof Error) {
+                throw bound;
             }
             const dbGuild = await Guild.findByPk(message.guild.id);
             const nonPremium = dbGuild.premium === false;
@@ -85,7 +86,7 @@ export default class Rank extends Command {
                 if (adminAction) {
                     return message.reply(`пользователь уже зарегистрирован!`);
                 } else {
-                    syncMember(dbGuild, dbUser);
+                    Sync.updateMember(dbGuild, dbUser);
                     return message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
                         humanizeDuration(
                             (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(dbUser.rankUpdatedAt).valueOf() - Date.now(),
@@ -101,33 +102,31 @@ export default class Rank extends Command {
                 PS4: currentRoles.includes(platformRoles.PS4),
                 XBOX: currentRoles.includes(platformRoles.XBOX),
             };
-            const activePlatform = nonPremium ? null : $enum(PLATFORM).getValues().find((p) => platform[p]);
-            if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
-                    return message.reply('выбранная вами платформа не совпадает с платформой указанного аккаунта!');
+            const activePlatform = $enum(PLATFORM).getValues().find((p) => platform[p]) || 'PC';
+            const activeBound = bound.find((b) => b.platform === activePlatform);
+            // if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
+            if (!activeBound) {
+                return message.reply(`выбранная платформа \`${activePlatform}\` не совпадает с платформой указанного аккаунта (${bound.map((b) => '`' + b.platform + '`').join(', ')})`);
             }
-            const rawRank = (await r6.api.getRank(bound.platform, bound.genome))[bound.genome];
+            // }
+            const rawRank = (await r6.api.getRank(activeBound.platform, activeBound.genome))[activeBound.genome];
 
-            // console.log('​Rank -> publicexec -> rawRank', rawRank);
             const regionRank = $enum(REGIONS).getValues().map((r) => rawRank[r].rank);
-            // console.log('​Rank -> publicexec -> regionRank', regionRank);
             const mainRegion = $enum(REGIONS).getValues()[regionRank.indexOf(Math.max(...regionRank))];
-            // console.log('TCL: Rank -> publicexec -> $enum(REGIONS).getValues()', $enum(REGIONS).getValues());
-            // console.log('TCL: Rank -> publicexec -> REGIONS', REGIONS);
-            // console.log('​Rank -> publicexec -> mainRegion', mainRegion);
-            const stats = (await r6.api.getStats(bound.platform, bound.genome, {general: '*'}))[bound.genome];
+            const stats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
 
             if (!(stats && stats.general)) {
-                return message.reply('указанный аккаунт не имеет Rainbow Six Siege');
+                return message.reply(`указанный аккаунт не запускал Rainbow Six Siege (\`${activeBound.platform}\`)`);
             }
             // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);
-            if (!nonPremium) {
-                platform[bound.platform] = true;
+            if (!nonPremium || adminAction) {
+                platform[activeBound.platform] = true;
             }
             dbUser = new User({
-                genome: bound.genome,
+                genome: activeBound.genome,
                 id: target.id,
                 inactive: false,
-                nickname: bound.nickname,
+                nickname: activeBound.nickname,
                 nicknameUpdatedAt: new Date(),
                 platform,
                 rank: rawRank[mainRegion].rank,
@@ -135,16 +134,16 @@ export default class Rank extends Command {
                 region: mainRegion,
                 requiredVerification:
                 nonPremium ? VERIFICATION_LEVEL.NONE
-                : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= dbGuild.fixAfter || (await r6.api.getLevel(bound.platform, bound.genome))[bound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
+                : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= dbGuild.fixAfter || (await r6.api.getLevel(activeBound.platform, activeBound.genome))[activeBound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
                 : dbGuild.requiredVerification,
                 verificationLevel:
-                (target.nickname || '').includes(bound.nickname) ||
-                target.user.username.includes(bound.nickname) ? VERIFICATION_LEVEL.MATCHNICK
+                (target.nickname || '').includes(activeBound.nickname) ||
+                target.user.username.includes(activeBound.nickname) ? VERIFICATION_LEVEL.MATCHNICK
                 : VERIFICATION_LEVEL.NONE,
             });
 
             const prompt = await combinedPrompt(
-                await message.reply(`игрок с ником **${bound.nickname}** найден, это верный профиль?`, embeds.rank(bound, stats.general)) as Message,
+                await message.reply(`игрок с ником **${activeBound.nickname}** найден, это верный профиль?`, embeds.rank(activeBound, stats.general)) as Message,
                 {
                     author: message.author,
                     emojis: ['✅', '❎'],
@@ -157,13 +156,14 @@ export default class Rank extends Command {
                 case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
                 case 0: {
                     await dbUser.save();
-                    debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}`);
+                    await debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}`);
+                    await Security.detectDupes(dbUser, dbGuild);
                     if (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR) {
                         debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
-                        setTimeout(() => syncMember(dbGuild, dbUser), 5000);
+                        setTimeout(() => Sync.updateMember(dbGuild, dbUser), 5000);
                         return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\`\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*`);
                     } else {
-                        syncMember(dbGuild, dbUser);
+                        Sync.updateMember(dbGuild, dbUser);
                         return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\``);
                     }
                 }

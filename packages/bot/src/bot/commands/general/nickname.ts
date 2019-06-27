@@ -2,7 +2,7 @@ import { Guild, User } from '@r6ru/db';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
 import { debug } from '../../..';
-import { syncMember } from '../../../utils/sync';
+import Sync from '../../../utils/sync';
 
 interface IArgs {
     target: U;
@@ -35,7 +35,7 @@ export default class Nickname extends Command {
         if (dbUser && dbUser.genome) {
             dbUser.syncNickname = !dbUser.syncNickname;
             await dbUser.save();
-            await syncMember(await Guild.findByPk(message.guild.id), dbUser);
+            await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
             if (!dbUser.syncNickname) {
                 try {
                     await (await message.guild.members.fetch(target.id)).setNickname(null);

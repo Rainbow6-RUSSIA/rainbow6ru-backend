@@ -1,8 +1,7 @@
 import { Guild, User } from '@r6ru/db';
 import { Listener } from 'discord-akairo';
 import { GuildMember } from 'discord.js';
-import { debug } from '../../..';
-import { syncMember } from '../../../utils/sync';
+import Sync from '../../../utils/sync';
 
 export default class MemberAdd extends Listener {
     public constructor() {
@@ -23,7 +22,7 @@ export default class MemberAdd extends Listener {
                 },
             });
 
-            syncMember(await Guild.findByPk(member.guild.id), await User.findByPk(member.id));
+            Sync.updateMember(await Guild.findByPk(member.guild.id), await User.findByPk(member.id));
 
             console.log('[BOT] Reactivating', member.user.tag, member.id);
     }

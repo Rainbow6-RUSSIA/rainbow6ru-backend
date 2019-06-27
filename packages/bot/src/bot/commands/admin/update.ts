@@ -3,7 +3,7 @@ import { ONLINE_TRACKER } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
 import { debug } from '../../..';
-import { syncMember } from '../../../utils/sync';
+import Sync from '../../../utils/sync';
 
 interface IUpdateArgs {
     user: User;
@@ -41,7 +41,7 @@ export default class Update extends Command { // update all|newseason|numofpacks
         }
         dbUser.verificationLevel = args.verification || dbUser.verificationLevel;
         await dbUser.save();
-        await syncMember(await G.findByPk(message.guild.id), dbUser);
+        await Sync.updateMember(await G.findByPk(message.guild.id), dbUser);
         return message.reply('обновлено!');
     }
 }

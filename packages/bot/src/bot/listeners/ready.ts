@@ -6,7 +6,7 @@ import { $enum } from 'ts-enum-util';
 import { debug } from '../..';
 import r6, { refresh } from '../../r6api';
 import ENV from '../../utils/env';
-import { syncNicknames, syncRoles } from '../../utils/sync';
+import Sync from '../../utils/sync';
 import { initLobbyStores } from '../lobby';
 
 export default class Ready extends Listener {
@@ -34,7 +34,7 @@ export default class Ready extends Listener {
             try {
                 await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
                 console.log('[INFO][BOT] Updating ranks...');
-                await syncRoles();
+                await Sync.updateRoles();
             } catch (err) {
                 refresh();
             }
@@ -46,7 +46,7 @@ export default class Ready extends Listener {
             try {
                 await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
                 console.log('[BOT] Updating nicknames...');
-                await Promise.all($enum(PLATFORM).getValues().map((p) => syncNicknames(p)));
+                await Promise.all($enum(PLATFORM).getValues().map((p) => Sync.updateNicknames(p)));
             } catch (err) {
                 refresh();
             }

@@ -6,7 +6,7 @@ import { Message, User as U } from 'discord.js';
 import { debug } from '../../..';
 import ENV from '../../../utils/env';
 import { verify } from '../../../utils/qr';
-import { syncMember } from '../../../utils/sync';
+import Sync from '../../../utils/sync';
 
 interface IArgs {
     target: U;
@@ -61,7 +61,7 @@ export default class Verify extends Command {
     private verifyMember = async (message: Message, dbUser: User) => {
         dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
         await dbUser.save();
-        await syncMember(await Guild.findByPk(message.guild.id), dbUser);
+        await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
         debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
         try {
             const member = await message.guild.members.fetch(dbUser.id);
@@ -83,7 +83,7 @@ export default class Verify extends Command {
                         debug.log(`<@${dbUser.id}> верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
                         const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
                         const guilds = await Guild.findAll({where: {premium: true}});
-                        await Promise.all(guilds.map((g) => syncMember(g, dbUser)));
+                        await Promise.all(guilds.map((g) => Sync.updateMember(g, dbUser)));
                         return msg.edit(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Роли возвращены, приятной игры!`);
                     }
                 case false: return message.reply('Неккоректный QR-код!');
@@ -108,7 +108,7 @@ export default class Verify extends Command {
             case 0: {
                 dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
                 await dbUser.save();
-                await syncMember(await Guild.findByPk(message.guild.id), dbUser);
+                await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
                 debug.log(`самостоятельно запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
                 await (message.member && message.member.voice && message.member.voice.setChannel(null));
                 return message.reply('инструкции отправлены вам в ЛС.');

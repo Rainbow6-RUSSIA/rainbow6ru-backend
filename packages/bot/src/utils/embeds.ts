@@ -36,8 +36,22 @@ export default {
           })(lobby.status),
           url: ![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit ? lobby.dcInvite.url : '',
       },
-      color: RANK_COLORS[(lobby.members.find((m) => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id)).rank],
-      description: (lobby.members.sort((a, b) => b.rank - a.rank).map((m) => `${lobby.dcLeader.id === m.id ? '\\👑 ' : ''}<@${m.id}> (\`${m.nickname}\` - [uplay](${ONLINE_TRACKER}${m.genome})) ${m.verificationLevel >= VERIFICATION_LEVEL.QR ? ENV.VERIFIED_BADGE : ''}`).join('\n'))
+      color: await (async () => {
+        const dbUser = (lobby.members.find((m) => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id));
+        return RANK_COLORS[(dbUser && dbUser.rank) || 0];
+      })(),
+      description:
+        (lobby.dcChannel.members
+          .map((dcM) => [dcM, lobby.members.find((m) => m.id === dcM.id)] as [GuildMember, User])
+          .sort((a, b) => (b[1] && b[1].rank) || 0 - (a[1] && a[1].rank) || 0)
+          .map((m) => m[1]
+            ? (lobby.dcLeader.id === m[1].id ? '\\👑 ' : '')
+              + !m[1].platform.PC ? '\\🎮' : ''
+              + `<@${m[1].id}> (\`${m[1].nickname}\` - [uplay](${ONLINE_TRACKER}${m[1].genome}))`
+              + (m[1].verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''
+            : (lobby.dcLeader.id === m[0].id ? '\\👑 ' : '')
+              + `<@${m[0].id}> (\`не зарегистрирован\`)`)
+          .join('\n'))
         + (lobby.description
           ? `\n▫${lobby.description}`
           : ''),

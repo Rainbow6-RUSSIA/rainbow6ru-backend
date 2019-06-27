@@ -6,11 +6,12 @@ import { Sequelize } from 'sequelize-typescript';
 import { debug } from '..';
 import bot from '../bot';
 import Ratelimiter from '../utils/decorators/ratelimiter';
+import { RefreshedMessage } from '../utils/decorators/refreshed_message';
 import WaitLoaded from '../utils/decorators/wait_loaded';
 import embeds from '../utils/embeds';
 import ENV from '../utils/env';
 import { LSBase } from '../utils/lobby_utils';
-import { syncMember } from '../utils/sync';
+import Sync from '../utils/sync';
 
 const { Op } = Sequelize;
 const initiatedAt = new Date();
@@ -78,7 +79,7 @@ export class LobbyStore extends LSBase {
         if (timeout > 10000) {
             await member.roles.set(member.roles.filter((r) => ![...Object.values(this.guild.platformRoles), ...Object.values(this.guild.rankRoles)].includes(r.id)));
             debug.log(`${member} исключен из \`${this.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}". ${lobbyId ? `ID пати ${lobbyId}` : ''}`);
-            setTimeout(async () => syncMember(this.guild, await User.findByPk(member.id)), timeout);
+            setTimeout(async () => Sync.updateMember(this.guild, await User.findByPk(member.id)), timeout);
         }
     }
 
@@ -219,7 +220,7 @@ export class LobbyStore extends LSBase {
             lobby.invite = inv.url;
             lobby.dcInvite = inv;
             await lobby.save();
-            lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
+            lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
         }
 
         return lobby;
@@ -260,7 +261,7 @@ export class LobbyStore extends LSBase {
             }
             lobby.dcChannel = await lobby.dcChannel.fetch() as VoiceChannel;
             try {
-                return lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
+                return lobby.appealMessage = await lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
             } catch (err) {
                 await debug.warn('Appeal Msg Cache MISS');
                 await debug.error(err);
@@ -271,7 +272,7 @@ export class LobbyStore extends LSBase {
                     await debug.error(err);
                 }
 
-                return this.lfgChannel.send('', await embeds.appealMsg(lobby));
+                return lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
             }
         }
     }
@@ -324,7 +325,7 @@ export class LobbyStore extends LSBase {
         if (Math.random() < parseFloat(ENV.QR_CHANCE) && dbUser.verificationLevel < VERIFICATION_LEVEL.QR) {
             dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
             await dbUser.save();
-            syncMember(await Guild.findByPk(member.guild.id), dbUser);
+            Sync.updateMember(await Guild.findByPk(member.guild.id), dbUser);
             debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome} после выхода из лобби`);
         }
 
@@ -378,7 +379,7 @@ export class LobbyStore extends LSBase {
             lobby.invite = inv.url;
             await lobby.save();
             lobby.dcInvite = inv;
-            lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
+            lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
         } else {
             await this.updateAppealMsg(lobby);
         }

@@ -63,11 +63,7 @@ async function tryURL(url: string): Promise<string> {
     const img = await jimp.read(buff);
     try {
         const code = readerQR(Uint8ClampedArray.from(img.bitmap.data), img.bitmap.width, img.bitmap.height);
-        // { result: string } = await new Promise((resolve, reject) => {
-        //     qr.callback = (err, v) => err != null ? reject(err) : resolve(v);
-        //     qr.decode(img.bitmap);
-        // });
-        return code.data;
+        return (code && code.data);
     } catch (err) {
         console.log(err);
         return null;

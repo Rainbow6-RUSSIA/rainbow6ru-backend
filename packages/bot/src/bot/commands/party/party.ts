@@ -3,6 +3,7 @@ import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import { debug } from '../../..';
 import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party_command';
+import { RefreshedMessage } from '../../../utils/decorators/refreshed_message';
 import RequireVoice from '../../../utils/decorators/require_voice';
 import embeds from '../../../utils/embeds';
 import ENV from '../../../utils/env';
@@ -82,7 +83,7 @@ export default class Party extends Command {
         if (lobby.appealMessage && !lobby.appealMessage.deleted) {
             await lobby.appealMessage.delete();
         }
-        lobby.appealMessage = await LS.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
+        lobby.appealMessage = RefreshedMessage(await LS.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
 
         return debug.log(`${message.author} ищет пати в \`${lobby.type}\` с описанием: \`${lobby.description}\`. ID пати \`${lobby.id}\``);
     }
