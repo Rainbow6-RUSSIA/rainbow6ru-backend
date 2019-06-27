@@ -107,7 +107,7 @@ export interface IActivityCounter {
 export enum IngameStatus {
     OTHER = -1,
     MENU = 0,
-    CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, DISCOVERY, DISCOVERY_SEARCH
+    CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, NEWCOMER, NEWCOMER_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, DISCOVERY, DISCOVERY_SEARCH
 }
 
 export const R6_PRESENCE_ID = '445956193924546560';
@@ -118,6 +118,8 @@ export const R6_PRESENCE_REGEXPS = [
     [/Поиск.+ОБЫЧНАЯ/g, /Looking.+CASUAL/g],
     [/РЕЙТ.+раунд/g, /RANKED.+Round/g],
     [/Поиск.+РЕЙТ/g, /Looking.+RANKED/g],
+    [/НОВИЧОК.+раунд/g, /NEWCOMER.+Round/g],
+    [/Поиск.+НОВИЧОК/g, /Looking.+NEWCOMER/g],
     [/Антитеррор/g, /TERRORIST HUNT/g],
     [/Игра.+ПОЛЬЗ/g],
     [/Поиск.+ПОЛЬЗ/g],
