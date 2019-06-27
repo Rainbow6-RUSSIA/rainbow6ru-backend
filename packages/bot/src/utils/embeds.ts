@@ -3,6 +3,8 @@ import { IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_COLORS, RANKS, VERI
 import { EmbedField, GuildMember, MessageOptions } from 'discord.js';
 import ENV from './env';
 
+const currentlyPlaying = [IS.CASUAL, IS.RANKED, IS.CUSTOM, IS.NEWCOMER, IS.DISCOVERY];
+
 export default {
   appealMsg: async (lobby: Lobby): Promise<MessageOptions> => ({
     embed: {
@@ -16,16 +18,21 @@ export default {
               case IS.CASUAL_SEARCH:
               case IS.RANKED_SEARCH:
               case IS.CUSTOM_SEARCH:
-              case IS.DISCOVERY_SEARCH:
                 return `Поиск матча в ${lobby.dcChannel.name}` + slot;
+              case IS.DISCOVERY_SEARCH:
+                return `Поиск __Разведки__ в ${lobby.dcChannel.name}` + slot;
+              case IS.NEWCOMER_SEARCH:
+                return `Поиск режима __Новичок__ в ${lobby.dcChannel.name}` + slot;
               case IS.CASUAL:
               case IS.RANKED:
               case IS.CUSTOM:
                 return `Играют в ${lobby.dcChannel.name}`;
+              case IS.NEWCOMER:
+                return `Играют режим __Новичок__ в ${lobby.dcChannel.name}`;
               case IS.TERRORIST_HUNT:
-                return `${lobby.dcChannel.name} разминается в Антитерроре` + slot;
+                return `${lobby.dcChannel.name} разминается в __Антитерроре__` + slot;
               case IS.DISCOVERY:
-                return `${lobby.dcChannel.name} играет Разведку (временное событие)` + slot;
+                return `${lobby.dcChannel.name} играет __Разведку__` + slot;
               case IS.OTHER:
               case IS.MENU:
               default:
@@ -34,23 +41,19 @@ export default {
                   : `Ищут +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} в ${lobby.dcChannel.name}`;
             }
           })(lobby.status),
-          url: ![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit ? lobby.dcInvite.url : '',
+          url: !currentlyPlaying.includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit ? lobby.dcInvite.url : '',
       },
       color: await (async () => {
         const dbUser = (lobby.members.find((m) => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id));
         return RANK_COLORS[(dbUser && dbUser.rank) || 0];
       })(),
       description:
-        (lobby.dcChannel.members
-          .map((dcM) => [dcM, lobby.members.find((m) => m.id === dcM.id)] as [GuildMember, User])
-          .sort((a, b) => (b[1] && b[1].rank) || 0 - (a[1] && a[1].rank) || 0)
-          .map((m) => m[1]
-            ? (lobby.dcLeader.id === m[1].id ? '\\👑 ' : '')
-              + !m[1].platform.PC ? '\\🎮' : ''
-              + `<@${m[1].id}> (\`${m[1].nickname}\` - [uplay](${ONLINE_TRACKER}${m[1].genome}))`
-              + (m[1].verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''
-            : (lobby.dcLeader.id === m[0].id ? '\\👑 ' : '')
-              + `<@${m[0].id}> (\`не зарегистрирован\`)`)
+        (lobby.members
+          .sort((a, b) => b.rank - a.rank)
+          .map((m) => (lobby.dcLeader.id === m.id ? '\\👑 ' : '')
+              + (!m.platform.PC ? '\\🎮' : '')
+              + `<@${m.id}> (\`${m.nickname}\` - [uplay](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
+              + ((m.verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''))
           .join('\n'))
         + (lobby.description
           ? `\n▫${lobby.description}`
@@ -59,8 +62,8 @@ export default {
         const fields: EmbedField[] = [];
         if (lobby.hardplay) {
           fields.push({
-            name: 'HardPlay',
-            value: `Минимальный ранг для входа: \`${RANKS[Math.min(...lobby.members.map((m) => m.rank))]}\``,
+            name: 'Режим "HardPlay"',
+            value: `Минимальный ранг для входа: \`${RANKS[lobby.limitRank]}\``,
           });
         }
         if (!lobby.open) {
@@ -69,20 +72,31 @@ export default {
             value: 'Лимит пользователей восстановится при выходе кого-либо из лобби.',
           });
         }
-        if (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit) {
+        if ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status)) {
+          fields.push({
+            name: 'Режим "Новичок"',
+            value: 'Опытным игрокам лучше найти другую комнату, чтобы избежать конфликтов и поражений.',
+          });
+        }
+        if (!currentlyPlaying.includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit) {
           fields.push({
             name: 'Присоединиться',
             value: `${lobby.dcInvite.url} 👈`,
+          });
+        } else if (currentlyPlaying.includes(lobby.status)) {
+          fields.push({
+            name: 'Лобби играет',
+            value: `Сейчас лучше не заходить в комнату, чтобы не беспокоить игроков.`,
           });
         }
         return fields;
       })(),
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
-          text: `В игре ники Uplay отличаются? Cообщите администрации. С вами ненадежный игрок! ID: ${lobby.id}`,
+          text: `В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! ID: ${lobby.id}`,
       },
       thumbnail: {
-          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?a${Math.min(...lobby.members.map((m) => m.rank))}.${Math.max(...lobby.members.map((m) => m.rank))}.${lobby.dcChannel.userLimit - lobby.dcChannel.members.size}=1`,
+          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcChannel.members.size}=1`,
       },
       timestamp: new Date(),
     },
