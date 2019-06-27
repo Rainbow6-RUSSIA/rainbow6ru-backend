@@ -365,9 +365,8 @@ export class LobbyStore extends LSBase {
 
     private async atomicJoin(member: GuildMember, lobby: Lobby) {
         const dbUser = await User.findByPk(member.id);
-        const min = Math.min(...lobby.members.map((m) => m.rank));
-        if (min !== Infinity && lobby.hardplay && dbUser.rank < min) {
-            return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[min]}\` и выше!`, lobby.id);
+        if (lobby.hardplay && dbUser.rank < lobby.limitRank) {
+            return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[lobby.limitRank]}\` и выше!`, lobby.id);
         }
         await lobby.$add('members', dbUser);
         await lobby.reload({include: [{all: true}]});

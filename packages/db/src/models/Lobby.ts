@@ -91,4 +91,16 @@ export default class Lobby extends Model<Lobby> {
         this.dcLeader = addArgs.dcLeader;
         return this;
     }
+
+    public get minRank(): number {
+        return Math.min(...this.members.map((m) => m.rank));
+    }
+
+    public get maxRank(): number {
+        return Math.max(...this.members.map((m) => m.rank));
+    }
+
+    public get limitRank(): number {
+        return this.minRank === Infinity ? 0 : this.minRank - this.minRank % 4 + 1;
+    }
 }

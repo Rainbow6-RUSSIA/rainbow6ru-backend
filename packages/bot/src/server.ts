@@ -43,8 +43,8 @@ server.get('/lobby/:id/preview', async (req, res, next) => {
     if (!lobby) {return next(new NotFoundError()); }
 
     const pic = await createLobbyPreview(
-      Math.min(...lobby.members.map((m) => m.rank)),
-      Math.max(...lobby.members.map((m) => m.rank)),
+      lobby.minRank,
+      lobby.maxRank,
       (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
         ? lobby.dcChannel.userLimit - lobby.dcChannel.members.size
         : 0));
