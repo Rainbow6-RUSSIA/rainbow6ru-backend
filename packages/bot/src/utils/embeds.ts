@@ -78,7 +78,7 @@ export default {
             value: 'Опытным игрокам лучше найти другую комнату, чтобы избежать конфликтов и поражений.',
           });
         }
-        if (!currentlyPlaying.includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit) {
+        if (lobby.open && !currentlyPlaying.includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit) {
           fields.push({
             name: 'Присоединиться',
             value: `${lobby.dcInvite.url} 👈`,
