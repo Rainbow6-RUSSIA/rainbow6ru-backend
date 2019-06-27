@@ -24,7 +24,8 @@ export let debug: Log = null;
 })();
 
 if (process.env.MIGRATE === 'true') {
-    import('./utils/migration');
+    console.log('migration removed');
+    // import('./utils/migration');
 }
 
 setInterval(() => {
