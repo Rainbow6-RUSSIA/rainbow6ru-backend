@@ -19,27 +19,35 @@ export default class Security {
                 {genomeHistory: {[Op.contains]: [dbUser.genome]}},
             ],
         }});
-        if (twinks.length > 1) {
-            const guild = bot.guilds.get(dbGuild.id);
-            const bans = await guild.fetchBans();
-            twinks = twinks.filter((t) => t.id !== dbUser.id);
-            twinks.unshift(dbUser);
-            Security.logDirectDupes(twinks, bans);
-            Security.logHistoricalDupes(twinks, bans);
+        if (dbUser.updatedAt > (Date.now() - 5 * 60 * 1000) || dbUser.updatedAt < (Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+            if (twinks.length > 1) {
+                const guild = bot.guilds.get(dbGuild.id);
+                const bans = await guild.fetchBans();
+                twinks = twinks.filter((t) => t.id !== dbUser.id);
+                twinks.unshift(dbUser);
+                Security.logDirectDupes(twinks, bans);
+                Security.logHistoricalDupes(twinks, bans);
+                if (dbUser.updatedAt < (Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                    dbUser.updatedAt = new Date();
+                    await dbUser.save();
+                }
+            }
         }
         return twinks;
     }
 
     public static async logDirectDupes(twinks: User[], bans: BanInfo) {
-        debug.error(
-            'Обнаружена коллизия аккаунтов\n'
-            + Security.logString(twinks[0], bans)
-            + '\nи\n'
-            + twinks
-            .filter((t, i, a) => t.genome === a[0].genome)
-            .slice(1)
-            .map((t) => Security.logString(t, bans))
-            .join('\n'));
+        if (twinks.length > 1) {
+            debug[twinks.some((t) => bans.has(t.id)) ? 'error' : 'warn'](
+                'Обнаружена коллизия аккаунтов\n'
+                + Security.logString(twinks[0], bans)
+                + '\nи\n'
+                + twinks
+                .filter((t, i, a) => t.genome === a[0].genome)
+                .slice(1)
+                .map((t) => Security.logString(t, bans))
+                .join('\n'));
+        }
     }
     public static async logHistoricalDupes(twinks: User[], bans: BanInfo) {
         const filteredTwinks = twinks.filter((t, i, a) => i === 0 || t.genome !== a[0].genome);
