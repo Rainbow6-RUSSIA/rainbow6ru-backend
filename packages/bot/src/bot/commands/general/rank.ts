@@ -1,5 +1,5 @@
 import { Argument, Command } from 'discord-akairo';
-import { GuildMember, Message, TextChannel } from 'discord.js';
+import { GuildMember, Message, MessageReaction, User as U } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import { $enum } from 'ts-enum-util';
 
@@ -82,20 +82,6 @@ export default class Rank extends Command {
 
             let dbUser = await User.findByPk(target.id);
 
-            if (dbUser && dbUser.genome) {
-                if (adminAction) {
-                    return message.reply(`пользователь уже зарегистрирован!`);
-                } else {
-                    Sync.updateMember(dbGuild, dbUser);
-                    return message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
-                        humanizeDuration(
-                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(dbUser.rankUpdatedAt).valueOf() - Date.now(),
-                            {conjunction: ' и ', language: 'ru', round: true},
-                        )
-                    }\``);
-                }
-            }
-
             const currentRoles = target.roles.keyArray();
             const platform = nonPremium ? null : {
                 PC: currentRoles.includes(platformRoles.PC),
@@ -104,11 +90,33 @@ export default class Rank extends Command {
             };
             const activePlatform = $enum(PLATFORM).getValues().find((p) => platform[p]) || 'PC';
             const activeBound = bound.find((b) => b.platform === activePlatform);
-            // if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
+
             if (!activeBound) {
                 return message.reply(`выбранная платформа \`${activePlatform}\` не совпадает с платформой указанного аккаунта (${bound.map((b) => '`' + b.platform + '`').join(', ')})`);
             }
-            // }
+
+            if (dbUser && dbUser.genome) {
+                let msg: Message;
+                if (adminAction) {
+                    msg = (await message.reply(`пользователь уже зарегистрирован!\nДля смены привязанного аккаунта на указанный добавьте реакцию - ♻.`)) as Message;
+                } else {
+                    msg = (await message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
+                        humanizeDuration(
+                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(dbUser.rankUpdatedAt).valueOf() - Date.now(),
+                            {conjunction: ' и ', language: 'ru', round: true},
+                        )
+                    }\`.\nДля смены привязанного аккаунта на указанный добавьте реакцию - ♻.`)) as Message;
+                }
+                // await msg.react('♻');
+                const result = await msg.awaitReactions((reaction: MessageReaction, user: U) => reaction.emoji.name === '♻' && user.id === message.author.id, { time: 30000 });
+                if (result.size) {
+                    return Security.changeGenome(dbUser, dbGuild, activeBound.genome);
+                } else {
+                    return Sync.updateMember(dbGuild, dbUser);
+                }
+            }
+
+            // if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
             const rawRank = (await r6.api.getRank(activeBound.platform, activeBound.genome))[activeBound.genome];
 
             const regionRank = $enum(REGIONS).getValues().map((r) => rawRank[r].rank);
