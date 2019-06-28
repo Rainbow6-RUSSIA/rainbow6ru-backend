@@ -268,8 +268,7 @@ export class LobbyStore extends LSBase {
                 try {
                     await lobby.appealMessage.delete();
                 } catch (error) {
-                    await debug.error('Deletion failed!');
-                    await debug.error(err);
+                    await debug.warn('Deletion failed!');
                 }
 
                 return lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
