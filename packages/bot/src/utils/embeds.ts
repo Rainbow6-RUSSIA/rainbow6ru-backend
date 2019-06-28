@@ -11,7 +11,7 @@ export default {
       author: {
           iconURL: lobby.dcLeader.user.displayAvatarURL(),
           name: ((_) => {
-            const slot = lobby.dcChannel.members.size < lobby.dcChannel.userLimit
+            const slot = lobby.open && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
               ? ` | +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} слот(-а)`
               : '';
             switch (_) {
@@ -36,7 +36,7 @@ export default {
               case IS.OTHER:
               case IS.MENU:
               default:
-                return lobby.dcChannel.members.size >= lobby.dcChannel.userLimit
+                return !lobby.open || lobby.dcChannel.members.size >= lobby.dcChannel.userLimit
                   ? `Готовы играть в ${lobby.dcChannel.name}`
                   : `Ищут +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} в ${lobby.dcChannel.name}`;
             }
@@ -78,12 +78,12 @@ export default {
             value: 'Опытным игрокам лучше найти другую комнату, чтобы избежать конфликтов и поражений.',
           });
         }
-        if (lobby.open && !currentlyPlaying.includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit) {
+        if (lobby.open && (lobby.dcChannel.members.size < lobby.dcChannel.userLimit) && !currentlyPlaying.includes(lobby.status)) {
           fields.push({
             name: 'Присоединиться',
             value: `${lobby.dcInvite.url} 👈`,
           });
-        } else if (currentlyPlaying.includes(lobby.status)) {
+        } else if (lobby.open && (lobby.dcChannel.members.size < lobby.dcChannel.userLimit) && currentlyPlaying.includes(lobby.status)) {
           fields.push({
             name: 'Лобби играет',
             value: `Сейчас лучше не заходить в комнату, чтобы не беспокоить игроков.`,
