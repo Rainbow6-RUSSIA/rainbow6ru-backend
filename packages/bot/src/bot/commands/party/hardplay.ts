@@ -19,13 +19,7 @@ export default class HardPlay extends Command {
         const { lobby, LS } = args;
         lobby.hardplay = !lobby.hardplay;
         await lobby.save();
-        const vc = lobby.dcChannel;
-        if (!lobby.hardplay) {
-            await vc.setName(vc.name.replace('HardPlay ', ''));
-        } else {
-            await vc.setName(vc.name.replace(' ', ' HardPlay '));
-        }
-        // lobby.dcChannel = vc;
+        await LS.handleHardplay(lobby);
         await LS.updateAppealMsg(lobby);
         debug.log(`${message.author} ${!lobby.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${lobby.id}\``);
         return DMReply(message, `HardPlay лобби ${!lobby.hardplay ? 'деактивировано' : 'активировано'}!`);

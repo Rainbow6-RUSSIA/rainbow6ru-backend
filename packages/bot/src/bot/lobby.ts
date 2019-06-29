@@ -57,7 +57,7 @@ export class LobbyStore extends LSBase {
                 const generatedLobbies = await Promise.all(this.rawVoices.map(this.generateLobby));
                 this.lobbies = new Collection(generatedLobbies.map((l) => [l.channel, l]));
                 this.status = LSS.AVAILABLE;
-                await this.syncChannels();
+                // await this.syncChannels();
                 await loadingMsg.delete();
                 await debug.warn(`${this.lfgChannel.guild.name} ${this.type} VOICES ${this.rawVoices.size} LOBBIES ${this.lobbies.size} ROOMS RANGE ${this.roomsRange} STATUS ${LSS[this.status]}`);
 
@@ -185,12 +185,11 @@ export class LobbyStore extends LSBase {
         if (!voice) {
             return null;
         }
-        if (voice.userLimit !== this.roomSize) {
-            await voice.setUserLimit(this.roomSize);
-        }
-        if (voice.name.includes('HardPlay')) {
-            await voice.setName(voice.name.replace('HardPlay ', ''));
-        }
+        await voice.edit({
+            name: voice.name.replace(/HardPlay /g, '').replace(/\d+/g, (voice.position + 1).toString()),
+            permissionOverwrites: voice.parent.permissionOverwrites,
+            userLimit: this.roomSize,
+        }, 'инициализация комнаты');
         const lobby = new Lobby({
             channel: voice.id,
             hardplay: false,
@@ -268,7 +267,7 @@ export class LobbyStore extends LSBase {
                 try {
                     await lobby.appealMessage.delete();
                 } catch (error) {
-                    await debug.warn('Deletion failed!');
+                     await debug.warn('Deletion failed!');
                 }
 
                 return lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
@@ -342,6 +341,7 @@ export class LobbyStore extends LSBase {
             // lobby.log = [];
             lobby.open = true;
             lobby.hardplay = false;
+            this.handleHardplay(lobby);
             try {
                 newLeader.send('Теперь Вы - лидер лобби');
             } catch (error) {
@@ -364,9 +364,9 @@ export class LobbyStore extends LSBase {
 
     private async atomicJoin(member: GuildMember, lobby: Lobby) {
         const dbUser = await User.findByPk(member.id);
-        if (lobby.hardplay && dbUser.rank < lobby.limitRank) {
-            return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[lobby.limitRank]}\` и выше!`, lobby.id);
-        }
+        // if (lobby.hardplay && dbUser.rank < lobby.limitRank) {
+        //     return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[lobby.limitRank]}\` и выше!`, lobby.id);
+        // }
         await lobby.$add('members', dbUser);
         await lobby.reload({include: [{all: true}]});
         if (!lobby.dcLeader) {
@@ -382,6 +382,27 @@ export class LobbyStore extends LSBase {
             await this.updateAppealMsg(lobby);
         }
         await this.refreshIngameStatus(lobby);
+    }
+
+    public async handleHardplay(lobby: Lobby) {
+        const vc = lobby.dcChannel;
+        if (lobby.hardplay) {
+            const HP = vc.name.replace(' ', ' HardPlay ');
+            const allRoles = new Set(this.guild.rankRoles);
+            const allowedRoles = new Set(this.guild.rankRoles.slice(lobby.minRank));
+            allRoles.delete(''); allowedRoles.delete('');
+            const disallowedRoles = new Set([...allRoles].filter((r) => !allowedRoles.has(r)));
+            // console.log({allRoles, allowedRoles, disallowedRoles});
+            return vc.edit({
+                name: /HardPlay /g.test(HP) ? HP : vc.name.replace('', 'HardPlay '),
+                permissionOverwrites: vc.permissionOverwrites.filter((o) => !disallowedRoles.has(o.id)),
+            });
+        } else {
+            return vc.edit({
+                name: vc.name.replace(/HardPlay /g, ''),
+                permissionOverwrites: vc.parent.permissionOverwrites,
+            });
+        }
     }
 }
 

@@ -20,19 +20,19 @@ export default {
               case IS.CUSTOM_SEARCH:
                 return `Поиск матча в ${lobby.dcChannel.name}` + slot;
               case IS.DISCOVERY_SEARCH:
-                return `Поиск __Разведки__ в ${lobby.dcChannel.name}` + slot;
+                return `Поиск Разведки в ${lobby.dcChannel.name}` + slot;
               case IS.NEWCOMER_SEARCH:
-                return `Поиск режима __Новичок__ в ${lobby.dcChannel.name}` + slot;
+                return `Поиск режима Новичок в ${lobby.dcChannel.name}` + slot;
               case IS.CASUAL:
               case IS.RANKED:
               case IS.CUSTOM:
                 return `Играют в ${lobby.dcChannel.name}`;
               case IS.NEWCOMER:
-                return `Играют режим __Новичок__ в ${lobby.dcChannel.name}`;
+                return `Играют режим Новичок в ${lobby.dcChannel.name}`;
               case IS.TERRORIST_HUNT:
-                return `${lobby.dcChannel.name} разминается в __Антитерроре__` + slot;
+                return `${lobby.dcChannel.name} разминается в Антитерроре` + slot;
               case IS.DISCOVERY:
-                return `${lobby.dcChannel.name} играет __Разведку__` + slot;
+                return `${lobby.dcChannel.name} играет Разведку` + slot;
               case IS.OTHER:
               case IS.MENU:
               default:
@@ -63,7 +63,7 @@ export default {
         if (lobby.hardplay) {
           fields.push({
             name: 'Режим "HardPlay"',
-            value: `Минимальный ранг для входа: \`${RANKS[lobby.limitRank]}\``,
+            value: `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex((r) => lobby.guild.rankRoles[lobby.minRank] === r)]}\``,
           });
         }
         if (!lobby.open) {
