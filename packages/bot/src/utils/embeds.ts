@@ -41,7 +41,6 @@ export default {
                   : `Ищут +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} в ${lobby.dcChannel.name}`;
             }
           })(lobby.status),
-          url: !currentlyPlaying.includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit ? lobby.dcInvite.url : '',
       },
       color: await (async () => {
         const dbUser = (lobby.members.find((m) => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id));

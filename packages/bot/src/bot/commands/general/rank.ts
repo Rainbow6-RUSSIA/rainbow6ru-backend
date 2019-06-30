@@ -106,7 +106,7 @@ export default class Rank extends Command {
                             {conjunction: ' и ', language: 'ru', round: true},
                         )
                     }\`.\n`
-                    + (dbUser.requiredVerification < dbUser.verificationLevel ? '*В целях безопасности требуется подтверждение аккаунта Uplay. Следуйте инструкциям, отправленным в ЛС.*\n' : '')
+                    + (dbUser.requiredVerification > dbUser.verificationLevel ? '*В целях безопасности требуется подтверждение аккаунта Uplay. Следуйте инструкциям, отправленным в ЛС.*\n' : '')
                     + (dbUser.genome !== activeBound.genome ? `Для смены привязанного аккаунта на указанный (${ONLINE_TRACKER}${activeBound.genome}) добавьте реакцию - ♻.` : ''))) as Message;
                 }
                 // await msg.react('♻');

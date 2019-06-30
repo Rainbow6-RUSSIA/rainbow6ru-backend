@@ -86,7 +86,7 @@ export default class Verify extends Command {
                         await Promise.all(guilds.map((g) => Sync.updateMember(g, dbUser)));
                         return msg.edit(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Роли возвращены, приятной игры!`);
                     }
-                case false: return message.reply('Неккоректный QR-код!');
+                case false: return message.reply('Неккоректный QR-код!\nДля каждой комбинации аккаунтов Discord и Uplay предусмотрен свой уникальный QR-код.');
                 case null: return message.reply('QR-код не установлен!');
             }
         } catch (err) {
