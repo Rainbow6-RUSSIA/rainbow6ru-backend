@@ -62,7 +62,7 @@ export class LobbyStore extends LSBase {
                 await this.category.fetch();
                 if (!this.rawVoices.some((v) => v.members.size === 0)) {
                     const channelToClone = await this.rawVoices.last();
-                    await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (this.rawVoices.size + 1).toString()), userLimit: this.roomSize });
+                    await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize });
                     await this.category.fetch();
                 }
                 const generatedLobbies = await Promise.all(this.rawVoices.map(this.generateLobby));
@@ -78,7 +78,7 @@ export class LobbyStore extends LSBase {
         })();
     }
 
-    public syncChannels = () => Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/\d+/g, (_) => (i + 1).toString()))));
+    public syncChannels = () => Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/#\d+/g, (_) => `#${i + 1}`))));
 
     public async kick(member: GuildMember, timeout: number = 10000, reason?: string, lobbyId?: number) {
         await member.voice.setChannel(null, reason);
@@ -205,7 +205,7 @@ export class LobbyStore extends LSBase {
         }
         try {
             await voice.edit({
-                name: voice.name.replace(/HardPlay /g, '').replace(/\d+/g, (voice.position + 1).toString()),
+                name: voice.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${voice.position + 1}`),
                 permissionOverwrites: voice.parent.permissionOverwrites,
                 userLimit: this.roomSize,
             }, 'инициализация комнаты');
@@ -306,7 +306,7 @@ export class LobbyStore extends LSBase {
 
     private async openLobby(lobby: Lobby) {
         const channelToClone = this.rawVoices.last();
-        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (this.rawVoices.size + 1).toString()), userLimit: this.roomSize }) as VoiceChannel;
+        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize }) as VoiceChannel;
         this.lobbies.set(clonedChannel.id, await this.generateLobby(clonedChannel));
     }
 
@@ -318,7 +318,7 @@ export class LobbyStore extends LSBase {
         const toMove = this.voices.sort((a, b) => a.position - b.position).last();
         const pos = toDelete.position;
         // await Promise.all([
-        await toMove.setName(toDelete.name.replace('HardPlay ', '').replace(/\d+/g, (pos + 1).toString()));
+        await toMove.setName(toDelete.name.replace('HardPlay ', '').replace(/#\d+/g, `#${pos + 1}`));
         await toMove.setPosition(pos);
         await toDelete.delete();
         // ]);
