@@ -36,6 +36,9 @@ export default class Verify extends Command {
         const { target, scan } = args;
         if (target.id !== message.author.id && ((message.channel.type === 'text' && message.member.hasPermission('MANAGE_ROLES')) || [...this.client.ownerID].includes(message.author.id))) {
             const dbUserTarget = await User.findByPk(target.id);
+            if (!dbUserTarget.platform.PC) {
+                return message.reply('верификация аккаунтов с консолей не поддерживается!');
+            }
             if (scan === 'scan') {
                 return this.verifyDM(await target.send('_...QR-код сканируется администратором..._') as Message, dbUserTarget);
             } else {
@@ -43,6 +46,9 @@ export default class Verify extends Command {
             }
         }
         const dbUser = await User.findByPk(message.author.id);
+        if (!dbUser.platform.PC) {
+            return message.reply('верификация аккаунтов с консолей не поддерживается!');
+        }
         if (dbUser && dbUser.genome) {
             if (dbUser.verificationLevel >= VERIFICATION_LEVEL.QR) {
                 return message.reply('вы уже подтвердили свой аккаунт!');
@@ -50,7 +56,12 @@ export default class Verify extends Command {
             if (message.channel.type === 'dm') {
                 return this.verifyDM(message, dbUser);
             } else {
-                return this.verifyGuild(message, dbUser);
+                if (dbUser.verificationLevel < dbUser.requiredVerification) {
+                    await Sync.sendQrRequest(await Guild.findByPk(message.guild.id), dbUser, message.member);
+                    return message.reply(`вы уже в процессе верификации. Смотрите инструкцию в ЛС с ${this.client.user}`);
+                } else {
+                    return this.verifyGuild(message, dbUser);
+                }
             }
         } else {
             return message.reply('вы должны сначала зарегистрироваться!');

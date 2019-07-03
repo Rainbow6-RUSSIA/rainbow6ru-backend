@@ -36,7 +36,16 @@ export class LobbyStore extends LSBase {
             this.staticRooms = this.roomsRange[0] === this.roomsRange[1];
             this.lfgChannelId = dbGuild.lfgChannels[this.type];
             this.lfgChannel = await bot.channels.fetch(this.lfgChannelId) as TextChannel;
-            this.roomSize = 5;
+
+            this.roomSize = this.rawVoices
+                .map((v) => v.userLimit)
+                .reduce((acc, val) => {
+                    acc.has(val) ? acc.get(val).times++ : acc.set(val, { times: 1});
+                    return acc;
+                }, new Collection<number, { times: number }>())
+                .sort((a, b) => a.times - b.times)
+                .lastKey();
+
             await this.lfgChannel.messages.fetch();
             await this.lfgChannel.bulkDelete(this.lfgChannel.messages.filter((m) => m.author.id === bot.user.id));
             if (this.lfgChannel.type === 'text') {
@@ -44,6 +53,7 @@ export class LobbyStore extends LSBase {
                 const voices = this.rawVoices.sort((a, b) => b.members.size - a.members.size).array();
                 const cond = (v, i, a) => i >= this.roomsRange[0] && !v.members.size && i !== a.length;
                 const toDelete = voices.filter((...args) => cond(...args));
+
                 const rest = voices.filter((...args) => !cond(...args));
                 if (rest[0].members.size !== 0 && toDelete.length) {
                     rest.push(toDelete.pop());
@@ -53,9 +63,10 @@ export class LobbyStore extends LSBase {
                 if (!this.rawVoices.some((v) => v.members.size === 0)) {
                     const channelToClone = await this.rawVoices.last();
                     await channelToClone.clone({ name: channelToClone.name.replace(/\d+/g, (this.rawVoices.size + 1).toString()), userLimit: this.roomSize });
+                    await this.category.fetch();
                 }
                 const generatedLobbies = await Promise.all(this.rawVoices.map(this.generateLobby));
-                this.lobbies = new Collection(generatedLobbies.map((l) => [l.channel, l]));
+                this.lobbies = new Collection(generatedLobbies.filter(Boolean).map((l) => [l.channel, l]));
                 this.status = LSS.AVAILABLE;
                 // await this.syncChannels();
                 await loadingMsg.delete();
@@ -120,10 +131,17 @@ export class LobbyStore extends LSBase {
         const lobby = this.lobbies.get(from.id);
         if (!lobby) {return; }
         await this.atomicLeave(member, lobby);
-        if (!this.staticRooms && from.members.size === 0 && this.lobbies.size > this.roomsRange[0]) {
-            await this.closeLobby(lobby);
+        if (from.members.size === 0) {
+            if (this.staticRooms) {
+                this.lobbies.delete(lobby.channel);
+                this.lobbies.set(from.id, await this.generateLobby(from));
+                return;
+            }
+            if (this.lobbies.size > this.roomsRange[0]) {
+                return this.closeLobby(lobby);
+            }
         } else {
-            await this.checkLobbyHealth(lobby);
+            return this.checkLobbyHealth(lobby);
         }
     }
 
@@ -185,44 +203,51 @@ export class LobbyStore extends LSBase {
         if (!voice) {
             return null;
         }
-        await voice.edit({
-            name: voice.name.replace(/HardPlay /g, '').replace(/\d+/g, (voice.position + 1).toString()),
-            permissionOverwrites: voice.parent.permissionOverwrites,
-            userLimit: this.roomSize,
-        }, 'инициализация комнаты');
-        const lobby = new Lobby({
-            channel: voice.id,
-            hardplay: false,
-            initiatedAt,
-            open: true,
-            type: this.type,
-        });
+        try {
+            await voice.edit({
+                name: voice.name.replace(/HardPlay /g, '').replace(/\d+/g, (voice.position + 1).toString()),
+                permissionOverwrites: voice.parent.permissionOverwrites,
+                userLimit: this.roomSize,
+            }, 'инициализация комнаты');
 
-        lobby.dcCategory = this.category;
-        lobby.dcChannel = voice;
-        lobby.dcGuild = voice.guild;
-        lobby.dcLeader = voice.members.random();
+            const lobby = new Lobby({
+                channel: voice.id,
+                hardplay: false,
+                initiatedAt,
+                open: true,
+                type: this.type,
+            });
 
-        await lobby.save();
-        await lobby.$set('guild', this.guild);
-        await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
-        await lobby.reload({ include: [{all: true}] });
+            lobby.dcCategory = this.category;
+            lobby.dcChannel = voice;
+            lobby.dcGuild = voice.guild;
+            lobby.dcLeader = voice.members.random();
 
-        if (lobby.dcLeader) {
-            // const dbUser = await User.findByPk(lobby.dcLeader.id, { include: [Lobby] });
-            // console.log(dbUser);
-            // if (dbUser.lobby) {
-            //     console.log(dbUser.lobby);
-            //     lobby.description = dbUser.lobby.description;
-            // }
-            const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
-            lobby.invite = inv.url;
-            lobby.dcInvite = inv;
             await lobby.save();
-            lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
-        }
+            await lobby.$set('guild', this.guild);
+            await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
+            await lobby.reload({ include: [{all: true}] });
 
-        return lobby;
+            if (lobby.dcLeader) {
+                // const dbUser = await User.findByPk(lobby.dcLeader.id, { include: [Lobby] });
+                // console.log(dbUser);
+                // if (dbUser.lobby) {
+                //     console.log(dbUser.lobby);
+                //     lobby.description = dbUser.lobby.description;
+                // }
+                const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE)});
+                lobby.invite = inv.url;
+                lobby.dcInvite = inv;
+                await lobby.save();
+                lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
+            }
+
+            return lobby;
+
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
     }
 
     private async checkLobbyHealth(lobby: Lobby) {
@@ -256,18 +281,22 @@ export class LobbyStore extends LSBase {
     public async updateAppealMsg(lobby: Lobby) {
         if (lobby.appealMessage) {
             if (lobby.dcInvite.expiresTimestamp < Date.now()) {
-                return (!lobby.appealMessage.deleted && lobby.appealMessage.delete());
+                try {
+                    await lobby.appealMessage.delete();
+                } catch (err) {
+                    console.log('idgaf');
+                }
+                return lobby.appealMessage = null;
             }
             lobby.dcChannel = await lobby.dcChannel.fetch() as VoiceChannel;
             try {
                 return lobby.appealMessage = await lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
             } catch (err) {
-                await debug.warn('Appeal Msg Cache MISS');
-                await debug.error(err);
+                console.log(err);
                 try {
                     await lobby.appealMessage.delete();
-                } catch (error) {
-                     await debug.warn('Deletion failed!');
+                } catch (err) {
+                    console.log('idgaf');
                 }
 
                 return lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
@@ -320,7 +349,7 @@ export class LobbyStore extends LSBase {
         const dbUser = await User.findByPk(member.id);
         await lobby.$remove('members', dbUser);
 
-        if (Math.random() < parseFloat(ENV.QR_CHANCE) && dbUser.verificationLevel < VERIFICATION_LEVEL.QR) {
+        if (Math.random() < parseFloat(ENV.QR_CHANCE) && dbUser.verificationLevel < VERIFICATION_LEVEL.QR && dbUser.platform.PC) {
             dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
             await dbUser.save();
             Sync.updateMember(await Guild.findByPk(member.guild.id), dbUser);
@@ -354,8 +383,12 @@ export class LobbyStore extends LSBase {
             await this.refreshIngameStatus(lobby);
             return this.updateAppealMsg(lobby);
         } else {
-            if (lobby.appealMessage && !lobby.appealMessage.deleted) {
-                await lobby.appealMessage.delete();
+            if (lobby.appealMessage) {
+                try {
+                    await lobby.appealMessage.delete();
+                } catch (error) {
+                    console.log('idgaf');
+                }
                 lobby.appealMessage = null;
             }
             return;

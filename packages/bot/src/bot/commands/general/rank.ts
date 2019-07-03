@@ -83,7 +83,7 @@ export default class Rank extends Command {
             let dbUser = await User.findByPk(target.id);
 
             const currentRoles = target.roles.keyArray();
-            const platform = nonPremium ? null : {
+            const platform = nonPremium ? { PC: true } : {
                 PC: currentRoles.includes(platformRoles.PC),
                 PS4: currentRoles.includes(platformRoles.PS4),
                 XBOX: currentRoles.includes(platformRoles.XBOX),
@@ -144,7 +144,7 @@ export default class Rank extends Command {
                 rankUpdatedAt: new Date(),
                 region: mainRegion,
                 requiredVerification:
-                nonPremium ? VERIFICATION_LEVEL.NONE
+                (nonPremium || !platform.PC) ? VERIFICATION_LEVEL.NONE
                 : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= dbGuild.fixAfter || (await r6.api.getLevel(activeBound.platform, activeBound.genome))[activeBound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
                 : dbGuild.requiredVerification,
                 verificationLevel:
@@ -182,12 +182,12 @@ export default class Rank extends Command {
 
         } catch (err) {
             switch (true) {
-                case err.message.includes('The gateway was unable to forward the request to the backend service.'):
+                case ['public-ubiservices.ubi.com', 'gateway was unable to forward the request'].some((s) => err.message.includes(s)):
                     debug.error(err, 'UBI');
                     return message.reply('сервера Ubisoft недоступны, попробуйте позднее.');
-                default:
-                    break;
-            }
+                    default:
+                        break;
+                    }
             const code = Math.random().toString(36).substring(2, 6);
             message.reply(`произошла ошибка! Код: \`${code}\` (данные для поддержки)`);
             err.message = `CODE: ${code}, ${err.message}`;
