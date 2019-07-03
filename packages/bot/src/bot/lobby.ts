@@ -318,8 +318,10 @@ export class LobbyStore extends LSBase {
         const toMove = this.voices.sort((a, b) => a.position - b.position).last();
         const pos = toDelete.position;
         // await Promise.all([
-        await toMove.setName(toDelete.name.replace('HardPlay ', '').replace(/#\d+/g, `#${pos + 1}`));
-        await toMove.setPosition(pos);
+        await toMove.edit({
+            name: toDelete.name.replace('HardPlay ', '').replace(/#\d+/g, `#${pos + 1}`),
+            position: pos,
+        }, 'подмена закрытого канала');
         await toDelete.delete();
         // ]);
         // toDelete.deleted = true; // наеб блядского кэша discord.js
