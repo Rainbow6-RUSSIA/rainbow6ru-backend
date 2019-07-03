@@ -51,7 +51,7 @@ export default {
           .sort((a, b) => b.rank - a.rank)
           .map((m) => (lobby.dcLeader.id === m.id ? '\\👑 ' : '')
               + (!m.platform.PC ? '\\🎮' : '')
-              + `<@${m.id}> (\`${m.nickname}\` - [${Object.entries(m.platform).reduce((acc, e) => acc = e[1] ? e[0] : '', '').replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
+              + `<@${m.id}> (\`${m.nickname}\` - [${Object.entries(m.platform).find((e) => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
               + ((m.verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''))
           .join('\n'))
         + (lobby.description
