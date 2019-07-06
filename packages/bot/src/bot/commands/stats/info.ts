@@ -69,24 +69,26 @@ export default class Info extends Command {
                     break;
             }
         }
-        const addBadge = async (lvl: VERIFICATION_LEVEL) => lvl >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : '';
-        switch (false) {
-            case user !== message.author:
-                const U0 = await U.findByPk(message.author.id);
-                return message.reply(U0 ? `ваш профиль: ${ONLINE_TRACKER}${U0.genome}${await addBadge(U0.verificationLevel)}` : 'вы не зарегистрированы!');
-            case !user:
-                const U1 = await U.findByPk(user.id);
-                return message.reply(U1 ? `профиль <@${user.id}> \`${(await this.client.users.fetch(user.id)).tag}\`: ${ONLINE_TRACKER}${U1.genome}${await addBadge(U1.verificationLevel)}` : 'пользователь не найден!');
-            case !nickname:
+        const idTagTrackerBadge = async (dbUsers: U[]) => (await Promise.all(dbUsers.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}`))).join('\n');
+        switch (true) {
+            case user === message.author: {
+                const dbUser = await U.findByPk(message.author.id);
+                return message.reply(dbUser ? `ваш профиль: ${await idTagTrackerBadge([dbUser])}` : 'вы не зарегистрированы!');
+            }
+            case Boolean(user): {
+                const dbUser = await U.findByPk(user.id);
+                return message.reply(dbUser ? `профиль ${await idTagTrackerBadge([dbUser])}` : 'пользователь не найден!');
+            }
+            case Boolean(nickname): {
                 let genomes: string[] = null;
                 try {
                     genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6.api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
                 } catch (err) {
                     console.log(err);
                 }
-                let U2: U[] = null;
+                let dbUsers: U[] = null;
                 if (genomes.length) {
-                    U2 = await U.findAll({where: {
+                    dbUsers = await U.findAll({where: {
                         [Op.or]: [
                             {nickname},
                             {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
@@ -95,25 +97,28 @@ export default class Info extends Command {
                         ],
                     }});
                 } else {
-                    U2 = await U.findAll({where: {
+                    dbUsers = await U.findAll({where: {
                         [Op.or]: [
                             {nickname},
                             {nicknameHistory: {[Op.contains]: [nickname.toLowerCase()]}},
                         ],
                     }});
                 }
-                return message.reply(!U2.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено ${!genomes ? 'среди сохраненных никнеймов ' : ''}по вашему запросу:\n${(await Promise.all(U2.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${await addBadge(u.verificationLevel)}`))).join('\n')}`);
-            case !genome:
-                const U3 = await U.findAll({where: {
+                return message.reply(!dbUsers.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено ${!genomes.length ? 'среди сохраненных никнеймов ' : ''}по вашему запросу:\n${await idTagTrackerBadge(dbUsers)}`);
+            }
+            case Boolean(genome): {
+                const dbUsers = await U.findAll({where: {
                     [Op.or]: [
                         {genome},
                         {genomeHistory: {[Op.contains]: [genome]}},
                     ],
                 }});
-                return message.reply(!U3.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${(await Promise.all(U3.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${await addBadge(u.verificationLevel)}`))).join('\n')}`);
-            default:
-                const U4 = await U.findByPk(message.author.id);
-                return message.reply(U4 ? `показан ваш профиль, так как по запросу ничего не найдено: ${ONLINE_TRACKER}${U4.genome}${await addBadge(U4.verificationLevel)}` : 'по вашему запросу ничего не найдено!');
+                return message.reply(!dbUsers.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${await idTagTrackerBadge(dbUsers)}`);
+            }
+            default: {
+                const dbUser = await U.findByPk(message.author.id);
+                return message.reply(dbUser ? `показан ваш профиль, так как по запросу ничего не найдено: ${await idTagTrackerBadge([dbUser])}` : 'по вашему запросу ничего не найдено!');
+            }
         }
     }
 }
