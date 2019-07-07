@@ -1,7 +1,6 @@
+import { Guild } from '@r6ru/db';
 import { Inhibitor } from 'discord-akairo';
-import { TextChannel } from 'discord.js';
 import 'reflect-metadata';
-import { lobbyStores } from '../../bot/lobby';
 
 export default function DetectLS<T extends Inhibitor, K extends keyof T>(target: Pick<T, keyof T>, propertyName: K, propertyDesciptor: TypedPropertyDescriptor<T['exec']>) {
         const method = propertyDesciptor.value;
@@ -10,8 +9,7 @@ export default function DetectLS<T extends Inhibitor, K extends keyof T>(target:
             const message = args[0];
             if (message.type === 'DEFAULT'
                 && message.channel.type === 'text'
-                && (message.channel as TextChannel).parentID
-                && lobbyStores.has((message.channel as TextChannel).parentID)) {
+                && Object.values((await Guild.findByPk(message.guild.id)).lfgChannels).includes(message.channel.id)) {
                 return method.apply(this, args);
             } else {
                 return false;
