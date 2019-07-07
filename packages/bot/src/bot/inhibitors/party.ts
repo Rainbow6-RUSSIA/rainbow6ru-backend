@@ -13,7 +13,11 @@ export default class LFGPurge extends Inhibitor {
     @DetectLS
     public async exec(message: Message, cmd: Command) {
         if (message.member.permissions.has('MANAGE_ROLES')) {
-            await message.delete();
+            try {
+                await message.delete();
+            } catch (error) {
+                // console.log
+            }
         }
         if (cmd.categoryID !== 'party' && ENV.LOBBY_MODE !== 'on') {
             return true;

@@ -80,8 +80,12 @@ export default class Party extends Command {
         lobby.description = description;
         await lobby.save();
         lobby.dcInvite = inv;
-        if (lobby.appealMessage && !lobby.appealMessage.deleted) {
-            await lobby.appealMessage.delete();
+        if (lobby.appealMessage) {
+            try {
+                await lobby.appealMessage.delete();
+            } catch (error) {
+                // console.log(error)
+            }
         }
         lobby.appealMessage = RefreshedMessage(await LS.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
 
