@@ -46,8 +46,8 @@ export class LobbyStore extends LSBase {
                 .sort((a, b) => a.times - b.times)
                 .lastKey();
 
-            await this.lfgChannel.messages.fetch();
-            await this.lfgChannel.bulkDelete(this.lfgChannel.messages.filter((m) => m.author.bot || !m.member.hasPermission('MANAGE_ROLES')));
+            await this.lfgChannel.messages.fetch({ limit: 100 });
+            await this.lfgChannel.bulkDelete(this.lfgChannel.messages.filter((m) => (m.createdTimestamp > (Date.now() - 13 * 24 * 60 * 60 * 1000)) && (m.author.bot || !m.member.hasPermission('MANAGE_ROLES'))));
             if (this.lfgChannel.type === 'text') {
                 const loadingMsg = await this.lfgChannel.send('Лобби загружаются, подождите минутку') as Message;
                 const voices = this.rawVoices.sort((a, b) => b.members.size - a.members.size).array();
