@@ -444,10 +444,10 @@ export class LobbyStore extends LSBase {
 export const lobbyStores: Map<Snowflake, LobbyStore> = new Map();
 
 export async function initLobbyStores() {
-    if (ENV.ENABLE_LOBBIES !== 'true') {
-        return debug.warn('Lobbies disabled');
+    if (ENV.LOBBY_MODE !== 'off') {
+        debug.warn('Lobbies ' + ENV.LOBBY_MODE);
     } else {
-        debug.warn('Lobbies enabled');
+        return debug.warn('Lobbies ' + ENV.LOBBY_MODE);
     }
     const dbGuilds = await Guild.findAll({ where: { premium: true } });
     dbGuilds.map((g) => {

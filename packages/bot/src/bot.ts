@@ -27,17 +27,15 @@ class Bot extends AkairoClient {
             ignorePermissions: this.ownerID,
             loadFilter: (path) => path.split('.').pop() === 'js',
             prefix: ENV.PREFIX,
-            // handleEdits: true,
-            // commandUtil: true,
         });
-        // this.commandHandler.resolver.addType('ubi_genome', ubiGenome);
-        // this.commandHandler.resolver.addType('ubi_nickname', ubiNickname);
 
         this.inhibitorHandler = new InhibitorHandler(this, {
+            automateCategories: true,
             directory: __dirname + '/bot/inhibitors/',
             loadFilter: (path) => path.split('.').pop() === 'js',
         });
         this.listenerHandler = new ListenerHandler(this, {
+            automateCategories: true,
             directory: __dirname + '/bot/listeners/',
             loadFilter: (path) => path.split('.').pop() === 'js',
         });
@@ -49,10 +47,9 @@ class Bot extends AkairoClient {
         });
         this.commandHandler.loadAll();
         this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
-        this.commandHandler.useListenerHandler(this.listenerHandler); // mb optional
+        this.commandHandler.useListenerHandler(this.listenerHandler);
         this.inhibitorHandler.loadAll();
         this.listenerHandler.loadAll();
-        // TODO: Special commandHandler+inhibitorHandler for premium commands
     }
 }
 

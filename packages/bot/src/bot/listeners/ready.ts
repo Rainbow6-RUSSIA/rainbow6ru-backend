@@ -20,7 +20,7 @@ export default class Ready extends Listener {
     public exec = async () => {
         console.log('[INFO][BOT] Logged as', this.client.user.tag);
 
-        if (ENV.NODE_ENV !== 'development') {
+        if (ENV.NODE_ENV !== 'development' && ENV.LOBBY_MODE !== 'only') {
             console.log('[INFO][BOT] Updating scheduled');
             this.startNickUpdating();
             this.startRankUpdating();

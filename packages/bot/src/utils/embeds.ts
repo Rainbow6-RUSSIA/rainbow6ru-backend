@@ -95,7 +95,7 @@ export default {
           text: `В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! ID: ${lobby.id}`,
       },
       thumbnail: {
-          url: `https://bot.rainbow6russia.ru/lobby/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcChannel.members.size}=1`,
+          url: `${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcChannel.members.size}=1`,
       },
       timestamp: new Date(),
     },

@@ -19,11 +19,12 @@ class IEnv {
     public BAN_BADGE = '<:ban:544254582637723679>';
     public R6API_CREDS_LOGIN = '';
     public R6API_CREDS_PASS = '';
-    public ENABLE_LOBBIES = '';
     public KICK_LIMIT = '';
     public REBOOT_TIME = '';
     public INVITE_AGE = '';
     public INVITE_EDITS_LIMIT = '';
+    public LOBBY_MODE: 'on' | 'off' | 'only' = 'on';
+    public LOBBY_PREVIEW_URL = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file

@@ -25,39 +25,41 @@ server.use(restify.plugins.requestLogger());
 
 server.get('/auth/login', respond);
 
-server.get('/lobby/:id/preview', async (req, res, next) => {
-  if (Number.isInteger(parseInt(req.params.id))) {
-    const lobbyBase = await Lobby.findByPk(parseInt(req.params.id)/* , { include: [{ all: true }] } */);
+if (ENV.LOBBY_MODE !== 'off') {
+  server.get('/lobby/:id/preview', async (req, res, next) => {
+    if (Number.isInteger(parseInt(req.params.id))) {
+      const lobbyBase = await Lobby.findByPk(parseInt(req.params.id)/* , { include: [{ all: true }] } */);
 
-    if (!lobbyBase) {return next(new NotFoundError()); }
+      if (!lobbyBase) {return next(new NotFoundError()); }
 
-    const dcChannel = bot.channels.get(lobbyBase.channel) as VoiceChannel;
+      const dcChannel = bot.channels.get(lobbyBase.channel) as VoiceChannel;
 
-    if (!dcChannel) {return next(new NotFoundError()); }
+      if (!dcChannel) {return next(new NotFoundError()); }
 
-    const LS = lobbyStores.get(dcChannel.parentID);
-    await waitLoaded(LS);
+      const LS = lobbyStores.get(dcChannel.parentID);
+      await waitLoaded(LS);
 
-    const lobby = LS.lobbies.get(dcChannel.id);
+      const lobby = LS.lobbies.get(dcChannel.id);
 
-    if (!lobby) {return next(new NotFoundError()); }
+      if (!lobby) {return next(new NotFoundError()); }
 
-    const pic = await createLobbyPreview(
-      lobby.minRank,
-      lobby.maxRank,
-      (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
-        ? lobby.dcChannel.userLimit - lobby.dcChannel.members.size
-        : 0));
+      const pic = await createLobbyPreview(
+        lobby.minRank,
+        lobby.maxRank,
+        (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
+          ? lobby.dcChannel.userLimit - lobby.dcChannel.members.size
+          : 0));
 
-    return res.sendRaw(200, pic || 'Error', {
-      'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
-      'Content-Type': 'image/png',
-    });
+      return res.sendRaw(200, pic || 'Error', {
+        'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
+        'Content-Type': 'image/png',
+      });
 
-  } else {
-    return next(new NotFoundError());
-  }
-});
+    } else {
+      return next(new NotFoundError());
+    }
+  });
+}
 
 server.listen(ENV.PORT || 3000, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));
 
