@@ -3,6 +3,7 @@ import { VERIFICATION_LEVEL } from '@r6ru/types';
 import { Listener } from 'discord-akairo';
 import { Guild } from 'discord.js';
 import { debug } from '../../..';
+import ENV from '../../../utils/env';
 
 export default class Create extends Listener {
     public constructor() {
@@ -13,6 +14,7 @@ export default class Create extends Listener {
     }
 
     public exec = async (guild: Guild) => {
+        if (ENV.LOBBY_MODE === 'only') { return; }
         console.log('​Create -> publicexec -> guild', guild);
         await new G({
             donateRoles: {

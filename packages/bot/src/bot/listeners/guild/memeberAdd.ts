@@ -13,18 +13,18 @@ export default class MemberAdd extends Listener {
     }
 
     public exec = async (member: GuildMember) => {
-            if (ENV.NODE_ENV !== 'development' && ENV.LOBBY_MODE !== 'only') {
-                const updated = await User.update({
-                    inactive: false,
-                }, {
-                    silent: true,
-                    where: {
-                        id: member.id,
-                    },
-                });
-                if (!updated[0]) { return; }
-                await Sync.updateMember(await Guild.findByPk(member.guild.id), await User.findByPk(member.id));
-                console.log('[BOT] Reactivating', member.user.tag, member.id);
-            }
+        if (ENV.NODE_ENV !== 'development' && ENV.LOBBY_MODE !== 'only') {
+            const updated = await User.update({
+                inactive: false,
+            }, {
+                silent: true,
+                where: {
+                    id: member.id,
+                },
+            });
+            if (!updated[0]) { return; }
+            await Sync.updateMember(await Guild.findByPk(member.guild.id), await User.findByPk(member.id));
+            console.log('[BOT] Reactivating', member.user.tag, member.id);
+        }
     }
 }
