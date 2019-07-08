@@ -117,9 +117,8 @@ export default class Rank extends Command {
                         await msg.edit(msg.content + `\nОжидайте дальнейших инструкций в ЛС от <@${this.client.user.id}>`);
                         return Security.changeGenome(dbUser, dbGuild, activeBound.genome);
                     }
-                } else {
-                    return Sync.updateMember(dbGuild, dbUser);
                 }
+                return Sync.updateMember(dbGuild, dbUser);
             }
 
             // if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
