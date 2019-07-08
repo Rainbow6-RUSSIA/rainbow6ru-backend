@@ -6,7 +6,6 @@ import { Sequelize } from 'sequelize-typescript';
 import { debug } from '..';
 import bot from '../bot';
 import Ratelimiter from '../utils/decorators/ratelimiter';
-import { RefreshedMessage } from '../utils/decorators/refreshed_message';
 import WaitLoaded from '../utils/decorators/wait_loaded';
 import embeds from '../utils/embeds';
 import ENV from '../utils/env';
@@ -239,7 +238,7 @@ export class LobbyStore extends LSBase {
                 lobby.invite = inv.url;
                 lobby.dcInvite = inv;
                 await lobby.save();
-                lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
+                lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
             }
 
             return lobby;
@@ -290,16 +289,16 @@ export class LobbyStore extends LSBase {
             }
             lobby.dcChannel = await lobby.dcChannel.fetch() as VoiceChannel;
             try {
-                return lobby.appealMessage = await lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
+                await lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
             } catch (err) {
                 console.log(err);
                 try {
-                    await lobby.appealMessage.delete();
+                    await (await this.lfgChannel.messages.fetch(lobby.appealMessage.id)).delete();
                 } catch (err) {
                     console.log('idgaf');
                 }
 
-                return lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
+                return lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
             }
         }
     }
@@ -387,7 +386,7 @@ export class LobbyStore extends LSBase {
         } else {
             if (lobby.appealMessage) {
                 try {
-                    await lobby.appealMessage.delete();
+                    await (await this.lfgChannel.messages.fetch(lobby.appealMessage.id)).delete();
                 } catch (error) {
                     console.log('idgaf');
                 }
@@ -412,7 +411,7 @@ export class LobbyStore extends LSBase {
             lobby.invite = inv.url;
             await lobby.save();
             lobby.dcInvite = inv;
-            lobby.appealMessage = RefreshedMessage(await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message);
+            lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
         } else {
             await this.updateAppealMsg(lobby);
         }
