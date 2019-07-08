@@ -28,7 +28,7 @@ export default class Info extends Command {
         if (!dbTournament) {
             return message.reply('на сервере нет активных турниров!');
         }
-        if (!dbTournament.moderators.map((u) => u.id).includes(message.author.id)) {
+        if (!dbTournament.moderators.map(u => u.id).includes(message.author.id)) {
             return message.reply('вы не являетесь модератором турнира');
         }
         const { matches } = dbTournament;
@@ -36,7 +36,7 @@ export default class Info extends Command {
             return message.reply('не создано ни одного матча!');
         }
         dbTournament.matches.sort((a, b) => a.id - b.id);
-        console.log(dbTournament.matches.map((m) => m.dataValues));
+        console.log(dbTournament.matches.map(m => m.dataValues));
         let match: Match;
         if (matches.length > 1) {
             const pick = await combinedPrompt(

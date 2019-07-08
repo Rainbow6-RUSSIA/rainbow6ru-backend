@@ -52,7 +52,7 @@ export async function combinedPrompt(prompt: Message, options: {
   const textFilter = (msg: Message) => {
     const answ = msg.author.id === author.id &&
       options.texts.some(([...t]) =>
-        t.some((txt) =>
+        t.some(txt =>
           msg.content.toLowerCase().includes(txt),
         ));
     if (answ && !options.keep) {
@@ -69,7 +69,7 @@ export async function combinedPrompt(prompt: Message, options: {
   // console.log({result}, result instanceof Message, result instanceof MessageReaction)
   if (result && result.channel) {
     return options.texts.findIndex(([...t]) =>
-    t.some((txt) =>
+    t.some(txt =>
       result.content.toLowerCase().includes(txt),
     ));
   } else if (result && result.message) {
@@ -113,12 +113,12 @@ export class Log {
             color,
             description: `**${type}** Message`,
             fields: (body instanceof Error
-              ? body.stack.split('\n').reduce(this.paragraphSplit('\n'), []).map((ch) => `\`\`\`js\n${ch}\n\`\`\``)
+              ? body.stack.split('\n').reduce(this.paragraphSplit('\n'), []).map(ch => `\`\`\`js\n${ch}\n\`\`\``)
               : (() => {
                 const chunks = body.toString().split('\n').reduce(this.paragraphSplit('\n'), []);
-                return chunks.some((ch) => ch.length > 1000) ? body.toString().split(' ').reduce(this.paragraphSplit(' '), []) : chunks;
+                return chunks.some(ch => ch.length > 1000) ? body.toString().split(' ').reduce(this.paragraphSplit(' '), []) : chunks;
               })())
-              .map((ch) => ({
+              .map(ch => ({
                 name: `_${context}_:`,
                 value: ch,
               })),

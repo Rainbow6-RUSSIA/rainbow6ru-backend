@@ -23,7 +23,7 @@ export default class Reboot extends Command {
             debug.log(`лобби \`${LS.type}\` на ${message.guild.name} перезагружено`);
             return message.reply(`перезагружаем \`${LS.type}\` лобби`);
         } else {
-            Object.entries(dbGuild.voiceCategories).map((ent) => lobbyStores.set(ent[1], new LobbyStore(ent[1], ent[0], dbGuild)));
+            Object.entries(dbGuild.voiceCategories).map(ent => lobbyStores.set(ent[1], new LobbyStore(ent[1], ent[0], dbGuild)));
             debug.log(`лобби на ${message.guild.name} перезагружены`);
             return message.reply('перезагружаем ВСЕ лобби');
         }

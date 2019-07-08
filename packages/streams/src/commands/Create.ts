@@ -20,7 +20,7 @@ function getTeams() {
     (async () => {
         teamPool = await Team.findAll();
     })();
-    return '`' + teamPool.map((t) => `${t.name} (${t.id})`).join('`, `') + '`';
+    return '`' + teamPool.map(t => `${t.name} (${t.id})`).join('`, `') + '`';
 }
 
 getTeams();
@@ -71,7 +71,7 @@ export default class Create extends Command {
         if (!dbTournament) {
             return message.reply('на сервере нет активных турниров!');
         }
-        if (!dbTournament.moderators.map((u) => u.id).includes(message.author.id)) {
+        if (!dbTournament.moderators.map(u => u.id).includes(message.author.id)) {
             return message.reply('вы не являетесь модератором турнира');
         }
         const dbTeams = await Team.findAll({ where: { id: args.teams }});
@@ -88,7 +88,7 @@ export default class Create extends Command {
         await match.$set('teams', dbTeams);
         await match.$set('tournament', dbTournament);
         await match.reload({include: [{all: true}]});
-        match.poolCache = dbTournament.pool.map((p) => p.toJSON());
+        match.poolCache = dbTournament.pool.map(p => p.toJSON());
         await match.save();
         return message.reply(`матч создан!\nОверлей банов https://cdn.rainbow6russia.ru/streams/#/map_vote/${match.id}${''/* \nХуд https://cdn.rainbow6russia.ru/streams/header#${match.id} */}`);
         // message.reply('```js\n' + JSON.stringify(match, null, 2) + '```', {split: {prepend: '```js\n', append: '```'}});

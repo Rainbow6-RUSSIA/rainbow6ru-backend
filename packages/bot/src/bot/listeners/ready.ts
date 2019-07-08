@@ -32,7 +32,7 @@ export default class Ready extends Listener {
     private startRankUpdating = async () => {
         while (true) {
             try {
-                await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+                await new Promise(resolve => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
                 console.log('[INFO][BOT] Updating ranks...');
                 await Sync.updateRoles();
             } catch (err) {
@@ -44,9 +44,9 @@ export default class Ready extends Listener {
     private startNickUpdating = async () => {
         while (true) {
             try {
-                await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+                await new Promise(resolve => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
                 console.log('[BOT] Updating nicknames...');
-                await Promise.all($enum(PLATFORM).getValues().map((p) => Sync.updateNicknames(p)));
+                await Promise.all($enum(PLATFORM).getValues().map(p => Sync.updateNicknames(p)));
             } catch (err) {
                 refresh();
             }

@@ -37,7 +37,7 @@ export class LobbyStore extends LSBase {
             this.lfgChannel = await bot.channels.fetch(this.lfgChannelId) as TextChannel;
 
             this.roomSize = this.rawVoices
-                .map((v) => v.userLimit)
+                .map(v => v.userLimit)
                 .reduce((acc, val) => {
                     acc.has(val) ? acc.get(val).times++ : acc.set(val, { times: 1});
                     return acc;
@@ -46,7 +46,7 @@ export class LobbyStore extends LSBase {
                 .lastKey();
 
             await this.lfgChannel.messages.fetch({ limit: 100 });
-            await this.lfgChannel.bulkDelete(this.lfgChannel.messages.filter((m) => (m.createdTimestamp > (Date.now() - 13 * 24 * 60 * 60 * 1000)) && (m.author.bot || !m.member.hasPermission('MANAGE_ROLES'))));
+            await this.lfgChannel.bulkDelete(this.lfgChannel.messages.filter(m => (m.createdTimestamp > (Date.now() - 13 * 24 * 60 * 60 * 1000)) && (m.author.bot || !m.member.hasPermission('MANAGE_ROLES'))));
             if (this.lfgChannel.type === 'text') {
                 const loadingMsg = await this.lfgChannel.send('Лобби загружаются, подождите минутку') as Message;
                 const voices = this.rawVoices.sort((a, b) => b.members.size - a.members.size).array();
@@ -57,15 +57,15 @@ export class LobbyStore extends LSBase {
                 if (rest[0].members.size !== 0 && toDelete.length) {
                     rest.push(toDelete.pop());
                 }
-                await Promise.all(toDelete.map((v) => v.delete()));
+                await Promise.all(toDelete.map(v => v.delete()));
                 await this.category.fetch();
-                if (!this.rawVoices.some((v) => v.members.size === 0)) {
+                if (!this.rawVoices.some(v => v.members.size === 0)) {
                     const channelToClone = await this.rawVoices.last();
                     await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize });
                     await this.category.fetch();
                 }
                 const generatedLobbies = await Promise.all(this.rawVoices.map(this.generateLobby));
-                this.lobbies = new Collection(generatedLobbies.filter(Boolean).map((l) => [l.channel, l]));
+                this.lobbies = new Collection(generatedLobbies.filter(Boolean).map(l => [l.channel, l]));
                 this.status = LSS.AVAILABLE;
                 // await this.syncChannels();
                 await loadingMsg.delete();
@@ -73,11 +73,18 @@ export class LobbyStore extends LSBase {
 
                 setInterval(this.watchActions, 500);
                 setInterval(this.purgeActions, 10000);
+                setInterval(this.syncChannels, 5 * 60 * 1000);
     }
         })();
     }
 
-    public syncChannels = () => Promise.all(this.lobbies.map((l) => l.dcChannel).filter((v) => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => v.setName(v.name.replace(/#\d+/g, (_) => `#${i + 1}`))));
+    public uniqueUsers = new Set<Snowflake>();
+    public loadedAt = new Date();
+
+    public syncChannels = () => Promise.all(this.lobbies.map(l => l.dcChannel).filter(v => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => {
+        const name = v.name.replace(/#\d+/g, _ => `#${i + 1}`);
+        return v.name !== name ? v.setName(name) : v;
+    }))
 
     public async kick(member: GuildMember, timeout: number = 10000, reason?: string, lobbyId?: number) {
         await member.voice.setChannel(null, reason);
@@ -87,7 +94,7 @@ export class LobbyStore extends LSBase {
             await this.lfgChannel.send(`${member}, ${reason}`);
         }
         if (timeout > 10000) {
-            await member.roles.set(member.roles.filter((r) => ![...Object.values(this.guild.platformRoles), ...Object.values(this.guild.rankRoles)].includes(r.id)));
+            await member.roles.set(member.roles.filter(r => ![...Object.values(this.guild.platformRoles), ...Object.values(this.guild.rankRoles)].includes(r.id)));
             debug.log(`${member} исключен из \`${this.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}". ${lobbyId ? `ID пати ${lobbyId}` : ''}`);
             setTimeout(async () => Sync.updateMember(this.guild, await User.findByPk(member.id)), timeout);
         }
@@ -96,7 +103,7 @@ export class LobbyStore extends LSBase {
     // @Atomic
     public async handleForceLeave(id: Snowflake) {
         console.log('FORCE LEAVE');
-        const lobby = this.lobbies.find((l) => Boolean(l.members.find((m) => m.id === id)));
+        const lobby = this.lobbies.find(l => Boolean(l.members.find(m => m.id === id)));
         if (lobby) {
             await this.checkLobbyHealth(lobby);
             if (lobby.dcChannel.members.size === 0 && this.lobbies.size > this.roomsRange[0]) {
@@ -165,7 +172,7 @@ export class LobbyStore extends LSBase {
     }
 
     public refreshIngameStatus = async (lobby: Lobby) => {
-        const statuses = lobby.dcChannel.members.map((m) => LobbyStore.detectIngameStatus(m.presence)).filter((is) => is !== IS.OTHER);
+        const statuses = lobby.dcChannel.members.map(m => LobbyStore.detectIngameStatus(m.presence)).filter(is => is !== IS.OTHER);
         statuses.unshift(IS.OTHER);
         const s = lobby.status;
         lobby.status = statuses.reduce((acc, el) => {
@@ -176,11 +183,11 @@ export class LobbyStore extends LSBase {
         if (s !== lobby.status && ![s, lobby.status].includes(IS.OTHER)) {
             const start = [[IS.CASUAL_SEARCH, IS.CASUAL], [IS.RANKED_SEARCH, IS.RANKED]];
             const stop = [[IS.CASUAL, IS.MENU], [IS.RANKED, IS.MENU]];
-            if (stop.some((t) => JSON.stringify(t) === JSON.stringify([s, lobby.status]))) {
-                debug.log(`<@${lobby.members.map((m) => m.id).join('>, <@')}> закончили играть (\`${IS[s]} --> ${IS[lobby.status]}\`). ID пати \`${lobby.id}\``);
+            if (stop.some(t => JSON.stringify(t) === JSON.stringify([s, lobby.status]))) {
+                debug.log(`<@${lobby.members.map(m => m.id).join('>, <@')}> закончили играть (\`${IS[s]} --> ${IS[lobby.status]}\`). ID пати \`${lobby.id}\``);
             }
-            if (start.some((t) => JSON.stringify(t) === JSON.stringify([s, lobby.status]))) {
-                debug.log(`<@${lobby.members.map((m) => m.id).join('>, <@')}> начали играть (\`${IS[s]} --> ${IS[lobby.status]}\`). ID пати \`${lobby.id}\``);
+            if (start.some(t => JSON.stringify(t) === JSON.stringify([s, lobby.status]))) {
+                debug.log(`<@${lobby.members.map(m => m.id).join('>, <@')}> начали играть (\`${IS[s]} --> ${IS[lobby.status]}\`). ID пати \`${lobby.id}\``);
             }
         }
     }
@@ -224,8 +231,9 @@ export class LobbyStore extends LSBase {
 
             await lobby.save();
             await lobby.$set('guild', this.guild);
-            await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
+            await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map(m => m.id) } }));
             await lobby.reload({ include: [{all: true}] });
+            this.uniqueUsers = new Set([...this.uniqueUsers, ...lobby.members.map(m => m.id)]);
 
             if (lobby.dcLeader) {
                 // const dbUser = await User.findByPk(lobby.dcLeader.id, { include: [Lobby] });
@@ -257,10 +265,10 @@ export class LobbyStore extends LSBase {
             }
             await lobby.dcChannel.fetch();
             if (lobby.members.length !== lobby.dcChannel.members.size) {
-                await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map((m) => m.id) } }));
+                await lobby.$set('members', await User.findAll({ where: { id: lobby.dcChannel.members.map(m => m.id) } }));
                 await lobby.reload({ include: [{all: true}] });
                 if (lobby.members.length !== lobby.dcChannel.members.size) {
-                    await Promise.all(lobby.dcChannel.members.filter((m) => !Boolean(lobby.members.find((dbm) => dbm.id === m.id))).map((m) => this.kick(m, 10000, 'Требуется регистрация. Используйте `$rank ваш_Uplay` в канале для команд бота.')));
+                    await Promise.all(lobby.dcChannel.members.filter(m => !Boolean(lobby.members.find(dbm => dbm.id === m.id))).map(m => this.kick(m, 10000, 'Требуется регистрация. Используйте `$rank ваш_Uplay` в канале для команд бота.')));
                     await this.checkLobbyHealth(lobby);
                 }
             }
@@ -283,7 +291,7 @@ export class LobbyStore extends LSBase {
                 try {
                     await lobby.appealMessage.delete();
                 } catch (err) {
-                    console.log('idgaf');
+                    console.log('idgaf 1');
                 }
                 return lobby.appealMessage = null;
             }
@@ -291,14 +299,15 @@ export class LobbyStore extends LSBase {
             try {
                 await lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
             } catch (err) {
-                console.log(err);
+                console.log('pre idgaf 2');
                 try {
-                    await (await this.lfgChannel.messages.fetch(lobby.appealMessage.id)).delete();
+                    await this.lfgChannel.messages.fetch(lobby.appealMessage.id, false)
+                        .finally(this.lfgChannel.messages.get(lobby.appealMessage.id).delete);
                 } catch (err) {
-                    console.log('idgaf');
+                    console.log('idgaf 2');
                 }
 
-                return lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
+            // return lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
             }
         }
     }
@@ -401,6 +410,7 @@ export class LobbyStore extends LSBase {
         // if (lobby.hardplay && dbUser.rank < lobby.limitRank) {
         //     return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[lobby.limitRank]}\` и выше!`, lobby.id);
         // }
+        this.uniqueUsers.add(dbUser.id);
         await lobby.$add('members', dbUser);
         await lobby.reload({include: [{all: true}]});
         if (!lobby.dcLeader) {
@@ -425,11 +435,11 @@ export class LobbyStore extends LSBase {
             const allRoles = new Set(this.guild.rankRoles);
             const allowedRoles = new Set(this.guild.rankRoles.slice(lobby.minRank));
             allRoles.delete(''); allowedRoles.delete('');
-            const disallowedRoles = new Set([...allRoles].filter((r) => !allowedRoles.has(r)));
+            const disallowedRoles = new Set([...allRoles].filter(r => !allowedRoles.has(r)));
             // console.log({allRoles, allowedRoles, disallowedRoles});
             return vc.edit({
                 name: /HardPlay /g.test(HP) ? HP : vc.name.replace('', 'HardPlay '),
-                permissionOverwrites: vc.permissionOverwrites.filter((o) => !disallowedRoles.has(o.id)),
+                permissionOverwrites: vc.permissionOverwrites.filter(o => !disallowedRoles.has(o.id)),
             });
         } else {
             return vc.edit({
@@ -440,7 +450,7 @@ export class LobbyStore extends LSBase {
     }
 }
 
-export const lobbyStores: Map<Snowflake, LobbyStore> = new Map();
+export const lobbyStores: Collection<Snowflake, LobbyStore> = new Collection();
 
 export async function initLobbyStores() {
     if (ENV.LOBBY_MODE !== 'off') {
@@ -449,8 +459,8 @@ export async function initLobbyStores() {
         return debug.warn('Lobbies ' + ENV.LOBBY_MODE);
     }
     const dbGuilds = await Guild.findAll({ where: { premium: true } });
-    dbGuilds.map((g) => {
-        Object.entries(g.voiceCategories).map((ent) => lobbyStores.set(ent[1], new LobbyStore(ent[1], ent[0], g)));
+    dbGuilds.map(g => {
+        Object.entries(g.voiceCategories).map(ent => lobbyStores.set(ent[1], new LobbyStore(ent[1], ent[0], g)));
     });
     const lobbies = await Lobby.findAll({
         where: {
@@ -460,7 +470,7 @@ export async function initLobbyStores() {
             ],
         },
     });
-    await Promise.all(lobbies.map((l) => {
+    await Promise.all(lobbies.map(l => {
         l.active = false;
         return l.save();
     }));

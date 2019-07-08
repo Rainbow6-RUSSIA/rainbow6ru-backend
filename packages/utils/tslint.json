@@ -6,7 +6,7 @@
         "quotemark": [true, "single", "jsx-double"],
         "no-console": false,
         "arrow-return-shorthand": true,
-        "arrow-parens": true,
+        "arrow-parens": [true, "ban-single-arg-parens"],
         "only-arrow-functions": [true, "allow-declarations", "allow-named-functions"],
         "no-implicit-dependencies": [true, "dev"],
         "radix": false,

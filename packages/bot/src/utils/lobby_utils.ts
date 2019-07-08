@@ -7,7 +7,7 @@ export class LSBase {
     public static detectIngameStatus = (presence: Presence): IngameStatus => {
         const { activity } = presence;
         if (activity && activity.applicationID === R6_PRESENCE_ID) {
-            return R6_PRESENCE_REGEXPS.findIndex((ar) => ar.some((r) => r.test(activity.details)));
+            return R6_PRESENCE_REGEXPS.findIndex(ar => ar.some(r => r.test(activity.details)));
         } else {
             return IngameStatus.OTHER;
         }
@@ -21,10 +21,10 @@ export class LSBase {
     public type: string;
     public lobbies: Collection<Snowflake, Lobby>;
     get voices() {
-        return this.lobbies ? new Collection(this.lobbies.map((l) => [l.dcChannel.id, l.dcChannel])) : this.rawVoices;
+        return this.lobbies ? new Collection(this.lobbies.map(l => [l.dcChannel.id, l.dcChannel])) : this.rawVoices;
     }
     get rawVoices() {
-        return this.category.children.filter((ch) => ch.type === 'voice' && !ch.deleted) as Collection<Snowflake, VoiceChannel>;
+        return this.category.children.filter(ch => ch.type === 'voice' && !ch.deleted) as Collection<Snowflake, VoiceChannel>;
     }
     public actionCounter: Collection<Snowflake, IActivityCounter>; // : Array<Partial<ILobbyStoreEvent>> = [];
     public status: LSS = LSS.LOADING;
@@ -34,7 +34,7 @@ export class LSBase {
     public staticRooms: boolean;
 
     public waitReady = async () => {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             const waiter = () => {
                 if (!this.promiseQueue.length) { return resolve(); }
                 setTimeout(waiter, 25);
@@ -54,7 +54,7 @@ export class LSBase {
     }
 
     public waitLoaded = async () => {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             const waiter = () => {
                 if (this.status === LSS.AVAILABLE) { return resolve(); }
                 setTimeout(waiter, 25);

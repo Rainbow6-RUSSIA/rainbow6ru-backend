@@ -13,24 +13,34 @@ type BanInfo = Collection<string, { user: U, reason: string }>;
 
 export default class Security {
     public static async detectDupes(dbUser: User, dbGuild: Guild) {
-        let twinks = await User.findAll({ where: {
-            [Op.or]: [
-                {genome: [dbUser.genome]},
-                {genomeHistory: {[Op.contains]: [dbUser.genome]}},
-            ],
-        }});
-        if (dbUser.updatedAt > (Date.now() - 5 * 60 * 1000) || dbUser.updatedAt < (Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+        let twinks = await User.findAll({
+            include: [{ all: true}],
+            where: {
+                [Op.or]: [
+                    {genome: [dbUser.genome]},
+                    {genomeHistory: {[Op.contains]: [dbUser.genome]}},
+                ],
+            },
+        });
+        const bannedAt = twinks.find(t => t.id === dbUser.id).bannedAt;
+        const localBan = bannedAt.length && bannedAt.find(r => r.id === dbGuild.id);
+        if (!(localBan && localBan.GuildBlacklist.allowed)
+             && (dbUser.securityNotifiedAt > new Date(Date.now() - 5 * 60 * 1000)
+                || dbUser.securityNotifiedAt < new Date(Date.now() - 14 * 24 * 60 * 60 * 1000))) {
             if (twinks.length > 1) {
                 const guild = bot.guilds.get(dbGuild.id);
                 const bans = await guild.fetchBans();
-                twinks = twinks.filter((t) => t.id !== dbUser.id);
+                twinks = twinks.filter(t => t.id !== dbUser.id);
                 twinks.unshift(dbUser);
                 Security.logDirectDupes(twinks, bans);
                 Security.logHistoricalDupes(twinks, bans);
-                if (dbUser.updatedAt < (Date.now() - 7 * 24 * 60 * 60 * 1000)) {
-                    dbUser.updatedAt = new Date();
+                if (dbUser.securityNotifiedAt < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                    dbUser.securityNotifiedAt = new Date();
                     await dbUser.save();
                 }
+            }
+            if (dbGuild.genomeBlacklist && dbGuild.genomeBlacklist.includes(dbUser.genome)) {
+                debug.error(`Аккаунт Uplay ${ONLINE_TRACKER}${dbUser.genome} пользователя <@${dbUser.id}> в черном списке старого бота`);
             }
         }
         return twinks;
@@ -38,14 +48,14 @@ export default class Security {
 
     public static async logDirectDupes(twinks: User[], bans: BanInfo) {
         if (twinks.length > 1) {
-            debug[twinks.some((t) => bans.has(t.id)) ? 'error' : 'warn'](
+            debug[twinks.some(t => bans.has(t.id)) ? 'error' : 'warn'](
                 'Обнаружена коллизия аккаунтов\n'
                 + Security.logString(twinks[0], bans)
                 + '\nи\n'
                 + twinks
                 .filter((t, i, a) => t.genome === a[0].genome)
                 .slice(1)
-                .map((t) => Security.logString(t, bans))
+                .map(t => Security.logString(t, bans))
                 .join('\n'));
         }
     }
@@ -58,7 +68,7 @@ export default class Security {
                 + '\nот\n'
                 + filteredTwinks
                     .slice(1)
-                    .map((t) => Security.logString(t, bans))
+                    .map(t => Security.logString(t, bans))
                     .join('\n'));
         }
     }

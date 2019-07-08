@@ -64,7 +64,7 @@ if (ENV.LOBBY_MODE !== 'off') {
 server.listen(ENV.PORT || 3000, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));
 
 async function waitLoaded(LS: LobbyStore) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
       const waiter = () => {
           if (LS.status === LSS.AVAILABLE) { return resolve(); }
           setTimeout(waiter, 25);

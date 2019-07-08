@@ -11,6 +11,6 @@ export default class LobbyMode extends Inhibitor {
     }
 
     public async exec(message: Message, cmd: Command) {
-        return (ENV.LOBBY_MODE === 'only' && cmd.categoryID !== 'party') || (ENV.LOBBY_MODE === 'off' && cmd.categoryID === 'party');
+        return (ENV.LOBBY_MODE === 'only' && !['party', 'stats'].includes(cmd.categoryID)) || (ENV.LOBBY_MODE === 'off' && cmd.categoryID === 'party');
     }
 }

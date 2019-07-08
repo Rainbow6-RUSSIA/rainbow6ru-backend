@@ -29,10 +29,10 @@ export default class Start extends Command {
         if (!dbTournament) {
             return message.reply('на сервере нет активных турниров!');
         }
-        if (!dbTournament.moderators.map((u) => u.id).includes(message.author.id)) {
+        if (!dbTournament.moderators.map(u => u.id).includes(message.author.id)) {
             return message.reply('вы не являетесь модератором турнира');
         }
-        const matches = dbTournament.matches.filter((m) => m.active);
+        const matches = dbTournament.matches.filter(m => m.active);
         if (!matches.length) {
             return message.reply('нет активных матчей!');
         }
@@ -56,7 +56,7 @@ export default class Start extends Command {
             match = matches[0];
         }
 
-        match.poolCache = dbTournament.pool.map((p) => p.toJSON());
+        match.poolCache = dbTournament.pool.map(p => p.toJSON());
         await match.save();
         await match.$set('votes', []);
         await match.reload({include: [
@@ -67,8 +67,8 @@ export default class Start extends Command {
 
         // const c0 =  match.teams[0].captain;
         // const c1 = await User.find({where: {teamId: match.teams[1].id}});
-        const caps = match.teams.map((t) => t.captain.id); // [c0.id, c1.id];
-        const teamIds = match.teams.map((t) => t.id); // [match.teams[0].id, match.teams[1].id];
+        const caps = match.teams.map(t => t.captain.id); // [c0.id, c1.id];
+        const teamIds = match.teams.map(t => t.id); // [match.teams[0].id, match.teams[1].id];
 
         await match.$set('votes', null);
 
@@ -137,7 +137,7 @@ export default class Start extends Command {
 
         io.to(match.id + '/map_vote').emit('map_vote', match.toJSON());
 
-        const poolS = match.votes.filter((v) => v.type === 'pick' || v.type === 'decider').map((v, i) => `${(i + 1).toString(36).toUpperCase()}. **${match.poolCache.find((m) => m.id === v.mapId).titleRu}**  (сторону выбирает <@${caps[(i + 1) % 2]}>)`).join('\n');
+        const poolS = match.votes.filter(v => v.type === 'pick' || v.type === 'decider').map((v, i) => `${(i + 1).toString(36).toUpperCase()}. **${match.poolCache.find(m => m.id === v.mapId).titleRu}**  (сторону выбирает <@${caps[(i + 1) % 2]}>)`).join('\n');
 
         return message.reply(`<@${caps[0]}>, <@${caps[1]}> голосование завершено!\nИтоговый набор карт: \n${poolS}`);
 

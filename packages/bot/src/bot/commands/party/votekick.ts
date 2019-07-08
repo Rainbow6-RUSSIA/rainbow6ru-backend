@@ -42,21 +42,21 @@ export default class Votekick extends Command {
         if (!voice.members.has(target.id)) {
             return DMReply(message, 'Вы не можете голосовать за исключение участника из другого канала!');
         }
-        const vote = await message.channel.send(`Голосование за исключение ${target} (30 сек.)\n${voice.members.filter((m) => m.id !== target.id).array().join(', ')}`) as Message;
+        const vote = await message.channel.send(`Голосование за исключение ${target} (30 сек.)\n${voice.members.filter(m => m.id !== target.id).array().join(', ')}`) as Message;
         const emojis = ['❎', '✅'];
-        await Promise.all(emojis.map((e) => vote.react(e)));
+        await Promise.all(emojis.map(e => vote.react(e)));
         const votes: Collection<string, boolean> = new Collection();
         const filter = (reaction: MessageReaction, user: User) => emojis.includes(reaction.emoji.name);
         const collector = vote.createReactionCollector(filter, { time: 30000 });
         collector.on('collect', async (reaction, user) => {
             votes.set(user.id, Boolean(emojis.indexOf(reaction.emoji.name)));
-            if (voice.members.filter((m) => m.id !== target.id).every((m) => votes.filter(Boolean).has(m.id))) {
+            if (voice.members.filter(m => m.id !== target.id).every(m => votes.filter(Boolean).has(m.id))) {
                 collector.stop();
             }
         });
-        collector.on('end', async (collected) => {
-            const VM = voice.members.filter((m) => m.id !== target.id);
-            if (!VM.every((m) => votes.filter(Boolean).has(m.id))) {
+        collector.on('end', async collected => {
+            const VM = voice.members.filter(m => m.id !== target.id);
+            if (!VM.every(m => votes.filter(Boolean).has(m.id))) {
                 await vote.reactions.clear();
                 await vote.edit(`Недостаточно голосов для исключения ${target}\n${VM.array().join(', ')}`);
             } else {

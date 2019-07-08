@@ -15,7 +15,7 @@ interface ISub {
     room: string;
 }
 
-io.sockets.on('connection', (socket) => {
+io.sockets.on('connection', socket => {
     socket.emit('status', { status: 'Online' });
     socket.on('subscribe', async (e: ISub) => { // #id/header; #id/map_vote
         if (!e.id || !e.room) { return; }

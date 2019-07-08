@@ -16,7 +16,7 @@ export default function PartyCommand(skipLeadership: boolean = false) {
 
         propertyDesciptor.value = async function(message: Message, args) {
             const dbGuild = await Guild.findByPk(message.guild.id);
-            const LSType = Object.entries(dbGuild.lfgChannels).find((e) => e[1] === message.channel.id)[0]; // message.channel as TextChannel;
+            const LSType = Object.entries(dbGuild.lfgChannels).find(e => e[1] === message.channel.id)[0]; // message.channel as TextChannel;
             const categoryID = dbGuild.voiceCategories[LSType];
             if (!lobbyStores.has(categoryID)) {
                 return DMReply(message, 'Команды пати доступны только в канале поиска игровой категории!');

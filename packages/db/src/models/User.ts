@@ -32,7 +32,7 @@ export default class User extends Model<User> {
     @BeforeUpdate
     public static calculateKarma(instance: User) {
         const likes = Object.values(instance.likes || {});
-        instance.karma = likes.length ? likes.filter((l) => l).length / likes.length : 0.5;
+        instance.karma = likes.length ? likes.filter(l => l).length / likes.length : 0.5;
     }
 
     @PrimaryKey
@@ -58,6 +58,10 @@ export default class User extends Model<User> {
     @Default(new Date())
     @Column
     public nicknameUpdatedAt: Date;
+
+    @Default(new Date())
+    @Column
+    public securityNotifiedAt: Date;
 
     @AllowNull(false)
     @Default(false)

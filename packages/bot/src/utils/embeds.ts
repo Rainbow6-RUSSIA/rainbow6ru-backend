@@ -10,7 +10,7 @@ export default {
     embed: {
       author: {
           iconURL: lobby.dcLeader.user.displayAvatarURL(),
-          name: ((_) => {
+          name: (_ => {
             const slot = lobby.open && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
               ? ` | +${lobby.dcChannel.userLimit - lobby.dcChannel.members.size} слот(-а)`
               : '';
@@ -43,15 +43,15 @@ export default {
           })(lobby.status),
       },
       color: await (async () => {
-        const dbUser = (lobby.members.find((m) => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id));
+        const dbUser = (lobby.members.find(m => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id));
         return RANK_COLORS[(dbUser && dbUser.rank) || 0];
       })(),
       description:
         (lobby.members
           .sort((a, b) => b.rank - a.rank)
-          .map((m) => (lobby.dcLeader.id === m.id ? '\\👑 ' : '')
+          .map(m => (lobby.dcLeader.id === m.id ? '\\👑 ' : '')
               + (!m.platform.PC ? '\\🎮' : '')
-              + `<@${m.id}> (\`${m.nickname}\` - [${Object.entries(m.platform).find((e) => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
+              + `<@${m.id}> (\`${m.nickname}\` - [${Object.entries(m.platform).find(e => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
               + ((m.verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''))
           .join('\n'))
         + (lobby.description
@@ -62,7 +62,7 @@ export default {
         if (lobby.hardplay) {
           fields.push({
             name: 'Режим "HardPlay"',
-            value: `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex((r) => lobby.guild.rankRoles[lobby.minRank] === r)]}\``,
+            value: `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\``,
           });
         }
         if (!lobby.open) {
@@ -145,7 +145,7 @@ export default {
       ],
       footer: {
         iconURL: 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1',
-        text: `Хотите так же? Обратитесь в ЛС Сервера, к ${member.guild.members.filter((m) => !m.user.bot && m.hasPermission('MANAGE_GUILD')).map((m) => m.user.tag).join(', ')} или активируйте Nitro Boost`,
+        text: `Хотите так же? Обратитесь в ЛС Сервера, к ${member.guild.members.filter(m => !m.user.bot && m.hasPermission('MANAGE_GUILD')).map(m => m.user.tag).join(', ')} или активируйте Nitro Boost`,
       },
       thumbnail: {
         url: member.user.displayAvatarURL(),

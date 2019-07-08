@@ -21,7 +21,7 @@ export default class MemberRemove extends Listener {
         }
         const dbUser = await User.findByPk(member.id, {include: [Lobby]});
         if (!dbUser) { return; }
-        if (!this.client.guilds.array().some((g) => !g.available || g.members.has(member.id))) {
+        if (!this.client.guilds.array().some(g => !g.available || g.members.has(member.id))) {
 
             dbUser.set({
                 inactive: true,

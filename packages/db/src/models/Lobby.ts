@@ -25,7 +25,7 @@ export default class Lobby extends Model<Lobby> {
     @BeforeUpdate
     public static addLog(instance: Lobby) {
         if (instance.members) {
-            instance.log = [...instance.log, ...instance.members.map((u) => u.id).filter((u) => !instance.log.includes(u))];
+            instance.log = [...instance.log, ...instance.members.map(u => u.id).filter(u => !instance.log.includes(u))];
         }
     }
 
@@ -93,11 +93,11 @@ export default class Lobby extends Model<Lobby> {
     }
 
     public get minRank(): number {
-        return Math.min(...this.members.map((m) => m.rank));
+        return Math.min(...this.members.map(m => m.rank));
     }
 
     public get maxRank(): number {
-        return Math.max(...this.members.map((m) => m.rank));
+        return Math.max(...this.members.map(m => m.rank));
     }
 
     public get limitRank(): number {

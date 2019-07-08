@@ -94,7 +94,7 @@ export default class Verify extends Command {
                         debug.log(`<@${dbUser.id}> верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
                         const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
                         const guilds = await Guild.findAll({where: {premium: true}});
-                        await Promise.all(guilds.map((g) => Sync.updateMember(g, dbUser)));
+                        await Promise.all(guilds.map(g => Sync.updateMember(g, dbUser)));
                         return msg.edit(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Роли возвращены, приятной игры!`);
                     }
                 case false: return message.reply('Неккоректный QR-код!\nДля каждой комбинации аккаунтов Discord и Uplay предусмотрен свой уникальный QR-код.');
@@ -107,11 +107,11 @@ export default class Verify extends Command {
 
     // @TryCatch(debug)
     private verifyGuild = async (message: Message, dbUser: User) => {
-        const prmpt = await combinedPrompt(await message.reply('вы действительно хотите пройти процедуру верификации с помощью QR-кода?\nВам потребуется доступ к панели управления аккаунтом Uplay и немного желания 😀.\nУбедитесь, что не заблокировали ЛС с ботом.') as Message, {
+        const prmpt = await combinedPrompt(await message.reply('вы действительно хотите пройти процедуру верификации с помощью QR-кода?\nВам потребуется доступ к панели управления аккаунтом Uplay и немного желания.\nУбедитесь, что не заблокировали ЛС с ботом.') as Message, {
             author: message.author,
             emojis: ['✅', '❎'],
             texts: [['да', 'yes', '+'], ['нет', 'no', '-']],
-            time: 15 * 60 * 1000,
+            time: 10 * 60 * 1000,
         });
         switch (prmpt) {
             case 1: return message.reply('вы отклонили подтверждение.');

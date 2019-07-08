@@ -9,9 +9,9 @@ class Bot extends AkairoClient {
         super({
             ownerID: process.env.OWNERS.split(','),
         }, {
-            messageCacheLifetime: parseInt(ENV.INVITE_AGE),
-            messageCacheMaxSize: 500,
-            messageSweepInterval: 120,
+            // messageCacheLifetime: parseInt(ENV.INVITE_AGE),
+            // messageCacheMaxSize: 500,
+            // messageSweepInterval: 120,
             ws: {
                 compress: true,
             },
@@ -25,19 +25,19 @@ class Bot extends AkairoClient {
             fetchMembers: true,
             ignoreCooldown: this.ownerID,
             ignorePermissions: this.ownerID,
-            loadFilter: (path) => path.split('.').pop() === 'js',
+            loadFilter: path => path.split('.').pop() === 'js',
             prefix: ENV.PREFIX,
         });
 
         this.inhibitorHandler = new InhibitorHandler(this, {
             automateCategories: true,
             directory: __dirname + '/bot/inhibitors/',
-            loadFilter: (path) => path.split('.').pop() === 'js',
+            loadFilter: path => path.split('.').pop() === 'js',
         });
         this.listenerHandler = new ListenerHandler(this, {
             automateCategories: true,
             directory: __dirname + '/bot/listeners/',
-            loadFilter: (path) => path.split('.').pop() === 'js',
+            loadFilter: path => path.split('.').pop() === 'js',
         });
         this.listenerHandler.setEmitters({
             commandHandler: this.commandHandler,

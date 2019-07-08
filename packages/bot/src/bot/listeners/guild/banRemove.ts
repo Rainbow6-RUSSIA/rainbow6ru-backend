@@ -12,8 +12,8 @@ export default class BanRemove extends Listener {
     }
 
     public exec = async (guild: Guild, user: User) => {
-        const dbGuild = await G.findByPk(guild.id);
-        const dbUser = await U.findByPk(user.id);
-        await dbGuild.$remove('blacklist', dbUser);
+        // const dbGuild = await G.findByPk(guild.id);
+        // const dbUser = await U.findByPk(user.id);
+        // await dbGuild.$remove('blacklist', dbUser);
     }
 }

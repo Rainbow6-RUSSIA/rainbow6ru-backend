@@ -27,7 +27,7 @@ export default class Nickname extends Command {
         if (!target) {
             target = message.author;
         }
-        if (target.id !== message.author.id && !message.member.hasPermission('MANAGE_ROLES') && ![...this.client.ownerID].includes(message.author.id)) {
+        if (target.id !== message.author.id && !message.member.hasPermission('MANAGE_NICKNAMES') && ![...this.client.ownerID].includes(message.author.id)) {
             await message.reply('изменение синхронизации ников других пользователей доступно только администрации!');
             target = message.author;
         }

@@ -88,11 +88,11 @@ export const DefaultSocial = {
 };
 
 export enum LobbyStoreEventType {
-    JOIN, LEAVE, MOVE, KICK
+    JOIN, LEAVE, MOVE, KICK,
 }
 
 export enum LobbyStoreStatus {
-    LOADING, TRANSACTING, AVAILABLE
+    LOADING, TRANSACTING, AVAILABLE,
 }
 
 export type ILobbyStoreEventType = 'join' | 'leave' | 'move' | 'report';
@@ -107,7 +107,7 @@ export interface IActivityCounter {
 export enum IngameStatus {
     OTHER = -1,
     MENU = 0,
-    CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, NEWCOMER, NEWCOMER_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, DISCOVERY, DISCOVERY_SEARCH
+    CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, NEWCOMER, NEWCOMER_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, DISCOVERY, DISCOVERY_SEARCH,
 }
 
 export const R6_PRESENCE_ID = '445956193924546560';
@@ -123,19 +123,19 @@ export const R6_PRESENCE_REGEXPS = [
     [/Антитеррор/g, /TERRORIST HUNT/g],
     [/Игра.+ПОЛЬЗ/g],
     [/Поиск.+ПОЛЬЗ/g],
-    [/РАЗВЕДКА.+раунд/g,/DISCOVERY.+Round/g],
-    [/Поиск.+РАЗВЕДКА/g, /Looking.+DISCOVERY/g]
+    [/РАЗВЕДКА.+раунд/g, /DISCOVERY.+Round/g],
+    [/Поиск.+РАЗВЕДКА/g, /Looking.+DISCOVERY/g],
 ];
 
 export const RANK_COLORS = [
     0x231f20,
-    0x7c2b00,0x7c2b00,0x7c2b00,0x7c2b00,
-    0xbc783c,0xbc783c,0xbc783c,0xbc783c,
-    0xa5a5a5,0xa5a5a5,0xa5a5a5,0xa5a5a5,
-    0xedaf35,0xedaf35,0xedaf35,0xedaf35,
-    0xb6ffff,0xb6ffff,0xb6ffff,
-    0xc07bde
+    0x7c2b00, 0x7c2b00, 0x7c2b00, 0x7c2b00,
+    0xbc783c, 0xbc783c, 0xbc783c, 0xbc783c,
+    0xa5a5a5, 0xa5a5a5, 0xa5a5a5, 0xa5a5a5,
+    0xedaf35, 0xedaf35, 0xedaf35, 0xedaf35,
+    0xb6ffff, 0xb6ffff, 0xb6ffff,
+    0xc07bde,
 ];
 
-export type DonateRecord = [Snowflake, number, string, Snowflake[]]
+export type DonateRecord = [Snowflake, number, string, Snowflake[]];
 //                          roleId     price   name    allowedUsers

@@ -19,8 +19,8 @@ export default class Sync {
       }},
     });
     if (!dbUsers.length) { return []; }
-    const res = await r6.api.getCurrentName(platform, dbUsers.map((u) => u.genome));
-    return Promise.all(dbUsers.map((u) => {
+    const res = await r6.api.getCurrentName(platform, dbUsers.map(u => u.genome));
+    return Promise.all(dbUsers.map(u => {
       if (res[u.genome] && (u.nickname !== res[u.genome].name)) {
         console.log('[BOT]', u.nickname, '-->', res[u.genome].name);
         u.nickname = res[u.genome].name;
@@ -39,8 +39,8 @@ export default class Sync {
         platform: {[platform]: true}},
     });
     if (!dbUsers.length) { return []; }
-    const res = await r6.api.getRank(platform, dbUsers.map((u) => u.genome));
-    return Promise.all(dbUsers.map((u) => {
+    const res = await r6.api.getRank(platform, dbUsers.map(u => u.genome));
+    return Promise.all(dbUsers.map(u => {
       if (res[u.genome]) {
         u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
       }
@@ -109,20 +109,20 @@ export default class Sync {
       }
     }
 
-    const currentRankRoles = member.roles.keyArray().filter((r) => dbGuild.rankRoles.includes(r));
-    const platformRolesToApply = Object.entries(dbGuild.platformRoles).filter((k) => dbUser.platform[k[0]]).map((k) => k[1]);
-    let finalRoles = [...new Set([...member.roles.map((r) => r.id), ...platformRolesToApply])];
+    const currentRankRoles = member.roles.keyArray().filter(r => dbGuild.rankRoles.includes(r));
+    const platformRolesToApply = Object.entries(dbGuild.platformRoles).filter(k => dbUser.platform[k[0]]).map(k => k[1]);
+    let finalRoles = [...new Set([...member.roles.map(r => r.id), ...platformRolesToApply])];
 
     if (currentRankRoles.length > 1) {
       if (dbGuild.rankRoles[dbUser.rank]) {
-        finalRoles = finalRoles.filter((r) => !dbGuild.rankRoles.includes(r));
+        finalRoles = finalRoles.filter(r => !dbGuild.rankRoles.includes(r));
         finalRoles.push(dbGuild.rankRoles[dbUser.rank]);
       }
       console.log(`[BOT] User ${member.user.tag} updated! 1 case`);
     } else if (currentRankRoles.length === 1) {
       const currentRank = dbGuild.rankRoles.indexOf(currentRankRoles[0]);
       if ((dbUser.rank > currentRank || currentRank < dbGuild.fixAfter || dbUser.rank === 0) && currentRankRoles[0] !== dbGuild.rankRoles[dbUser.rank]) {
-        finalRoles = [...new Set([...finalRoles, dbGuild.rankRoles[dbUser.rank]].filter((r) => r !== dbGuild.rankRoles[currentRank]))];
+        finalRoles = [...new Set([...finalRoles, dbGuild.rankRoles[dbUser.rank]].filter(r => r !== dbGuild.rankRoles[currentRank]))];
         console.log(`[BOT] User ${member.user.tag} updated! 2 case`);
       }
     } else {
@@ -140,11 +140,11 @@ export default class Sync {
   public static async updateRoles() {
     const guilds = await G.findAll({where: {premium: true}});
 
-    guilds.map((g) => console.log('[BOT] Syncing ' + bot.guilds.get(g.id).name));
-    const usersAtPlatforms = await Promise.all($enum(PLATFORM).getValues().map((p) => Sync.updateRank(p)));
+    guilds.map(g => console.log('[BOT] Syncing ' + bot.guilds.get(g.id).name));
+    const usersAtPlatforms = await Promise.all($enum(PLATFORM).getValues().map(p => Sync.updateRank(p)));
     const users = usersAtPlatforms.reduce((acc, val) => acc.concat(val), []);
-    await Promise.all(guilds.map((g) => bot.guilds.get(g.id).members.fetch()));
-    await Promise.all(guilds.map((g) => users.filter((u) => bot.guilds.get(g.id).members.has(u.id)).map((u) => Sync.updateMember(g, u))).reduce((acc, val) => acc.concat(val), []));
+    await Promise.all(guilds.map(g => bot.guilds.get(g.id).members.fetch()));
+    await Promise.all(guilds.map(g => users.filter(u => bot.guilds.get(g.id).members.has(u.id)).map(u => Sync.updateMember(g, u))).reduce((acc, val) => acc.concat(val), []));
   }
 
 }

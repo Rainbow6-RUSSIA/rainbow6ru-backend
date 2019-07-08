@@ -69,7 +69,7 @@ export default class Info extends Command {
                     break;
             }
         }
-        const idTagTrackerBadge = async (dbUsers: U[]) => (await Promise.all(dbUsers.map(async (u) => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}`))).join('\n');
+        const idTagTrackerBadge = async (dbUsers: U[]) => (await Promise.all(dbUsers.map(async u => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}`))).join('\n');
         switch (true) {
             case user === message.author: {
                 const dbUser = await U.findByPk(message.author.id);
@@ -82,7 +82,7 @@ export default class Info extends Command {
             case Boolean(nickname): {
                 let genomes: string[] = null;
                 try {
-                    genomes = (await Promise.all($enum(PLATFORM).getValues().map((p) => r6.api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter((p) => p).map((p) => p.userId);
+                    genomes = (await Promise.all($enum(PLATFORM).getValues().map(p => r6.api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter(p => p).map(p => p.userId);
                 } catch (err) {
                     console.log(err);
                 }

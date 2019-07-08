@@ -15,7 +15,7 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
             backgroundImage: __dirname + '/../../assets/r6rus.png',
             borderDark : 'rgba(0, 0, 0, .1)',
             borderLight : 'rgba(255, 255, 255, .1)',
-            callback: (data) => data ? resolve(data) : reject(new Error('QR No Data at generate')),
+            callback: data => data ? resolve(data) : reject(new Error('QR No Data at generate')),
             colorDark: 'rgba(0, 0, 0, 0.8)',
             colorLight: 'rgba(255, 255, 255, 1)',
             correctLevel: QRErrorCorrectLevel.H,
@@ -37,7 +37,7 @@ export async function verify(genome: UUID, id: string): Promise<boolean> {
         tryURL(`http://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`),
         tryURL(`https://ubisoft-avatars.akamaized.net/${genome}/default_146_146.png`),
         tryURL(`http://ubisoft-avatars.akamaized.net/${genome}/default_146_146.png`)]);
-    const results = codes.map((c) => {
+    const results = codes.map(c => {
         if (c) {
             const args = [c.slice(0, 18), c.slice(18)];
             return createHash('md5').update(`${genome}_${args[0]}_${ENV.KEY256}`).digest('base64') === args[1] && args[0] === id;
@@ -46,13 +46,13 @@ export async function verify(genome: UUID, id: string): Promise<boolean> {
         }
     });
     console.log(id, genome, 'verifying results', results);
-    if (results.some((r) => r === true)) {
+    if (results.some(r => r === true)) {
         return true;
     }
-    if (results.some((r) => r === false)) {
+    if (results.some(r => r === false)) {
         return false;
     }
-    if (results.every((r) => r === null)) {
+    if (results.every(r => r === null)) {
         return null;
     }
 }

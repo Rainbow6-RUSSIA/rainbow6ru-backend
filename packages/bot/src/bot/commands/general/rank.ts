@@ -88,11 +88,11 @@ export default class Rank extends Command {
                 PS4: currentRoles.includes(platformRoles.PS4),
                 XBOX: currentRoles.includes(platformRoles.XBOX),
             };
-            const activePlatform = $enum(PLATFORM).getValues().find((p) => platform[p]) || 'PC';
-            const activeBound = bound.find((b) => b.platform === activePlatform);
+            const activePlatform = $enum(PLATFORM).getValues().find(p => platform[p]) || 'PC';
+            const activeBound = bound.find(b => b.platform === activePlatform);
 
             if (!activeBound) {
-                return message.reply(`выбранная платформа \`${activePlatform}\` не совпадает с платформой указанного аккаунта (${bound.map((b) => '`' + b.platform + '`').join(', ')})`);
+                return message.reply(`выбранная платформа \`${activePlatform}\` не совпадает с платформой указанного аккаунта (${bound.map(b => '`' + b.platform + '`').join(', ')})`);
             }
 
             if (dbUser && dbUser.genome) {
@@ -100,16 +100,17 @@ export default class Rank extends Command {
                 if (adminAction) {
                     msg = (await message.reply(`пользователь уже зарегистрирован!\nДля смены привязанного аккаунта на указанный добавьте реакцию - ♻.`)) as Message;
                 } else {
-                    msg = (await message.reply(`вы уже зарегистрированы, обновление ранга будет через \`${
+                    const time = (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(dbUser.rankUpdatedAt).valueOf() - Date.now();
+                    msg = (await message.reply(`вы уже зарегистрированы, ${time > 5 * 60 * 1000 ? `обновление ранга будет через \`${
                         humanizeDuration(
-                            (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(dbUser.rankUpdatedAt).valueOf() - Date.now(),
+                            time,
                             {conjunction: ' и ', language: 'ru', round: true},
                         )
-                    }\`.\n`
+                    }\`` : 'скоро будет обновление ранга' }.\n`
                     + (dbUser.requiredVerification > dbUser.verificationLevel ? '*В целях безопасности требуется подтверждение аккаунта Uplay. Следуйте инструкциям, отправленным в ЛС.*\n' : '')
                     + (dbUser.genome !== activeBound.genome ? `Для смены привязанного аккаунта на указанный (${ONLINE_TRACKER}${activeBound.genome}) добавьте реакцию - ♻.` : ''))) as Message;
                 }
-                // await msg.react('♻');
+                msg.react('♻');
                 const result = await msg.awaitReactions((reaction: MessageReaction, user: U) => reaction.emoji.name === '♻' && user.id === message.author.id, { time: dbUser.genome !== activeBound.genome ? 30000 : 1, max: 1 });
                 if (result.size) {
                     await msg.edit(msg.content + `\nОжидайте дальнейших инструкций в ЛС от <@${this.client.user.id}>`);
@@ -122,7 +123,7 @@ export default class Rank extends Command {
             // if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
             const rawRank = (await r6.api.getRank(activeBound.platform, activeBound.genome))[activeBound.genome];
 
-            const regionRank = $enum(REGIONS).getValues().map((r) => rawRank[r].rank);
+            const regionRank = $enum(REGIONS).getValues().map(r => rawRank[r].rank);
             const mainRegion = $enum(REGIONS).getValues()[regionRank.indexOf(Math.max(...regionRank))];
             const stats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
 
@@ -182,7 +183,7 @@ export default class Rank extends Command {
 
         } catch (err) {
             switch (true) {
-                case ['public-ubiservices.ubi.com', 'gateway was unable to forward the request'].some((s) => err.message.includes(s)):
+                case ['public-ubiservices.ubi.com', 'gateway was unable to forward the request', 'request timed out while forwarding to the backend'].some(s => err.message.includes(s)):
                     debug.error(err, 'UBI');
                     return message.reply('сервера Ubisoft недоступны, попробуйте позднее.');
                     default:

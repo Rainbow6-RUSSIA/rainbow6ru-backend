@@ -38,7 +38,7 @@ export default class Massban extends Command { // update all|newseason|numofpack
             texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
         });
         if (prmt === 0) {
-            await Promise.all(targets.map((t) => message.guild.members.ban(t.id, { days: 7, reason})));
+            await Promise.all(targets.map(t => message.guild.members.ban(t.id, { days: 7, reason})));
             return message.reply('готово!');
         }
     }

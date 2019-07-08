@@ -1,5 +1,5 @@
 import * as React from 'react';
-    interface ITextfitProps {
+interface ITextfitProps {
         mode: 'single' | 'multi';
         forceSingleModeWidth: boolean;
         className?: string;

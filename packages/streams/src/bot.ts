@@ -12,7 +12,7 @@ class Bot extends AkairoClient {
     constructor() {
         super({ownerID: ENV.OWNERS.split(',')});
 
-        const loadFilter = (path) => /^.*\.js$/g.test(path);
+        const loadFilter = path => /^.*\.js$/g.test(path);
 
         this.commandHandler = new CommandHandler(this, {
             directory: __dirname + '/commands',
@@ -58,8 +58,8 @@ MapR6.findAll({where: {
     id: {
         [Op.ne]: '',
     },
-}}).then((maps) => {
-    pool = maps.map((map) => map.id);
+}}).then(maps => {
+    pool = maps.map(map => map.id);
     bot = new Bot();
     bot.login(ENV.DISCORD_TOKEN);
 });

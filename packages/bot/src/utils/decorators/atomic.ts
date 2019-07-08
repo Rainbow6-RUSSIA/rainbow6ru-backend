@@ -17,7 +17,7 @@ export default function Atomic(target: LobbyStore, propertyName: string, propert
             const id = uuid();
             this.promiseQueue.push(id);
             const result = await method.apply(this, args);
-            this.promiseQueue = this.promiseQueue.filter((i) => i !== id);
+            this.promiseQueue = this.promiseQueue.filter(i => i !== id);
             return result;
         } catch (err) {
             debug.error(err);
