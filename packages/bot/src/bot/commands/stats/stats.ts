@@ -57,9 +57,10 @@ export default class Stats extends Command {
                 const vCat = Object.values(dbGuild.voiceCategories);
                 const localLS = lobbyStores.filter(LS => vCat.includes(LS.categoryId));
                 return message.reply(`всего уникальных пользователей пользователей прошло через лобби с момента их загрузок: \`${
-                    new Set(...[].concat(...localLS.map(LS => LS.uniqueUsers).map(LS => Array(...LS)))).size
+                    new Set([].concat(...localLS.map(LS => [...LS.uniqueUsers]))).size
                 }\`\n` + Object.entries(dbGuild.voiceCategories)
                             .map(ent => localLS.find(LS => LS.type === ent[0]))
+                            .sort((a, b) => b.uniqueUsers.size - a.uniqueUsers.size)
                             .map(LS => `Категория \`${LS.type}\` - \`${LS.uniqueUsers.size}\` уникальных пользователей за \`${humanizeDuration(Date.now() - LS.loadedAt.valueOf(), {conjunction: ' и ', language: 'ru', round: true})}\``)
                             .join('\n'));
             }
