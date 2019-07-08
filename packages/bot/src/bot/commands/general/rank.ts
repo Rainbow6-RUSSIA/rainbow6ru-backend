@@ -110,11 +110,13 @@ export default class Rank extends Command {
                     + (dbUser.requiredVerification > dbUser.verificationLevel ? '*В целях безопасности требуется подтверждение аккаунта Uplay. Следуйте инструкциям, отправленным в ЛС.*\n' : '')
                     + (dbUser.genome !== activeBound.genome ? `Для смены привязанного аккаунта на указанный (${ONLINE_TRACKER}${activeBound.genome}) добавьте реакцию - ♻.` : ''))) as Message;
                 }
-                msg.react('♻');
-                const result = await msg.awaitReactions((reaction: MessageReaction, user: U) => reaction.emoji.name === '♻' && user.id === message.author.id, { time: dbUser.genome !== activeBound.genome ? 30000 : 1, max: 1 });
-                if (result.size) {
-                    await msg.edit(msg.content + `\nОжидайте дальнейших инструкций в ЛС от <@${this.client.user.id}>`);
-                    return Security.changeGenome(dbUser, dbGuild, activeBound.genome);
+                if (dbUser.genome !== activeBound.genome) {
+                    msg.react('♻');
+                    const result = await msg.awaitReactions((reaction: MessageReaction, user: U) => reaction.emoji.name === '♻' && user.id === message.author.id, { time: 30000, max: 1 });
+                    if (result.size) {
+                        await msg.edit(msg.content + `\nОжидайте дальнейших инструкций в ЛС от <@${this.client.user.id}>`);
+                        return Security.changeGenome(dbUser, dbGuild, activeBound.genome);
+                    }
                 } else {
                     return Sync.updateMember(dbGuild, dbUser);
                 }
