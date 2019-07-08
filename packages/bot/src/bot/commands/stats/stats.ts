@@ -56,10 +56,12 @@ export default class Stats extends Command {
                 const dbGuild = await Guild.findByPk(guild.id);
                 const vCat = Object.values(dbGuild.voiceCategories);
                 const localLS = lobbyStores.filter(LS => vCat.includes(LS.categoryId));
-                console.log();
                 return message.reply(`всего уникальных пользователей пользователей прошло через лобби с момента их загрузок: \`${
                     new Set(...[].concat(...localLS.map(LS => LS.uniqueUsers).map(LS => Array(...LS)))).size
-                }\`\n` + localLS.map(LS => `Категория \`${LS.type}\` - \`${LS.uniqueUsers.size}\` уникальных пользователей за \`${humanizeDuration(Date.now() - LS.loadedAt.valueOf(), {conjunction: ' и ', language: 'ru', round: true})}\``));
+                }\`\n` + Object.entries(dbGuild.voiceCategories)
+                            .map(ent => localLS.find(LS => LS.type === ent[0]))
+                            .map(LS => `Категория \`${LS.type}\` - \`${LS.uniqueUsers.size}\` уникальных пользователей за \`${humanizeDuration(Date.now() - LS.loadedAt.valueOf(), {conjunction: ' и ', language: 'ru', round: true})}\``)
+                            .join('\n'));
             }
             case !args.type && ENV.LOBBY_MODE !== 'only': {
                 const { guild } = message;
