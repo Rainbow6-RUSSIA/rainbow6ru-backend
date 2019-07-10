@@ -345,6 +345,7 @@ export class LobbyStore extends LSBase {
         const channelToClone = this.rawVoices.last();
         const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize }) as VoiceChannel;
         this.lobbies.set(clonedChannel.id, await this.generateLobby(clonedChannel));
+        this.updateFastAppeal();
     }
 
     private async closeLobby(lobby: Lobby) {

@@ -1,5 +1,5 @@
 import { Lobby, User } from '@r6ru/db';
-import { IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { EMOJI_REGEXP, IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { EmbedField, GuildMember, MessageOptions } from 'discord.js';
 import { LobbyStore } from '../bot/lobby';
 import ENV from './env';
@@ -78,24 +78,26 @@ export default {
         iconURL: LS.lfgChannel.guild.iconURL(),
         name: `Быстрый поиск команды в ${LS.category.name}`,
       },
-      description: `Всего лобби: \`${LS.voices.filter(v => Boolean(v.members.size)).size}\`\n`
+      description: `Канал поиска: ${LS.lfgChannel}\n`
+        + `Всего лобби: \`${LS.lobbies.filter(v => Boolean(v.dcMembers.size)).size}\`\n`
         + `Ищут игрока: \`${LS.lobbies
-            .filter(l => Boolean(l.dcMembers.size) && l.joinAllowed)
+            .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
             .size
-          || (LS.voices
-            .filter(v => Boolean(v.members.size))
+          || (LS.lobbies
+            .filter(l => Boolean(l.dcMembers.size) && Boolean(l.appealMessage))
             .size
               ? 'все комнаты укомплектованы!'
               : 0)}\`\n`
         + `Присоединиться к новой комнате: ${await getInvite4EmptyRoom(LS)} 👈`,
       fields: LS.lobbies
-        .filter(l => Boolean(l.dcMembers.size) && l.joinAllowed)
+        .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
         .sort((a, b) => a.dcChannel.position - b.dcChannel.position)
         .array()
         .slice(0, 24)
         .map(lobby => ({
           inline: true,
-          name: modeSelector(lobby),
+          name: modeSelector(lobby)
+            .replace(EMOJI_REGEXP, v => '\\' + v), // emoji wrap
           value: (lobby.hardplay ? `HardPlay: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n` : '')
             + `Ранг: ${lobby.minRank === lobby.maxRank
               ? (lobby.maxRank === 0
@@ -174,7 +176,7 @@ export default {
 
 const getInvite4EmptyRoom = async (LS: LobbyStore): Promise<string> => {
   const sorted = LS.lobbies.sort((a, b) => a.dcChannel.position - b.dcChannel.position);
-  if (sorted.last().dcMembers.size) {
+  if (sorted.last().dcMembers.size || !sorted.last().dcInvite) {
     const lobby = sorted.filter(l => !l.dcMembers.size).last();
     const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
     lobby.invite = inv.url;
