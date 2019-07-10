@@ -46,8 +46,8 @@ if (ENV.LOBBY_MODE !== 'off') {
       const pic = await createLobbyPreview(
         lobby.minRank,
         lobby.maxRank,
-        (![IS.CASUAL, IS.RANKED, IS.CUSTOM].includes(lobby.status) && lobby.dcChannel.members.size < lobby.dcChannel.userLimit
-          ? lobby.dcChannel.userLimit - lobby.dcChannel.members.size
+        (!lobby.joinAllowed
+          ? lobby.dcChannel.userLimit - lobby.dcMembers.size
           : 0));
 
       return res.sendRaw(200, pic || 'Error', {

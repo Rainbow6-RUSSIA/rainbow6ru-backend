@@ -75,6 +75,9 @@ export default class Guild extends Model<Guild> {
     };
 
     @Column
+    public fastLfg: string;
+
+    @Column
     public logsChannel: string;
 
     @Column

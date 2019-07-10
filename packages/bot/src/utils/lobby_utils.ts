@@ -1,6 +1,6 @@
 import { Guild, Lobby } from '@r6ru/db';
 import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
-import { CategoryChannel, Collection, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import { CategoryChannel, Collection, Message, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import ENV from '../utils/env';
 
 export class LSBase {
@@ -32,6 +32,13 @@ export class LSBase {
     public roomSize: number = 5;
     public roomsRange: [number, number];
     public staticRooms: boolean;
+    public uniqueUsers = new Set<Snowflake>();
+    public loadedAt = new Date();
+    public fastAppeal: Message;
+    public get joinAllowedRooms() {
+        return this.lobbies.filter(l => l.joinAllowed).size;
+    }
+    public fastAppealCache: string;
 
     public waitReady = async () => {
         return new Promise(resolve => {

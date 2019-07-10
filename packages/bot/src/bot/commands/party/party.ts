@@ -88,7 +88,7 @@ export default class Party extends Command {
             }
         }
         lobby.appealMessage = await LS.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
-
+        LS.updateFastAppeal();
         return debug.log(`${message.author} ищет пати в \`${lobby.type}\` с описанием: \`${lobby.description}\`. ID пати \`${lobby.id}\``);
     }
 }

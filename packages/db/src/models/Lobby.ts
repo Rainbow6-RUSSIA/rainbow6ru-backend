@@ -3,7 +3,7 @@ import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, Forei
 import Guild from './Guild';
 import User from './User';
 
-import { IngameStatus } from '@r6ru/types';
+import { IngameStatus as IS } from '@r6ru/types';
 import { CategoryChannel, Guild as G, GuildMember, Invite, Message, Snowflake, VoiceChannel } from 'discord.js';
 
 interface IOpts {
@@ -14,6 +14,8 @@ interface IOpts {
     dcInvite?: Invite;
     dcLeader?: GuildMember;
 }
+
+const currentlyPlaying = [IS.CASUAL, IS.RANKED, IS.CUSTOM, IS.NEWCOMER, IS.DISCOVERY];
 
 @Table({schema: 'siegebot', timestamps: true})
 export default class Lobby extends Model<Lobby> {
@@ -49,7 +51,7 @@ export default class Lobby extends Model<Lobby> {
     public dcInvite: Invite;
 
     public appealMessage: Message;
-    public status: IngameStatus;
+    public status: IS;
 
     @Column
     public type: string;
@@ -102,5 +104,9 @@ export default class Lobby extends Model<Lobby> {
 
     public get limitRank(): number {
         return this.minRank === Infinity ? 0 : this.minRank - this.minRank % 4 + 1;
+    }
+
+    public get joinAllowed(): boolean {
+        return this.open && (this.dcChannel.members.size < this.dcChannel.userLimit) && !currentlyPlaying.includes(this.status);
     }
 }
