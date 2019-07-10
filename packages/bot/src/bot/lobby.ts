@@ -315,13 +315,14 @@ export class LobbyStore extends LSBase {
             try {
                 await lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
                 await this.updateFastAppeal();
-            } catch (err) {
+            } catch (error) {
                 console.log('pre idgaf 2');
                 try {
                     await this.lfgChannel.messages.fetch(lobby.appealMessage.id, false)
                         .finally(this.lfgChannel.messages.get(lobby.appealMessage.id).delete);
                 } catch (err) {
                     console.log('idgaf 2');
+                    console.log(error, err);
                 }
 
             // return lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
