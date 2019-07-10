@@ -363,6 +363,7 @@ export class LobbyStore extends LSBase {
         // toDelete.deleted = true; // наеб блядского кэша discord.js
         // // await this.syncChannels();
         this.lobbies.delete(lobby.channel);
+        this.updateFastAppeal();
         await this.category.fetch();
     }
 

@@ -79,7 +79,14 @@ export default {
         name: `Быстрый поиск команды в ${LS.category.name}`,
       },
       description: `Всего лобби: \`${LS.voices.filter(v => Boolean(v.members.size)).size}\`\n`
-        + `Ищут игрока: \`${LS.lobbies.filter(l => Boolean(l.dcMembers.size) && l.joinAllowed).size || 'все комнаты укомплектованы!'}\`\n`
+        + `Ищут игрока: \`${LS.lobbies
+            .filter(l => Boolean(l.dcMembers.size) && l.joinAllowed)
+            .size
+          || (LS.voices
+            .filter(v => Boolean(v.members.size))
+            .size
+              ? 'все комнаты укомплектованы!'
+              : 0)}\`\n`
         + `Присоединиться к новой комнате: ${await getInvite4EmptyRoom(LS)} 👈`,
       fields: LS.lobbies
         .filter(l => Boolean(l.dcMembers.size) && l.joinAllowed)
