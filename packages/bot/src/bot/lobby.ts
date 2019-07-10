@@ -331,7 +331,7 @@ export class LobbyStore extends LSBase {
     }
 
     public async updateFastAppeal() {
-        if (!this.guild.fastLfg) { return; }
+        if (!(this.guild.fastLfg && this.fastAppeal)) { return; }
         const msgOpts = await embeds.fastAppeal(this);
         // console.log(this.fastAppealCache);
         // console.log(JSON.stringify(msgOpts));
