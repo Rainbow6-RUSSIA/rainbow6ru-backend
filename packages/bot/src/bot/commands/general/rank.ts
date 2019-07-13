@@ -184,7 +184,7 @@ export default class Rank extends Command {
 
         } catch (err) {
             switch (true) {
-                case ['public-ubiservices.ubi.com', 'gateway was unable to forward the request', 'request timed out while forwarding to the backend'].some(s => err.message.includes(s)):
+                case ['public-ubiservices.ubi.com', 'too many requests', 'gateway was unable to forward the request', 'request timed out while forwarding to the backend'].some(s => err.message.includes(s)):
                     debug.error(err, 'UBI');
                     return message.reply('сервера Ubisoft недоступны, попробуйте позднее.');
                     default:

@@ -20,6 +20,9 @@ export default class Sync {
     });
     if (!dbUsers.length) { return []; }
     const res = await r6.api.getCurrentName(platform, dbUsers.map(u => u.genome));
+    if (!Object.keys(res).length) {
+      return dbUsers;
+    }
     return Promise.all(dbUsers.map(u => {
       if (res[u.genome] && (u.nickname !== res[u.genome].name)) {
         console.log('[BOT]', u.nickname, '-->', res[u.genome].name);
@@ -40,6 +43,9 @@ export default class Sync {
     });
     if (!dbUsers.length) { return []; }
     const res = await r6.api.getRank(platform, dbUsers.map(u => u.genome));
+    if (!Object.keys(res).length) {
+      return dbUsers;
+    }
     return Promise.all(dbUsers.map(u => {
       if (res[u.genome]) {
         u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
