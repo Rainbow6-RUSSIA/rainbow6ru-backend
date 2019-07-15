@@ -23,7 +23,8 @@ export default class Sync {
     if (!Object.keys(res).length) {
       return dbUsers;
     }
-    return Promise.all(dbUsers.map(u => {
+    const before = dbUsers.map(u => u.nickname);
+    await Promise.all(dbUsers.map(u => {
       if (res[u.genome] && (u.nickname !== res[u.genome].name)) {
         console.log('[BOT]', u.nickname, '-->', res[u.genome].name);
         u.nickname = res[u.genome].name;
@@ -31,6 +32,7 @@ export default class Sync {
       u.nicknameUpdatedAt = new Date();
       return u.save({ silent: true });
     }));
+    return dbUsers.filter((u, i) => before[i] !== u.nickname);
   }
 
   public static async updateRank(platform: PLATFORM) {
@@ -46,13 +48,15 @@ export default class Sync {
     if (!Object.keys(res).length) {
       return dbUsers;
     }
-    return Promise.all(dbUsers.map(u => {
+    const before = dbUsers.map(u => u.rank);
+    await Promise.all(dbUsers.map(u => {
       if (res[u.genome]) {
         u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
       }
       u.rankUpdatedAt = new Date();
       return u.save({ silent: true });
     }));
+    return dbUsers.filter((u, i) => before[i] !== u.rank);
   }
 
   public static async sendQrRequest(dbGuild: G, dbUser: U, member: GuildMember) {
@@ -93,7 +97,7 @@ export default class Sync {
 
     let member: GuildMember = null;
     try {
-      member = await guild.members.fetch(dbUser.id);
+      member = await guild.members.fetch({ user: dbUser.id, cache: true });
       if (!member) { throw new Error(); }
     } catch (err) {
       dbUser.inactive = true;
@@ -146,11 +150,22 @@ export default class Sync {
   public static async updateRoles() {
     const guilds = await G.findAll({where: {premium: true}});
 
-    guilds.map(g => console.log('[BOT] Syncing ' + bot.guilds.get(g.id).name));
+    guilds.map(g => console.log('[BOT] Syncing roles ' + bot.guilds.get(g.id).name));
     const usersAtPlatforms = await Promise.all($enum(PLATFORM).getValues().map(p => Sync.updateRank(p)));
     const users = usersAtPlatforms.reduce((acc, val) => acc.concat(val), []);
     await Promise.all(guilds.map(g => bot.guilds.get(g.id).members.fetch()));
     await Promise.all(guilds.map(g => users.filter(u => bot.guilds.get(g.id).members.has(u.id)).map(u => Sync.updateMember(g, u))).reduce((acc, val) => acc.concat(val), []));
+  }
+
+  public static async updateMembernames() {
+    const guilds = await G.findAll({where: {premium: true}});
+
+    guilds.map(g => console.log('[BOT] Syncing membernames ' + bot.guilds.get(g.id).name));
+    const usersAtPlatforms = await Promise.all($enum(PLATFORM).getValues().map(p => Sync.updateNicknames(p)));
+    const users = usersAtPlatforms.reduce((acc, val) => acc.concat(val), []);
+    await Promise.all(guilds.map(g => bot.guilds.get(g.id).members.fetch()));
+    await Promise.all(guilds.map(g => users.filter(u => bot.guilds.get(g.id).members.has(u.id)).map(u => Sync.updateMember(g, u))).reduce((acc, val) => acc.concat(val), []));
+
   }
 
 }

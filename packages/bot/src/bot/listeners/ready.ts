@@ -45,8 +45,8 @@ export default class Ready extends Listener {
         while (true) {
             try {
                 await new Promise(resolve => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
-                console.log('[BOT] Updating nicknames...');
-                await Promise.all($enum(PLATFORM).getValues().map(p => Sync.updateNicknames(p)));
+                console.log('[INFO][BOT] Updating membernames...');
+                await Sync.updateMembernames();
             } catch (err) {
                 refresh();
             }
