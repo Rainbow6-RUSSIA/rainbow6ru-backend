@@ -43,7 +43,7 @@ export default class Sync {
         inactive: false,
         platform: {[platform]: true}},
     });
-    if (!dbUsers.length) { return []; }
+    if (!dbUsers.length || (dbUsers[0].rankUpdatedAt.valueOf() + 20 * parseInt(ENV.COOLDOWN) > Date.now())) { return []; }
     const res = await r6.api.getRank(platform, dbUsers.map(u => u.genome));
     if (!Object.keys(res).length) {
       return dbUsers;
@@ -161,8 +161,8 @@ export default class Sync {
     const guilds = await G.findAll({where: {premium: true}});
 
     guilds.map(g => console.log('[BOT] Syncing membernames ' + bot.guilds.get(g.id).name));
-    const usersAtPlatforms = await Promise.all($enum(PLATFORM).getValues().map(p => Sync.updateNicknames(p)));
-    const users = usersAtPlatforms.reduce((acc, val) => acc.concat(val), []);
+    // const usersAtPlatforms = await Promise.all($enum(PLATFORM).getValues().map(p => ));
+    const users = await Sync.updateNicknames(PLATFORM.PC); // usersAtPlatforms.reduce((acc, val) => acc.concat(val), []);
     await Promise.all(guilds.map(g => bot.guilds.get(g.id).members.fetch()));
     await Promise.all(guilds.map(g => users.filter(u => bot.guilds.get(g.id).members.has(u.id)).map(u => Sync.updateMember(g, u))).reduce((acc, val) => acc.concat(val), []));
 
