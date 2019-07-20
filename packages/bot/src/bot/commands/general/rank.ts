@@ -26,7 +26,7 @@ interface IRankArgs {
 export default class Rank extends Command {
     public constructor() {
         super('rank', {
-            aliases: ['rank', 'rang', 'R'],
+            aliases: ['rank', 'rang', 'unranked', 'copper', 'bronze', 'silver', 'gold', 'platinum', 'diamond'],
             args: [{
                 id: 'bound',
                 prompt: {
@@ -97,6 +97,11 @@ export default class Rank extends Command {
 
             if (dbUser && dbUser.genome) {
                 let msg: Message;
+                let changeGenome = dbUser.genome !== activeBound.genome;
+                if (changeGenome) {
+                    const changeStats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
+                    changeGenome = Boolean(changeStats && changeStats.general);
+                }
                 if (adminAction) {
                     msg = (await message.reply(`пользователь уже зарегистрирован!\nДля смены привязанного аккаунта на указанный добавьте реакцию - ♻.`)) as Message;
                 } else {
@@ -108,9 +113,9 @@ export default class Rank extends Command {
                         )
                     }\`` : 'скоро будет обновление ранга' }.\n`
                     + (dbUser.requiredVerification > dbUser.verificationLevel ? '*В целях безопасности требуется подтверждение аккаунта Uplay. Следуйте инструкциям, отправленным в ЛС.*\n' : '')
-                    + (dbUser.genome !== activeBound.genome ? `Для смены привязанного аккаунта на указанный (${ONLINE_TRACKER}${activeBound.genome}) добавьте реакцию - ♻.` : ''))) as Message;
+                    + (changeGenome ? `Для смены привязанного аккаунта на указанный (${ONLINE_TRACKER}${activeBound.genome}) добавьте реакцию - ♻.` : ''))) as Message;
                 }
-                if (dbUser.genome !== activeBound.genome) {
+                if (changeGenome) {
                     msg.react('♻');
                     const result = await msg.awaitReactions((reaction: MessageReaction, user: U) => reaction.emoji.name === '♻' && user.id === message.author.id, { time: 30000, max: 1 });
                     if (result.size) {
