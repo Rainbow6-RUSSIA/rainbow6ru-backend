@@ -26,11 +26,12 @@ export default class Purge extends Command {
         const ch = message.channel;
         const pinned = await ch.messages.fetchPinned();
         const msg = await ch.messages.fetch({ limit: 100 });
-        return ch.bulkDelete(msg
+        /* return ch.bulkDelete */
+        console.log(msg
             .filter(m => !pinned.has(m.id) && args.target ? args.target.id === m.author.id : true)
             .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
             .array()
             .slice(0, args.number || undefined)
-            .push(message), true);
+            .push(message)); // , true);
     }
 }
