@@ -154,6 +154,7 @@ export default class Rank extends Command {
                 (nonPremium || !platform.PC) ? VERIFICATION_LEVEL.NONE
                 : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= dbGuild.fixAfter || (await r6.api.getLevel(activeBound.platform, activeBound.genome))[activeBound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
                 : dbGuild.requiredVerification,
+                securityNotifiedAt: new Date(),
                 verificationLevel:
                 (target.nickname || '').includes(activeBound.nickname) ||
                 target.user.username.includes(activeBound.nickname) ? VERIFICATION_LEVEL.MATCHNICK

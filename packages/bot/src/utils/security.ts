@@ -80,6 +80,7 @@ export default class Security {
         dbUser.genome = genome;
         dbUser.verificationLevel = VERIFICATION_LEVEL.NONE;
         dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
+        dbUser.securityNotifiedAt = new Date();
         await dbUser.save();
         return Sync.updateMember(dbGuild, dbUser);
     }
