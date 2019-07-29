@@ -34,7 +34,7 @@ export default class Security {
                 twinks.unshift(dbUser);
                 Security.logDirectDupes(twinks, bans);
                 Security.logHistoricalDupes(twinks, bans);
-                if (dbUser.securityNotifiedAt < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                if (dbUser.securityNotifiedAt < new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)) {
                     dbUser.securityNotifiedAt = new Date();
                     await dbUser.save();
                 }

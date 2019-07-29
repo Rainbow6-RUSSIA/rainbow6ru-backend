@@ -178,7 +178,7 @@ export default class Rank extends Command {
                 case 0: {
                     await dbUser.save();
                     await debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}`);
-                    await Security.detectDupes(dbUser, dbGuild);
+                    // await Security.detectDupes(dbUser, dbGuild);
                     if (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR) {
                         debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
                         setTimeout(() => Sync.updateMember(dbGuild, dbUser), 5000);
