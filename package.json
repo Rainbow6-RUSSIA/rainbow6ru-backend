@@ -10,9 +10,8 @@
     "publish": "ln -s ./packages/$PACKAGE_NAME/build ./publish"
   },
   "engines": {
-    "node": "10.15.x",
-    "yarn": "1.16.x",
-    "npm": "6.4.x"
+    "node": ">=10.16.x",
+    "yarn": ">=1.17.x"
   },
   "dependencies": {
     "lerna": "^3.13.1",
