@@ -7,7 +7,7 @@
     "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
     "postinstall": "yarn bootstrap && yarn build",
     "start": "node ./packages/$PACKAGE_NAME/build/index.js",
-    "front-publish": "ln ./packages/$PACKAGE_NAME/build ./front-publish"
+    "front-publish": "cp -r -f ./packages/$PACKAGE_NAME/build ./front-publish"
   },
   "engines": {
     "node": ">=10.16.x",
