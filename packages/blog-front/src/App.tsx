@@ -4,7 +4,7 @@ import logo from './logo.svg';
 
 import { User } from '@r6ru/db';
 
-let u: User;
+// let u: User;
 
 const App: React.FC = () => {
   return (
@@ -20,7 +20,7 @@ const App: React.FC = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Press F to pay respects {u.genome}
+          Press F to pay respects
         </a>
       </header>
     </div>

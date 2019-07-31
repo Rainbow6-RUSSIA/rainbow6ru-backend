@@ -6,7 +6,8 @@
     "bootstrap": "lerna bootstrap --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
     "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
     "postinstall": "yarn bootstrap && yarn build",
-    "start": "node ./packages/$PACKAGE_NAME/build/index.js"
+    "start": "node ./packages/$PACKAGE_NAME/build/index.js",
+    "publish": "ln -s ./packages/$PACKAGE_NAME/build ./publish"
   },
   "engines": {
     "node": "10.15.x",
