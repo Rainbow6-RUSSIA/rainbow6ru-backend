@@ -1,6 +1,8 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "name": "Rainbow6-RUSSIA",
+  "short_name": "R6RU",
+  "description": "Самый большой и уютный Discord сервер по Rainbow Six Siege в СНГ. У нас вы можете найти напарников для игры, узнать свежие новости, поучаствовать в розыгрышах и просто пообщатся.",
+  "lang": "ru-RU",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,8 +10,9 @@
       "type": "image/x-icon"
     }
   ],
-  "start_url": ".",
+  "start_url": "./blog",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#36393f",
+  "background_color": "#2f3136",
+  "orientation": "landscape"
 }
