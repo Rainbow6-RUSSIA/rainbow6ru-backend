@@ -2,7 +2,10 @@ import { Guild, User } from '@r6ru/db';
 import { ONLINE_TRACKER, UUID } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Collection, Message, Snowflake } from 'discord.js';
+import { Sequelize } from 'sequelize-typescript';
 import ENV from '../../../utils/env';
+
+const { Op } = Sequelize;
 
 export default class Twinks extends Command {
     constructor() {
@@ -26,7 +29,7 @@ export default class Twinks extends Command {
 
     public exec = async (message: Message) => {
         console.log(1);
-        const dbUsers = await User.findAndCount({ attributes: ['id', 'genome'], where: {[User.sequelize.Op.ne]: '0'} });
+        const dbUsers = await User.findAndCountAll({attributes: ['id', 'genome'], where: {id: {[Op.ne]: '0'}}});
         console.log('count', dbUsers.count); // findAll({ attributes: ['id', 'genome'] });
         const dbGuild = await Guild.findByPk(message.guild.id, {include: [{all: true}]});
         console.log(2);
