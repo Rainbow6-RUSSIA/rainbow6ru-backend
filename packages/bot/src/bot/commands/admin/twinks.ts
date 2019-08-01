@@ -25,7 +25,7 @@ export default class Twinks extends Command {
       }
 
     public exec = async (message: Message) => {
-        const dbUsers = await User.findAll();
+        const dbUsers = await User.findAll({ attributes: ['id', 'genome'] });
         const dbGuild = await Guild.findByPk(message.guild.id, {include: [{all: true}]});
         const twinksCounter = new Collection<UUID, Set<Snowflake>>();
         dbUsers.map(dbUser => twinksCounter.get(dbUser.genome) ? twinksCounter.get(dbUser.genome).add(dbUser.id) : twinksCounter.set(dbUser.genome, new Set([dbUser.id])));
@@ -38,7 +38,7 @@ export default class Twinks extends Command {
         } привязан:\n◦    ${(await Promise.all([...set]
             .map(async id => `<@${id}> \`${(await this.client.users.fetch(id)).tag}\` ${bans.has(id) ? `${ENV.BAN_BADGE} \`${bans.get(id).reason}\`` : ''}`),
         )).join('\n◦    ')}`);
-        const parts = (await Promise.all(answs)).join('\n').split('\n◦ ').reduce(this.paragraphSplit('\n• '), []);
+        const parts = (await Promise.all(answs)).join('\n').split('\n• ').reduce(this.paragraphSplit('\n• '), []);
         for (const part of parts) {
             await message.channel.send(part);
         }
