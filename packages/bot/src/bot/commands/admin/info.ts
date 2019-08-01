@@ -48,6 +48,7 @@ export default class Info extends Command {
     public exec = async (message: Message, args: IInfoArgs) => {
         let { user, genome } = args;
         const { nickname, id } = args;
+        const adminAction = [...this.client.ownerID].includes(message.author.id) || (message.member && message.member.hasPermission('MANAGE_ROLES'));
         if (!user && id) {
             user = { id: id.match[0]};
         }

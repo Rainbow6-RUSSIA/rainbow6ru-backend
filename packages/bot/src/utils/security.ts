@@ -12,7 +12,7 @@ const { Op } = Sequelize;
 type BanInfo = Collection<string, { user: U, reason: string }>;
 
 export default class Security {
-    public static async detectDupes(dbUser: User, dbGuild: Guild) {
+    public static async detectDupes(dbUser: User, dbGuild: Guild, silent?: boolean) {
         let twinks = await User.findAll({
             include: [{ all: true}],
             where: {
@@ -22,6 +22,9 @@ export default class Security {
                 ],
             },
         });
+        if (silent) {
+            return twinks;
+        }
         const bannedAt = twinks.find(t => t.id === dbUser.id).bannedAt;
         const localBan = bannedAt.length && bannedAt.find(r => r.id === dbGuild.id);
         if (!(localBan && localBan.GuildBlacklist.allowed)

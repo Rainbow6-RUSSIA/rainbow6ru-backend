@@ -177,11 +177,16 @@ export default class Rank extends Command {
                 case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
                 case 0: {
                     await dbUser.save();
-                    await debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}`);
-                    // await Security.detectDupes(dbUser, dbGuild);
+                    if ((await Security.detectDupes(dbUser, dbGuild, true)).length > 1) {
+                        dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
+                        await await dbUser.save();
+                        await debug.error(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}. Обнаружена повторная регистрация или передача аккаунта.`);
+                    } else {
+                        await debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}.`);
+                    }
                     if (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR) {
                         debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
-                        setTimeout(() => Sync.updateMember(dbGuild, dbUser), 5000);
+                        setTimeout(() => Sync.updateMember(dbGuild, dbUser), 3000);
                         return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\`\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*`);
                     } else {
                         Sync.updateMember(dbGuild, dbUser);
