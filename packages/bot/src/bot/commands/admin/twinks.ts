@@ -1,4 +1,4 @@
-import { Guild, User } from '@r6ru/db';
+import { Guild, GuildBlacklist, User } from '@r6ru/db';
 import { ONLINE_TRACKER, UUID } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Collection, Message, Snowflake } from 'discord.js';
@@ -31,7 +31,7 @@ export default class Twinks extends Command {
         console.log(1);
         const dbUsers = await User.findAndCountAll({attributes: ['id', 'genome'], where: {id: {[Op.ne]: '0'}}});
         console.log('count', dbUsers.count); // findAll({ attributes: ['id', 'genome'] });
-        const dbGuild = await Guild.findByPk(message.guild.id, {include: [{all: true}]});
+        const dbGuild = await Guild.findByPk(message.guild.id, {include: [ User ]});
         console.log(2);
         const twinksCounter = new Collection<UUID, Set<Snowflake>>();
         dbUsers.rows.map(dbUser => twinksCounter.get(dbUser.genome) ? twinksCounter.get(dbUser.genome).add(dbUser.id) : twinksCounter.set(dbUser.genome, new Set([dbUser.id])));
