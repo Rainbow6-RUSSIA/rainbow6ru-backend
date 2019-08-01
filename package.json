@@ -6,7 +6,7 @@
     "bootstrap": "lerna bootstrap --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
     "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
     "postinstall": "yarn bootstrap && yarn build",
-    "start": "node ./packages/$PACKAGE_NAME/build/index.js",
+    "start": "node --max-old-space-size=4096 ./packages/$PACKAGE_NAME/build/index.js",
     "front-publish": "cp -r -f ./packages/$PACKAGE_NAME/build ./front-publish"
   },
   "engines": {
