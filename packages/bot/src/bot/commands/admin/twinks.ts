@@ -25,12 +25,17 @@ export default class Twinks extends Command {
       }
 
     public exec = async (message: Message) => {
-        const dbUsers = await User.findAll({ attributes: ['id', 'genome'] });
+        console.log(1);
+        const dbUsers = await User.findAndCount({ attributes: ['id', 'genome'], where: {[User.sequelize.Op.ne]: '0'} });
+        console.log('count', dbUsers.count); // findAll({ attributes: ['id', 'genome'] });
         const dbGuild = await Guild.findByPk(message.guild.id, {include: [{all: true}]});
+        console.log(2);
         const twinksCounter = new Collection<UUID, Set<Snowflake>>();
-        dbUsers.map(dbUser => twinksCounter.get(dbUser.genome) ? twinksCounter.get(dbUser.genome).add(dbUser.id) : twinksCounter.set(dbUser.genome, new Set([dbUser.id])));
+        dbUsers.rows.map(dbUser => twinksCounter.get(dbUser.genome) ? twinksCounter.get(dbUser.genome).add(dbUser.id) : twinksCounter.set(dbUser.genome, new Set([dbUser.id])));
+        console.log(3);
         const filteredTwinks = twinksCounter.filter(g => g.size > 1);
         const bans = await message.guild.fetchBans();
+        console.log(4);
         const genomeBans = new Set([...dbGuild.genomeBlacklist, dbGuild.blacklist.map(u => u.genome)]);
         const answs = filteredTwinks.map(async (set, key) => `• Uplay <${ONLINE_TRACKER}${key}>${genomeBans.has(key)
             ? ' ' + ENV.BAN_BADGE
@@ -39,6 +44,8 @@ export default class Twinks extends Command {
             .map(async id => `<@${id}> \`${(await this.client.users.fetch(id)).tag}\` ${bans.has(id) ? `${ENV.BAN_BADGE} \`${bans.get(id).reason}\`` : ''}`),
         )).join('\n◦    ')}`);
         const parts = (await Promise.all(answs)).join('\n').split('\n• ').reduce(this.paragraphSplit('\n• '), []);
+
+        console.log(5);
         for (const part of parts) {
             await message.channel.send(part);
         }
