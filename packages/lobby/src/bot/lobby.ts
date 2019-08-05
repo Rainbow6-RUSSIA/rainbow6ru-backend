@@ -204,6 +204,12 @@ export class LobbyStore extends LSBase {
             if (start.some(t => JSON.stringify(t) === JSON.stringify([s, lobby.status]))) {
                 debug.log(`<@${lobby.members.map(m => m.id).join('>, <@')}> начали играть (\`${IS[s]} --> ${IS[lobby.status]}\`). ID пати \`${lobby.id}\``);
             }
+            if (JSON.stringify(stop[1]) === JSON.stringify([s, lobby.status])) {
+                lobby.members.forEach(m => {
+                    m.rankUpdatedAt = new Date('2000');
+                    m.save();
+                });
+            }
         }
     }
 
