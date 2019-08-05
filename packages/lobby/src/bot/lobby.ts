@@ -10,7 +10,6 @@ import WaitLoaded from '../utils/decorators/wait_loaded';
 import embeds from '../utils/embeds';
 import ENV from '../utils/env';
 import { LSBase } from '../utils/lobby_utils';
-import Sync from '../utils/sync';
 
 const { Op } = Sequelize;
 const initiatedAt = new Date();
@@ -108,9 +107,11 @@ export class LobbyStore extends LSBase {
             await this.lfgChannel.send(`${member}, ${reason}`);
         }
         if (timeout > 10000) {
-            await member.roles.set(member.roles.filter(r => ![...Object.values(this.guild.platformRoles), ...Object.values(this.guild.rankRoles)].includes(r.id)));
+            const prevRoles = member.roles.clone();
+            const newRoles = member.roles.filter(r => ![...Object.values(this.guild.platformRoles), ...Object.values(this.guild.rankRoles)].includes(r.id));
+            await member.roles.set(newRoles);
             debug.log(`${member} исключен из \`${this.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}". ${lobbyId ? `ID пати ${lobbyId}` : ''}`);
-            setTimeout(async () => Sync.updateMember(this.guild, await User.findByPk(member.id)), timeout);
+            setTimeout(() => member.roles.set(prevRoles), timeout);
         }
     }
 
@@ -390,13 +391,6 @@ export class LobbyStore extends LSBase {
         const dbUser = await User.findByPk(member.id);
         await lobby.$remove('members', dbUser);
 
-        if (Math.random() < parseFloat(ENV.QR_CHANCE) && dbUser.verificationLevel < VERIFICATION_LEVEL.QR && dbUser.platform.PC) {
-            dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
-            await dbUser.save();
-            Sync.updateMember(await Guild.findByPk(member.guild.id), dbUser);
-            debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome} после выхода из лобби`);
-        }
-
         await lobby.reload({include: [{all: true}]});
         if (!lobby.open) {
             lobby.open = true;
@@ -486,11 +480,6 @@ export class LobbyStore extends LSBase {
 export const lobbyStores: Collection<Snowflake, LobbyStore> = new Collection();
 
 export async function initLobbyStores() {
-    if (ENV.LOBBY_MODE !== 'off') {
-        debug.warn('Lobbies ' + ENV.LOBBY_MODE);
-    } else {
-        return debug.warn('Lobbies ' + ENV.LOBBY_MODE);
-    }
     const dbGuilds = await Guild.findAll({ where: { premium: true } });
     dbGuilds.map(g => {
         Object.entries(g.voiceCategories).map(ent => lobbyStores.set(ent[1], new LobbyStore(ent[1], ent[0], g)));

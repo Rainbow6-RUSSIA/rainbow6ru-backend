@@ -19,7 +19,7 @@ export default class LFGPurge extends Inhibitor {
                 // console.log
             }
         }
-        if (cmd.categoryID !== 'party' && ENV.LOBBY_MODE !== 'on') {
+        if (cmd.categoryID !== 'party') {
             return true;
         }
         return false;

@@ -17,8 +17,6 @@ export let debug: Log = null;
     debug = new Log(await bot.user(), new WebhookClient(url[5], url[6]), 'BOT');
     debug.log('Starting');
     console.log('[INFO][BOT] Webhook logging initialized');
-    await import('./r6api');
-    console.log('[INFO][BOT] Connected to Ubi servers');
     await import('./server');
     console.log('[INFO][GENERIC] REST API started');
 })();

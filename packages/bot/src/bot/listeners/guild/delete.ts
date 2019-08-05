@@ -12,7 +12,6 @@ export default class Delete extends Listener {
     }
 
     public exec = async (guild: Guild) => {
-        if (ENV.LOBBY_MODE === 'only') { return; }
         console.log('​Delete -> publicexec -> guild', guild);
     }
 }

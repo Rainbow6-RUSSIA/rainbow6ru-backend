@@ -13,7 +13,7 @@ export default class MemberAdd extends Listener {
     }
 
     public exec = async (member: GuildMember) => {
-        if (ENV.NODE_ENV !== 'development' && ENV.LOBBY_MODE !== 'only') {
+        if (ENV.NODE_ENV !== 'development') {
             const updated = await User.update({
                 inactive: false,
             }, {

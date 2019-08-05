@@ -14,7 +14,6 @@ export default class Create extends Listener {
     }
 
     public exec = async (guild: Guild) => {
-        if (ENV.LOBBY_MODE === 'only') { return; }
         console.log('​Create -> publicexec -> guild', guild);
         await new G({
             donateRoles: {

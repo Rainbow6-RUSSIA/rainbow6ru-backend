@@ -15,23 +15,10 @@ export default class MemberRemove extends Listener {
     }
 
     public exec = async (member: GuildMember) => {
-        if (ENV.LOBBY_MODE === 'only') { return; }
         if (member.voice) {
             VoiceStateUpdate.handle(
                 { ...member.voice, member, channel: member.guild.channels.get(member.voice.channelID) } as any as VoiceState,
                 { ...member.voice, member, channelID: null} as any as VoiceState);
         }
-        const dbUser = await User.findByPk(member.id, {include: [Lobby]});
-        if (!dbUser) { return; }
-        if (!this.client.guilds.array().some(g => !g.available || g.members.has(member.id))) {
-
-            dbUser.set({
-                inactive: true,
-            });
-
-            console.log('[BOT] Inactivating', member.user.tag, member.id);
-        }
-
-        await dbUser.save();
     }
 }

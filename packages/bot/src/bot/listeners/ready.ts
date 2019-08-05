@@ -7,7 +7,6 @@ import { debug } from '../..';
 import r6, { refresh } from '../../r6api';
 import ENV from '../../utils/env';
 import Sync from '../../utils/sync';
-import { initLobbyStores } from '../lobby';
 
 export default class Ready extends Listener {
     public constructor() {
@@ -20,12 +19,11 @@ export default class Ready extends Listener {
     public exec = async () => {
         console.log('[INFO][BOT] Logged as', this.client.user.tag);
 
-        if (ENV.NODE_ENV !== 'development' && ENV.LOBBY_MODE !== 'only') {
+        if (ENV.NODE_ENV !== 'development') {
             console.log('[INFO][BOT] Updating scheduled');
             this.startNickUpdating();
             this.startRankUpdating();
         }
-        await initLobbyStores();
 
     }
 

@@ -13,7 +13,6 @@ export default class BanRemove extends Listener {
     }
 
     public exec = async (guild: Guild, user: User) => {
-        if (ENV.LOBBY_MODE === 'only') { return; }
         // const dbGuild = await G.findByPk(guild.id);
         // const dbUser = await U.findByPk(user.id);
         // await dbGuild.$remove('blacklist', dbUser);

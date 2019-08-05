@@ -1,7 +1,6 @@
+import { Guild } from '@r6ru/db';
 import { Command, Inhibitor } from 'discord-akairo';
 import { Message } from 'discord.js';
-import DetectLS from '../../utils/decorators/detect_ls';
-import ENV from '../../utils/env';
 
 export default class LFGPurge extends Inhibitor {
     constructor() {
@@ -10,17 +9,10 @@ export default class LFGPurge extends Inhibitor {
         });
     }
 
-    @DetectLS
     public async exec(message: Message, cmd: Command) {
-        if (message.member.permissions.has('MANAGE_ROLES')) {
-            try {
-                await message.delete();
-            } catch (error) {
-                // console.log
-            }
-        }
-        if (cmd.categoryID !== 'party' && ENV.LOBBY_MODE !== 'on') {
-            return true;
+        if (message.channel.type === 'text') {
+            const dbGuild = await Guild.findByPk(message.guild.id);
+            return Object.values(dbGuild.lfgChannels).includes(message.channel.id);
         }
         return false;
     }
