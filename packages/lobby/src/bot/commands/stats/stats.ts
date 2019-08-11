@@ -21,6 +21,7 @@ export default class Stats extends Command {
     }
 
     public exec = async (message: Message, args: IArgs) => {
+        if (!args.type) {return; }
         const { guild } = message;
         const dbGuild = await Guild.findByPk(guild.id);
         const vCat = Object.values(dbGuild.voiceCategories);
