@@ -3,20 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@types/jest": "24.0.15",
-    "@types/node": "12.0.8",
-    "@types/react": "16.8.20",
-    "@types/react-dom": "16.8.4",
+    "@types/jest": "24.0.17",
+    "@types/node": "12.7.1",
+    "@types/react": "16.9.1",
+    "@types/react-dom": "16.8.5",
     "@types/react-router": "^5.0.3",
     "@types/react-router-dom": "^4.3.4",
-    "antd": "^3.19.5",
+    "antd": "^3.21.4",
     "localforage": "^1.7.3",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
-    "react-scripts": "3.0.1",
-    "typescript": "3.5.2"
+    "react-scripts": "3.1.0",
+    "typescript": "3.5.3"
   },
   "devDependencies": {
     "@r6ru/db": "0.0.0"
