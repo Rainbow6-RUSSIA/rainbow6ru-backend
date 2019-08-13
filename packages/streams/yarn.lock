@@ -518,9 +518,9 @@ discord-akairo@8.0.0-beta.8:
   resolved "https://registry.yarnpkg.com/discord-akairo/-/discord-akairo-8.0.0-beta.8.tgz#664c1f4fb819ec1d057ed7a36d2e38a68f53367b"
   integrity sha512-aT64C1vvntCoSV/i/yAVAHrYyz1Y+5IAWagUaDsrv8M2zKmakcOvT62Iqhz5oK89k8UgVU23aIsLiq01U1bJDQ==
 
-"discord.js@https://github.com/discordjs/discord.js#6cd4c27":
+"discord.js@https://github.com/discordjs/discord.js#f79f024":
   version "12.0.0-dev"
-  resolved "https://github.com/discordjs/discord.js#6cd4c27faed8b3f1b9da41a87b7922cd286313b9"
+  resolved "https://github.com/discordjs/discord.js#f79f0243438a89c4d8a910461800b1adff2fe6e5"
   dependencies:
     form-data "^2.3.3"
     node-fetch "^2.3.0"

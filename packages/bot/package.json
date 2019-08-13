@@ -20,7 +20,7 @@
 		"@r6s.media/r6.api": "https://github.com/BadCoder1337/r6api#77a4916",
 		"awesome-qr": "https://github.com/BadCoder1337/Awesome-qr.js#7f1589f",
 		"discord-akairo": "8.0.0-beta.8",
-		"discord.js": "https://github.com/discordjs/discord.js#6cd4c27",
+		"discord.js": "https://github.com/discordjs/discord.js#f79f024",
 		"dotenv": "^8.0.0",
 		"humanize-duration": "^3.16.0",
 		"jimp": "^0.6.4",
