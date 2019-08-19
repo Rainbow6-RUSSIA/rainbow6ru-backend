@@ -42,7 +42,7 @@ export default class Locate extends Command { // update all|newseason|numofpacks
                                 return inv.url;
                             } catch (error) {/* */}
                         }
-                    )}`
+                    )()}`
         }`);
     }
 }
