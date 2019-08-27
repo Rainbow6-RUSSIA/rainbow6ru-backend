@@ -83,7 +83,7 @@ export default class Info extends Command {
             case Boolean(nickname): {
                 let genomes: string[] = null;
                 try {
-                    genomes = (await Promise.all($enum(PLATFORM).getValues().map(p => r6.api.findByName(p, nickname)))).map((p, i) => Object.values(p)[0]).filter(p => p).map(p => p.userId);
+                    genomes = (await Promise.all($enum(PLATFORM).getValues().map(p => r6.getId(p, nickname)))).map((p, i) => p.values().next().value).filter(p => p).map(p => p.userId);
                 } catch (err) {
                     console.log(err);
                 }

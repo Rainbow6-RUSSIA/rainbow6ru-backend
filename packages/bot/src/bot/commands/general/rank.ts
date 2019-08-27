@@ -99,8 +99,8 @@ export default class Rank extends Command {
                 let msg: Message;
                 let changeGenome = dbUser.genome !== activeBound.genome;
                 if (changeGenome) {
-                    const changeStats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
-                    changeGenome = Boolean(changeStats && changeStats.general);
+                    const changeStats = (await r6.getStats(activeBound.platform, activeBound.genome)).get(activeBound.genome);
+                    changeGenome = Boolean(changeStats && changeStats.pvp && changeStats.pvp.general);
                 }
                 if (adminAction) {
                     msg = (await message.reply(`пользователь уже зарегистрирован!\nДля смены привязанного аккаунта на указанный добавьте реакцию - ♻.`)) as Message;
@@ -127,13 +127,12 @@ export default class Rank extends Command {
             }
 
             // if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
-            const rawRank = (await r6.api.getRank(activeBound.platform, activeBound.genome))[activeBound.genome];
-
-            const regionRank = $enum(REGIONS).getValues().map(r => rawRank[r].rank);
+            const rawRank = (await r6.getRank(activeBound.platform, activeBound.genome)).get(activeBound.genome);
+            const regionRank = $enum(REGIONS).getValues().map(r => rawRank.regions[r].current.id);
             const mainRegion = $enum(REGIONS).getValues()[regionRank.indexOf(Math.max(...regionRank))];
-            const stats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
+            const stats = (await r6.getStats(activeBound.platform, activeBound.genome)).get(activeBound.genome);
 
-            if (!(stats && stats.general)) {
+            if (!(stats && stats.pvp && stats.pvp.general)) {
                 return message.reply(`указанный аккаунт не запускал Rainbow Six Siege (\`${activeBound.platform}\`)`);
             }
             // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);
@@ -147,12 +146,12 @@ export default class Rank extends Command {
                 nickname: activeBound.nickname,
                 nicknameUpdatedAt: new Date(),
                 platform,
-                rank: rawRank[mainRegion].rank,
+                rank: rawRank.regions[mainRegion].current.id,
                 rankUpdatedAt: new Date(),
                 region: mainRegion,
                 requiredVerification:
                 (nonPremium || !platform.PC) ? VERIFICATION_LEVEL.NONE
-                : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= dbGuild.fixAfter || (await r6.api.getLevel(activeBound.platform, activeBound.genome))[activeBound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
+                : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank.regions[mainRegion].current.id >= dbGuild.fixAfter || (await r6.getLevel(activeBound.platform, activeBound.genome)).get(activeBound.genome).level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
                 : dbGuild.requiredVerification,
                 securityNotifiedAt: new Date(),
                 verificationLevel:
@@ -164,7 +163,7 @@ export default class Rank extends Command {
             dbUser.syncNickname = dbUser.verificationLevel === VERIFICATION_LEVEL.MATCHNICK;
 
             const prompt = await combinedPrompt(
-                await message.reply(`игрок с ником **${activeBound.nickname}** найден, это верный профиль?`, embeds.rank(activeBound, stats.general)) as Message,
+                await message.reply(`игрок с ником **${activeBound.nickname}** найден, это верный профиль?`, embeds.rank(activeBound, stats.pvp.general)) as Message,
                 {
                     author: message.author,
                     emojis: ['✅', '❎'],

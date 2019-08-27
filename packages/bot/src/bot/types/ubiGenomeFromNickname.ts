@@ -9,11 +9,11 @@ export default async (message: Message, phrase: string): Promise<IUbiBound[] | n
     if (/^[a-zA-Z][\w-.]{2,14}$/g.test(phrase) && !phrase.toLowerCase().startsWith('ubi_') && !phrase.toLowerCase().endsWith('_ubi')) {
         try {
             const platforms = $enum(PLATFORM).getValues();
-            const profiles = (await Promise.all(platforms.map(p => r6api.api.findByName(p, phrase)))).map((p, i) => ({profile: Object.values(p)[0], platform: platforms[i]})).filter(p => p.profile);
+            const profiles = (await Promise.all(platforms.map(p => r6api.getId(p, phrase)))).map((p, i) => ({profile: p.values().next().value, platform: platforms[i]})).filter(p => p.profile);
             if (profiles.length) {
                 return profiles.map(p => ({
                     genome: p.profile.id,
-                    nickname: p.profile.name,
+                    nickname: p.profile.username,
                     platform: p.platform,
                 }));
             }
