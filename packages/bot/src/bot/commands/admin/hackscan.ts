@@ -58,7 +58,8 @@ export default class HackScan extends Command {
             },
         });
         // admin mode
-        const idTagTrackerBadge = async (dbUsrs: User[]) => (await Promise.all(dbUsrs.map(async u => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` <${ONLINE_TRACKER}${u.genome}>${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}`))).join('\n');
+        const bans = await message.guild.fetchBans();
+        const idTagTrackerBadge = async (dbUsrs: User[]) => (await Promise.all(dbUsrs.map(async u => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` <${ONLINE_TRACKER}${u.genome}>${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}${bans.has(u.id) ? `${ENV.BAN_BADGE} \`${bans.get(u.id).reason}\`` : ''}`))).join('\n');
         const genomeChunks = [...new Set<string>([].concat(...dbUsers.rows.map(u => u.genomeHistory)))].reduce((all, one, i) => {
             const ch = Math.floor(i / 200);
             all[ch] = [].concat((all[ch] || []), one);

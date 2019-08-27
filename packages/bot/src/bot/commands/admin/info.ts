@@ -70,7 +70,8 @@ export default class Info extends Command {
                     break;
             }
         }
-        const idTagTrackerBadge = async (dbUsers: U[]) => (await Promise.all(dbUsers.map(async u => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}`))).join('\n');
+        const bans = adminAction && await message.guild.fetchBans();
+        const idTagTrackerBadge = async (dbUsers: U[]) => (await Promise.all(dbUsers.map(async u => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}${(adminAction && bans.has(u.id)) ? `${ENV.BAN_BADGE} \`${bans.get(u.id).reason}\`` : ''}`))).join('\n');
         switch (true) {
             case user === message.author: {
                 const dbUser = await U.findByPk(message.author.id);
