@@ -15,10 +15,10 @@
   },
   "dependencies": {
     "lerna": "^3.13.1",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.5.3"
   },
   "devDependencies": {
-    "@types/node": "^12.0.2",
-    "tslint": "^5.13.1"
+    "@types/node": "^12.7.2",
+    "tslint": "^5.19.0"
   }
 }
