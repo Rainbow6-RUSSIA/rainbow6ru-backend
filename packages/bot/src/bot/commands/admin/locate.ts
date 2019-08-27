@@ -35,7 +35,7 @@ export default class Locate extends Command { // update all|newseason|numofpacks
                 ? 'не на сервере'
                 : !member.voice.channel
                     ? 'не в голосовом канале'
-                    : `находится в <#${member.voice.channel.id}> ${(
+                    : `находится в <#${member.voice.channel.id}> ${await (
                         async () => {
                             try {
                                 const inv = await member.voice.channel.createInvite({maxUses: 5, maxAge: 600, reason: 'поиск по голосовым каналам'});
