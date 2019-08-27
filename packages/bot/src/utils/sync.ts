@@ -51,6 +51,9 @@ export default class Sync {
     const before = dbUsers.map(u => u.rank);
     await Promise.all(dbUsers.map(u => {
       if (res.has(u.genome)) {
+        if (Security.analyzeRankStats(res.get(u.genome))) {
+          debug.error(`<@${u.id}> имеет подозрительный аккаунт Uplay с удаленной статистикой ${ONLINE_TRACKER}${u.genome}`);
+        }
         u.rank = u.region ? res.get(u.genome).regions[u.region].current.id : Math.max(...$enum(REGIONS).getValues().map(r => res.get(u.genome).regions[r].current.id));
       }
       u.rankUpdatedAt = new Date();

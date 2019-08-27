@@ -19,6 +19,7 @@ class IEnv {
     public R6API_CREDS_LOGIN = '';
     public R6API_CREDS_PASS = '';
     public REBOOT_TIME = '';
+    public SUSPICIOUS_MMR_CHANGE = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file
