@@ -16,13 +16,11 @@ export default class Massban extends Command { // update all|newseason|numofpack
                 id: 'reason',
                 type: 'string',
             }, {
-                id: 'targets',
-                prompt: {
-                    infinite: true,
-                    start: 'Кого забанить нахуй?. Упоминайте по одному участнику в сообщении. Введите \`stop\` для остановки.',
-                    time: 60 * 1000,
-                },
-                type: 'user',
+                id: 'id',
+                limit: 1000,
+                multipleFlags: true,
+                type: /^(?:<@!?)?(\d{17,21})>?$/,
+                unordered: true,
             }],
             channel: 'guild',
             userPermissions: 'BAN_MEMBERS',
@@ -31,6 +29,7 @@ export default class Massban extends Command { // update all|newseason|numofpack
 
     // @TryCatch(debug)
     public exec = async (message: Message, args: IArgs) => {
+        console.log(args);
         const { reason, targets } = args;
         const prmt = await combinedPrompt(await message.reply(`будут забанены \`${targets.length}\` пользователей по причине \`${reason}\`. Продолжить?`) as Message, {
             author: message.author,

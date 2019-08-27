@@ -33,6 +33,7 @@
     "@types/webpack": "^4.4.23",
     "@types/webpack-env": "^1.13.6",
     "babel-loader": "^8.0.5",
+    "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
     "file-loader": "^3.0.1",
     "gh-pages": "^2.0.1",
@@ -57,17 +58,16 @@
     "webpack-cleanup-plugin": "^0.5.1",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14",
-    "cross-env": "^5.2.0",
     "@r6ru/db": "0.0.0",
     "@r6ru/types": "0.0.0"
   },
   "dependencies": {
+    "@wootencl/react-textfit": "^1.1.1",
     "history": "^4.9.0",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "react-pose": "^4.0.8",
     "react-router": "^5.0.0",
-    "@wootencl/react-textfit": "^1.1.1",
     "socket.io-client": "^2.2.0"
   }
 }

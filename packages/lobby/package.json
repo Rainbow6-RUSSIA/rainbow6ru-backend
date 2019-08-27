@@ -46,7 +46,7 @@
 		"@types/passport": "^1.0.0",
 		"@types/passport-jwt": "^3.0.1",
 		"@types/passport-local": "^1.0.33",
-		"@types/restify": "^7.2.10",
+		"@types/restify": "^8.4.0",
 		"@types/restify-errors": "^4.3.3",
 		"@types/uuid": "^3.4.4",
 		"bluebird": "^3.5.4",
