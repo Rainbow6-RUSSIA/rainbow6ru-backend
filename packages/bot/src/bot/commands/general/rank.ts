@@ -163,7 +163,7 @@ export default class Rank extends Command {
             dbUser.syncNickname = dbUser.verificationLevel === VERIFICATION_LEVEL.MATCHNICK;
 
             const prompt = await combinedPrompt(
-                await message.reply(`игрок с ником **${activeBound.nickname}** найден, это верный профиль?`, embeds.rank(activeBound, stats.pvp.general)) as Message,
+                await message.reply(`игрок с ником **${activeBound.nickname}** найден, это верный профиль?`, embeds.rank(activeBound, stats.pvp)) as Message,
                 {
                     author: message.author,
                     emojis: ['✅', '❎'],
