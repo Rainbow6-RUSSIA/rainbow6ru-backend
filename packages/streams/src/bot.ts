@@ -22,8 +22,10 @@ class Bot extends AkairoClient {
             ignorePermissions: this.ownerID,
             allowMention: true,
             defaultCooldown: 1000,
-            defaultPrompt: {
-                time: 120000,
+            argumentDefaults: {
+                prompt: {
+                    time: 12000,
+                },
             },
         });
 

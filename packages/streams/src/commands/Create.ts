@@ -51,11 +51,13 @@ export default class Create extends Command {
                 },
             ],
             channel: 'guild',
-            defaultPrompt: {
-                retries: 3,
-                time: 60 * 1000,
-                cancel: 'Отмена!',
-                retry: 'Неверный ввод!',
+            argumentDefaults: {
+                prompt: {
+                    retries: 3,
+                    time: 180 * 1000,
+                    cancel: 'Отмена!',
+                    retry: 'Неверный ввод!',
+                },
             },
         });
     }

@@ -50,11 +50,13 @@ export default class CreateTeam extends Command { // update all|newseason|numofp
                     },
                 },
             ],
-            defaultPrompt: {
-                retries: 3,
-                time: 120 * 1000,
-                cancel: 'Отмена!',
-                retry: 'Неверный ввод!',
+            argumentDefaults: {
+                prompt: {
+                    retries: 3,
+                    time: 180 * 1000,
+                    cancel: 'Отмена!',
+                    retry: 'Неверный ввод!',
+                },
             },
         });
     }
