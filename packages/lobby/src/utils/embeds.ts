@@ -22,7 +22,7 @@ export default {
           .sort((a, b) => b.rank - a.rank)
           .map(m => (lobby.dcLeader.id === m.id ? '\\👑 ' : '')
               + (!m.platform.PC ? '\\🎮' : '')
-              + `<@${m.id}> (${RANK_BADGES[m.rank]} *${Util.escapeMarkdown(m.nickname)}* - [${Object.entries(m.platform).find(e => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
+              + `<@${m.id}> (${RANK_BADGES[m.rank]} **${Util.escapeMarkdown(m.nickname)}** - [${Object.entries(m.platform).find(e => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
               + ((m.verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''))
           .join('\n'))
         + (lobby.description
@@ -139,7 +139,7 @@ export default {
       ],
       footer: {
         iconURL: 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1',
-        text: `Хотите так же? Обратитесь в ЛС Сервера, к ${member.guild.members.filter(m => !m.user.bot && m.hasPermission('MANAGE_GUILD')).map(m => m.user.tag).join(', ')} или активируйте Nitro Boost`,
+        text: `Хотите так же? Обратитесь в ЛС Сервера или к ${member.guild.owner.user.tag} с рублями из маминого кошелька <:oooohmyyy:585721245941891073>, или активируйте Nitro Boost.`,
       },
       thumbnail: {
         url: member.user.displayAvatarURL(),
