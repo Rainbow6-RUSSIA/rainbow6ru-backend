@@ -17,7 +17,8 @@ export default class Nickname extends Command {
                 type: 'user',
             }],
             channel: 'guild',
-            cooldown: 5000,
+            cooldown: 5 * 60 * 1000,
+            ignoreCooldown: (msg: Message) => msg.member.hasPermission('MANAGE_ROLES'),
         });
     }
 
@@ -27,7 +28,7 @@ export default class Nickname extends Command {
         if (!target) {
             target = message.author;
         }
-        if (target.id !== message.author.id && !message.member.hasPermission('MANAGE_NICKNAMES') && ![...this.client.ownerID].includes(message.author.id)) {
+        if (target.id !== message.author.id && !message.member.hasPermission('MANAGE_ROLES') && ![...this.client.ownerID].includes(message.author.id)) {
             await message.reply('изменение синхронизации ников других пользователей доступно только администрации!');
             target = message.author;
         }
@@ -35,12 +36,13 @@ export default class Nickname extends Command {
         if (dbUser && dbUser.genome) {
             dbUser.syncNickname = !dbUser.syncNickname;
             await dbUser.save();
-            await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
-            if (!dbUser.syncNickname) {
+            if (dbUser.syncNickname) {
+                await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
+            } else {
                 try {
                     await (await message.guild.members.fetch(target.id)).setNickname(null);
                 } catch (err) {
-                    console.log(err);
+                    console.log('Reset nickname failed', err);
                 }
             }
             debug.log(`синхронизация ника <@${dbUser.id}> ${dbUser.syncNickname ? 'включена' : 'отключена'}!`);
