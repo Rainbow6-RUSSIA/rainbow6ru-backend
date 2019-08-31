@@ -325,13 +325,13 @@ export class LobbyStore extends LSBase {
             } catch (error) {
                 console.log('pre idgaf 2');
                 try {
-                    await this.lfgChannel.messages.fetch(lobby.appealMessage.id, false)
-                        .finally(this.lfgChannel.messages.get(lobby.appealMessage.id).delete);
+                    await new Promise(res => setTimeout(res, 30 * 1000));
+                    await this.lfgChannel.messages.fetch(lobby.appealMessage.id, false).then(msg => msg.delete());
                 } catch (err) {
                     console.log('idgaf 2');
                     console.log(error, err);
                 }
-
+                lobby.appealMessage = null;
             // return lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
             }
         }
