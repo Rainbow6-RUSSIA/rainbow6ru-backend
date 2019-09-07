@@ -6,17 +6,6 @@ import User from './User';
 import { IngameStatus as IS } from '@r6ru/types';
 import { CategoryChannel, Guild as G, GuildMember, Invite, Message, Snowflake, VoiceChannel } from 'discord.js';
 
-interface IOpts {
-    dcGuild?: G; // 1
-    dcChannel?: VoiceChannel; // 1
-    dcCategory?: CategoryChannel; // 1
-    dcMembers?: GuildMember[]; // 1
-    dcInvite?: Invite;
-    dcLeader?: GuildMember;
-}
-
-const currentlyPlaying = [IS.CASUAL, IS.RANKED, IS.CUSTOM, IS.NEWCOMER, IS.DISCOVERY];
-
 @Table({schema: 'siegebot', timestamps: true})
 export default class Lobby extends Model<Lobby> {
     @BeforeCreate
@@ -48,18 +37,16 @@ export default class Lobby extends Model<Lobby> {
 
     @Column
     public invite: string;
-    public dcInvite: Invite;
 
-    public appealMessage: Message;
+    @Default(IS.OTHER)
+    @Column
     public status: IS;
 
     @Column
     public type: string;
-    public dcCategory: CategoryChannel;
 
     @Column
     public channel: Snowflake;
-    public dcChannel: VoiceChannel;
 
     @ForeignKey(() => Guild)
     @Column
@@ -67,15 +54,9 @@ export default class Lobby extends Model<Lobby> {
 
     @BelongsTo(() => Guild)
     public guild: Guild;
-    public dcGuild: G;
-
-    public dcLeader: GuildMember;
 
     @HasMany(() => User)
     public members: User[];
-    get dcMembers() {
-        return this.dcChannel.members;
-    }
 
     @Default([])
     @Column(DataType.ARRAY(DataType.STRING))
@@ -83,30 +64,4 @@ export default class Lobby extends Model<Lobby> {
 
     @Column
     public initiatedAt: Date;
-
-    public init(addArgs: IOpts) {
-        this.dcGuild = addArgs.dcGuild;
-        this.dcCategory = addArgs.dcCategory;
-        this.dcChannel = addArgs.dcChannel;
-        // this.dcMembers = addArgs.dcMembers;
-        this.dcInvite = addArgs.dcInvite;
-        this.dcLeader = addArgs.dcLeader;
-        return this;
-    }
-
-    public get minRank(): number {
-        return Math.min(...this.members.map(m => m.rank));
-    }
-
-    public get maxRank(): number {
-        return Math.max(...this.members.map(m => m.rank));
-    }
-
-    public get limitRank(): number {
-        return this.minRank === Infinity ? 0 : this.minRank - this.minRank % 4 + 1;
-    }
-
-    public get joinAllowed(): boolean {
-        return this.open && (this.dcChannel.members.size < this.dcChannel.userLimit) && !currentlyPlaying.includes(this.status);
-    }
 }
