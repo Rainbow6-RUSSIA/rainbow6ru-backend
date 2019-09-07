@@ -3,20 +3,18 @@ import { EMOJI_REGEXP, IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_BADGE
 import { EmbedField, GuildMember, MessageOptions, Util } from 'discord.js';
 import { LobbyStore } from '../bot/lobby';
 import ENV from './env';
+import { LSRoom } from './lobby/room';
 
 const currentlyPlaying = [IS.CASUAL, IS.RANKED, IS.CUSTOM, IS.NEWCOMER, IS.DISCOVERY];
 
 export default {
-  appealMsg: async (lobby: Lobby): Promise<MessageOptions> => ({
+  appealMsg: (lobby: LSRoom): MessageOptions => ({
     embed: {
       author: {
           iconURL: lobby.dcLeader.user.displayAvatarURL(),
           name: modeSelector(lobby),
       },
-      color: await (async () => {
-        const dbUser = (lobby.members.find(m => m.id === lobby.dcLeader.id) || await User.findByPk(lobby.dcLeader.id));
-        return RANK_COLORS[(dbUser && dbUser.rank) || 0];
-      })(),
+      color: RANK_COLORS[(lobby.leader && lobby.leader.rank) || 0],
       description:
         (lobby.members
           .sort((a, b) => b.rank - a.rank)
@@ -164,7 +162,7 @@ const getInvite4EmptyRoom = async (LS: LobbyStore): Promise<string> => {
 
 };
 
-const modeSelector = (lobby: Lobby) => {
+const modeSelector = (lobby: LSRoom) => {
   const slot = lobby.joinAllowed
     ? ` | +${lobby.dcChannel.userLimit - lobby.dcMembers.size} слот(-а)`
     : '';

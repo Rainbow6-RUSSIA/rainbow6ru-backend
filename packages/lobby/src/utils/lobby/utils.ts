@@ -1,7 +1,8 @@
 import { Guild, Lobby } from '@r6ru/db';
 import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
 import { CategoryChannel, Collection, Message, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
-import ENV from '../utils/env';
+import ENV from '../env';
+import { LSRoom } from './room';
 
 export class LSBase {
     public static detectIngameStatus = (presence: Presence): IngameStatus => {
@@ -19,14 +20,14 @@ export class LSBase {
     public lfgChannelId: Snowflake;
     public guild: Guild;
     public type: string;
-    public lobbies: Collection<Snowflake, Lobby>;
+    public rooms: Collection<Snowflake, LSRoom>;
     get voices() {
-        return this.lobbies ? new Collection(this.lobbies.map(l => [l.dcChannel.id, l.dcChannel])) : this.rawVoices;
+        return this.rooms ? new Collection(this.rooms.map(l => [l.dcChannel.id, l.dcChannel])) : this.rawVoices;
     }
     get rawVoices() {
-        return this.category.children.filter(ch => ch.type === 'voice' && !ch.deleted) as Collection<Snowflake, VoiceChannel>;
+        return this.category.children.filter(ch => ch instanceof VoiceChannel && !ch.deleted).sort((a, b) => a.position - b.position) as Collection<string, VoiceChannel>;
     }
-    public actionCounter: Collection<Snowflake, IActivityCounter>; // : Array<Partial<ILobbyStoreEvent>> = [];
+    public actionCounter: Collection<Snowflake, IActivityCounter>;
     public status: LSS = LSS.LOADING;
     public promiseQueue = [];
     public roomSize: number = 5;
@@ -36,7 +37,7 @@ export class LSBase {
     public loadedAt = new Date();
     public fastAppeal: Message;
     public get joinAllowedRooms() {
-        return this.lobbies.filter(l => l.joinAllowed).size;
+        return this.rooms.filter(l => l.joinAllowed).size;
     }
     public fastAppealCache: string;
 
