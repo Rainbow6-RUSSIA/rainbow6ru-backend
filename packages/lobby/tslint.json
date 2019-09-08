@@ -2,6 +2,7 @@
     "defaultSeverity": "error",
     "extends": "tslint:latest",
     "rules": {
+        "no-unused-variable": true,
         "max-line-length": false,
         "quotemark": [true, "single", "jsx-double"],
         "no-console": false,
