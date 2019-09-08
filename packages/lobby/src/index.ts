@@ -26,7 +26,11 @@ if (process.env.MIGRATE === 'true') {
     // import('./utils/migration');
 }
 
+const rebootTime = new Date();
+rebootTime.setHours(parseInt(ENV.REBOOT_TIME.split('_')[0]), parseInt(ENV.REBOOT_TIME.split('_')[1]), 0, 0);
+const diff = rebootTime.getTime() - new Date().getTime();
+
 setInterval(() => {
     console.log('reboot');
     process.exit(0);
-}, parseInt(ENV.REBOOT_TIME) || 24 * 60 * 60 * 1000);
+}, diff > 0 ? diff : diff + 24 * 60 * 60 * 1000);
