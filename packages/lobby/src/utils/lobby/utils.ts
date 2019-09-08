@@ -1,8 +1,7 @@
-import { Guild, Lobby } from '@r6ru/db';
-import { IActivityCounter, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
+import { Guild } from '@r6ru/db';
+import { ILobbySettings, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
 import { CategoryChannel, Collection, Message, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
-import ENV from '../env';
-import { LSRoom } from './room';
+import { lobbyStoresRooms } from '../../bot/lobby';
 
 export class LSBase {
     public static detectIngameStatus = (presence: Presence): IngameStatus => {
@@ -14,20 +13,22 @@ export class LSBase {
         }
     }
 
-    public categoryId: Snowflake;
+    public settings: ILobbySettings;
     public category: CategoryChannel;
     public lfgChannel: TextChannel;
-    public lfgChannelId: Snowflake;
     public guild: Guild;
-    public type: string;
-    public rooms: Collection<Snowflake, LSRoom>;
+
+    public get rooms() {
+        return lobbyStoresRooms.filter((r, id) => this.settings.externalRooms.includes(id) || this.category.children.has(id));
+    }
+
     get voices() {
-        return this.rooms ? new Collection(this.rooms.map(l => [l.dcChannel.id, l.dcChannel])) : this.rawVoices;
+        return this.rooms.size ? new Collection(this.rooms.map(l => [l.dcChannel.id, l.dcChannel])) : this.rawVoices;
     }
     get rawVoices() {
         return this.category.children.filter(ch => ch instanceof VoiceChannel && !ch.deleted).sort((a, b) => a.position - b.position) as Collection<string, VoiceChannel>;
     }
-    public actionCounter: Collection<Snowflake, IActivityCounter>;
+    // public actionCounter: Collection<Snowflake, IActivityCounter>;
     public status: LSS = LSS.LOADING;
     public promiseQueue = [];
     public roomSize: number = 5;
@@ -51,15 +52,15 @@ export class LSBase {
         });
     }
 
-    public purgeActions = async () => {
-        this.actionCounter.forEach((a, key, map) => {
-            if (a.times < 2) {
-                map.delete(key);
-            } else {
-                a.times--;
-            }
-        });
-    }
+    // public purgeActions = async () => {
+    //     this.actionCounter.forEach((a, key, map) => {
+    //         if (a.times < 2) {
+    //             map.delete(key);
+    //         } else {
+    //             a.times--;
+    //         }
+    //     });
+    // }
 
     public waitLoaded = async () => {
         return new Promise(resolve => {

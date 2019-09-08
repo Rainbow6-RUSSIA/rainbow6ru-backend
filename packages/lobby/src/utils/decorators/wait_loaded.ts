@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { debug } from '../..';
-import { LobbyStore } from '../../bot/lobby';
 
 export default function WaitLoaded<T>(target: T, propertyName: string, propertyDesciptor: PropertyDescriptor): PropertyDescriptor {
     const method = propertyDesciptor.value;

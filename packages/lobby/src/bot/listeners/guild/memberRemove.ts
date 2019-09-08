@@ -1,9 +1,5 @@
-import { Lobby, User } from '@r6ru/db';
 import { Listener } from 'discord-akairo';
 import { GuildMember, VoiceState } from 'discord.js';
-import { debug } from '../../..';
-import ENV from '../../../utils/env';
-import { lobbyStores } from '../../lobby';
 import VoiceStateUpdate from '../voiceStateUpdate';
 
 export default class MemberRemove extends Listener {

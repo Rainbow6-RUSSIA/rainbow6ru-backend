@@ -1,7 +1,6 @@
 import { Command, Inhibitor } from 'discord-akairo';
 import { Message } from 'discord.js';
 import DetectLS from '../../utils/decorators/detect_ls';
-import ENV from '../../utils/env';
 
 export default class LFGPurge extends Inhibitor {
     constructor() {

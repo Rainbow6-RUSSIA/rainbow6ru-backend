@@ -1,11 +1,9 @@
-import { Lobby } from '@r6ru/db';
-import { IngameStatus as IS, LobbyStoreStatus as LSS } from '@r6ru/types';
-import { VoiceChannel } from 'discord.js';
+import { IngameStatus as IS } from '@r6ru/types';
 import * as restify from 'restify';
-import { NotFoundError } from 'restify-errors';
-import bot from './bot';
-import { LobbyStore, lobbyStores } from './bot/lobby';
+import { BadRequestError, NotFoundError } from 'restify-errors';
+import { lobbyStoresRooms } from './bot/lobby';
 import ENV from './utils/env';
+import { LSRoom } from './utils/lobby/room';
 import { createLobbyPreview } from './utils/preview';
 
 function respond(req, res, next) {
@@ -27,44 +25,37 @@ server.get('/auth/login', respond);
 
 server.get('/lobby/:id/preview', async (req, res, next) => {
   if (Number.isInteger(parseInt(req.params.id))) {
-    const lobbyBase = await Lobby.findByPk(parseInt(req.params.id)/* , { include: [{ all: true }] } */);
+    const room = lobbyStoresRooms.get(req.params.id);
+    // const lobbyBase = await Lobby.findByPk(parseInt(req.params.id)/* , { include: [{ all: true }] } */);
 
-    if (!lobbyBase) {return next(new NotFoundError()); }
+    if (!room) {
+      return next(new NotFoundError());
+    } else {
+      await waitLoaded(room);
+      const pic = await createLobbyPreview(
+        room.minRank,
+        room.maxRank,
+        (!room.joinAllowed
+          ? room.dcChannel.userLimit - room.dcMembers.size
+          : 0));
 
-    const dcChannel = bot.channels.get(lobbyBase.channel) as VoiceChannel;
-
-    if (!dcChannel) {return next(new NotFoundError()); }
-
-    const LS = lobbyStores.get(dcChannel.parentID);
-    await waitLoaded(LS);
-
-    const lobby = LS.lobbies.get(dcChannel.id);
-
-    if (!lobby) {return next(new NotFoundError()); }
-
-    const pic = await createLobbyPreview(
-      lobby.minRank,
-      lobby.maxRank,
-      (!lobby.joinAllowed
-        ? lobby.dcChannel.userLimit - lobby.dcMembers.size
-        : 0));
-
-    return res.sendRaw(200, pic || 'Error', {
-      'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
-      'Content-Type': 'image/png',
-    });
+      return res.sendRaw(200, pic || 'Error', {
+        'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
+        'Content-Type': 'image/png',
+      });
+    }
 
   } else {
-    return next(new NotFoundError());
+    return next(new BadRequestError());
   }
 });
 
 server.listen(ENV.PORT || 3000, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));
 
-async function waitLoaded(LS: LobbyStore) {
+async function waitLoaded(room: LSRoom) {
   return new Promise(resolve => {
       const waiter = () => {
-          if (LS.status === LSS.AVAILABLE) { return resolve(); }
+          if (room.status !== IS.LOADING) { return resolve(); }
           setTimeout(waiter, 25);
       };
       waiter();

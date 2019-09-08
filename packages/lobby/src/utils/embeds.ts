@@ -1,5 +1,4 @@
-import { Lobby, User } from '@r6ru/db';
-import { EMOJI_REGEXP, IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { EMOJI_REGEXP, IngameStatus as IS, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { EmbedField, GuildMember, MessageOptions, Util } from 'discord.js';
 import { LobbyStore } from '../bot/lobby';
 import ENV from './env';
@@ -77,17 +76,17 @@ export default {
         name: `Быстрый поиск команды в ${LS.category.name}`,
       },
       description: `Канал поиска: ${LS.lfgChannel}\n`
-        + `Всего лобби: \`${LS.lobbies.filter(v => Boolean(v.dcMembers.size)).size}\`\n`
-        + `Ищут игрока: \`${LS.lobbies
+        + `Всего лобби: \`${LS.rooms.filter(v => Boolean(v.dcMembers.size)).size}\`\n`
+        + `Ищут игрока: \`${LS.rooms
             .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
             .size
-          || (LS.lobbies
+          || (LS.rooms
             .filter(l => Boolean(l.dcMembers.size) && Boolean(l.appealMessage))
             .size
               ? 'все комнаты укомплектованы!'
               : 0)}\`\n`
-        + `Присоединиться к новой комнате: ${await getInvite4EmptyRoom(LS)} 👈`,
-      fields: LS.lobbies
+        + `Присоединиться к новой комнате: ${await LS.rooms.last().initInvite()} 👈`,
+      fields: LS.rooms
         .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
         .sort((a, b) => a.dcChannel.position - b.dcChannel.position)
         .array()
@@ -113,7 +112,7 @@ export default {
             + `[подробнее...](${lobby.appealMessage.url})`,
         })),
       footer: {
-        text: `ID - ${LS.type}`,
+        text: `ID - ${LS.settings.type}`,
       },
     },
   }),
@@ -145,21 +144,6 @@ export default {
       timestamp: new Date(),
     },
   }),
-};
-
-const getInvite4EmptyRoom = async (LS: LobbyStore): Promise<string> => {
-  const sorted = LS.lobbies.sort((a, b) => a.dcChannel.position - b.dcChannel.position);
-  if (sorted.last().dcMembers.size || !sorted.last().dcInvite) {
-    const lobby = sorted.filter(l => !l.dcMembers.size).last();
-    const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
-    lobby.invite = inv.url;
-    await lobby.save();
-    lobby.dcInvite = inv;
-    return inv.url;
-  } else {
-    return sorted.last().dcInvite.url;
-  }
-
 };
 
 const modeSelector = (lobby: LSRoom) => {

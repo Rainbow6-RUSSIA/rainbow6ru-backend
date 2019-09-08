@@ -28,14 +28,14 @@ export default class Votekick extends Command {
     @RequireVoice
     @PartyCommand(true)
     public async exec(message: Message, args: IArgs) {
-        const { description, target, lobby, LS } = args;
+        const { description, target, room } = args;
         if (!target) {
             return DMReply(message, 'Вы не указали цель голосования!');
         }
         if (!description) {
             return DMReply(message, 'Вы не указали причину исключения!');
         }
-        const voice = lobby.dcChannel;
+        const voice = room.dcChannel;
         if (message.author.id === target.id) {
             return DMReply(message, 'Вы не можете голосовать за исключение себя!');
         }
@@ -60,8 +60,8 @@ export default class Votekick extends Command {
                 await vote.reactions.clear();
                 await vote.edit(`Недостаточно голосов для исключения ${target}\n${VM.array().join(', ')}`);
             } else {
-                await debug.log(`${VM.array().join(', ')} исключили ${target} из \`${lobby.type}\` по причине \`${description}\`. ID пати \`${lobby.id}\``);
-                await LS.kick(target, 300000, 'Вы временно отстранены от поиска по результатам голосования!', lobby.id);
+                await debug.log(`${VM.array().join(', ')} исключили ${target} из \`${room.LS.settings.type}\` по причине \`${description}\`. ID пати \`${room.id}\``);
+                await room.LS.kick(target, 300000, 'Вы временно отстранены от поиска по результатам голосования!', room.id);
                 await vote.edit(`${target} исключен\n${VM.array().join(', ')}`);
             }
             return vote.delete({ timeout: 30000 });

@@ -1,4 +1,3 @@
-import { ILobbyStoreEventType } from '@r6ru/types';
 import 'reflect-metadata';
 import { debug } from '../..';
 import { LobbyStore } from '../../bot/lobby';
