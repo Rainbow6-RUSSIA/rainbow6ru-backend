@@ -105,6 +105,7 @@ export interface IActivityCounter {
 }
 
 export enum IngameStatus {
+    LOADING = -2,
     OTHER = -1,
     MENU = 0,
     CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, NEWCOMER, NEWCOMER_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, DISCOVERY, DISCOVERY_SEARCH,
@@ -151,3 +152,11 @@ export const EMOJI_REGEXP = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff
 
 export type DonateRecord = [Snowflake, number, string, Snowflake[]];
 //                          roleId     price   name    allowedUsers
+
+export interface ILobbySettings {
+    lfg: Snowflake;
+    voiceCategory: Snowflake;
+    roomsRange: [number, number];
+    externalRooms: Snowflake[];
+    type: string;
+}
