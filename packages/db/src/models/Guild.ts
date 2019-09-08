@@ -4,7 +4,7 @@ import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
 import User from './User';
 
-import { DonateRecord, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { DonateRecord, ILobbySettings, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 
 import { Snowflake } from 'discord.js';
 import Tournament from './Tournament';
@@ -28,27 +28,11 @@ export default class Guild extends Model<Guild> {
         XBOX: string,
     };
 
-    @Column(DataType.JSONB)
-    public voiceCategories: {
-        [key: string]: Snowflake;
-    };
+    @HasMany(() => Lobby, 'Lobby_guildId_fkey')
+    public lobbies: Lobby[];
 
-    @Column(DataType.JSONB)
-    public lfgChannels: {
-        [key: string]: Snowflake;
-    };
-
-    @HasMany(() => Lobby)
-    public lobbys: Lobby[];
-
-    @HasMany(() => Tournament)
+    @HasMany(() => Tournament, 'Tournament_guildId_fkey')
     public tournaments: Tournament[];
-
-    @Column(DataType.JSONB)
-    public roomsRange: {
-        default: [number, number];
-        [key: string]: [number, number];
-    };
 
     @Default(false)
     @Column
@@ -69,11 +53,6 @@ export default class Guild extends Model<Guild> {
     @Column(DataType.INTEGER)
     public requiredVerification: VERIFICATION_LEVEL;
 
-    @Column(DataType.JSONB)
-    public options: {
-        externalRooms: Snowflake[],
-    };
-
     @Column
     public fastLfg: string;
 
@@ -82,4 +61,9 @@ export default class Guild extends Model<Guild> {
 
     @Column
     public teamRole: string;
+
+    @Column(DataType.JSONB)
+    public lobbySettings: {
+        [key: string]: ILobbySettings,
+    };
 }

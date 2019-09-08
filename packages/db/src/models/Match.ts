@@ -25,7 +25,7 @@ export default class Match extends Model<Match> {
     @Column
     public active: boolean;
 
-    @HasMany(() => Vote)
+    @HasMany(() => Vote, 'Vote_matchId_fkey')
     public votes: Vote[];
 
     @Column(DataType.JSONB)
@@ -38,7 +38,7 @@ export default class Match extends Model<Match> {
     @Column
     public tournamentId: number;
 
-    @BelongsTo(() => Tournament)
+    @BelongsTo(() => Tournament, 'Match_tournamentId_fkey')
     public tournament: Tournament;
 
     @Default(false)

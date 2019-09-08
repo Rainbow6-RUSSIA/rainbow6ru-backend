@@ -38,7 +38,7 @@ export default class Lobby extends Model<Lobby> {
     @Column
     public invite: string;
 
-    @Default(IS.OTHER)
+    @Default(IS.LOADING)
     @Column
     public status: IS;
 
@@ -52,10 +52,10 @@ export default class Lobby extends Model<Lobby> {
     @Column
     public guildId: Snowflake;
 
-    @BelongsTo(() => Guild)
+    @BelongsTo(() => Guild, 'Lobby_guildId_fkey')
     public guild: Guild;
 
-    @HasMany(() => User)
+    @HasMany(() => User, 'User_lobbyId_fkey')
     public members: User[];
 
     @Default([])
