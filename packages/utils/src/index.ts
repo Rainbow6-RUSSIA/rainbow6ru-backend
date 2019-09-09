@@ -104,8 +104,9 @@ export class Log {
       return a;
     }
 
-    public sendWebhook<T>(context: Context, type: 'Information' | 'Warning' | 'Error', body: T, color: number) {
-        return this.webhook && this.webhook.send(type === 'Error' && !(body instanceof Error) ? '@everyone' : '', { embeds: [{
+    public sendWebhook<T>(context: Context, type: 'Information' | 'Warning' | 'Error', body: T, color: number, retry = 0) {
+        try {
+          return this.webhook && this.webhook.send(type === 'Error' && !(body instanceof Error) ? '@everyone' : '', { embeds: [{
             author: {
                 iconURL: this.client.displayAvatarURL(),
                 name: this.client.tag,
@@ -123,7 +124,10 @@ export class Log {
                 value: ch,
               })),
             timestamp: Date.now(),
-        }] });
+          }] });
+        } catch (err) {
+          if (retry < 2) { this.sendWebhook(context, type, body, color, retry + 1); }
+        }
     }
 
     public log(msg: any, context: Context = this.defaultContext) {
