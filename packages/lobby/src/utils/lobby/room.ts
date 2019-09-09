@@ -1,5 +1,5 @@
 import { Lobby, User } from '@r6ru/db';
-import { IngameStatus as IS } from '@r6ru/types';
+import { currentlyPlaying, emojiButtons, IngameStatus as IS } from '@r6ru/types';
 import { CategoryChannel, Collection, Guild, GuildMember, Invite, Message, MessageOptions, MessageReaction, ReactionCollector, User as U, VoiceChannel } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { debug } from '../..';
@@ -7,12 +7,7 @@ import { LobbyStore } from '../../bot/lobby';
 import WaitLoaded from '../decorators/wait_loaded';
 import embeds from '../embeds';
 import ENV from '../env';
-
-const currentlyPlaying = [IS.CASUAL, IS.RANKED, IS.CUSTOM, IS.NEWCOMER, IS.DISCOVERY];
-const emojiButtons = {
-    hardplay: '🏆',
-    open: '🔐',
-};
+import { applyMixins } from '../mixin';
 
 export class LSRoom extends Lobby {
     public LS: LobbyStore;
@@ -30,15 +25,15 @@ export class LSRoom extends Lobby {
     constructor(voice: VoiceChannel, LS: LobbyStore) {
         super({
             channel: voice.id,
+            close: false,
             hardplay: false,
             initiatedAt: new Date(),
-            open: true,
             type: LS.settings.type,
         });
         this.LS = LS;
         this.dcChannel = voice;
         this.dcCategory = voice.parent;
-        // this.dcGuild = voice.guild;
+        this.dcGuild = voice.guild;
         this.dcLeader = this.dcMembers.random();
         // this.save();
     }
@@ -86,13 +81,15 @@ export class LSRoom extends Lobby {
         if (!this.appealMessage) {
             console.log('INIT APPEAL', this.dcChannel.name);
             this.appealMessage = await this.LS.lfgChannel.send('', embeds.appealMsg(this));
-            const filter = (reaction: MessageReaction, user: U) => emojiButtons[reaction.emoji.name] && this.dcLeader.id === user.id;
-            this.reactionBarCollector = this.appealMessage.createReactionCollector(filter);
+            const filter = (reaction: MessageReaction, user: U) => !user.bot && emojiButtons.reverse[reaction.emoji.name] && (this.dcLeader.id === user.id || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'));
+            this.reactionBarCollector = this.appealMessage.createReactionCollector(filter, {dispose: true});
             (async () => {
-                for (const r of $enum(emojiButtons).getValues()) {
+                for (const r of Object.values(emojiButtons.direct)) {
                     await this.appealMessage.react(r);
                 }
             })();
+            this.reactionBarCollector.on('collect', (reaction, user) => this.handleAction(emojiButtons.reverse[reaction.emoji.name], true));
+            this.reactionBarCollector.on('remove', (reaction, user) => this.handleAction(emojiButtons.reverse[reaction.emoji.name], false));
         }
         return this.appealMessage;
     }
@@ -109,42 +106,47 @@ export class LSRoom extends Lobby {
 
     public async updateAppeal(appeal?: MessageOptions) {
         await this.initAppeal();
-        if ((this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) > (Date.now() - 3000)) {
+        if (this.appealTimeout || (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) > (Date.now() - 2000)) {
             this.appealTimeoutMsg = embeds.appealMsg(this);
             if (!this.appealTimeout) {
-                this.appealTimeout = setTimeout(() => (this.appealTimeout = null) || this.updateAppeal(this.appealTimeoutMsg), Date.now() - (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) + 500);
+                clearTimeout(this.appealTimeout);
+                this.appealTimeout = setTimeout(() => (this.appealTimeout = null) || this.updateAppeal(this.appealTimeoutMsg), Date.now() - (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) + 1);
             }
         } else {
-            await this.dcChannel.fetch();
+            // console.log(this.dcChannel.name);
+            // console.log({a: await this.dcChannel.fetch()});
             await this.appealMessage.edit('', appeal || embeds.appealMsg(this));
         }
     }
 
-    public async handleAction(action: keyof typeof emojiButtons, flag: boolean) {
-        console.log('ACTION', action, 'FLAG', flag);
+    public async handleAction(action: keyof typeof emojiButtons.direct, flag: boolean) {
+        // console.log('ACTION', action, 'FLAG', flag, this.hardplay, this.close);
+        if (this[action] === flag) { return; }
         this[action] = flag;
         await this.save();
         switch (action) {
-            case 'open': {
-                await this.dcChannel.setUserLimit(flag ? this.LS.roomSize : this.dcMembers.size);
-                debug.log(`${this.dcLeader} ${this.open ? 'открыл' : 'закрыл'} лобби!. ID пати \`${this.id}\``);
+            case 'close': {
+                // flag = !flag;
+                // console.log(flag ? this.LS.roomSize : this.dcMembers.size);
+                await this.dcChannel.setUserLimit(flag ? this.dcMembers.size : this.LS.roomSize);
+                debug.log(`${this.dcLeader} ${!this.close ? 'открыл' : 'закрыл'} лобби!. ID пати \`${this.id}\``);
                 try {
-                    this.dcLeader.send(`Лобби ${this.open ? 'открыто' : 'закрыто'}!`);
+                    this.dcLeader.send(`Лобби ${!this.close ? 'открыто' : 'закрыто'}!`);
                 } catch (error) {
                     //
                 }
+                break;
             }
             case 'hardplay': {
                 if (flag) {
-                    const HP = this.dcChannel.name.replace(' ', ' HardPlay ');
                     const allRoles = new Set(this.guild.rankRoles);
                     const allowedRoles = new Set(this.guild.rankRoles.slice(this.minRank));
                     allRoles.delete(''); allowedRoles.delete('');
                     const disallowedRoles = new Set([...allRoles].filter(r => !allowedRoles.has(r)));
-                    await this.dcChannel.edit({
-                        name: /HardPlay /g.test(HP) ? HP : this.dcChannel.name.replace('', 'HardPlay '),
+                    this.dcChannel = await this.dcChannel.edit({
+                        name: this.dcChannel.name.replace(/HardPlay /g, '').replace(' ', ' HardPlay '),
                         permissionOverwrites: this.dcChannel.permissionOverwrites.filter(o => !disallowedRoles.has(o.id)),
-                    });
+                    }) as VoiceChannel;
                     debug.log(`${this.dcLeader} ${!this.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${this.id}\``);
                     try {
                         this.dcLeader.send(`HardPlay лобби ${!this.hardplay ? 'деактивировано' : 'активировано'}!`);
@@ -152,11 +154,12 @@ export class LSRoom extends Lobby {
                         //
                     }
                 } else {
-                    await this.dcChannel.edit({
+                    this.dcChannel = await this.dcChannel.edit({
                         name: this.dcChannel.name.replace(/HardPlay /g, ''),
                         permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
-                    });
+                    }) as VoiceChannel;
                 }
+                break;
             }
         }
         this.updateAppeal();
@@ -175,7 +178,7 @@ export class LSRoom extends Lobby {
     }
 
     public get joinAllowed() {
-        return this.open && (this.dcChannel.members.size < this.dcChannel.userLimit) && !currentlyPlaying.includes(this.status);
+        return !this.close && (this.dcChannel.members.size < this.dcChannel.userLimit) && !currentlyPlaying.includes(this.status);
     }
 
     public get dcMembers() {
@@ -199,14 +202,6 @@ export class LSRoom extends Lobby {
             waiter();
         });
     }
-}
-
-function applyMixins(derivedCtor: any, baseCtors: any[]) {
-    baseCtors.forEach(baseCtor => {
-        Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
-            Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name));
-        });
-    });
 }
 
 applyMixins(LSRoom, [Lobby]);

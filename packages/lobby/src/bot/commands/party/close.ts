@@ -15,6 +15,6 @@ export default class MM extends Command {
     @PartyCommand()
     public async exec(message: Message, args: IArgsPartyCommand) {
         const { room } = args;
-        return room.handleAction('open', !room.open);
+        return room.handleAction('close', !room.close);
     }
 }

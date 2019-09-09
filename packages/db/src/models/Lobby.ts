@@ -27,9 +27,9 @@ export default class Lobby extends Model<Lobby> {
     @Column
     public active: boolean;
 
-    @Default(true)
+    @Default(false)
     @Column
-    public open: boolean;
+    public close: boolean;
 
     @Default(false)
     @Column

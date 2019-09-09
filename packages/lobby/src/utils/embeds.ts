@@ -1,10 +1,8 @@
-import { EMOJI_REGEXP, IngameStatus as IS, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { currentlyPlaying, EMOJI_REGEXP, emojiButtons, IngameStatus as IS, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { EmbedField, GuildMember, MessageOptions, Util } from 'discord.js';
 import { LobbyStore } from '../bot/lobby';
 import ENV from './env';
 import { LSRoom } from './lobby/room';
-
-const currentlyPlaying = [IS.CASUAL, IS.RANKED, IS.CUSTOM, IS.NEWCOMER, IS.DISCOVERY];
 
 export default {
   appealMsg: (lobby: LSRoom): MessageOptions => ({
@@ -29,11 +27,11 @@ export default {
         const fields: EmbedField[] = [];
         if (lobby.hardplay) {
           fields.push({
-            name: 'Режим "HardPlay"',
+            name: `Режим "HardPlay\\${emojiButtons.direct.hardplay}"`,
             value: `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\``,
           });
         }
-        if (!lobby.open) {
+        if (lobby.close) {
           fields.push({
             name: 'Закрытое лобби',
             value: 'Лимит пользователей восстановится при выходе кого-либо из лобби.',
@@ -50,7 +48,7 @@ export default {
             name: 'Присоединиться',
             value: `${lobby.dcInvite.url} 👈`,
           });
-        } else if (lobby.open && (lobby.dcMembers.size < lobby.dcChannel.userLimit) && currentlyPlaying.includes(lobby.status)) {
+        } else if (!lobby.close && (lobby.dcMembers.size < lobby.dcChannel.userLimit) && currentlyPlaying.includes(lobby.status)) {
           fields.push({
             name: 'Лобби играет',
             value: `Сейчас лучше не заходить в комнату, чтобы не беспокоить игроков.`,
@@ -85,7 +83,7 @@ export default {
             .size
               ? 'все комнаты укомплектованы!'
               : 0)}\`\n`
-        + `Присоединиться к новой комнате: ${await LS.rooms.last().initInvite()} 👈`,
+        + `Присоединиться к новой комнате: ${await LS.rooms.filter(r => !r.dcMembers.size).last().initInvite()} 👈`,
       fields: LS.rooms
         .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
         .sort((a, b) => a.dcChannel.position - b.dcChannel.position)
@@ -95,7 +93,7 @@ export default {
           inline: true,
           name: modeSelector(lobby)
             .replace(EMOJI_REGEXP, v => '\\' + v), // emoji wrap
-          value: (lobby.hardplay ? `HardPlay: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n` : '')
+          value: (lobby.hardplay ? `HardPlay\\${emojiButtons.direct.hardplay}: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n` : '')
             + `Ранг: ${lobby.minRank === lobby.maxRank
               ? (lobby.maxRank === 0
                 ? '`любой`'
@@ -172,7 +170,7 @@ const modeSelector = (lobby: LSRoom) => {
     case IS.OTHER:
     case IS.MENU:
     default:
-      return !lobby.open || lobby.dcMembers.size >= lobby.dcChannel.userLimit
+      return lobby.close || lobby.dcMembers.size >= lobby.dcChannel.userLimit
         ? `Готовы играть в ${lobby.dcChannel.name}`
         : `Ищут +${lobby.dcChannel.userLimit - lobby.dcMembers.size} в ${lobby.dcChannel.name}`;
   }
