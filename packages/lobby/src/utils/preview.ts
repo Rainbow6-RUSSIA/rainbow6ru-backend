@@ -8,11 +8,25 @@ export async function createLobbyPreview(n: number, m: number, k: number = 0) {
     if (n === m) {
         if (n === 0) {
             n = 0;
-            m = 20;
+            m = 23;
         } else {
-            n--;
-            n = n - n % 4 + 1;
-            m = n + 3;
+            switch (true) {
+                case n > 0 && n <= 5:
+                    n = 1; m = 5;
+                    break;
+                case n > 5 && n <= 10:
+                    n = 6; m = 10;
+                    break;
+                case n > 10 && n <= 15:
+                    n = 11; m = 15;
+                    break;
+                case n > 15 && n <= 19:
+                    n = 16; m = 19;
+                    break;
+                case n > 19:
+                    n = 20; m = 23;
+                    break;
+            }
         }
     }
     const preview = Canvas.createCanvas(160, 160);
