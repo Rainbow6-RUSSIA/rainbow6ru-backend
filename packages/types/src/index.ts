@@ -2,11 +2,13 @@ import { GuildMember, Snowflake } from 'discord.js';
 
 export const RankResolvable = [
     'Unranked',
-    'Copper IV', 'Copper III', 'Copper II', 'Copper I',
-    'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
-    'Silver IV', 'Silver III', 'Silver II', 'Silver I',
-    'Gold IV', 'Gold III', 'Gold II', 'Gold I',
-    'Platinum III', 'Platinum II', 'Platinum I', 'Diamond',
+    'Copper V', 'Copper IV', 'Copper III', 'Copper II', 'Copper I',
+    'Bronze V', 'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
+    'Silver V', 'Silver IV', 'Silver III', 'Silver II', 'Silver I',
+    'Gold III', 'Gold II', 'Gold I',
+    'Platinum III', 'Platinum II', 'Platinum I',
+    'Diamond',
+    'Champion',
 ];
 
 export type UUID = string;
@@ -52,11 +54,13 @@ export enum MATCH_TYPE {
 
 export enum RANKS {
     'Unranked',
-    'Copper IV', 'Copper III', 'Copper II', 'Copper I',
-    'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
-    'Silver IV', 'Silver III', 'Silver II', 'Silver I',
-    'Gold IV', 'Gold III', 'Gold II', 'Gold I',
-    'Platinum III', 'Platinum II', 'Platinum I', 'Diamond',
+    'Copper V', 'Copper IV', 'Copper III', 'Copper II', 'Copper I',
+    'Bronze V', 'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
+    'Silver V', 'Silver IV', 'Silver III', 'Silver II', 'Silver I',
+    'Gold III', 'Gold II', 'Gold I',
+    'Platinum III', 'Platinum II', 'Platinum I',
+    'Diamond',
+    'Champion',
 }
 
 export enum ACCESS {
@@ -105,9 +109,10 @@ export interface IActivityCounter {
 }
 
 export enum IngameStatus {
+    LOADING = -2,
     OTHER = -1,
     MENU = 0,
-    CASUAL, CASUAL_SEARCH, RANKED, RANKED_SEARCH, NEWCOMER, NEWCOMER_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, DISCOVERY, DISCOVERY_SEARCH,
+    CASUAL, CASUAL_SEARCH, UNRANKED, UNRANKED_SEARCH, RANKED, RANKED_SEARCH, NEWCOMER, NEWCOMER_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, DISCOVERY, DISCOVERY_SEARCH,
 }
 
 export const R6_PRESENCE_ID = '445956193924546560';
@@ -116,6 +121,8 @@ export const R6_PRESENCE_REGEXPS = [
     [/МЕНЮ/g, /MENU/g],
     [/ОБЫЧНАЯ.+раунд/g, /CASUAL.+Round/g],
     [/Поиск.+ОБЫЧНАЯ/g, /Looking.+CASUAL/g],
+    [/БЕЗРЕЙТ.+раунд/g, /UNRANKED.+Round/g],
+    [/Поиск.+БЕЗРЕЙТ/g, /Looking.+UNRANKED/g],
     [/РЕЙТ.+раунд/g, /RANKED.+Round/g],
     [/Поиск.+РЕЙТ/g, /Looking.+RANKED/g],
     [/НОВИЧОК.+раунд/g, /NEWCOMER.+Round/g],
