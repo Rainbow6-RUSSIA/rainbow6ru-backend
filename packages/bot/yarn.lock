@@ -287,6 +287,14 @@
     extsprintf "^1.4.0"
     lodash "^4.17.15"
 
+"@r6s.media/r6.api@https://github.com/BadCoder1337/r6api#77a4916":
+  version "1.5.6"
+  resolved "https://github.com/BadCoder1337/r6api#77a491606d9805e04e766f786bd92028fd761609"
+  dependencies:
+    bluebird "^3.5.3"
+    lodash.merge "^4.6.0"
+    node-fetch "^2.3.0"
+
 "@types/bcrypt@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/bcrypt/-/bcrypt-3.0.0.tgz#851489a9065a067cb7f3c9cbe4ce9bed8bba0876"
@@ -622,7 +630,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-bluebird@^3.5.0, bluebird@^3.5.4, bluebird@^3.5.5:
+bluebird@^3.5.0, bluebird@^3.5.3, bluebird@^3.5.4:
   version "3.5.5"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.5.tgz#a8d0afd73251effbbd5fe384a77d73003c17a71f"
   integrity sha512-5am6HnnfN+urzt4yfg7IgTbotDjIT/u8AJpEt0sIU9FtXfVeezXAPKswrG+xKUCOYAINpSdgZVDU6QFh+cuH3w==
@@ -1494,6 +1502,11 @@ lodash.isstring@^4.0.1:
   resolved "https://registry.yarnpkg.com/lodash.isstring/-/lodash.isstring-4.0.1.tgz#d527dfb5456eca7cc9bb95d5daeaf88ba54a5451"
   integrity sha1-1SfftUVuynzJu5XV2ur4i6VKVFE=
 
+lodash.merge@^4.6.0:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
+  integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
+
 lodash.once@^4.0.0:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/lodash.once/-/lodash.once-4.1.1.tgz#0dd3971213c7c56df880977d504c88fb471a97ac"
@@ -2030,13 +2043,6 @@ qs@^6.7.0:
   version "6.8.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.8.0.tgz#87b763f0d37ca54200334cd57bb2ef8f68a1d081"
   integrity sha512-tPSkj8y92PfZVbinY1n84i1Qdx75lZjMQYx9WZhnkofyxzw2r7Ho39G3/aEvSUdebxpnnM4LZJCtvE/Aq3+s9w==
-
-"r6api.js@https://github.com/BadCoder1337/r6api.js#d515a98":
-  version "0.0.24"
-  resolved "https://github.com/BadCoder1337/r6api.js#d515a9873c0a3a26c55e199a63810efe7f17ef6e"
-  dependencies:
-    bluebird "^3.5.5"
-    node-fetch "^2.6.0"
 
 range-parser@~1.2.0:
   version "1.2.1"

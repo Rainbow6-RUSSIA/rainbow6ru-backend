@@ -2,7 +2,7 @@ import { User } from '@r6ru/db';
 import { ONLINE_TRACKER, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { RankInfo, SeasonNumber } from 'r6api.js';
+// import { RankInfo, SeasonNumber } from 'r6api.js';
 import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import r6 from '../../../r6api';
@@ -66,9 +66,9 @@ export default class HackScan extends Command {
             return all;
          }, []);
         console.log(dbUsers.count, genomeChunks.length);
-        const mapAnsws = await Promise.all(genomeChunks.map(ch => r6.getRank('PC', ch, { season: -1, region: region ? [region] : $enum(REGIONS).getValues()})));
-        const answs = new Array<RankInfo>().concat(...mapAnsws.map(a => [...a.values()]));
-        const result = answs.filter(Security.analyzeRankStats).map(a => a.id);
+        const mapAnsws = []; // await Promise.all(genomeChunks.map(ch => r6.getRank('PC', ch, { season: -1, region: region ? [region] : $enum(REGIONS).getValues()})));
+        // const answs = new Array<RankInfo>().concat(...mapAnsws.map(a => [...a.values()]));
+        const result = []; // answs.filter(Security.analyzeRankStats).map(a => a.id);
         const suspiciousUsers = dbUsers.rows.filter(u => u.genomeHistory.some(g => result.includes(g)));
         const parts = (`<@${message.author.id}>, найдено ${result.length} подозрительных аккаунтов Uplay с удаленной статистикой\n`
         + `Они привязаны или были привязаны у ${suspiciousUsers.length} пользователей\n` + await idTagTrackerBadge(suspiciousUsers)).split('\n').reduce(this.paragraphSplit('\n'), []);

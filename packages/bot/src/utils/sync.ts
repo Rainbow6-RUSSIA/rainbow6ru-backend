@@ -1,5 +1,5 @@
 import { Guild as G, Team, User as U } from '@r6ru/db';
-import { ONLINE_TRACKER, PLATFORM, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { ONLINE_TRACKER, PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
 import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { debug } from '..';
@@ -19,15 +19,15 @@ export default class Sync {
       }},
     });
     if (!dbUsers.length) { return []; }
-    const res = await r6.getUsername(platform, dbUsers.map(u => u.genome));
-    if (res.size) {
+    const res = await r6.api.getCurrentName(platform, dbUsers.map(u => u.genome));
+    if (!Object.keys(res).length) {
       return dbUsers;
     }
     const before = dbUsers.map(u => u.nickname);
     await Promise.all(dbUsers.map(u => {
-      if (res.has(u.genome) && (u.nickname !== res.get(u.genome).username)) {
-        console.log('[BOT]', u.nickname, '-->', res.get(u.genome).username);
-        u.nickname = res.get(u.genome).username;
+      if (res[u.genome] && (u.nickname !== res[u.genome].name)) {
+        console.log('[BOT]', u.nickname, '-->', res[u.genome].name);
+        u.nickname = res[u.genome].name;
       }
       u.nicknameUpdatedAt = new Date();
       return u.save({ silent: true });
@@ -44,17 +44,17 @@ export default class Sync {
         platform: {[platform]: true}},
     });
     if (!dbUsers.length || (dbUsers[0].rankUpdatedAt.valueOf() + 20 * parseInt(ENV.COOLDOWN) > Date.now())) { return []; }
-    const res = await r6.getRank(platform, dbUsers.map(u => u.genome));
-    if (res.size) {
+    const res = await r6.api.getRank(platform, dbUsers.map(u => u.genome));
+    if (!Object.keys(res).length) {
       return dbUsers;
     }
     const before = dbUsers.map(u => u.rank);
     await Promise.all(dbUsers.map(u => {
-      if (res.has(u.genome)) {
-        if (Security.analyzeRankStats(res.get(u.genome))) {
-          debug.error(`<@${u.id}> имеет подозрительный аккаунт Uplay с удаленной статистикой ${ONLINE_TRACKER}${u.genome}`);
-        }
-        u.rank = u.region ? res.get(u.genome).regions[u.region].current.id : Math.max(...$enum(REGIONS).getValues().map(r => res.get(u.genome).regions[r].current.id));
+      if (res[u.genome]) {
+        // if (Security.analyzeRankStats(res.get(u.genome))) {
+        //   debug.error(`<@${u.id}> имеет подозрительный аккаунт Uplay с удаленной статистикой ${ONLINE_TRACKER}${u.genome}`);
+        // }
+        u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
       }
       u.rankUpdatedAt = new Date();
       return u.save({ silent: true });

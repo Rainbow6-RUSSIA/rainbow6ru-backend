@@ -1,7 +1,7 @@
 import { Guild, User } from '@r6ru/db';
 import { ONLINE_TRACKER, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { Collection, User as U } from 'discord.js';
-import { RankInfo } from 'r6api.js';
+// import { RankInfo } from 'r6api.js';
 import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import { debug } from '../';
@@ -90,16 +90,16 @@ export default class Security {
         return Sync.updateMember(dbGuild, dbUser);
     }
 
-    public static analyzeRankStats = (data: RankInfo) =>
-        $enum(REGIONS).getValues().some(r =>
-            data.regions[r].abandons === 1
-            && data.regions[r].wins === 0
-            && data.regions[r].losses === 0
-            && (
-                data.regions[r].deaths >= 9
-                || data.regions[r].kills > 40
-                || (
-                    data.regions[r].current.mmr !== 2500
-                    && data.regions[r].lastMatch.mmrChange
-                    && Math.abs(data.regions[r].lastMatch.mmrChange) < parseInt(ENV.SUSPICIOUS_MMR_CHANGE))))
+    // public static analyzeRankStats = (data: RankInfo) =>
+    //     $enum(REGIONS).getValues().some(r =>
+    //         data.regions[r].abandons === 1
+    //         && data.regions[r].wins === 0
+    //         && data.regions[r].losses === 0
+    //         && (
+    //             data.regions[r].deaths >= 9
+    //             || data.regions[r].kills > 40
+    //             || (
+    //                 data.regions[r].current.mmr !== 2500
+    //                 && data.regions[r].lastMatch.mmrChange
+    //                 && Math.abs(data.regions[r].lastMatch.mmrChange) < parseInt(ENV.SUSPICIOUS_MMR_CHANGE))))
 }

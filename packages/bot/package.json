@@ -32,7 +32,7 @@
 		"passport-oauth2": "^1.4.0",
 		"pg": "^7.11.0",
 		"pretty-bytes": "^5.2.0",
-		"r6api.js": "https://github.com/BadCoder1337/r6api.js#d515a98",
+		"@r6s.media/r6.api": "https://github.com/BadCoder1337/r6api#77a4916",
 		"reflect-metadata": "^0.1.12",
 		"restify": "^8.3.2",
 		"restify-errors": "^8.0.0",
