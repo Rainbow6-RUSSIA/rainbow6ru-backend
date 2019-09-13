@@ -1,6 +1,7 @@
 import { Lobby, User } from '@r6ru/db';
 import { EMOJI_REGEXP, IngameStatus as IS, IUbiBound, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { EmbedField, GuildMember, MessageOptions, Util } from 'discord.js';
+import bot from '../bot';
 import { LobbyStore } from '../bot/lobby';
 import ENV from './env';
 
@@ -22,7 +23,7 @@ export default {
           .sort((a, b) => b.rank - a.rank)
           .map(m => (lobby.dcLeader.id === m.id ? '\\👑 ' : '')
               + (!m.platform.PC ? '\\🎮' : '')
-              + `<@${m.id}> (${RANK_BADGES[m.rank]} **${Util.escapeMarkdown(m.nickname)}** - [${Object.entries(m.platform).find(e => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
+              + `<@${m.id}> (${bot.emojis.resolve(RANK_BADGES[m.rank])} **${Util.escapeMarkdown(m.nickname)}** - [${Object.entries(m.platform).find(e => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
               + ((m.verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''))
           .join('\n'))
         + (lobby.description
