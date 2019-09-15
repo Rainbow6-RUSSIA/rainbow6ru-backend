@@ -173,6 +173,7 @@ const modeSelector = (lobby: Lobby) => {
     case IS.CASUAL_SEARCH:
     case IS.RANKED_SEARCH:
     case IS.CUSTOM_SEARCH:
+    case IS.UNRANKED_SEARCH:
       return `Поиск матча в ${lobby.dcChannel.name}` + slot;
     case IS.DISCOVERY_SEARCH:
       return `Поиск Разведки в ${lobby.dcChannel.name}` + slot;
@@ -181,13 +182,14 @@ const modeSelector = (lobby: Lobby) => {
     case IS.CASUAL:
     case IS.RANKED:
     case IS.CUSTOM:
+    case IS.UNRANKED:
       return `Играют в ${lobby.dcChannel.name}`;
+    case IS.DISCOVERY:
+      return `${lobby.dcChannel.name} играет Разведку` + slot;
     case IS.NEWCOMER:
       return `Играют режим Новичок в ${lobby.dcChannel.name}`;
     case IS.TERRORIST_HUNT:
       return `${lobby.dcChannel.name} разминается в Антитерроре` + slot;
-    case IS.DISCOVERY:
-      return `${lobby.dcChannel.name} играет Разведку` + slot;
     case IS.OTHER:
     case IS.MENU:
     default:
