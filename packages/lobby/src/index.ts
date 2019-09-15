@@ -30,7 +30,10 @@ const rebootTime = new Date();
 rebootTime.setHours(parseInt(ENV.REBOOT_TIME.split('_')[0]), parseInt(ENV.REBOOT_TIME.split('_')[1]), 0, 0);
 const diff = rebootTime.getTime() - new Date().getTime();
 
+const time = diff > 0 ? diff : diff + 24 * 60 * 60 * 1000;
+console.log(`[INFO][GENERIC] Reboot in ${time / 1000 / 60} min`);
+
 setInterval(() => {
     console.log('reboot');
     process.exit(0);
-}, diff > 0 ? diff : diff + 24 * 60 * 60 * 1000);
+}, time);
