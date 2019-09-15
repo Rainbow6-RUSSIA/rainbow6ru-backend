@@ -9,7 +9,7 @@ export default function DetectLS<T extends Inhibitor, K extends keyof T>(target:
             const message = args[0];
             if (message.type === 'DEFAULT' && message.channel.type === 'text') {
                 const dbGuild = await Guild.findByPk(message.guild.id);
-                if (dbGuild && Object.values(dbGuild.lfgChannels).includes(message.channel.id)) {
+                if (dbGuild && dbGuild.lfgChannels && Object.values(dbGuild.lfgChannels).includes(message.channel.id)) {
                     return method.apply(this, args);
                 }
             }
