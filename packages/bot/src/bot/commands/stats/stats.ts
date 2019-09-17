@@ -55,7 +55,7 @@ export default class Stats extends Command {
                 const dbGuild = await Guild.findByPk(guild.id);
                 const rankRoles = guild.roles.filter(r => dbGuild.rankRoles.includes(r.id)).array().sort((a, b) => dbGuild.rankRoles.indexOf(b.id) - dbGuild.rankRoles.indexOf(a.id));
                 await guild.members.fetch();
-                return message.reply(`статистика пользователей на _**${guild.name}**_\n${rankRoles.map(r => `\`${r.name}\`: \`${r.members.size}\``).join('\n')}\n**Всего зарегистрировано**: \`${await User.count()}\`\n**Всего активно**: \`${await User.count({where: {inactive: false}})}\``);
+                return message.reply(`статистика пользователей на _**${guild.name}**_\n${rankRoles.map(r => `\`${r.name}\`: \`${r.members.size}\``).join('\n')}\n**Всего зарегистрировано**: \`${await User.count()}\`\n**Всего активно**: \`${await User.count({where: {inactive: false}})}\`\n**Зарегистрировано на сервере**: \`${await User.count({where: {id: message.guild.members.map(m => m.id)}})}\``);
             }
         }
     }
