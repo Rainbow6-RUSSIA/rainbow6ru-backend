@@ -56,7 +56,7 @@ export class Log extends React.Component<ILogProps, ILogState> {
             </div>
         </div>
         <PoseGroup>
-          {this.state.votes.map((v) => <PoseWrapper key={v.mapId}><Vote vote={v} /></PoseWrapper>)}
+          {this.state.votes.map(v => <PoseWrapper key={v.mapId}><Vote vote={v} /></PoseWrapper>)}
         </PoseGroup>
       </FadeInDown>
     );

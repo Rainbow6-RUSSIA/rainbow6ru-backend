@@ -30,7 +30,7 @@ export class Mapvote extends React.Component<IMapvoteProps, IMapvoteState> {
 
   public readonly state: IMapvoteState = {
     isVisible: false,
-    match: {} as Match,
+    match: new Match(),
   };
 
   public socket: SocketIOClient.Socket;

@@ -29,8 +29,8 @@ export class Footer extends React.Component<IFooterProps, IFooterState> {
 
     return (
       <FadeInDown className={style.footer} pose={this.state.isVisible ? 'out' : 'in'}>
-        {this.props.poolCache.map((m) => {
-          const vote = this.props.votes.find((v) => v.mapId === m.id);
+        {this.props.poolCache.map(m => {
+          const vote = this.props.votes.find(v => v.mapId === m.id);
           return (<FooterItem key={m.id} map={m} team={vote && (vote.type === 'decider' ? null : vote.team)} />);
         })}
       </FadeInDown>
