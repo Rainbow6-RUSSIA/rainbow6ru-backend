@@ -4,6 +4,7 @@ import { EmbedField, GuildMember, MessageOptions, Util } from 'discord.js';
 import bot from '../bot';
 import { LobbyStore } from '../bot/lobby';
 import ENV from './env';
+import { extractBorders } from './preview';
 
 const currentlyPlaying = [IS.CASUAL, IS.RANKED, IS.CUSTOM, IS.NEWCOMER, IS.DISCOVERY];
 
@@ -103,12 +104,7 @@ export default {
             + `Ранг: ${lobby.minRank === lobby.maxRank
               ? (lobby.maxRank === 0
                 ? '`любой`'
-                : (() => {
-                 let n = lobby.minRank;
-                 n--;
-                 n = n - n % 4 + 1;
-                 return `от \`${RANKS[n]}\` до \`${RANKS[n + 3]}\``;
-                })())
+                : `от \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[0]]}\` до \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[1]]}\``)
               : `от \`${RANKS[lobby.minRank]}\` до \`${RANKS[lobby.maxRank]}\``}\n`
             + ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status) ? 'Новичок: не выше `50` уровня доступа\n' : '')
             + (lobby.description ? `Описание: ${lobby.description}\n` : '')
