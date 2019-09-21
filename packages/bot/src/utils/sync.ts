@@ -41,9 +41,10 @@ export default class Sync {
       order: [['rankUpdatedAt', 'ASC']],
       where: {
         inactive: false,
-        platform: {[platform]: true}},
+        platform: (platform === PLATFORM.PC ? {PC: true} : {PC: false, [platform]: true}),
+      }
     });
-    if (!dbUsers.length || (dbUsers[0].rankUpdatedAt.valueOf() + 20 * parseInt(ENV.COOLDOWN) > Date.now())) { return []; }
+    if (!dbUsers.length || (dbUsers[0].rankUpdatedAt.valueOf() + 50 * parseInt(ENV.COOLDOWN) > Date.now())) { return []; }
     const res = await r6.api.getRank(platform, dbUsers.map(u => u.genome));
     if (!Object.keys(res).length) {
       return dbUsers;
