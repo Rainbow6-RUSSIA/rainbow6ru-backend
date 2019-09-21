@@ -45,6 +45,9 @@ export class LSRoom extends Lobby {
             userLimit: this.LS.roomSize,
         }, 'инициализация комнаты');
 
+        const previousLobby = await Lobby.findOne({ where: { channel: this.dcChannel.id }, order: [['initiatedAt', 'DESC']] });
+        this.description = previousLobby && previousLobby.description;
+
         await this.save();
         await this.$set('guild', this.dcChannel.guild.id);
         await this.$set('members', await User.findAll({ where: { id: this.dcMembers.map(m => m.id) } }));
@@ -88,34 +91,78 @@ export class LSRoom extends Lobby {
                     await this.appealMessage.react(r);
                 }
             })();
-            this.reactionBarCollector.on('collect', (reaction, user) => this.handleAction(emojiButtons.reverse[reaction.emoji.name], true));
-            this.reactionBarCollector.on('remove', (reaction, user) => this.handleAction(emojiButtons.reverse[reaction.emoji.name], false));
+            this.reactionBarCollector.on('collect', reaction => this.handleAction(emojiButtons.reverse[reaction.emoji.name], true));
+            this.reactionBarCollector.on('remove', reaction => this.handleAction(emojiButtons.reverse[reaction.emoji.name], false));
         }
         return this.appealMessage;
     }
 
-    @WaitLoaded
+    // @WaitLoaded
     public async join(member: GuildMember, internal?: boolean) {
         console.log(member.user.tag, 'JOINED', this.dcChannel.name);
+        this.LS.uniqueUsers.add(member.id);
+        await this.$add('members', member.id);
+        await this.reload({include: [{all: true}]});
+        if (!this.dcLeader || !this.dcMembers.has(this.dcLeader.id)) {
+            this.dcLeader = member;
+        }
+        if (this.appealMessage || this.dcMembers.size >= this.LS.roomSize) {
+            await this.updateAppeal();
+        }
+        console.log(member.user.tag, 'JOINED', this.dcChannel.name, 'DONE');
+    //     await this.refreshIngameStatus(this);
     }
 
-    @WaitLoaded
+    // @WaitLoaded
     public async leave(member: GuildMember, internal?: boolean) {
         console.log(member.user.tag, 'LEFT', this.dcChannel.name);
+        await this.$remove('members', member.id);
+        await this.reload({include: [{all: true}]});
+        if (this.close) {
+            this.handleAction('close', false);
+            this.dcChannel = await this.dcChannel.setUserLimit(this.LS.roomSize);
+        }
+        if (!this.dcMembers.size) {
+            this.dcLeader = null;
+        }
+        if (this.dcMembers.size !== 0 && member.id === this.dcLeader.id) {
+            const newLeader = this.dcMembers.random();
+            this.handleAction('hardplay', false);
+            try {
+                newLeader.send('Теперь Вы - лидер лобби');
+            } catch (error) {/* */}
+            this.dcLeader = newLeader;
+        }
+        if (this.dcMembers.size) {
+            // await this.refreshIngameStatus(this);
+            this.updateAppeal();
+        } else {
+            if (this.appealMessage) {
+                console.log('APPEAL DELETE');
+                try {
+                    this.appealMessage = await this.appealMessage.delete();
+                } catch (error) {
+                    console.log('idgaf');
+                }
+                this.appealMessage = null;
+                // this.updateFastAppeal();
+            }
+        }
+        console.log(member.user.tag, 'LEFT', this.dcChannel.name, 'DONE');
     }
 
     public async updateAppeal(appeal?: MessageOptions) {
         await this.initAppeal();
-        if (this.appealTimeout || (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) > (Date.now() - 2000)) {
+        if (this.appealTimeout || (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) > (Date.now() - 10)) {
             this.appealTimeoutMsg = embeds.appealMsg(this);
             if (!this.appealTimeout) {
                 clearTimeout(this.appealTimeout);
                 this.appealTimeout = setTimeout(() => (this.appealTimeout = null) || this.updateAppeal(this.appealTimeoutMsg), Date.now() - (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) + 1);
             }
-        } else {
+        } else if (!this.appealMessage.deleted) {
             // console.log(this.dcChannel.name);
             // console.log({a: await this.dcChannel.fetch()});
-            await this.appealMessage.edit('', appeal || embeds.appealMsg(this));
+            this.appealMessage = await this.appealMessage.edit('', appeal || embeds.appealMsg(this));
         }
     }
 
@@ -178,7 +225,7 @@ export class LSRoom extends Lobby {
     }
 
     public get joinAllowed() {
-        return !this.close && (this.dcChannel.members.size < this.dcChannel.userLimit) && !currentlyPlaying.includes(this.status);
+        return !this.close && (this.dcMembers.size < this.dcChannel.userLimit) && !currentlyPlaying.includes(this.status);
     }
 
     public get dcMembers() {
@@ -193,15 +240,15 @@ export class LSRoom extends Lobby {
         return this.dcCategory.children.filter(ch => ch instanceof VoiceChannel && !ch.deleted).sort((a, b) => a.position - b.position) as Collection<string, VoiceChannel>;
     }
 
-    public waitLoaded = async () => {
-        return new Promise(resolve => {
-            const waiter = () => {
-                if (this.status !== IS.LOADING) { return resolve(); }
-                setTimeout(waiter, 25);
-            };
-            waiter();
-        });
-    }
+    // public waitLoaded = async () => {
+    //     return new Promise(resolve => {
+    //         const waiter = () => {
+    //             if (this.status !== IS.LOADING) { return resolve(); }
+    //             setTimeout(waiter, 25);
+    //         };
+    //         waiter();
+    //     });
+    // }
 }
 
 applyMixins(LSRoom, [Lobby]);

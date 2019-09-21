@@ -45,7 +45,7 @@ export default {
         }
         if (lobby.joinAllowed) {
           fields.push({
-            name: 'Присоединиться',
+            name: 'Присоединиться:',
             value: `${lobby.dcInvite.url} 👈`,
           });
         } else if (!lobby.close && (lobby.dcMembers.size < lobby.dcChannel.userLimit) && currentlyPlaying.includes(lobby.status)) {

@@ -261,74 +261,6 @@ export class LobbyStore extends LSBase {
     //     });
     // }
 
-    // private async atomicLeave(member: GuildMember, lobby: Lobby) {
-    //     const dbUser = await User.findByPk(member.id);
-    //     await lobby.$remove('members', dbUser);
-
-    //     await lobby.reload({include: [{all: true}]});
-    //     if (!lobby.open) {
-    //         lobby.open = true;
-    //         await lobby.dcChannel.setUserLimit(this.roomSize);
-    //     }
-    //     if (!lobby.dcMembers.size) {
-    //         lobby.dcLeader = null;
-    //     }
-    //     if (lobby.dcMembers.size !== 0 && member.id === lobby.dcLeader.id) {
-    //         const newLeader = lobby.dcMembers.random();
-    //         // debug.log(`Лидер ${lobby.dcLeader} покинул комнату. Новый лидер - ${newLeader}. Через комнату прошли <@${lobby.log.join('>, <@')}>. ID пати \`${lobby.id}\``);
-    //         // lobby.log = [];
-    //         lobby.open = true;
-    //         lobby.hardplay = false;
-    //         this.handleHardplay(lobby);
-    //         try {
-    //             newLeader.send('Теперь Вы - лидер лобби');
-    //         } catch (error) {
-    //             (await this.lfgChannel.send(`${newLeader}, теперь Вы - лидер лобби`) as Message).delete({ timeout: 30000 });
-    //         }
-    //         lobby.dcLeader = newLeader;
-    //     }
-    //     await lobby.save();
-    //     if (lobby.dcMembers.size) {
-    //         await this.refreshIngameStatus(lobby);
-    //         return this.updateAppealMsg(lobby);
-    //     } else {
-    //         if (lobby.appealMessage) {
-    //             try {
-    //                 await (await this.lfgChannel.messages.fetch(lobby.appealMessage.id)).delete();
-    //             } catch (error) {
-    //                 console.log('idgaf');
-    //             }
-    //             lobby.appealMessage = null;
-    //             this.updateFastAppeal();
-    //         }
-    //         return;
-    //     }
-    // }
-
-    // private async atomicJoin(member: GuildMember, lobby: Lobby) {
-    //     const dbUser = await User.findByPk(member.id);
-    //     // if (lobby.hardplay && dbUser.rank < lobby.limitRank) {
-    //     //     return this.kick(member, 0, `Это лобби доступно только для \`${RANKS[lobby.limitRank]}\` и выше!`, lobby.id);
-    //     // }
-    //     this.uniqueUsers.add(dbUser.id);
-    //     await lobby.$add('members', dbUser);
-    //     await lobby.reload({include: [{all: true}]});
-    //     if (!lobby.dcLeader) {
-    //         lobby.dcLeader = member;
-    //     }
-    //     if (lobby.dcMembers.size >= this.roomSize && !lobby.appealMessage) {
-    //         const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
-    //         lobby.invite = inv.url;
-    //         await lobby.save();
-    //         lobby.dcInvite = inv;
-    //         lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
-    //         this.updateFastAppeal();
-    //     } else {
-    //         await this.updateAppealMsg(lobby);
-    //     }
-    //     await this.refreshIngameStatus(lobby);
-    // }
-
 }
 
 export const lobbyStores: Collection<Snowflake/*LFG ID*/, LobbyStore> = new Collection();
@@ -352,3 +284,12 @@ export async function initLobbyStores() {
         return l.save();
     }));
 }
+
+//    {
+//       "ranked": {
+//         "lfg": "505831870735319055",
+//         "voiceCategory": "505831824765747230",
+//         "externalRooms": [],
+//         "roomsRange": [5, 10],
+//         "type": "ranked"}
+//    }

@@ -15,8 +15,12 @@ export default class VoiceStateUpdate extends Listener {
         const A = lobbyStoresRooms.get(oldState.channelID);
         const B = lobbyStoresRooms.get(newState.channelID);
 
-        await (A && A.leave(newState.member, A && B && A.LS.settings.type === B.LS.settings.type));
-        await (B && B.join(newState.member, A && B && A.LS.settings.type === B.LS.settings.type));
+        if (A.id === B.id) { return; }
+
+        const internal = A && B && A.LS.settings.type === B.LS.settings.type;
+
+        await (A && A.leave(newState.member, internal));
+        await (B && B.join(newState.member, internal));
     }
 
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
