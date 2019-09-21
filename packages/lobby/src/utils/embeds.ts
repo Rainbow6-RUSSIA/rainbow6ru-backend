@@ -1,7 +1,7 @@
 import { currentlyPlaying, EMOJI_REGEXP, emojiButtons, IngameStatus as IS, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { EmbedField, GuildMember, MessageOptions, Util } from 'discord.js';
-import { LobbyStore } from '../bot/lobby';
 import ENV from './env';
+import { LobbyStore } from './lobby';
 import { LSRoom } from './lobby/room';
 
 export default {

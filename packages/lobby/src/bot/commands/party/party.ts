@@ -6,7 +6,7 @@ import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party
 import RequireVoice from '../../../utils/decorators/require_voice';
 import embeds from '../../../utils/embeds';
 import ENV from '../../../utils/env';
-import { lobbyStoresRooms } from '../../lobby';
+import { lobbyStoresRooms } from '../../../utils/lobby';
 
 interface IArgs {
     description: string;

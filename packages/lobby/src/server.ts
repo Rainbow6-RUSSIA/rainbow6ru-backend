@@ -1,8 +1,8 @@
 import { IngameStatus as IS } from '@r6ru/types';
 import * as restify from 'restify';
 import { BadRequestError, NotFoundError } from 'restify-errors';
-import { lobbyStoresRooms } from './bot/lobby';
 import ENV from './utils/env';
+import { lobbyStoresRooms } from './utils/lobby';
 import { LSRoom } from './utils/lobby/room';
 import { createLobbyPreview } from './utils/preview';
 

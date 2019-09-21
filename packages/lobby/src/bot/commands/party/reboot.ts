@@ -2,7 +2,7 @@ import { Guild } from '@r6ru/db';
 import { Command } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 import { debug } from '../../..';
-import { LobbyStore, lobbyStores } from '../../lobby';
+import { LobbyStore, lobbyStores } from '../../../utils/lobby';
 
 export default class Reboot extends Command {
     public constructor() {

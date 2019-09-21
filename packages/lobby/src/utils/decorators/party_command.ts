@@ -2,7 +2,7 @@ import { DMReply } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import 'reflect-metadata';
-import { lobbyStoresRooms } from '../../bot/lobby';
+import { lobbyStoresRooms } from '../lobby';
 import { LSRoom } from '../lobby/room';
 
 export interface IArgsPartyCommand {

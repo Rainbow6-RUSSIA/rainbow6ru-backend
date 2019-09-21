@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, VoiceChannel } from 'discord.js';
-import { lobbyStoresRooms } from '../../lobby';
+import { lobbyStoresRooms } from '../../../utils/lobby';
 
 interface IArgs {
     target: VoiceChannel;

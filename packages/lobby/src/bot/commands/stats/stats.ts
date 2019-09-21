@@ -2,7 +2,7 @@ import { Guild } from '@r6ru/db';
 import {  Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
-import { lobbyStores } from '../../lobby';
+import { lobbyStores } from '../../../utils/lobby';
 
 interface IArgs {
     type: 'global' | 'voice' | 'lobby';

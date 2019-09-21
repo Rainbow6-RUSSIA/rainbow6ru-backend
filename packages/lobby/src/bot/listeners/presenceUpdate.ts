@@ -1,7 +1,7 @@
 import { IngameStatus as IS } from '@r6ru/types';
 import { Listener } from 'discord-akairo';
 import { Presence } from 'discord.js';
-import { lobbyStoresRooms } from '../lobby';
+import { lobbyStoresRooms } from '../../utils/lobby';
 
 export default class PresenceUpdate extends Listener {
     public constructor() {

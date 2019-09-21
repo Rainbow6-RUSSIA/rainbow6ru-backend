@@ -1,7 +1,7 @@
 import { Guild } from '@r6ru/db';
 import { ILobbySettings, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
 import { CategoryChannel, Collection, Message, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
-import { lobbyStoresRooms } from '../../bot/lobby';
+import { lobbyStoresRooms } from '.';
 
 export class LSBase {
     public static detectIngameStatus = (presence: Presence): IngameStatus => {

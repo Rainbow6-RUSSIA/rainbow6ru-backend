@@ -1,5 +1,5 @@
 import { Listener } from 'discord-akairo';
-import { initLobbyStores } from '../lobby';
+import { initLobbyStores } from '../../utils/lobby';
 
 export default class Ready extends Listener {
     public constructor() {

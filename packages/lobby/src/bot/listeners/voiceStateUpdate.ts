@@ -1,7 +1,7 @@
 import { Listener } from 'discord-akairo';
 import { VoiceState } from 'discord.js';
 import ENV from '../../utils/env';
-import { lobbyStoresRooms } from '../lobby';
+import { lobbyStoresRooms } from '../../utils/lobby';
 
 export default class VoiceStateUpdate extends Listener {
     public constructor() {
