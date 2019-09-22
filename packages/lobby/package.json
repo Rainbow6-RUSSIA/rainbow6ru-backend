@@ -19,7 +19,7 @@
 		"@r6ru/utils": "0.0.0",
 		"canvas": "^2.5.0",
 		"discord-akairo": "8.0.0-beta.8",
-		"discord.js": "https://github.com/discordjs/discord.js#f79f024",
+		"discord.js": "https://github.com/discordjs/discord.js#60f89bd",
 		"dotenv": "^8.0.0",
 		"humanize-duration": "^3.16.0",
 		"jsonwebtoken": "^8.5.0",
