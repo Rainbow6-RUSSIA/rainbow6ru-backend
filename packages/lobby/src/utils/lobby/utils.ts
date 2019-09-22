@@ -1,6 +1,6 @@
 import { Guild } from '@r6ru/db';
 import { ILobbySettings, IngameStatus, LobbyStoreStatus as LSS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
-import { CategoryChannel, Collection, Message, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import { CategoryChannel, Collection, Message, MessageOptions, Presence, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import { lobbyStoresRooms } from '.';
 
 export class LSBase {
@@ -37,6 +37,9 @@ export class LSBase {
     public uniqueUsers = new Set<Snowflake>();
     public loadedAt = new Date();
     public fastAppeal: Message;
+    public fastAppealTimeout: NodeJS.Timeout;
+    public fastAppealTimeoutMsg: MessageOptions;
+
     public get joinAllowedRooms() {
         return this.rooms.filter(l => l.joinAllowed).size;
     }
