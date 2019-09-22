@@ -93,17 +93,18 @@ export default {
           inline: true,
           name: modeSelector(lobby)
             .replace(EMOJI_REGEXP, v => '\\' + v), // emoji wrap
-          value: (lobby.hardplay ? `HardPlay\\${emojiButtons.direct.hardplay}: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n` : '')
-            + `Ранг: ${lobby.minRank === lobby.maxRank
-              ? (lobby.maxRank === 0
-                ? '`любой`'
-                : (() => {
-                 let n = lobby.minRank;
-                 n--;
-                 n = n - n % 4 + 1;
-                 return `от \`${RANKS[n]}\` до \`${RANKS[n + 3]}\``;
-                })())
-              : `от \`${RANKS[lobby.minRank]}\` до \`${RANKS[lobby.maxRank]}\``}\n`
+          value: (lobby.hardplay
+              ? `HardPlay\\${emojiButtons.direct.hardplay}: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n`
+              : `Ранг: ${lobby.minRank === lobby.maxRank
+                ? (lobby.maxRank === 0
+                  ? '`любой`'
+                  : (() => {
+                   let n = lobby.minRank;
+                   n--;
+                   n = n - n % 4 + 1;
+                   return `от \`${RANKS[n]}\` до \`${RANKS[n + 3]}\``;
+                  })())
+                : `от \`${RANKS[lobby.minRank]}\` до \`${RANKS[lobby.maxRank]}\``}\n`)
             + ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status) ? 'Новичок: не выше `50` уровня доступа\n' : '')
             + (lobby.description ? `Описание: ${lobby.description}\n` : '')
             // + `Присоединиться: ${lobby.dcInvite.url} 👈\n`
@@ -112,6 +113,7 @@ export default {
       footer: {
         text: `ID - ${LS.settings.type}`,
       },
+      timestamp: null,
     },
   }),
 
