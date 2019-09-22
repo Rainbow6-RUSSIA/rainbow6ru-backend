@@ -2,7 +2,7 @@ import { Lobby, User } from '@r6ru/db';
 import { currentlyPlaying, emojiButtons, IngameStatus as IS } from '@r6ru/types';
 import { CategoryChannel, Collection, Guild, GuildMember, Invite, Message, MessageOptions, MessageReaction, ReactionCollector, User as U, VoiceChannel } from 'discord.js';
 import { $enum } from 'ts-enum-util';
-import { LobbyStore } from '.';
+import { LobbyStore, lobbyStoresRooms } from '.';
 import { debug } from '../..';
 import WaitLoaded from '../decorators/wait_loaded';
 import embeds from '../embeds';
@@ -97,7 +97,16 @@ export class LSRoom extends Lobby {
         return this.appealMessage;
     }
 
-    // @WaitLoaded
+    public async destroyRoom(appealOnly?: boolean) {
+        lobbyStoresRooms.delete(this.channel);
+        this.active = false;
+        await Promise.all([
+            this.save(),
+            (this.appealMessage && this.appealMessage.delete().catch(e => console.log('DESTROY APPEAL FAILED', e))),
+            (!appealOnly && this.dcChannel.delete().catch(e => console.log('DESTROY VOICE FAILED', e))),
+        ]);
+    }
+
     public async join(member: GuildMember, internal?: boolean) {
         console.log(member.user.tag, 'JOINED', this.dcChannel.name);
         this.LS.uniqueUsers.add(member.id);
@@ -109,11 +118,9 @@ export class LSRoom extends Lobby {
         if (this.appealMessage || this.dcMembers.size >= this.LS.roomSize) {
             await this.updateAppeal();
         }
-        console.log(member.user.tag, 'JOINED', this.dcChannel.name, 'DONE');
     //     await this.refreshIngameStatus(this);
     }
 
-    // @WaitLoaded
     public async leave(member: GuildMember, internal?: boolean) {
         console.log(member.user.tag, 'LEFT', this.dcChannel.name);
         await this.$remove('members', member.id);
@@ -136,52 +143,39 @@ export class LSRoom extends Lobby {
         if (this.dcMembers.size) {
             // await this.refreshIngameStatus(this);
             this.updateAppeal();
-        } else {
-            if (this.appealMessage) {
-                console.log('APPEAL DELETE');
-                try {
-                    this.appealMessage = await this.appealMessage.delete();
-                } catch (error) {
-                    console.log('idgaf');
-                }
-                this.appealMessage = null;
-                // this.updateFastAppeal();
-            }
         }
         console.log(member.user.tag, 'LEFT', this.dcChannel.name, 'DONE');
     }
 
     public async updateAppeal(appeal?: MessageOptions) {
         await this.initAppeal();
-        if (this.appealTimeout || (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) > (Date.now() - 10)) {
+        if (this.appealTimeout || (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) > (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN))) {
             this.appealTimeoutMsg = embeds.appealMsg(this);
             if (!this.appealTimeout) {
                 clearTimeout(this.appealTimeout);
                 this.appealTimeout = setTimeout(() => (this.appealTimeout = null) || this.updateAppeal(this.appealTimeoutMsg), Date.now() - (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) + 1);
             }
         } else if (!this.appealMessage.deleted) {
-            // console.log(this.dcChannel.name);
-            // console.log({a: await this.dcChannel.fetch()});
             this.appealMessage = await this.appealMessage.edit('', appeal || embeds.appealMsg(this));
         }
     }
 
     public async handleAction(action: keyof typeof emojiButtons.direct, flag: boolean) {
-        // console.log('ACTION', action, 'FLAG', flag, this.hardplay, this.close);
         if (this[action] === flag) { return; }
+        if (action === 'hardplay' && flag && this.minRank === 0) {
+            try {
+                return this.dcLeader.send(`Нельзя активировать HardPlay в команде состоящей только из \`Unranked\`!`);
+            } catch (error) {/* */}
+        }
         this[action] = flag;
         await this.save();
         switch (action) {
             case 'close': {
-                // flag = !flag;
-                // console.log(flag ? this.LS.roomSize : this.dcMembers.size);
                 await this.dcChannel.setUserLimit(flag ? this.dcMembers.size : this.LS.roomSize);
                 debug.log(`${this.dcLeader} ${!this.close ? 'открыл' : 'закрыл'} лобби!. ID пати \`${this.id}\``);
                 try {
                     this.dcLeader.send(`Лобби ${!this.close ? 'открыто' : 'закрыто'}!`);
-                } catch (error) {
-                    //
-                }
+                } catch (error) {/* */}
                 break;
             }
             case 'hardplay': {
@@ -197,9 +191,7 @@ export class LSRoom extends Lobby {
                     debug.log(`${this.dcLeader} ${!this.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${this.id}\``);
                     try {
                         this.dcLeader.send(`HardPlay лобби ${!this.hardplay ? 'деактивировано' : 'активировано'}!`);
-                    } catch (error) {
-                        //
-                    }
+                    } catch (error) {/* */}
                 } else {
                     this.dcChannel = await this.dcChannel.edit({
                         name: this.dcChannel.name.replace(/HardPlay /g, ''),
@@ -209,11 +201,15 @@ export class LSRoom extends Lobby {
                 break;
             }
         }
-        this.updateAppeal();
+        await Promise.all([
+            this.updateAppeal(),
+            this.LS.updateFastAppeal(),
+        ]);
     }
 
     public get minRank() {
-        return Math.min(...this.members.map(m => m.rank));
+        const ranks = this.members.map(m => m.rank);
+        return ranks.some(r => r !== 0) ? Math.min(...ranks.filter(r => r !== 0)) : 0;
     }
 
     public get maxRank() {
@@ -239,16 +235,6 @@ export class LSRoom extends Lobby {
     public get categoryVoices() {
         return this.dcCategory.children.filter(ch => ch instanceof VoiceChannel && !ch.deleted).sort((a, b) => a.position - b.position) as Collection<string, VoiceChannel>;
     }
-
-    // public waitLoaded = async () => {
-    //     return new Promise(resolve => {
-    //         const waiter = () => {
-    //             if (this.status !== IS.LOADING) { return resolve(); }
-    //             setTimeout(waiter, 25);
-    //         };
-    //         waiter();
-    //     });
-    // }
 }
 
 applyMixins(LSRoom, [Lobby]);

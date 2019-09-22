@@ -1,6 +1,6 @@
 import { Guild, Lobby } from '@r6ru/db';
 import { ILobbySettings, LobbyStoreStatus as LSS} from '@r6ru/types';
-import { CategoryChannel, Collection, GuildMember, Message, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import { CategoryChannel, Collection, GuildMember, Message, MessageOptions, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import { Sequelize } from 'sequelize-typescript';
 import { debug } from '../..';
@@ -8,6 +8,7 @@ import bot from '../../bot';
 // import Ratelimiter from '../utils/decorators/ratelimiter';
 import WaitLoaded from '../decorators/wait_loaded';
 import embeds from '../embeds';
+import ENV from '../env';
 import { LSRoom } from './room';
 import { LSBase } from './utils';
 
@@ -18,8 +19,6 @@ export class LobbyStore extends LSBase {
 
     public constructor(settings: ILobbySettings, dbGuild: Guild) {
         super();
-        this.openLobby = this.openLobby.bind(this);
-        this.closeLobby = this.closeLobby.bind(this);
         // this.checkLobbyHealth = this.checkLobbyHealth.bind(this);
         (async () => {
             this.settings = settings;
@@ -56,7 +55,7 @@ export class LobbyStore extends LSBase {
                     rest.push(toDelete.pop());
                 }
             await Promise.all(toDelete.map(v => v.delete()));
-            await this.category.fetch();
+            this.category = await this.category.fetch() as CategoryChannel;
             if (!this.rawVoices.some(v => v.members.size === 0)) {
                 const channelToClone = await this.rawVoices.last();
                 await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize });
@@ -82,6 +81,7 @@ export class LobbyStore extends LSBase {
                     ));
                 const msgOpts = await embeds.fastAppeal(this);
                 this.fastAppealCache = JSON.stringify(msgOpts);
+                msgOpts.embed.timestamp = new Date();
                 this.fastAppeal = await fastLfg.send('', msgOpts) as Message;
             }
 
@@ -109,157 +109,55 @@ export class LobbyStore extends LSBase {
         }
     }
 
-    // @Ratelimiter
-    @WaitLoaded
-    // @Atomic
-    public async join(member: GuildMember, to: LSRoom) {
-        // console.log('JOIN');
-        const lobby = this.rooms.get(to.id);
-        if (!lobby) {return; }
-        if (to.dcMembers.size === 1 && this.rooms.size <= this.roomsRange[1]) {
-            lobby.dcLeader = member;
-            if (!this.staticRooms || this.voices.size < this.roomsRange[0]) {
-                await this.openLobby(lobby);
-            }
+    public async reportJoin(room: LSRoom) {
+        if (!this.staticRooms && room.dcMembers.size === 1 && this.rooms.size <= this.roomsRange[1]) {
+            const channelToClone = this.rawVoices.last();
+            const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize }) as VoiceChannel;
+            lobbyStoresRooms.set(clonedChannel.id, await new LSRoom(clonedChannel, this).init());
         }
-        // await this.atomicJoin(member, lobby);
-        // await this.checkLobbyHealth(lobby);
     }
 
-    // @Ratelimiter
-    @WaitLoaded
-    // @Atomic
-    public async leave(from: LSRoom) {
-        // console.log('LEAVE');
-        const lobby = lobbyStoresRooms.get(from.id);
-        if (!lobby) {return; }
-        // await this.atomicLeave(member, lobby);
-        if (from.dcMembers.size === 0) {
+    public async reportLeave(room: LSRoom) {
+        if (room.dcMembers.size === 0) {
             if (this.staticRooms) {
-                lobbyStoresRooms.delete(lobby.channel);
-                lobbyStoresRooms.set(from.id, await new LSRoom(from.dcChannel, this).init());
+                await room.destroyRoom(true);
+                lobbyStoresRooms.set(room.channel, await new LSRoom(room.dcChannel, this).init());
                 return;
             }
             if (this.rooms.size > this.roomsRange[0]) {
-                return this.closeLobby(lobby);
+                await room.destroyRoom();
+
+                const toDelete = room.dcChannel;
+                const toMove = this.voices.sort((a, b) => a.position - b.position).last();
+                const pos = toDelete.position;
+                await toMove.edit({
+                    name: toDelete.name.replace('HardPlay ', '').replace(/#\d+/g, `#${pos + 1}`),
+                    position: pos,
+                }, 'подмена закрытого канала');
+        // // await this.syncChannels();
+                await this.category.fetch();
             }
-        } else {
-            // return this.checkLobbyHealth(lobby);
         }
     }
 
-    // private async checkLobbyHealth(lobby: Lobby) {
-    //     try {
-    //         if (!this.rawVoices.some((v: VoiceChannel) => v.members.size === 0) && !this.staticRooms) {
-    //             console.log('adding new channel due error');
-    //             this.openLobby(lobby);
-    //         }
-    //         await lobby.dcChannel.fetch();
-    //         if (lobby.members.length !== lobby.dcMembers.size) {
-    //             await lobby.$set('members', await User.findAll({ where: { id: lobby.dcMembers.map(m => m.id) } }));
-    //             await lobby.reload({ include: [{all: true}] });
-    //             if (lobby.members.length !== lobby.dcMembers.size) {
-    //                 await Promise.all(lobby.dcMembers.filter(m => !Boolean(lobby.members.find(dbm => dbm.id === m.id))).map(m => this.kick(m, 10000, 'Требуется регистрация. Используйте `$rank ваш_Uplay` в канале для команд бота.')));
-    //                 await this.checkLobbyHealth(lobby);
-    //             }
-    //         }
-    //         if (lobby.dcLeader) {
-    //             if (lobby.dcMembers.size === 0) {
-    //                 lobby.dcLeader = null;
-    //             } else if (!lobby.dcMembers.has(lobby.dcLeader.id)) {
-    //                 lobby.dcLeader = lobby.dcMembers.random();
-    //             }
-    //         }
-    //     } catch (err) {
-    //         console.log('LOBBY CACHE MISS', err);
-    //         await this.lobbies.delete(lobby.channel);
-    //     }
-    // }
-
-    // public async updateAppealMsg(lobby: Lobby) {
-    //     if (lobby.appealMessage) {
-    //         if (lobby.dcInvite.expiresTimestamp < Date.now()) {
-    //             try {
-    //                 await lobby.appealMessage.delete();
-    //             } catch (err) {
-    //                 console.log('idgaf 1');
-    //             }
-    //             return lobby.appealMessage = null;
-    //         }
-    //         lobby.dcChannel = await lobby.dcChannel.fetch() as VoiceChannel;
-    //         try {
-    //             await lobby.appealMessage.edit('', await embeds.appealMsg(lobby));
-    //             await this.updateFastAppeal();
-    //         } catch (error) {
-    //             console.log('pre idgaf 2');
-    //             try {
-    //                 await new Promise(res => setTimeout(res, 30 * 1000));
-    //                 await this.lfgChannel.messages.fetch(lobby.appealMessage.id, false).then(msg => msg.delete());
-    //             } catch (err) {
-    //                 console.log('idgaf 2');
-    //                 console.log(error, err);
-    //             }
-    //             lobby.appealMessage = null;
-    //         // return lobby.appealMessage = await this.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
-    //         }
-    //     }
-    // }
-
-    public async updateFastAppeal() {
+    public async updateFastAppeal(appeal?: MessageOptions) {
         if (!(this.guild.fastLfg && this.fastAppeal)) { return; }
+        // if (this.fastAppealTimeout || (this.fastAppeal.editedTimestamp || this.fastAppeal.createdTimestamp) > (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN))) {
+        //     this.fastAppealTimeoutMsg = await embeds.fastAppeal(this);
+        //     if (!this.fastAppealTimeout) {
+        //         clearTimeout(this.fastAppealTimeout);
+        //         this.fastAppealTimeout = setTimeout(() => (this.fastAppealTimeout = null) || this.updateFastAppeal(this.fastAppealTimeoutMsg), Date.now() - (this.fastAppeal.editedTimestamp || this.fastAppeal.createdTimestamp) + 1);
+        //     }
+        // } else {
         const msgOpts = await embeds.fastAppeal(this);
-        // console.log(this.fastAppealCache);
-        // console.log(JSON.stringify(msgOpts));
         if (this.fastAppealCache !== JSON.stringify(msgOpts)) {
             this.fastAppealCache = JSON.stringify(msgOpts);
-            await this.fastAppeal.edit('', msgOpts);
+            msgOpts.embed.timestamp = new Date();
+            this.fastAppeal = await this.fastAppeal.edit('', msgOpts);
+            console.log('FAST APPEAL UPDATED');
         }
+        // }
     }
-
-    private async openLobby(lobby: LSRoom) {
-        const channelToClone = this.rawVoices.last();
-        const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize }) as VoiceChannel;
-        lobbyStoresRooms.set(clonedChannel.id, await new LSRoom(clonedChannel, this).init());
-        this.updateFastAppeal();
-    }
-
-    private async closeLobby(lobby: LSRoom) {
-        lobby.active = false;
-        await lobby.save();
-
-        const toDelete = lobby.dcChannel; // this.voices.get(lobby.channel);
-        const toMove = this.voices.sort((a, b) => a.position - b.position).last();
-        const pos = toDelete.position;
-        // await Promise.all([
-        await toMove.edit({
-            name: toDelete.name.replace('HardPlay ', '').replace(/#\d+/g, `#${pos + 1}`),
-            position: pos,
-        }, 'подмена закрытого канала');
-        await toDelete.delete();
-        // ]);
-        // toDelete.deleted = true; // наеб блядского кэша discord.js
-        // // await this.syncChannels();
-        lobbyStoresRooms.delete(lobby.channel);
-        this.updateFastAppeal();
-        await this.category.fetch();
-    }
-
-    // private watchActions = () => {
-    //     this.actionCounter.forEach(async (a, key, map) => {
-    //         if (!a.kicked && a.times >= parseInt(ENV.KICK_LIMIT)) {
-    //             a.kicked = true;
-    //             return this.kick(a.member, 10000 * a.times, 'Вы временно отстранены от поиска за чрезмерную активность!');
-    //         }
-    //         if (!a.warned && a.times >= parseInt(ENV.KICK_LIMIT) * 0.75) {
-    //             a.warned = true;
-    //             try {
-    //                 a.member.send('Вы совершаете слишком много действий! Умерьте пыл, или вы будете временно отстранены!');
-    //             } catch (error) {
-    //                 (await this.lfgChannel.send(`${a.member}, вы совершаете слишком много действий! Умерьте пыл, или вы будете временно отстранены!`) as Message).delete({ timeout: 30000 });
-    //             }
-    //         }
-    //     });
-    // }
 
 }
 
@@ -293,3 +191,48 @@ export async function initLobbyStores() {
 //         "roomsRange": [5, 10],
 //         "type": "ranked"}
 //    }
+
+// private async checkLobbyHealth(lobby: Lobby) {
+//     try {
+//         if (!this.rawVoices.some((v: VoiceChannel) => v.members.size === 0) && !this.staticRooms) {
+//             console.log('adding new channel due error');
+//             this.openLobby(lobby);
+//         }
+//         await lobby.dcChannel.fetch();
+//         if (lobby.members.length !== lobby.dcMembers.size) {
+//             await lobby.$set('members', await User.findAll({ where: { id: lobby.dcMembers.map(m => m.id) } }));
+//             await lobby.reload({ include: [{all: true}] });
+//             if (lobby.members.length !== lobby.dcMembers.size) {
+//                 await Promise.all(lobby.dcMembers.filter(m => !Boolean(lobby.members.find(dbm => dbm.id === m.id))).map(m => this.kick(m, 10000, 'Требуется регистрация. Используйте `$rank ваш_Uplay` в канале для команд бота.')));
+//                 await this.checkLobbyHealth(lobby);
+//             }
+//         }
+//         if (lobby.dcLeader) {
+//             if (lobby.dcMembers.size === 0) {
+//                 lobby.dcLeader = null;
+//             } else if (!lobby.dcMembers.has(lobby.dcLeader.id)) {
+//                 lobby.dcLeader = lobby.dcMembers.random();
+//             }
+//         }
+//     } catch (err) {
+//         console.log('LOBBY CACHE MISS', err);
+//         await this.lobbies.delete(lobby.channel);
+//     }
+// }
+
+// private watchActions = () => {
+//     this.actionCounter.forEach(async (a, key, map) => {
+//         if (!a.kicked && a.times >= parseInt(ENV.KICK_LIMIT)) {
+//             a.kicked = true;
+//             return this.kick(a.member, 10000 * a.times, 'Вы временно отстранены от поиска за чрезмерную активность!');
+//         }
+//         if (!a.warned && a.times >= parseInt(ENV.KICK_LIMIT) * 0.75) {
+//             a.warned = true;
+//             try {
+//                 a.member.send('Вы совершаете слишком много действий! Умерьте пыл, или вы будете временно отстранены!');
+//             } catch (error) {
+//                 (await this.lfgChannel.send(`${a.member}, вы совершаете слишком много действий! Умерьте пыл, или вы будете временно отстранены!`) as Message).delete({ timeout: 30000 });
+//             }
+//         }
+//     });
+// }

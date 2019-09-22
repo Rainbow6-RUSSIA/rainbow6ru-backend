@@ -15,16 +15,22 @@ export default class VoiceStateUpdate extends Listener {
         const A = lobbyStoresRooms.get(oldState.channelID);
         const B = lobbyStoresRooms.get(newState.channelID);
 
-        if (A.id === B.id) { return; }
-
         const internal = A && B && A.LS.settings.type === B.LS.settings.type;
 
         await (A && A.leave(newState.member, internal));
         await (B && B.join(newState.member, internal));
+
+        if (!internal) {
+            await (A && A.LS.reportLeave(A));
+            await (B && B.LS.reportJoin(B));
+        }
+
+        await (internal || A && A.LS.updateFastAppeal());
+        await (B && B.LS.updateFastAppeal());
     }
 
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
-        if (ENV.NODE_ENV === 'development' && oldState.guild.id !== '216649610511384576') {return; }
+        if (ENV.NODE_ENV === 'development' && oldState.guild.id !== '216649610511384576' || (oldState && oldState.channelID === newState.channelID)) {return; }
         if (!newState.channel && newState.channelID) {
             await this.client.channels.fetch(newState.channelID);
         }
