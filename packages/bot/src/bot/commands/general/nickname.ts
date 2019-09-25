@@ -1,11 +1,11 @@
 import { Guild, User } from '@r6ru/db';
 import { Command } from 'discord-akairo';
-import { Message, User as U } from 'discord.js';
+import { GuildMember, Message } from 'discord.js';
 import { debug } from '../../..';
 import Sync from '../../../utils/sync';
 
 interface IArgs {
-    target: U;
+    target: GuildMember;
 }
 
 export default class Nickname extends Command {
@@ -14,7 +14,7 @@ export default class Nickname extends Command {
             aliases: ['nickname', 'nick', 'N'],
             args: [{
                 id: 'target',
-                type: 'user',
+                type: 'member',
             }],
             channel: 'guild',
             cooldown: 5 * 60 * 1000,
@@ -26,11 +26,11 @@ export default class Nickname extends Command {
     public exec = async (message: Message, args: IArgs) => {
         let { target } = args;
         if (!target) {
-            target = message.author;
+            target = message.member;
         }
         if (target.id !== message.author.id && !message.member.hasPermission('MANAGE_ROLES') && ![...this.client.ownerID].includes(message.author.id)) {
             await message.reply('изменение синхронизации ников других пользователей доступно только администрации!');
-            target = message.author;
+            target = message.member;
         }
         const dbUser = await User.findByPk(target.id);
         if (dbUser && dbUser.genome) {
@@ -40,7 +40,7 @@ export default class Nickname extends Command {
                 await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
             } else {
                 try {
-                    await (await message.guild.members.fetch(target.id)).setNickname(null);
+                    await target.setNickname(null);
                 } catch (err) {
                     console.log('Reset nickname failed', err);
                 }
