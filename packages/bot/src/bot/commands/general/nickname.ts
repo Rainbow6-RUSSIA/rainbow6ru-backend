@@ -40,7 +40,7 @@ export default class Nickname extends Command {
                 await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
             } else {
                 try {
-                    await target.setNickname(null);
+                    await target.setNickname('');
                 } catch (err) {
                     console.log('Reset nickname failed', err);
                 }
