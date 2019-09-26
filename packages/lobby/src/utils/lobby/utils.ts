@@ -4,14 +4,6 @@ import { CategoryChannel, Collection, Message, MessageOptions, Presence, Snowfla
 import { lobbyStoresRooms } from '.';
 
 export class LSBase {
-    public static detectIngameStatus = (presence: Presence): IngameStatus => {
-        const { activity } = presence;
-        if (activity && activity.applicationID === R6_PRESENCE_ID) {
-            return R6_PRESENCE_REGEXPS.findIndex(ar => ar.some(r => r.test(activity.details)));
-        } else {
-            return IngameStatus.OTHER;
-        }
-    }
 
     public settings: ILobbySettings;
     public category: CategoryChannel;

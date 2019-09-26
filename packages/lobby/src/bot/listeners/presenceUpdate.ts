@@ -1,7 +1,16 @@
-import { IngameStatus as IS } from '@r6ru/types';
+import { IngameStatus as IS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
 import { Listener } from 'discord-akairo';
 import { Presence } from 'discord.js';
 import { lobbyStoresRooms } from '../../utils/lobby';
+
+const detectIngameStatus = (presence: Presence): IS  => {
+    const { activity } = presence;
+    if (activity && activity.applicationID === R6_PRESENCE_ID) {
+        return R6_PRESENCE_REGEXPS.findIndex(ar => ar.some(r => r.test(activity.details)));
+    } else {
+        return IS.OTHER;
+    }
+};
 
 export default class PresenceUpdate extends Listener {
     public constructor() {
@@ -15,6 +24,13 @@ export default class PresenceUpdate extends Listener {
         const room = lobbyStoresRooms.get(newPresence.member.voice.channelID);
         if (room && room.status !== IS.LOADING) {
             console.log('PROCESS STATUS');
+            const statuses = room.dcMembers.map(m => m.presence).map(detectIngameStatus);
+            const statusSet = new Set(statuses);
+            if (statusSet.size <= 2) {
+                Object.values(room.LS.guild.lobbySettings);
+                // move when playing incorrect mode
+            }
+
         }
     }
 }
