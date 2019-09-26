@@ -97,13 +97,13 @@ export class LSRoom extends Lobby {
         return this.appealMessage;
     }
 
-    public async destroyRoom(appealOnly?: boolean) {
+    public async deactivate() {
         lobbyStoresRooms.delete(this.channel);
         this.active = false;
         await Promise.all([
             this.save(),
             (this.appealMessage && this.appealMessage.delete().catch(e => console.log('DESTROY APPEAL FAILED', e))),
-            (!appealOnly && this.dcChannel.delete().catch(e => console.log('DESTROY VOICE FAILED', e))),
+            // (!appealOnly && this.dcChannel.delete().catch(e => console.log('DESTROY VOICE FAILED', e))),
         ]);
     }
 
