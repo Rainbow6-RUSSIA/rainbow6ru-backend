@@ -130,10 +130,14 @@ export class LobbyStore extends LSBase {
 
                 const toMove = this.voices.sort((a, b) => a.position - b.position).last();
                 const pos = toDelete.position;
-                await toMove.edit({
-                    name: toDelete.name.replace('HardPlay ', '').replace(/#\d+/g, `#${pos + 1}`),
-                    position: pos,
-                }, 'подмена закрытого канала');
+                try {
+                    await toMove.edit({
+                        name: toDelete.name.replace('HardPlay ', '').replace(/#\d+/g, `#${pos + 1}`),
+                        position: pos,
+                    }, 'подмена закрытого канала');
+                } catch (error) {
+                    console.log('FAIL ON REPLACE', error);
+                }
         // // await this.syncChannels();
                 await this.category.fetch();
             }

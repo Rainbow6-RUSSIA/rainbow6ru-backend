@@ -39,11 +39,15 @@ export class LSRoom extends Lobby {
     }
 
     public async init() {
-        await this.dcChannel.edit({
-            name: this.dcChannel.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${this.dcChannel.position + 1}`),
-            permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
-            userLimit: this.LS.roomSize,
-        }, 'инициализация комнаты');
+        try {
+            await this.dcChannel.edit({
+                name: this.dcChannel.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${this.dcChannel.position + 1}`),
+                permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
+                userLimit: this.LS.roomSize,
+            }, 'инициализация комнаты');
+        } catch (error) {
+            console.log('FAIL ON INIT', error);
+        }
 
         const previousLobby = await Lobby.findOne({ where: { channel: this.dcChannel.id }, order: [['initiatedAt', 'DESC']] });
         this.description = previousLobby && previousLobby.description;
@@ -144,7 +148,6 @@ export class LSRoom extends Lobby {
             // await this.refreshIngameStatus(this);
             this.updateAppeal();
         }
-        console.log(member.user.tag, 'LEFT', this.dcChannel.name, 'DONE');
     }
 
     public async updateAppeal(appeal?: MessageOptions) {
@@ -187,7 +190,7 @@ export class LSRoom extends Lobby {
                     this.dcChannel = await this.dcChannel.edit({
                         name: this.dcChannel.name.replace(/HardPlay /g, '').replace(' ', ' HardPlay '),
                         permissionOverwrites: this.dcChannel.permissionOverwrites.filter(o => !disallowedRoles.has(o.id)),
-                    }) as VoiceChannel;
+                    });
                     debug.log(`${this.dcLeader} ${!this.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${this.id}\``);
                     try {
                         this.dcLeader.send(`HardPlay лобби ${!this.hardplay ? 'деактивировано' : 'активировано'}!`);
@@ -196,7 +199,7 @@ export class LSRoom extends Lobby {
                     this.dcChannel = await this.dcChannel.edit({
                         name: this.dcChannel.name.replace(/HardPlay /g, ''),
                         permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
-                    }) as VoiceChannel;
+                    });
                 }
                 break;
             }
