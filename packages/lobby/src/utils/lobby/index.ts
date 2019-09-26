@@ -120,14 +120,14 @@ export class LobbyStore extends LSBase {
     public async reportLeave(room: LSRoom) {
         if (room.dcMembers.size === 0) {
             if (this.staticRooms) {
-                await room.destroyRoom(true);
+                await room.deactivate();
                 lobbyStoresRooms.set(room.channel, await new LSRoom(room.dcChannel, this).init());
                 return;
             }
             if (this.rooms.size > this.roomsRange[0]) {
-                await room.destroyRoom();
-
                 const toDelete = room.dcChannel;
+                await toDelete.delete();
+
                 const toMove = this.voices.sort((a, b) => a.position - b.position).last();
                 const pos = toDelete.position;
                 await toMove.edit({
