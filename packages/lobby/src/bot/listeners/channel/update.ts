@@ -13,8 +13,7 @@ export default class Update extends Listener {
 
     public exec = async (oldChannel: DMChannel | GuildChannel, newChannel: DMChannel | GuildChannel) => {
         if (oldChannel instanceof VoiceChannel && newChannel instanceof VoiceChannel) {
-            console.log('CHANNEL UPDATED');
-            const room = lobbyStoresRooms.get(oldChannel.id);
+            const room = lobbyStoresRooms.get(oldChannel.id); // from settings to room, not from room to settings
             if (room && oldChannel.parentID !== newChannel.parentID) {
                 const settigns = Object.values(room.LS.guild.lobbySettings).find(s => s.voiceCategory === newChannel.parentID);
                 if (settigns) {
@@ -22,8 +21,15 @@ export default class Update extends Listener {
                     await room.deactivate();
                     const newRoom = await new LSRoom(newChannel, LS).init();
                     lobbyStoresRooms.set(newChannel.id, newRoom);
-                    await room.LS.updateFastAppeal();
-                    await newRoom.LS.updateFastAppeal();
+                    await Promise.all([
+                        room.LS.syncChannels(),
+                        newRoom.LS.syncChannels(),
+                    ]); // refactor to replace with last voice
+                    await Promise.all([
+                        room.LS.updateFastAppeal(),
+                        newRoom.LS.updateFastAppeal(),
+                    ]);
+                    console.log('CHANNEL UPDATED');
                 }
             }
         }

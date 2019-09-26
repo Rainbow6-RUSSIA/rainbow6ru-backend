@@ -15,6 +15,7 @@ export default class Delete extends Listener {
         if (room) {
             console.log('CHANNEL DELETED');
             await room.deactivate();
+            await room.LS.syncChannels(); // refactor to replace with last voice
             await room.LS.updateFastAppeal();
         }
     }

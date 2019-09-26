@@ -21,6 +21,7 @@ export default class Create extends Listener {
                 const LS = lobbyStores.get(settigns.lfg);
                 const room = await new LSRoom(channel, LS).init();
                 lobbyStoresRooms.set(channel.id, room);
+                await LS.syncChannels();
                 await LS.updateFastAppeal();
             }
         }
