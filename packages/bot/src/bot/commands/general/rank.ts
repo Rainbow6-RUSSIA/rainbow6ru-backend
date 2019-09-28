@@ -202,9 +202,7 @@ export default class Rank extends Command {
                     default:
                         break;
                     }
-            const code = Math.random().toString(36).substring(2, 6);
-            message.reply(`произошла ошибка! Код: \`${code}\` (данные для поддержки)`);
-            err.message = `CODE: ${code}, ${err.message}`;
+            message.reply(`произошла ошибка! Попробуйте еще раз.`);
             throw err;
         }
     }
