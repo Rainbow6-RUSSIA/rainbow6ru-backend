@@ -38,7 +38,7 @@ export default class Lobby extends Model<Lobby> {
     @Column
     public invite: string;
 
-    @Default(IS.LOADING)
+    @Default(IS.OTHER)
     @Column
     public status: IS;
 

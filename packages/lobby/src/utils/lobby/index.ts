@@ -112,14 +112,13 @@ export class LobbyStore extends LSBase {
     public async reportJoin(room: LSRoom) {
         if (!this.staticRooms && room.dcMembers.size === 1 && this.rooms.size <= this.roomsRange[1]) {
             const channelToClone = this.rawVoices.last();
-            const clonedChannel = await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize }) as VoiceChannel;
-            lobbyStoresRooms.set(clonedChannel.id, await new LSRoom(clonedChannel, this).init());
+            await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, `#${this.rawVoices.size + 1}`), userLimit: this.roomSize });
         }
     }
 
     public async reportLeave(room: LSRoom) {
         if (room.dcMembers.size === 0) {
-            if (this.staticRooms) {
+            if (this.staticRooms || this.rooms.size <= this.roomsRange[0]) {
                 await room.deactivate();
                 lobbyStoresRooms.set(room.channel, await new LSRoom(room.dcChannel, this).init());
                 return;
