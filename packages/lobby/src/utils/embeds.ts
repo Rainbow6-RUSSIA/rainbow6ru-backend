@@ -59,7 +59,7 @@ export default {
       })(),
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
-          text: `В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! S: ${IS[lobby.status]} ID: ${lobby.id}`,
+          text: `В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`,
       },
       thumbnail: {
           url: `${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcMembers.size}=1`,
@@ -84,7 +84,7 @@ export default {
             .size
               ? 'все комнаты укомплектованы!'
               : 0)}\`\n`
-        + `Присоединиться к новой комнате: ${await LS.rooms.filter(r => !r.dcMembers.size).last().initInvite()} 👈`,
+        + `Присоединиться к новой комнате: ${await (LS.rooms.filter(r => !r.dcMembers.size).last() || LS.rooms.last()).initInvite()} 👈`,
       fields: LS.rooms
         .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
         .sort((a, b) => a.dcChannel.position - b.dcChannel.position)

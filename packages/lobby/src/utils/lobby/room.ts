@@ -4,7 +4,6 @@ import { CategoryChannel, Collection, Guild, GuildMember, Invite, Message, Messa
 import { $enum } from 'ts-enum-util';
 import { LobbyStore, lobbyStoresRooms } from '.';
 import { debug } from '../..';
-import WaitLoaded from '../decorators/wait_loaded';
 import embeds from '../embeds';
 import ENV from '../env';
 import { applyMixins } from '../mixin';
@@ -102,11 +101,12 @@ export class LSRoom extends Lobby {
     }
 
     public async deactivate() {
+        console.log('DEACTIVATE', this.dcChannel.name);
         lobbyStoresRooms.delete(this.channel);
         this.active = false;
         await Promise.all([
             this.save(),
-            (this.appealMessage && this.appealMessage.delete().catch(e => console.log('DESTROY APPEAL FAILED', e))),
+            (this.appealMessage && this.appealMessage.delete().then(e => console.log('APPEAL DELETED')).catch(e => console.log('DESTROY APPEAL FAILED', e))),
             // (!appealOnly && this.dcChannel.delete().catch(e => console.log('DESTROY VOICE FAILED', e))),
         ]);
     }
@@ -145,7 +145,6 @@ export class LSRoom extends Lobby {
             this.dcLeader = newLeader;
         }
         if (this.dcMembers.size) {
-            // await this.refreshIngameStatus(this);
             this.updateAppeal();
         }
     }
