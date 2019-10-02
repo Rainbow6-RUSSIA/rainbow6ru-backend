@@ -65,7 +65,7 @@ export default {
       })(),
       footer: {
           iconURL: 'https://i.imgur.com/sDOEWMV.png',
-          text: `В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! ID: ${lobby.id}`,
+          text: `В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`,
       },
       thumbnail: {
           url: `${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcMembers.size}=1`,
@@ -111,6 +111,7 @@ export default {
             // + `Присоединиться: ${lobby.dcInvite.url} 👈\n`
             + `[подробнее...](${lobby.appealMessage.url})`,
         })),
+      timestamp: null,
       footer: {
         text: `ID - ${LS.type}`,
       },

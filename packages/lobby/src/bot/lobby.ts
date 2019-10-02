@@ -88,6 +88,7 @@ export class LobbyStore extends LSBase {
                         ));
                     const msgOpts = await embeds.fastAppeal(this);
                     this.fastAppealCache = JSON.stringify(msgOpts);
+                    msgOpts.embed.timestamp = new Date();
                     this.fastAppeal = await fastLfg.send('', msgOpts) as Message;
                 }
     }
@@ -344,6 +345,7 @@ export class LobbyStore extends LSBase {
         // console.log(JSON.stringify(msgOpts));
         if (this.fastAppealCache !== JSON.stringify(msgOpts)) {
             this.fastAppealCache = JSON.stringify(msgOpts);
+            msgOpts.embed.timestamp = new Date();
             await this.fastAppeal.edit('', msgOpts);
         }
     }
