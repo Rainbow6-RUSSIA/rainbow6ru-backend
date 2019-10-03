@@ -112,7 +112,13 @@ export class LSRoom extends Lobby {
     }
 
     public async join(member: GuildMember, internal?: boolean) {
-        console.log(member.user.tag, 'JOINED', this.dcChannel.name);
+        if (!this.LS.uniqueUsers.has(member.id)) {
+            const localLS = lobbyStores.filter(LS => LS.guild.id === member.guild.id);
+            const uniqueUsersPerGuild = new Set([].concat(...localLS.map(LS => [...LS.uniqueUsers])));
+            if (!uniqueUsersPerGuild.has(member.id)) {
+                await User.update({ nicknameUpdatedAt: new Date('2000') }, { where: { id: member.id } });
+            }
+        }
         this.LS.uniqueUsers.add(member.id);
         await this.$add('members', member.id);
         await this.reload({include: [{all: true}]});
