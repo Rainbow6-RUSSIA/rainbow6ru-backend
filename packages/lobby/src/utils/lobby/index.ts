@@ -6,24 +6,36 @@ import { Sequelize } from 'sequelize-typescript';
 import { debug } from '../..';
 import bot from '../../bot';
 // import Ratelimiter from '../utils/decorators/ratelimiter';
-import WaitLoaded from '../decorators/wait_loaded';
+// import WaitLoaded from '../decorators/wait_loaded';
 import embeds from '../embeds';
 import ENV from '../env';
 import { LSRoom } from './room';
-import { LSBase } from './utils';
 
 const { Op } = Sequelize;
 const initiatedAt = new Date();
 
-export class LobbyStore extends LSBase {
+export class LobbyStore {
 
-    public constructor(settings: ILobbySettings, dbGuild: Guild) {
-        super();
-        // this.checkLobbyHealth = this.checkLobbyHealth.bind(this);
+    public category: CategoryChannel;
+    public lfgChannel: TextChannel;
+
+    // public promiseQueue = [];
+    public roomSize: number = 5;
+    public roomsRange: [number, number];
+    public staticRooms: boolean;
+
+    public fastAppeal: Message;
+    // public fastAppealTimeout: NodeJS.Timeout;
+    // public fastAppealTimeoutMsg: MessageOptions;
+    public fastAppealCache: string;
+
+    // public actionCounter: Collection<Snowflake, IActivityCounter> = new Collection();
+    public loadedAt = new Date();
+    public uniqueUsers = new Set<Snowflake>();
+    public status: LSS = LSS.LOADING;
+
+    public constructor(public settings: ILobbySettings, public guild: Guild) {
         (async () => {
-            this.settings = settings;
-            this.guild = dbGuild;
-            // this.actionCounter = new Collection();
             this.category = await bot.channels.fetch(settings.voiceCategory) as CategoryChannel;
             this.roomsRange = this.settings.roomsRange || [5, 10];
             this.staticRooms = this.roomsRange[0] === this.roomsRange[1];
@@ -157,9 +169,24 @@ export class LobbyStore extends LSBase {
             this.fastAppealCache = JSON.stringify(msgOpts);
             msgOpts.embed.timestamp = new Date();
             this.fastAppeal = await this.fastAppeal.edit('', msgOpts);
-            console.log('FAST APPEAL UPDATED');
+            // console.log('FAST APPEAL UPDATED');
         }
         // }
+    }
+
+    public get rooms() {
+        return lobbyStoresRooms.filter((r, id) => this.settings.externalRooms.includes(id) || this.category.children.has(id));
+    }
+
+    get voices() {
+        return this.rooms.size ? new Collection(this.rooms.map(l => [l.dcChannel.id, l.dcChannel])) : this.rawVoices;
+    }
+    get rawVoices() {
+        return this.category.children.filter(ch => ch instanceof VoiceChannel && !ch.deleted).sort((a, b) => a.position - b.position) as Collection<string, VoiceChannel>;
+    }
+
+    public get joinAllowedRooms() {
+        return this.rooms.filter(l => l.joinAllowed).size;
     }
 
 }
@@ -192,7 +219,14 @@ export async function initLobbyStores() {
 //         "voiceCategory": "505831824765747230",
 //         "externalRooms": [],
 //         "roomsRange": [5, 10],
-//         "type": "ranked"}
+//         "type": "ranked"},
+//       "casual": {
+//         "lfg": "593497036868026368",
+//         "voiceCategory": "629050460745105427",
+//         "externalRooms": [],
+//         "roomsRange": [5, 10],
+//         "type": "casual"
+//       }
 //    }
 
 // private async checkLobbyHealth(lobby: Lobby) {
