@@ -2,7 +2,9 @@ import { IngameStatus as IS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/t
 import { Listener } from 'discord-akairo';
 import { Collection, Presence } from 'discord.js';
 import { debug } from '../..';
+import ENV from '../../utils/env';
 import { lobbyStoresRooms } from '../../utils/lobby';
+import { LSRoom } from '../../utils/lobby/room';
 
 const detectIngameStatus = (presence: Presence): IS  => {
     const { activity } = presence;
@@ -23,10 +25,8 @@ export default class PresenceUpdate extends Listener {
         });
     }
 
-    public exec = async (_: Presence, newPresence: Presence) => {
-        const room = lobbyStoresRooms.get(newPresence.member.voice.channelID);
-        if (room && room.status !== IS.LOADING) {
-            console.log('PROCESS STATUS');
+    public static handle = async (room: LSRoom) => {
+        if (room && room.status !== IS.LOADING && room.dcMembers.size) {
             const statusColl = new Collection<IS, number>();
             room.dcMembers.map(m => m.presence).map(detectIngameStatus).map(s => statusColl.set(s, (statusColl.get(s) || 0) + 1));
             statusColl.sort((a, b, ak, bk) => (b - a) || (bk - ak)); // sort by quantity otherwise sort by mode from actual mode to OTHER
@@ -38,6 +38,7 @@ export default class PresenceUpdate extends Listener {
             const nextStatus = statusColl.firstKey();
             if (prevStatus !== nextStatus) {
                 console.log(IS[prevStatus], '-->', IS[nextStatus], statusColl);
+                room.lastStatusUpdate = new Date();
                 if (![prevStatus, nextStatus].includes(IS.OTHER)) {
                     if (start.some(t => t[0] === prevStatus && t[1] === nextStatus)) {
                         debug.log(`<@${room.members.map(m => m.id).join('>, <@')}> начали играть (\`${IS[prevStatus]} --> ${IS[nextStatus]}\`). ID пати \`${room.id}\``);
@@ -61,6 +62,17 @@ export default class PresenceUpdate extends Listener {
                     room.LS.updateFastAppeal(),
                 ]);
             }
+        }
+    }
+
+    public exec = async (_: Presence, newPresence: Presence) => {
+        const room = lobbyStoresRooms.get(newPresence.member.voice.channelID);
+        if (!room) { return; }
+        if (room.statusUpdateTimeout || (room.lastStatusUpdate.valueOf() > (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN)))) {
+            clearTimeout(room.statusUpdateTimeout);
+            room.statusUpdateTimeout = setTimeout(() => (room.statusUpdateTimeout = null) || PresenceUpdate.handle(room), Date.now() - room.lastStatusUpdate.valueOf() + 1);
+        } else {
+            await PresenceUpdate.handle(room);
         }
     }
 }
