@@ -229,6 +229,10 @@ export async function initLobbyStores() {
 //       }
 //    }
 
+// "casual": "580774727757594624",
+
+// "casual": "580774892618645524",
+
 // private async checkLobbyHealth(lobby: Lobby) {
 //     try {
 //         if (!this.rawVoices.some((v: VoiceChannel) => v.members.size === 0) && !this.staticRooms) {

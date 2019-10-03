@@ -110,7 +110,7 @@ export class LSRoom extends Lobby {
             })();
             const barHandler = (flag: boolean) =>
                 (reaction: MessageReaction, user: U) =>
-                    (this.lastActionHandle.valueOf() < (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN) * 100) || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'))
+                    (this.lastActionHandle.valueOf() < (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN)) || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'))
                         && this.handleAction(emojiButtons.reverse[reaction.emoji.name], flag);
             this.reactionBarCollector.on('collect', barHandler(true));
             this.reactionBarCollector.on('remove', barHandler(false));
