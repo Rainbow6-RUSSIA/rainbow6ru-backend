@@ -24,8 +24,7 @@ export default class Stats extends Command {
         if (!args.type) {return; }
         const { guild } = message;
         const dbGuild = await Guild.findByPk(guild.id);
-        const vCat = Object.values(dbGuild.lobbySettings).map(ent => ent.voiceCategory);
-        const localLS = lobbyStores.filter(LS => vCat.includes(LS.category.id));
+        const localLS = lobbyStores.filter(LS => LS.guild.id === guild.id);
         return message.reply(`всего уникальных пользователей пользователей прошло через лобби с момента их загрузок: \`${
             new Set([].concat(...localLS.map(LS => [...LS.uniqueUsers]))).size
         }\`\n` + Object.keys(dbGuild.lobbySettings)
