@@ -4,7 +4,7 @@ import { CategoryChannel, Collection, Guild, GuildMember, Invite, Message, Messa
 import { $enum } from 'ts-enum-util';
 import { LobbyStore, lobbyStores, lobbyStoresRooms } from '.';
 import { debug } from '../..';
-import PresenceUpdate from '../../bot/listeners/presenceUpdate';
+import PresenceUpdate, { detectIngameStatus } from '../../bot/listeners/presenceUpdate';
 import embeds from '../embeds';
 import ENV from '../env';
 import { applyMixins } from '../mixin';
@@ -24,8 +24,10 @@ export class LSRoom extends Lobby {
     public dcGuild: Guild;
     public dcLeader: GuildMember;
 
-    public lastStatusUpdate: Date;
-    public statusUpdateTimeout: NodeJS.Timeout;
+    // public lastStatusUpdate: Date;
+    // public statusUpdateTimeout: NodeJS.Timeout;
+    public statusMap = new Collection<string, [IS, IS, Date, boolean?]>(); // [prevStatus, currentStatus, timestamp, cooldown]
+
     public lastActionHandle: Date;
     public actionHandleTimeout: NodeJS.Timeout;
 
@@ -71,11 +73,11 @@ export class LSRoom extends Lobby {
             await this.initInvite();
         }
 
-        this.status = IS.OTHER;
-        this.lastStatusUpdate = new Date('2000');
+        this.dcMembers.map(m => this.statusMap.set(m.id, [IS.OTHER, detectIngameStatus(m.presence), new Date()]));
+        // this.lastStatusUpdate = new Date('2000');
         this.lastActionHandle = new Date('2000');
 
-        await PresenceUpdate.handle(this);
+        // await PresenceUpdate.handle(this);
 
         // this.statusUpdateInterval = setInterval(() => PresenceUpdate.handle(this), 3000);
 
@@ -142,6 +144,9 @@ export class LSRoom extends Lobby {
         await this.$add('members', member.id);
         await this.reload({include: [{all: true}]});
         // console.log(this.members.find(m => m.id === member.id));
+
+        this.statusMap.set(member.id, [IS.OTHER, detectIngameStatus(member.presence), new Date()]);
+
         if (!this.dcLeader || !this.dcMembers.has(this.dcLeader.id)) {
             this.dcLeader = member;
         }
@@ -155,6 +160,9 @@ export class LSRoom extends Lobby {
         // console.log(member.user.tag, 'LEFT', this.dcChannel.name);
         await this.$remove('members', member.id);
         await this.reload({include: [{all: true}]});
+
+        this.statusMap.delete(member.id);
+
         if (this.close) {
             this.handleAction('close', false);
             this.dcChannel = await this.dcChannel.setUserLimit(this.LS.roomSize);
@@ -176,6 +184,7 @@ export class LSRoom extends Lobby {
     }
 
     public async updateAppeal(appeal?: MessageOptions) {
+        if (!this.dcMembers.size) { return; }
         await this.initAppeal();
         if (this.appealTimeout || (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) > (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN))) {
             this.appealTimeoutMsg = embeds.appealMsg(this);

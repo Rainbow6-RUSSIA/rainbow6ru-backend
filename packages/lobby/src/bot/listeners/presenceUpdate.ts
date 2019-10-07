@@ -6,16 +6,23 @@ import ENV from '../../utils/env';
 import { lobbyStoresRooms } from '../../utils/lobby';
 import { LSRoom } from '../../utils/lobby/room';
 
-const detectIngameStatus = (presence: Presence): IS  => {
+export const detectIngameStatus = (presence: Presence): IS  => {
+    if (!presence) { return IS.OTHER; }
+
     const { activity } = presence;
-    if (activity && activity.applicationID === R6_PRESENCE_ID) {
-        return R6_PRESENCE_REGEXPS.findIndex(ar => ar.some(r => r.test(activity.details)));
-    } else {
-        return IS.OTHER;
-    }
+
+    return activity && activity.applicationID === R6_PRESENCE_ID
+        ? R6_PRESENCE_REGEXPS.findIndex(ar => ar.some(r => r.test(activity.details)))
+        : IS.OTHER;
 };
 
-const start = [[IS.CASUAL_SEARCH, IS.CASUAL], [IS.RANKED_SEARCH, IS.RANKED], [IS.NEWCOMER_SEARCH, IS.NEWCOMER], [IS.DISCOVERY_SEARCH, IS.DISCOVERY], [IS.UNRANKED_SEARCH, IS.UNRANKED]];
+const start = [
+    [IS.CASUAL_SEARCH, IS.CASUAL],
+    [IS.RANKED_SEARCH, IS.RANKED],
+    [IS.NEWCOMER_SEARCH, IS.NEWCOMER],
+    [IS.DISCOVERY_SEARCH, IS.DISCOVERY],
+    [IS.UNRANKED_SEARCH, IS.UNRANKED],
+];
 
 export default class PresenceUpdate extends Listener {
     public constructor() {
@@ -25,6 +32,7 @@ export default class PresenceUpdate extends Listener {
         });
     }
 
+    /*
     public static handle = async (room: LSRoom) => {
         if (room && room.status !== IS.LOADING && room.dcMembers.size) {
             const statusColl = new Collection<IS, number>();
@@ -63,16 +71,42 @@ export default class PresenceUpdate extends Listener {
                 ]);
             }
         }
+    } */
+
+    public exec(oldPresence: Presence, newPresence: Presence) {
+        const room = lobbyStoresRooms.get(newPresence.member.voice.channelID);
+        const [prev, next] = [detectIngameStatus(oldPresence), detectIngameStatus(newPresence)];
+        if (!room || prev === next) { return; }
+        if (room.statusMap.has(newPresence.user.id)) {
+            const [_, ___, timestamp, cooldown] = room.statusMap.get(newPresence.user.id);
+            if ((Date.now() - timestamp.valueOf() < parseInt(ENV.MESSAGE_COOLDOWN)) && !cooldown) {
+                room.statusMap.get(newPresence.user.id)[3] = true;
+                return setTimeout(() => {
+                    room.statusMap.set(newPresence.user.id, [prev, detectIngameStatus(newPresence.member.presence), new Date()]);
+                    this.saveStatus(room);
+                }, Date.now() - timestamp.valueOf());
+            }
+        }
+        room.statusMap.set(newPresence.user.id, [prev, next, new Date()]);
+        return this.saveStatus(room);
+        // if (room.statusUpdateTimeout || (room.lastStatusUpdate.valueOf() > (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN)))) {
+        //     clearTimeout(room.statusUpdateTimeout);
+        //     room.statusUpdateTimeout = setTimeout(() => (room.statusUpdateTimeout = null) || PresenceUpdate.handle(room), Date.now() - room.lastStatusUpdate.valueOf() + 1);
+        // } else {
+        //     await PresenceUpdate.handle(room);
+        // }
     }
 
-    public exec = async (_: Presence, newPresence: Presence) => {
-        const room = lobbyStoresRooms.get(newPresence.member.voice.channelID);
-        if (!room) { return; }
-        if (room.statusUpdateTimeout || (room.lastStatusUpdate.valueOf() > (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN)))) {
-            clearTimeout(room.statusUpdateTimeout);
-            room.statusUpdateTimeout = setTimeout(() => (room.statusUpdateTimeout = null) || PresenceUpdate.handle(room), Date.now() - room.lastStatusUpdate.valueOf() + 1);
-        } else {
-            await PresenceUpdate.handle(room);
-        }
+    public async saveStatus(room: LSRoom) {
+        const prevStatus = room.status;
+        const nextStatus = room.status;
+        await room.save();
+
+        console.log(room.statusMap);
+
+        return Promise.all([
+            room.updateAppeal(),
+            room.LS.updateFastAppeal(),
+        ]);
     }
 }
