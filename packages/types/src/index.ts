@@ -63,16 +63,61 @@ export enum RANKS {
     'Champion',
 }
 
-export enum ACCESS {
-    OWNER = 100,
-    ABSOLUTE = 90,
-    ADMIN = 80,
-    MODERATOR = 70,
-    CONTENTMANAGER = 60,
-    ALLNEWS = 50,
-    NEWS = 40,
-    // ...
-    NONE = 0,
+// TODO: resolver & checker
+
+export enum UserFlags {
+    NONE                  = 0,
+    ADMIN                 = 1,
+    MODERATOR             = 1 << 1,
+    CONTENTMANAGER        = 1 << 2,
+    STREAMER              = 1 << 3,
+    SUSPENDED             = 1 << 4,
+
+    verificationRequired  = 1 << 3,
+    verificationCompleted = 1 << 4,
+}
+
+export enum UserPerms {
+    NONE                   = 0,
+
+    canDelete              = 1,
+    canRegister            = 1 << 1,
+    canBlock               = 1 << 2,
+    canVerify              = 1 << 3,
+    canRequestVerification = 1 << 4,
+    canScan                = 1 << 5,
+    canUpdate              = 1 << 6,
+    canSyncNick            = 1 << 7,
+    canRebootLobbies       = 1 << 8,
+    canManageLobbies       = 1 << 9,
+    // canManageLobbyState    = 1 << 11,
+    // canManageLobbyMembers  = 1 << 12,
+    postDraft              = 1 << 10, // comes with array of topics
+    postPublish            = 1 << 11, // e.g ['rainbow6', 'community', 'memes']
+}
+
+export function extractPermissions(flag: UserFlags) {
+    let permissions = UserPerms.NONE;
+    switch (true) {
+        case Boolean(flag & UserFlags.ADMIN):
+            return -1;
+        case Boolean(flag & UserFlags.MODERATOR):
+            permissions |= UserPerms.canUpdate
+                | UserPerms.canVerify
+                | UserPerms.canRequestVerification
+                | UserPerms.canRegister
+                | UserPerms.canSyncNick
+                | UserPerms.canRebootLobbies;
+        case Boolean(flag & UserFlags.CONTENTMANAGER):
+            permissions |= UserPerms.canUpdate
+                | UserPerms.canRequestVerification
+                | UserPerms.postDraft;
+        case Boolean(flag & UserFlags.STREAMER):
+            permissions |= UserPerms.postDraft
+                | UserPerms.postPublish;
+        // default:
+    }
+    return permissions;
 }
 
 export interface IJWT {
