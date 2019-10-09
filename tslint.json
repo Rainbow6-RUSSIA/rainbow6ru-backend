@@ -13,6 +13,7 @@
         "no-submodule-imports": false,
         "member-ordering": false,
         "trailing-comma": false,
-        "object-literal-sort-keys": false
+        "object-literal-sort-keys": false,
+        "no-bitwise": false
     }
 }
