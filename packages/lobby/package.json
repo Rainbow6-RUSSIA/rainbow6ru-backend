@@ -10,9 +10,11 @@
 	"typings": "build/index.d.ts",
 	"scripts": {
 		"build": "tsc -p .",
-		"dev": "lerna run build --parallel --scope=@r6ru/lobby --include-filtered-dependencies && tsc-watch --onSuccess \"node ./build/index.js\"",
+		"build:deps": "lerna run build --parallel --scope=@r6ru/lobby --include-filtered-dependencies",
+		"dev": "yarn build:deps && yarn start:watch",
 		"start": "node ./build/index.js",
-		"lint": "tslint --fix --project ."
+		"start:dev": "node --inspect ./build/index.js",
+		"start:watch": "tsc-watch --onSuccess \"yarn start:dev\""
 	},
 	"dependencies": {
 		"@r6ru/db": "0.0.0",
