@@ -9,6 +9,7 @@
 	"scripts": {
 		"build": "tsc -p .",
 		"build:deps": "lerna run build --parallel --scope=@r6ru/streams --include-filtered-dependencies",
+		"bootstrap": "lerna bootstrap",
 		"dev": "yarn build:deps && yarn start:watch",
 		"start": "node ./build/index.js",
 		"start:dev": "node --inspect ./build/index.js",
