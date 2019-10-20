@@ -50,7 +50,7 @@ export default class PresenceUpdate extends Listener {
         const prevStatus = room.status;
         const nextStatus = statusColl.firstKey();
         if (prevStatus !== nextStatus) {
-            console.log(IS[prevStatus], '-->', IS[nextStatus], statusColl);
+            // console.log(IS[prevStatus], '-->', IS[nextStatus], statusColl);
             if (![prevStatus, nextStatus].includes(IS.OTHER)) {
                 if (start.some(t => t[0] === prevStatus && t[1] === nextStatus)) {
                     debug.log(`<@${room.members.map(m => m.id).join('>, <@')}> начали играть (\`${IS[prevStatus]} --> ${IS[nextStatus]}\`). ID пати \`${room.id}\``);
