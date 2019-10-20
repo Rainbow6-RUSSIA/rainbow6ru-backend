@@ -137,13 +137,13 @@ export class LobbyStore {
             }
             if (this.rooms.size > this.roomsRange[0]) {
                 const toDelete = room.dcChannel;
+                const pos = toDelete.position;
                 await toDelete.delete();
 
                 const toMove = this.voices.sort((a, b) => a.position - b.position).last();
-                const pos = toDelete.position;
                 try {
                     await toMove.edit({
-                        name: toDelete.name.replace('HardPlay ', '').replace(/#\d+/g, `#${pos + 1}`),
+                        name: toMove.name.replace(/#\d+/g, `#${pos + 1}`),
                         position: pos,
                     }, 'подмена закрытого канала');
                 } catch (error) {
