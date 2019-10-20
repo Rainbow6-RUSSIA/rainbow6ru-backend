@@ -16,7 +16,7 @@ export default class Create extends Listener {
         if (channel instanceof VoiceChannel) {
             // console.log('CHANNEL CREATED');
             const dbGuild = await Guild.findByPk(channel.guild.id);
-            const settigns = Object.values(dbGuild.lobbySettings).find(s => s.voiceCategory === channel.parentID); // map(s => s.voiceCategory).includes(channel.parentID)
+            const settigns = Object.values(dbGuild.lobbySettings || {}).find(s => s.voiceCategory === channel.parentID); // map(s => s.voiceCategory).includes(channel.parentID)
             if (settigns) {
                 const LS = lobbyStores.get(settigns.lfg);
                 const room = await new LSRoom(channel, LS).init();
