@@ -167,13 +167,7 @@ export interface ILobbySettings {
 }
 
 export const currentlyPlaying = [IngameStatus.CASUAL, IngameStatus.RANKED, IngameStatus.CUSTOM, IngameStatus.NEWCOMER, IngameStatus.DISCOVERY];
-export const emojiButtons = {
-    direct: {
-        close: '🔐',
-        hardplay: '🏆',
-    },
-    reverse: {
-        '🏆': 'hardplay',
-        '🔐': 'close',
-    },
-};
+export enum EmojiButtons {
+        CLOSE = '🔐',
+        HARDPLAY = '🏆',
+}

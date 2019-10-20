@@ -1,3 +1,4 @@
+import { EmojiButtons } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party_command';
@@ -15,6 +16,6 @@ export default class MM extends Command {
     @PartyCommand()
     public async exec(message: Message, args: IArgsPartyCommand) {
         const { room } = args;
-        return room.handleAction('close', !room.close);
+        return room.handleAction(EmojiButtons.CLOSE, !room.close);
     }
 }

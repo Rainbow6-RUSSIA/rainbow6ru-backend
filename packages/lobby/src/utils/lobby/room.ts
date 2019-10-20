@@ -1,5 +1,5 @@
 import { Lobby, User } from '@r6ru/db';
-import { currentlyPlaying, emojiButtons, IngameStatus as IS } from '@r6ru/types';
+import { currentlyPlaying, EmojiButtons, IngameStatus as IS } from '@r6ru/types';
 import { CategoryChannel, Collection, Guild, GuildMember, Invite, Message, MessageOptions, MessageReaction, ReactionCollector, User as U, VoiceChannel } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { LobbyStore, lobbyStores, lobbyStoresRooms } from '.';
@@ -93,16 +93,16 @@ export class LSRoom extends Lobby {
         if (!this.appealMessage) {
             // console.log('INIT APPEAL', this.dcChannel.name);
             this.appealMessage = await this.LS.lfgChannel.send('', embeds.appealMsg(this));
-            const filter = (reaction: MessageReaction, user: U) => !user.bot && emojiButtons.reverse[reaction.emoji.name] && (this.dcLeader.id === user.id || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'));
+            const filter = (reaction: MessageReaction, user: U) => !user.bot && $enum(EmojiButtons).isValue(reaction.emoji.name) && (this.dcLeader.id === user.id || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'));
             this.reactionBarCollector = this.appealMessage.createReactionCollector(filter, {dispose: true});
             (async () => {
-                for (const r of Object.values(emojiButtons.direct)) {
+                for (const r of $enum(EmojiButtons).values()) {
                     await this.appealMessage.react(r);
                 }
             })();
             const barHandler = (flag: boolean) =>
                 (reaction: MessageReaction, user: U) =>
-                    this.handleAction(emojiButtons.reverse[reaction.emoji.name], flag);
+                    this.handleAction($enum(EmojiButtons).asValueOrThrow(reaction.emoji.name), flag);
             this.reactionBarCollector.on('collect', barHandler(true));
             this.reactionBarCollector.on('remove', barHandler(false));
         }
@@ -149,7 +149,7 @@ export class LSRoom extends Lobby {
         await this.reload({include: [{all: true}]});
 
         if (this.close) {
-            this.handleAction('close', false);
+            this.handleAction(EmojiButtons.CLOSE, false);
             this.dcChannel = await this.dcChannel.setUserLimit(this.LS.roomSize);
         }
         if (!this.dcMembers.size) {
@@ -157,7 +157,7 @@ export class LSRoom extends Lobby {
         }
         if (this.dcMembers.size !== 0 && member.id === this.dcLeader.id) {
             const newLeader = this.dcMembers.random();
-            this.handleAction('hardplay', false);
+            this.handleAction(EmojiButtons.HARDPLAY, false);
             try {
                 newLeader.send('Теперь Вы - лидер лобби');
             } catch (error) {/* */}
@@ -178,60 +178,72 @@ export class LSRoom extends Lobby {
         }
     }
 
-    public async handleAction(action: keyof typeof emojiButtons.direct, flag: boolean) {
-        if (this[action] === flag) { return; }
-        if (action === 'hardplay' && flag && this.minRank === 0) {
-            try {
-                return this.dcLeader.send(`Нельзя активировать HardPlay в команде состоящей только из \`Unranked\`!`);
-            } catch (error) {/* */}
-        }
-        this[action] = flag;
-        await this.save();
+    // ACTION HANDLING
+
+    public async handleAction(action: EmojiButtons, flag: boolean) {
         switch (action) {
-            case 'close': {
-                (debounce(
-                    async () => {
-                        await this.dcChannel.setUserLimit(flag ? this.dcMembers.size : this.LS.roomSize);
-                        debug.log(`${this.dcLeader} ${!this.close ? 'открыл' : 'закрыл'} лобби!. ID пати \`${this.id}\``);
-                        try {
-                            this.dcLeader.send(`Лобби ${!this.close ? 'открыто' : 'закрыто'}!`);
-                        } catch (error) {/* */}
-                    }
-                , 1500))();
-                break;
-            }
-            case 'hardplay': {
-                (debounce(
-                    async () => {
-                        if (flag) {
-                            const allRoles = new Set(this.guild.rankRoles);
-                            const allowedRoles = new Set(this.guild.rankRoles.slice(this.minRank));
-                            allRoles.delete(''); allowedRoles.delete('');
-                            const disallowedRoles = new Set([...allRoles].filter(r => !allowedRoles.has(r)));
-                            this.dcChannel = await this.dcChannel.edit({
-                                name: this.dcChannel.name.replace(/HardPlay /g, '').replace(' ', ' HardPlay '),
-                                permissionOverwrites: this.dcChannel.permissionOverwrites.filter(o => !disallowedRoles.has(o.id)),
-                            });
-                            debug.log(`${this.dcLeader} ${!this.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${this.id}\``);
-                            try {
-                                this.dcLeader.send(`HardPlay лобби ${!this.hardplay ? 'деактивировано' : 'активировано'}!`);
-                            } catch (error) {/* */}
-                        } else {
-                            this.dcChannel = await this.dcChannel.edit({
-                                name: this.dcChannel.name.replace(/HardPlay /g, ''),
-                                permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
-                            });
-                        }
-                    }
-                , 1500))();
-                break;
-            }
+            case EmojiButtons.CLOSE: return this.handleClose(flag);
+            case EmojiButtons.HARDPLAY: return this.handleHardplay(flag);
         }
+    }
+
+    @Debounce(1500)
+    public async handleClose(flag: boolean) {
+        if (this.close === flag) { return; }
+        this.close = !this.close;
+        await this.save();
+
+        await this.dcChannel.setUserLimit(flag ? this.dcMembers.size : this.LS.roomSize);
+        debug.log(`${this.dcLeader} ${!this.close ? 'открыл' : 'закрыл'} лобби!. ID пати \`${this.id}\``);
+        try {
+            this.dcLeader.send(`Лобби ${!this.close ? 'открыто' : 'закрыто'}!`);
+        } catch (error) {/* */}
+
         await Promise.all([
             this.updateAppeal(),
             this.LS.updateFastAppeal(),
         ]);
     }
+
+    @Debounce(1500)
+    public async handleHardplay(flag: boolean) {
+        if (flag && this.minRank === 0) {
+            try {
+                return this.dcLeader.send(`Нельзя активировать HardPlay в команде состоящей только из \`Unranked\`!`);
+            } catch (error) {/* */}
+        }
+
+        if (this.hardplay === flag) { return; }
+        this.hardplay = !this.hardplay;
+        await this.save();
+
+        if (flag) {
+            const allRoles = new Set(this.guild.rankRoles);
+            const allowedRoles = new Set(this.guild.rankRoles.slice(this.minRank));
+            allRoles.delete(''); allowedRoles.delete('');
+            const disallowedRoles = new Set([...allRoles].filter(r => !allowedRoles.has(r)));
+            this.dcChannel = await this.dcChannel.edit({
+                name: this.dcChannel.name.replace(/HardPlay /g, '').replace(' ', ' HardPlay '),
+                permissionOverwrites: this.dcChannel.permissionOverwrites.filter(o => !disallowedRoles.has(o.id)),
+            });
+            debug.log(`${this.dcLeader} ${!this.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${this.id}\``);
+            try {
+                this.dcLeader.send(`HardPlay лобби ${!this.hardplay ? 'деактивировано' : 'активировано'}!`);
+            } catch (error) {/* */}
+        } else {
+            this.dcChannel = await this.dcChannel.edit({
+                name: this.dcChannel.name.replace(/HardPlay /g, ''),
+                permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
+            });
+        }
+
+        await Promise.all([
+            this.updateAppeal(),
+            this.LS.updateFastAppeal(),
+        ]);
+    }
+
+    // GETTERS
 
     public get minRank() {
         const ranks = this.members.map(m => m.rank);

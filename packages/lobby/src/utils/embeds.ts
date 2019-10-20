@@ -1,4 +1,4 @@
-import { currentlyPlaying, EMOJI_REGEXP, emojiButtons, IngameStatus as IS, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { currentlyPlaying, EMOJI_REGEXP, EmojiButtons, IngameStatus as IS, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { EmbedField, GuildMember, MessageOptions, Util } from 'discord.js';
 import bot from '../bot';
 import ENV from './env';
@@ -28,7 +28,7 @@ export default {
         const fields: EmbedField[] = [];
         if (lobby.hardplay) {
           fields.push({
-            name: `Режим "HardPlay\\${emojiButtons.direct.hardplay}"`,
+            name: `Режим "HardPlay\\${EmojiButtons.HARDPLAY}"`,
             value: `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\``,
           });
         }
@@ -95,7 +95,7 @@ export default {
           name: modeSelector(lobby)
             .replace(EMOJI_REGEXP, v => '\\' + v), // emoji wrap
           value: (lobby.hardplay
-              ? `HardPlay\\${emojiButtons.direct.hardplay}: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n`
+              ? `HardPlay\\${EmojiButtons.HARDPLAY}: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n`
               : `Ранг: ${lobby.minRank === lobby.maxRank
                 ? (lobby.maxRank === 0
                   ? '`любой`'

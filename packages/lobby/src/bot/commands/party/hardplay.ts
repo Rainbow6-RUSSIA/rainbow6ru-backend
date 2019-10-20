@@ -1,3 +1,4 @@
+import { EmojiButtons } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party_command';
@@ -15,6 +16,6 @@ export default class HardPlay extends Command {
     @PartyCommand()
     public async exec(message: Message, args: IArgsPartyCommand) {
         const { room } = args;
-        return room.handleAction('hardplay', !room.hardplay);
+        return room.handleAction(EmojiButtons.HARDPLAY, !room.hardplay);
     }
 }
