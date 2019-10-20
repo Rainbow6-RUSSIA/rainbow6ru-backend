@@ -23,9 +23,9 @@ export default class Reboot extends Command {
             debug.log(`лобби \`${LS.settings.type}\` на ${message.guild.name} перезагружено`);
             return message.reply(`перезагружаем \`${LS.settings.type}\` лобби`);
         } else {
-            Object.entries(dbGuild.lobbySettings).map(ent => lobbyStores.set(ent[1].lfg, new LobbyStore(ent[1], dbGuild)));
-            debug.log(`лобби на ${message.guild.name} перезагружены`);
-            return message.reply('перезагружаем ВСЕ лобби');
+            // Object.entries(dbGuild.lobbySettings).map(ent => lobbyStores.set(ent[1].lfg, new LobbyStore(ent[1], dbGuild)));
+            // debug.log(`лобби на ${message.guild.name} перезагружены`);
+            return message.reply('команда доступна только в канале поиска!');
         }
     }
 }
