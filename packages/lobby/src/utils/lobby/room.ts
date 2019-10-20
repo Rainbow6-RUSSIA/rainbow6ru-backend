@@ -149,7 +149,7 @@ export class LSRoom extends Lobby {
         await this.reload({include: [{all: true}]});
 
         if (this.close) {
-            this.handleAction(EmojiButtons.CLOSE, false);
+            this.handleClose(false);
             this.dcChannel = await this.dcChannel.setUserLimit(this.LS.roomSize);
         }
         if (!this.dcMembers.size) {
@@ -157,7 +157,7 @@ export class LSRoom extends Lobby {
         }
         if (this.dcMembers.size !== 0 && member.id === this.dcLeader.id) {
             const newLeader = this.dcMembers.random();
-            this.handleAction(EmojiButtons.HARDPLAY, false);
+            this.handleHardplay(false);
             try {
                 newLeader.send('Теперь Вы - лидер лобби');
             } catch (error) {/* */}
@@ -182,12 +182,11 @@ export class LSRoom extends Lobby {
 
     public async handleAction(action: EmojiButtons, flag: boolean) {
         switch (action) {
-            case EmojiButtons.CLOSE: return this.handleClose(flag);
-            case EmojiButtons.HARDPLAY: return this.handleHardplay(flag);
+            case EmojiButtons.CLOSE: return debounce(this.handleClose(flag), 1500);
+            case EmojiButtons.HARDPLAY: return debounce(this.handleHardplay(flag), 1500);
         }
     }
 
-    @Debounce(1500)
     public async handleClose(flag: boolean) {
         if (this.close === flag) { return; }
         this.close = !this.close;
@@ -205,7 +204,6 @@ export class LSRoom extends Lobby {
         ]);
     }
 
-    @Debounce(1500)
     public async handleHardplay(flag: boolean) {
         if (flag && this.minRank === 0) {
             try {
