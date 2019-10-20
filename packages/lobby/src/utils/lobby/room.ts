@@ -174,7 +174,7 @@ export class LSRoom extends Lobby {
         await this.initAppeal();
         if (!this.appealMessage.deleted) {
             this.appealMessage = await this.appealMessage.edit('', appeal || embeds.appealMsg(this));
-            console.log('APPEAL UPDATED');
+            // console.log('APPEAL UPDATED');
         }
     }
 

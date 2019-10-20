@@ -13,7 +13,7 @@ export default class Delete extends Listener {
     public exec = async (channel: DMChannel | GuildChannel) => {
         const room = lobbyStoresRooms.get(channel.id);
         if (room) {
-            console.log('CHANNEL DELETED');
+            // console.log('CHANNEL DELETED');
             await room.deactivate();
             await room.LS.syncChannels(); // refactor to replace with last voice
             await room.LS.updateFastAppeal();

@@ -28,7 +28,7 @@ export default class Update extends Listener {
                     room.LS.updateFastAppeal(),
                     newRoom.LS.updateFastAppeal(),
                 ]);
-                console.log('CHANNEL UPDATED');
+                // console.log('CHANNEL UPDATED');
             }
         }
     }

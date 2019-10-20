@@ -14,7 +14,7 @@ export default class Create extends Listener {
 
     public exec = async (channel: DMChannel | GuildChannel) => {
         if (channel instanceof VoiceChannel) {
-            console.log('CHANNEL CREATED');
+            // console.log('CHANNEL CREATED');
             const dbGuild = await Guild.findByPk(channel.guild.id);
             const settigns = Object.values(dbGuild.lobbySettings).find(s => s.voiceCategory === channel.parentID); // map(s => s.voiceCategory).includes(channel.parentID)
             if (settigns) {
