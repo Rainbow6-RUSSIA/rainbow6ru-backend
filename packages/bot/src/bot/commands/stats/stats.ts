@@ -42,12 +42,13 @@ export default class Stats extends Command {
                 return message.reply(`всего пользователей в голосовых каналах: \`${
                     guild.channels.filter(ch => ch.type === 'voice')
                         .reduce((acc, val: VoiceChannel) => acc + val.members.size, 0)
-                    }\`\n` + Object.entries(dbGuild.voiceCategories)
-                                .map(ent => [...ent, (guild.channels.get(ent[1]) as CategoryChannel).children
+                    }\`\n` + Object.values(dbGuild.lobbySettings)
+                                .map(ent => [ent.type, ent.voiceCategory])
+                                .map(ent => [ent[0], (guild.channels.get(ent[1]) as CategoryChannel).children
                                     .filter(ch => ch.type === 'voice')
                                     .reduce((acc, val: VoiceChannel) => acc + val.members.size, 0)])
                                 .sort((a, b) => (b[2] as number) - (a[2] as number))
-                                .map(ent => `Категория \`${ent[0]}\` - \`${ent[2]}\` пользователей`)
+                                .map(ent => `Категория \`${ent[0]}\` - \`${ent[1]}\` пользователей`)
                                 .join('\n'));
             }
             case !args.type: {

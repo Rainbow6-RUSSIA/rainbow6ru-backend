@@ -20,15 +20,11 @@ export default class Create extends Listener {
                 default: [guild.roles.highest.id, 0, 'Default', []],
             },
             id: guild.id,
-            lfgChannels: {},
+            lobbySettings: {},
             logsChannel: '',
             platformRoles: {},
             premium: false,
             requiredVerification: VERIFICATION_LEVEL.NONE,
-            roomsRange: {
-                default: [0, 5],
-            },
-            voiceCategories: {},
         }).save();
     }
 }
