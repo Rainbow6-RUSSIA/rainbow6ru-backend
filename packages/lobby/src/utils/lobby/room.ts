@@ -5,6 +5,8 @@ import { $enum } from 'ts-enum-util';
 import { LobbyStore, lobbyStores, lobbyStoresRooms } from '.';
 import { debug } from '../..';
 import PresenceUpdate, { detectIngameStatus } from '../../bot/listeners/presenceUpdate';
+import Debounce, { debounce } from '../decorators/debounce';
+import Throttle from '../decorators/throttle';
 import embeds from '../embeds';
 import ENV from '../env';
 import { applyMixins } from '../mixin';
@@ -13,8 +15,6 @@ export class LSRoom extends Lobby {
     public LS: LobbyStore;
 
     public appealMessage: Message;
-    public appealTimeout: NodeJS.Timeout;
-    public appealTimeoutMsg: MessageOptions;
 
     public reactionBarCollector: ReactionCollector;
 
@@ -23,10 +23,6 @@ export class LSRoom extends Lobby {
     public dcChannel: VoiceChannel;
     public dcGuild: Guild;
     public dcLeader: GuildMember;
-
-    // public lastStatusUpdate: Date;
-    // public statusUpdateTimeout: NodeJS.Timeout;
-    public statusMap = new Collection<string, [IS, IS, Date, boolean?]>(); // [prevStatus, currentStatus, timestamp, cooldown]
 
     public lastActionHandle: Date;
     public actionHandleTimeout: NodeJS.Timeout;
@@ -73,13 +69,7 @@ export class LSRoom extends Lobby {
             await this.initInvite();
         }
 
-        this.dcMembers.map(m => this.statusMap.set(m.id, [IS.OTHER, detectIngameStatus(m.presence), new Date()]));
-        // this.lastStatusUpdate = new Date('2000');
-        this.lastActionHandle = new Date('2000');
-
-        // await PresenceUpdate.handle(this);
-
-        // this.statusUpdateInterval = setInterval(() => PresenceUpdate.handle(this), 3000);
+        PresenceUpdate.handle(this);
 
         return this;
 
@@ -112,8 +102,7 @@ export class LSRoom extends Lobby {
             })();
             const barHandler = (flag: boolean) =>
                 (reaction: MessageReaction, user: U) =>
-                    (this.lastActionHandle.valueOf() < (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN)) || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'))
-                        && this.handleAction(emojiButtons.reverse[reaction.emoji.name], flag);
+                    this.handleAction(emojiButtons.reverse[reaction.emoji.name], flag);
             this.reactionBarCollector.on('collect', barHandler(true));
             this.reactionBarCollector.on('remove', barHandler(false));
         }
@@ -145,8 +134,6 @@ export class LSRoom extends Lobby {
         await this.reload({include: [{all: true}]});
         // console.log(this.members.find(m => m.id === member.id));
 
-        this.statusMap.set(member.id, [IS.OTHER, detectIngameStatus(member.presence), new Date()]);
-
         if (!this.dcLeader || !this.dcMembers.has(this.dcLeader.id)) {
             this.dcLeader = member;
         }
@@ -160,8 +147,6 @@ export class LSRoom extends Lobby {
         // console.log(member.user.tag, 'LEFT', this.dcChannel.name);
         await this.$remove('members', member.id);
         await this.reload({include: [{all: true}]});
-
-        this.statusMap.delete(member.id);
 
         if (this.close) {
             this.handleAction('close', false);
@@ -183,15 +168,13 @@ export class LSRoom extends Lobby {
         }
     }
 
+    @Throttle(2000)
     public async updateAppeal(appeal?: MessageOptions) {
         if (!this.dcMembers.size) { return; }
         await this.initAppeal();
-        if (this.appealTimeout || (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) > (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN))) {
-            this.appealTimeoutMsg = embeds.appealMsg(this);
-            clearTimeout(this.appealTimeout);
-            this.appealTimeout = setTimeout(() => (this.appealTimeout = null) || this.updateAppeal(this.appealTimeoutMsg), Date.now() - (this.appealMessage.editedTimestamp || this.appealMessage.createdTimestamp) + 1);
-        } else if (!this.appealMessage.deleted) {
+        if (!this.appealMessage.deleted) {
             this.appealMessage = await this.appealMessage.edit('', appeal || embeds.appealMsg(this));
+            console.log('APPEAL UPDATED');
         }
     }
 
@@ -206,33 +189,41 @@ export class LSRoom extends Lobby {
         await this.save();
         switch (action) {
             case 'close': {
-                await this.dcChannel.setUserLimit(flag ? this.dcMembers.size : this.LS.roomSize);
-                debug.log(`${this.dcLeader} ${!this.close ? 'открыл' : 'закрыл'} лобби!. ID пати \`${this.id}\``);
-                try {
-                    this.dcLeader.send(`Лобби ${!this.close ? 'открыто' : 'закрыто'}!`);
-                } catch (error) {/* */}
+                (debounce(
+                    async () => {
+                        await this.dcChannel.setUserLimit(flag ? this.dcMembers.size : this.LS.roomSize);
+                        debug.log(`${this.dcLeader} ${!this.close ? 'открыл' : 'закрыл'} лобби!. ID пати \`${this.id}\``);
+                        try {
+                            this.dcLeader.send(`Лобби ${!this.close ? 'открыто' : 'закрыто'}!`);
+                        } catch (error) {/* */}
+                    }
+                , 1500))();
                 break;
             }
             case 'hardplay': {
-                if (flag) {
-                    const allRoles = new Set(this.guild.rankRoles);
-                    const allowedRoles = new Set(this.guild.rankRoles.slice(this.minRank));
-                    allRoles.delete(''); allowedRoles.delete('');
-                    const disallowedRoles = new Set([...allRoles].filter(r => !allowedRoles.has(r)));
-                    this.dcChannel = await this.dcChannel.edit({
-                        name: this.dcChannel.name.replace(/HardPlay /g, '').replace(' ', ' HardPlay '),
-                        permissionOverwrites: this.dcChannel.permissionOverwrites.filter(o => !disallowedRoles.has(o.id)),
-                    });
-                    debug.log(`${this.dcLeader} ${!this.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${this.id}\``);
-                    try {
-                        this.dcLeader.send(`HardPlay лобби ${!this.hardplay ? 'деактивировано' : 'активировано'}!`);
-                    } catch (error) {/* */}
-                } else {
-                    this.dcChannel = await this.dcChannel.edit({
-                        name: this.dcChannel.name.replace(/HardPlay /g, ''),
-                        permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
-                    });
-                }
+                (debounce(
+                    async () => {
+                        if (flag) {
+                            const allRoles = new Set(this.guild.rankRoles);
+                            const allowedRoles = new Set(this.guild.rankRoles.slice(this.minRank));
+                            allRoles.delete(''); allowedRoles.delete('');
+                            const disallowedRoles = new Set([...allRoles].filter(r => !allowedRoles.has(r)));
+                            this.dcChannel = await this.dcChannel.edit({
+                                name: this.dcChannel.name.replace(/HardPlay /g, '').replace(' ', ' HardPlay '),
+                                permissionOverwrites: this.dcChannel.permissionOverwrites.filter(o => !disallowedRoles.has(o.id)),
+                            });
+                            debug.log(`${this.dcLeader} ${!this.hardplay ? 'деактивировал' : 'активировал'} HardPlay лобби!. ID пати \`${this.id}\``);
+                            try {
+                                this.dcLeader.send(`HardPlay лобби ${!this.hardplay ? 'деактивировано' : 'активировано'}!`);
+                            } catch (error) {/* */}
+                        } else {
+                            this.dcChannel = await this.dcChannel.edit({
+                                name: this.dcChannel.name.replace(/HardPlay /g, ''),
+                                permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
+                            });
+                        }
+                    }
+                , 1500))();
                 break;
             }
         }

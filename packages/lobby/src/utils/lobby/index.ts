@@ -5,8 +5,7 @@ import * as humanizeDuration from 'humanize-duration';
 import { Sequelize } from 'sequelize-typescript';
 import { debug } from '../..';
 import bot from '../../bot';
-// import Ratelimiter from '../utils/decorators/ratelimiter';
-// import WaitLoaded from '../decorators/wait_loaded';
+import Throttle from '../decorators/throttle';
 import embeds from '../embeds';
 import ENV from '../env';
 import { LSRoom } from './room';
@@ -25,8 +24,6 @@ export class LobbyStore {
     public staticRooms: boolean;
 
     public fastAppeal: Message;
-    // public fastAppealTimeout: NodeJS.Timeout;
-    // public fastAppealTimeoutMsg: MessageOptions;
     public fastAppealCache: string;
 
     // public actionCounter: Collection<Snowflake, IActivityCounter> = new Collection();
@@ -155,23 +152,15 @@ export class LobbyStore {
         }
     }
 
-    public async updateFastAppeal(appeal?: MessageOptions) {
+    @Throttle(3000)
+    public async updateFastAppeal() {
         if (!(this.guild.fastLfg && this.fastAppeal)) { return; }
-        // if (this.fastAppealTimeout || (this.fastAppeal.editedTimestamp || this.fastAppeal.createdTimestamp) > (Date.now() - parseInt(ENV.MESSAGE_COOLDOWN))) {
-        //     this.fastAppealTimeoutMsg = await embeds.fastAppeal(this);
-        //     if (!this.fastAppealTimeout) {
-        //         clearTimeout(this.fastAppealTimeout);
-        //         this.fastAppealTimeout = setTimeout(() => (this.fastAppealTimeout = null) || this.updateFastAppeal(this.fastAppealTimeoutMsg), Date.now() - (this.fastAppeal.editedTimestamp || this.fastAppeal.createdTimestamp) + 1);
-        //     }
-        // } else {
         const msgOpts = await embeds.fastAppeal(this);
         if (this.fastAppealCache !== JSON.stringify(msgOpts)) {
             this.fastAppealCache = JSON.stringify(msgOpts);
             msgOpts.embed.timestamp = new Date();
             this.fastAppeal = await this.fastAppeal.edit('', msgOpts);
-            // console.log('FAST APPEAL UPDATED');
         }
-        // }
     }
 
     public get rooms() {
