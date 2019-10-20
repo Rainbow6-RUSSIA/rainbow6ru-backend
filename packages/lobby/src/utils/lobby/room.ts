@@ -93,7 +93,7 @@ export class LSRoom extends Lobby {
         if (!this.appealMessage) {
             // console.log('INIT APPEAL', this.dcChannel.name);
             this.appealMessage = await this.LS.lfgChannel.send('', embeds.appealMsg(this));
-            const filter = (reaction: MessageReaction, user: U) => !user.bot && $enum(EmojiButtons).isValue(reaction.emoji.name) && (this.dcLeader.id === user.id || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'));
+            const filter = (reaction: MessageReaction, user: U) => !user.bot && $enum(EmojiButtons).isValue(reaction.emoji.name) && ((this.dcLeader && this.dcLeader.id) === user.id || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'));
             this.reactionBarCollector = this.appealMessage.createReactionCollector(filter, {dispose: true});
             (async () => {
                 for (const r of $enum(EmojiButtons).values()) {
