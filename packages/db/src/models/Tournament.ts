@@ -40,10 +40,10 @@ export default class Tournament extends Model<Tournament> {
     @Column
     public guildId: Snowflake;
 
-    @BelongsTo(() => Guild)
+    @BelongsTo(() => Guild, 'Tournament_guildId_fkey')
     public guild: Guild;
 
-    @HasMany(() => Match)
+    @HasMany(() => Match, 'Match_tournamentId_fkey')
     public matches: Match[];
 
     @BelongsToMany(() => MapR6, () => Pool)

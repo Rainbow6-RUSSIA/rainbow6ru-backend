@@ -6,7 +6,7 @@ import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party
 import RequireVoice from '../../../utils/decorators/require_voice';
 import embeds from '../../../utils/embeds';
 import ENV from '../../../utils/env';
-import { lobbyStores } from '../../lobby';
+import { lobbyStoresRooms } from '../../../utils/lobby';
 
 interface IArgs {
     description: string;
@@ -34,7 +34,7 @@ export default class Party extends Command {
     public async exec(message: Message, args: IArgs) {
         // const lobby = LS.lobbies.get(message.member.voice.channelID);
         const voice = message.member.voice.channel;
-        if (lobbyStores.has(voice.parentID) && lobbyStores.get(voice.parentID).lobbies.has(voice.id)) {
+        if (lobbyStoresRooms.has(voice.id)) {
             return this.execDefaultParty(message, args);
         } else {
             const { description } = args;
@@ -72,22 +72,26 @@ export default class Party extends Command {
 
     @PartyCommand()
     public async execDefaultParty(message: Message, args: IArgs & IArgsPartyCommand): Promise<any> {
-        const { description, lobby, LS } = args;
+        const { description, room } = args;
 
-        const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
-        lobby.invite = inv.url;
-        lobby.description = description;
-        await lobby.save();
-        lobby.dcInvite = inv;
-        if (lobby.appealMessage) {
-            try {
-                await lobby.appealMessage.delete();
-            } catch (error) {
-                // console.log(error)
-            }
-        }
-        lobby.appealMessage = await LS.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
-        LS.updateFastAppeal();
-        return debug.log(`${message.author} ищет пати в \`${lobby.type}\` с описанием: \`${lobby.description}\`. ID пати \`${lobby.id}\``);
+        room.description = description;
+        await room.save();
+        await room.updateAppeal();
+
+        // const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
+        // lobby.invite = inv.url;
+        // lobby.description = description;
+        // await lobby.save();
+        // lobby.dcInvite = inv;
+        // if (lobby.appealMessage) {
+        //     try {
+        //         await lobby.appealMessage.delete();
+        //     } catch (error) {
+        //         // console.log(error)
+        //     }
+        // }
+        // lobby.appealMessage = await LS.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
+        room.LS.updateFastAppeal();
+        return debug.log(`${message.author} ищет пати в \`${room.LS.settings.type}\` с описанием: \`${room.description}\`. ID пати \`${room.id}\``);
     }
 }

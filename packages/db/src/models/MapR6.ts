@@ -24,6 +24,6 @@ export default class MapR6 extends Model<MapR6> {
     @BelongsToMany(() => Tournament, () => Pool)
     public tournamentPools: Array<Tournament & {Pool: Pool}>;
 
-    @HasMany(() => Vote)
+    @HasMany(() => Vote, 'Vote_mapId_fkey')
     public votes: Vote[];
 }

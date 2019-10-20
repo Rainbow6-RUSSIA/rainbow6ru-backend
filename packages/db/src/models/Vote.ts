@@ -8,19 +8,19 @@ export default class Vote extends Model<Vote> {
     @ForeignKey(() => Match)
     public matchId: number;
 
-    @BelongsTo(() => Match)
+    @BelongsTo(() => Match, 'Vote_matchId_fkey')
     public match: Match;
 
     @ForeignKey(() => Team)
     public teamId: number;
 
-    @BelongsTo(() => Team)
+    @BelongsTo(() => Team, 'Vote_teamId_fkey')
     public team: Team;
 
     @ForeignKey(() => MapR6)
     public mapId: string;
 
-    @BelongsTo(() => MapR6)
+    @BelongsTo(() => MapR6, 'Vote_mapId_fkey')
     public map: MapR6;
 
     @Column(DataType.STRING)

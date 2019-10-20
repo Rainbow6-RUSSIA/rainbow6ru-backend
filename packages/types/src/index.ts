@@ -118,20 +118,20 @@ export enum IngameStatus {
 export const R6_PRESENCE_ID = '445956193924546560';
 
 export const R6_PRESENCE_REGEXPS = [
-    [/МЕНЮ/g, /MENU/g],
-    [/ОБЫЧНАЯ.+раунд/g, /CASUAL.+Round/g],
-    [/Поиск.+ОБЫЧНАЯ/g, /Looking.+CASUAL/g],
-    [/БЕЗРЕЙТ.+раунд/g, /UNRANKED.+Round/g],
-    [/Поиск.+БЕЗРЕЙТ/g, /Looking.+UNRANKED/g],
-    [/РЕЙТ.+раунд/g, /RANKED.+Round/g],
-    [/Поиск.+РЕЙТ/g, /Looking.+RANKED/g],
-    [/НОВИЧОК.+раунд/g, /NEWCOMER.+Round/g],
-    [/Поиск.+НОВИЧОК/g, /Looking.+NEWCOMER/g],
-    [/Антитеррор/g, /TERRORIST HUNT/g],
-    [/Игра.+ПОЛЬЗ/g],
-    [/Поиск.+ПОЛЬЗ/g],
-    [/РАЗВЕДКА.+раунд/g, /DISCOVERY.+Round/g],
-    [/Поиск.+РАЗВЕДКА/g, /Looking.+DISCOVERY/g],
+    [/МЕНЮ/, /MENU/],
+    [/ОБЫЧНАЯ.+раунд/, /CASUAL.+Round/],
+    [/Поиск.+ОБЫЧНАЯ/, /Looking.+CASUAL/],
+    [/БЕЗРЕЙТ.+раунд/, /UNRANKED.+Round/],
+    [/Поиск.+БЕЗРЕЙТ/, /Looking.+UNRANKED/],
+    [/РЕЙТ.+раунд/, /RANKED.+Round/],
+    [/Поиск.+РЕЙТ/, /Looking.+RANKED/],
+    [/НОВИЧОК.+раунд/, /NEWCOMER.+Round/],
+    [/Поиск.+НОВИЧОК/, /Looking.+NEWCOMER/],
+    [/Антитеррор/, /TERRORIST HUNT/],
+    [/Игра.+ПОЛЬЗ/, /CUSTOM.+Round/],
+    [/Поиск.+ПОЛЬЗ/, /Looking.+CUSTOM/],
+    [/РАЗВЕДКА.+раунд/, /DISCOVERY.+Round/],
+    [/Поиск.+РАЗВЕДКА/, /Looking.+DISCOVERY/],
 ];
 
 export const RANK_COLORS = [
@@ -156,7 +156,22 @@ export const RANK_BADGES = [
     '622159827681935371',
 ];
 
-export const EMOJI_REGEXP = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
+export const EMOJI_REGEXP = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
 
 export type DonateRecord = [Snowflake, number, string, Snowflake[]];
 //                          roleId     price   name    allowedUsers
+
+export interface ILobbySettings {
+    lfg: Snowflake;
+    voiceCategory: Snowflake;
+    roomsRange: [number, number];
+    externalRooms: Snowflake[];
+    type: string;
+    disallowedModes: IngameStatus[];
+}
+
+export const currentlyPlaying = [IngameStatus.CASUAL, IngameStatus.RANKED, IngameStatus.CUSTOM, IngameStatus.NEWCOMER, IngameStatus.DISCOVERY];
+export enum EmojiButtons {
+        CLOSE = '🔐',
+        HARDPLAY = '🏆',
+}

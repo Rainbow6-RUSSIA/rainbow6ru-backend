@@ -10,14 +10,18 @@
 	"typings": "build/index.d.ts",
 	"scripts": {
 		"build": "tsc -p .",
-		"dev": "lerna run build --parallel --scope=@r6ru/bot --include-filtered-dependencies && tsc-watch --onSuccess \"node ./build/index.js\"",
-		"start": "node ./build/index.js"
+		"build:deps": "lerna run build --parallel --scope=@r6ru/lobby --include-filtered-dependencies",
+		"bootstrap": "lerna bootstrap",
+		"dev": "yarn build:deps && yarn start:watch",
+		"start": "node ./build/index.js",
+		"start:dev": "node --inspect ./build/index.js",
+		"start:watch": "tsc-watch --onSuccess \"yarn start:dev\""
 	},
 	"dependencies": {
 		"@r6ru/db": "0.0.0",
 		"@r6ru/types": "0.0.0",
 		"@r6ru/utils": "0.0.0",
-		"canvas": "^2.5.0",
+		"canvas": "^2.6.0",
 		"discord-akairo": "8.0.0-beta.8",
 		"discord.js": "https://github.com/discordjs/discord.js#60f89bd",
 		"dotenv": "^8.0.0",

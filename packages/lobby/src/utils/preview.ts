@@ -1,5 +1,4 @@
 import * as Canvas from 'canvas';
-import { writeFile } from 'fs';
 
 Canvas.registerFont(__dirname + '/../../assets/BebasNeue Bold.otf', { family: 'BebasNeue Bold' });
 

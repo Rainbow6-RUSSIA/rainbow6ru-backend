@@ -1,7 +1,6 @@
-import { ILobbyStoreEventType } from '@r6ru/types';
 import 'reflect-metadata';
 import { debug } from '../..';
-import { LobbyStore } from '../../bot/lobby';
+import { LobbyStore } from '../lobby';
 
 export default function Ratelimiter(target: LobbyStore, propertyName: string, propertyDesciptor: PropertyDescriptor): PropertyDescriptor {
         const method = propertyDesciptor.value;

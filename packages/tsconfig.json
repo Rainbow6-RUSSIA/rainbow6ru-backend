@@ -9,6 +9,6 @@
     "declaration": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
-    "removeComments": true,
+    "removeComments": true
   }
 }

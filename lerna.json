@@ -3,5 +3,6 @@
     "packages/*"
   ],
   "version": "independent",
+  "conventionalCommits": true,
   "npmClient": "yarn"
 }

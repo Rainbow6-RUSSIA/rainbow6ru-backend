@@ -21,12 +21,12 @@ export default class Team extends Model<Team> {
     @HasOne(() => User)
     public captain: User;
 
-    @HasMany(() => User)
+    @HasMany(() => User, 'User_teamId_fkey')
     public members: User[];
 
     @BelongsToMany(() => Match, () => TeamMatch)
     public matches: Array<Match & {TeamMatch: TeamMatch}>;
 
-    @HasMany(() => Vote)
+    @HasMany(() => Vote, 'Vote_teamId_fkey')
     public votes: Vote[];
 }

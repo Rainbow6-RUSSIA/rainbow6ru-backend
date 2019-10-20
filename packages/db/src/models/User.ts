@@ -76,14 +76,14 @@ export default class User extends Model<User> {
     @Column
     public lobbyId: number;
 
-    @BelongsTo(() => Lobby)
+    @BelongsTo(() => Lobby, 'User_lobbyId_fkey')
     public lobby: Lobby;
 
     @ForeignKey(() => Team)
     @Column
     public teamId: number;
 
-    @BelongsTo(() => Team)
+    @BelongsTo(() => Team, 'User_teamId_fkey')
     public team: Team;
 
     @BelongsToMany(() => Tournament, () => TournamentMod)

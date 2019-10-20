@@ -12,6 +12,7 @@ class IEnv {
     public REBOOT_TIME = '';
     public INVITE_AGE = '';
     public LOBBY_PREVIEW_URL = '';
+    public MESSAGE_COOLDOWN = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file
