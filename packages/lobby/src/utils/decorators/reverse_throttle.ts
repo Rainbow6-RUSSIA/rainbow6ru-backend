@@ -13,10 +13,12 @@ export function reverseThrottle(func, ms) {
 
     let isThrottled = false;
     let savedArgs = null;
+    let savedThis = null;
 
     function wrapper() {
 
       savedArgs = arguments;
+      savedThis = this;
 
       if (isThrottled) { return; }
 
@@ -24,8 +26,8 @@ export function reverseThrottle(func, ms) {
 
       setTimeout(() => {
         isThrottled = false;
-        func.apply(this, savedArgs);
-        savedArgs = null;
+        func.apply(savedThis, savedArgs);
+        savedArgs = savedThis = null;
       }, ms);
     }
 

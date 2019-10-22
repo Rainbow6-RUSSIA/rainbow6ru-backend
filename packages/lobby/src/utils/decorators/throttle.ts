@@ -11,28 +11,30 @@ export default function Throttle(delay: number) {
 
 export function throttle(func, ms) {
 
-    let isThrottled = false;
-    let savedArgs = null;
+  let isThrottled = false;
+  let savedArgs = null;
+  let savedThis = null;
 
-    function wrapper() {
+  function wrapper() {
 
-      if (isThrottled) {
-        savedArgs = arguments;
-        return;
-      }
-
-      func.apply(this, arguments);
-
-      isThrottled = true;
-
-      setTimeout(() => {
-        isThrottled = false;
-        if (savedArgs) {
-          wrapper.apply(this, savedArgs);
-          savedArgs = null;
-        }
-      }, ms);
+    if (isThrottled) {
+      savedArgs = arguments;
+      savedThis = this;
+      return;
     }
 
-    return wrapper;
+    func.apply(this, arguments);
+
+    isThrottled = true;
+
+    setTimeout(() => {
+      isThrottled = false;
+      if (savedArgs) {
+        wrapper.apply(savedThis, savedArgs);
+        savedArgs = savedThis = null;
+      }
+    }, ms);
   }
+
+  return wrapper;
+}
