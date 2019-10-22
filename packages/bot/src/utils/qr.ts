@@ -2,7 +2,7 @@
 import { UUID } from '@r6ru/types';
 import { AwesomeQRCode, QRErrorCorrectLevel } from 'awesome-qr';
 import { createHash } from 'crypto';
-import * as jimp from 'jimp';
+import jimp from 'jimp';
 import readerQR from 'jsqr';
 import fetch from 'node-fetch';
 import ENV from './env';

@@ -121,7 +121,6 @@ export class LSRoom extends Lobby {
     }
 
     public async join(member: GuildMember, internal?: boolean) {
-        // console.log(member.user.tag, 'JOINED', this.dcChannel.name);
         if (!this.LS.uniqueUsers.has(member.id)) {
             const localLS = lobbyStores.filter(LS => LS.guild.id === member.guild.id);
             const uniqueUsersPerGuild = new Set([].concat(...localLS.map(LS => [...LS.uniqueUsers])));
@@ -140,11 +139,11 @@ export class LSRoom extends Lobby {
         if (this.appealMessage || this.dcMembers.size >= this.LS.roomSize) {
             await this.updateAppeal();
         }
-    //     await this.refreshIngameStatus(this);
+        // await this.refreshIngameStatus(this);
+        // console.log(`${member.user.tag} JOINED ${this.dcChannel.name}`);
     }
 
     public async leave(member: GuildMember, internal?: boolean) {
-        // console.log(member.user.tag, 'LEFT', this.dcChannel.name);
         await this.$remove('members', member.id);
         await this.reload({include: [{all: true}]});
 
@@ -166,15 +165,16 @@ export class LSRoom extends Lobby {
         if (this.dcMembers.size) {
             this.updateAppeal();
         }
+        // console.log(`${member.user.tag} LEFT ${this.dcChannel.name}`);
     }
 
     @Throttle(2000)
-    public async updateAppeal(appeal?: MessageOptions) {
+    public async updateAppeal() {
         if (!this.dcMembers.size) { return; }
         await this.initAppeal();
         if (!this.appealMessage.deleted) {
-            this.appealMessage = await this.appealMessage.edit('', appeal || embeds.appealMsg(this));
-            // console.log('APPEAL UPDATED');
+            this.appealMessage = await this.appealMessage.edit('', embeds.appealMsg(this));
+            // console.log(`APPEAL UPDATED ${this.dcChannel.name}`);
         }
     }
 
