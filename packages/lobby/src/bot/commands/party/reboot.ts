@@ -1,4 +1,4 @@
-import { Guild } from '@r6ru/db';
+import { Guild, Lobby } from '@r6ru/db';
 import { Command } from 'discord-akairo';
 import { Message, TextChannel, VoiceChannel } from 'discord.js';
 import { debug } from '../../..';
@@ -7,6 +7,7 @@ import { LSRoom } from '../../../utils/lobby/room';
 
 interface IArgs {
     target: VoiceChannel;
+    targetId: number;
 }
 
 export default class Reboot extends Command {
@@ -16,6 +17,11 @@ export default class Reboot extends Command {
             args: [{
                 id: 'target',
                 type: 'voiceChannel',
+                unordered: true,
+            }, {
+                id: 'targetId',
+                type: 'number',
+                unordered: true,
             }],
             channel: 'guild',
             cooldown: 5000,
@@ -26,8 +32,9 @@ export default class Reboot extends Command {
     public exec = async (message: Message, args: IArgs) => {
         const dbGuild = await Guild.findByPk(message.guild.id);
         const channel = message.channel as TextChannel;
-        if (args.target) {
-            const room = lobbyStoresRooms.get(args.target.id);
+        if (args.target || args.targetId) {
+            const lobby = await Lobby.findByPk(args.targetId);
+            const room = lobbyStoresRooms.get((lobby && lobby.channel) || args.target.id);
             if (room) {
                 await room.deactivate();
                 lobbyStoresRooms.set(room.dcChannel.id, await new LSRoom(room.dcChannel, room.LS).init());
