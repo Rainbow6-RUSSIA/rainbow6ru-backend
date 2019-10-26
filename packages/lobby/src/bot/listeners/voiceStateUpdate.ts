@@ -16,14 +16,13 @@ export default class VoiceStateUpdate extends Listener {
         const B = lobbyStoresRooms.get(newState.channelID);
 
         const internal = Boolean(A) && Boolean(B) && A.LS.settings.type === B.LS.settings.type;
+        // console.log('VSU', Boolean(A), Boolean(B), A && A.LS.settings.type, B && B.LS.settings.type);
 
         await (A && A.leave(newState.member, internal));
-        await (B && B.join(newState.member, internal));
+        await (A && A.dcMembers.size === 0 && A.LS.reportLeave(A, internal));
 
-        if (!internal) {
-            await (A && A.LS.reportLeave(A));
-            await (B && B.LS.reportJoin(B));
-        }
+        await (B && B.join(newState.member, internal));
+        await (B && B.dcMembers.size === 1 && B.LS.reportJoin(B, internal));
 
         await (internal || A && A.LS.updateFastAppeal());
         await (B && B.LS.updateFastAppeal());

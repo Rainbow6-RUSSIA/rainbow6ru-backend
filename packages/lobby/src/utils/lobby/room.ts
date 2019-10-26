@@ -4,8 +4,9 @@ import { CategoryChannel, Collection, Guild, GuildMember, Invite, Message, Messa
 import { $enum } from 'ts-enum-util';
 import { LobbyStore, lobbyStores, lobbyStoresRooms } from '.';
 import { debug } from '../..';
-import PresenceUpdate, { detectIngameStatus } from '../../bot/listeners/presenceUpdate';
+import { detectIngameStatus, start } from '../../bot/listeners/presenceUpdate';
 import Debounce, { debounce } from '../decorators/debounce';
+import ReverseThrottle from '../decorators/reverse_throttle';
 import Throttle from '../decorators/throttle';
 import embeds from '../embeds';
 import ENV from '../env';
@@ -48,7 +49,7 @@ export class LSRoom extends Lobby {
             await this.dcChannel.edit({
                 name: this.dcChannel.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${this.dcChannel.position + 1}`),
                 permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
-                userLimit: this.LS.roomSize,
+                userLimit: this.LS.settings.roomSize,
             }, 'инициализация комнаты');
         } catch (error) {
             console.log('FAIL ON INIT', error);
@@ -69,10 +70,9 @@ export class LSRoom extends Lobby {
             await this.initInvite();
         }
 
-        PresenceUpdate.handle(this);
+        this.handleStatus();
 
         return this;
-
     }
 
     public async initInvite() {
@@ -120,7 +120,8 @@ export class LSRoom extends Lobby {
         ]);
     }
 
-    public async join(member: GuildMember, internal?: boolean) {
+    public async join(member: GuildMember, internal: boolean) {
+
         if (!this.LS.uniqueUsers.has(member.id)) {
             const localLS = lobbyStores.filter(LS => LS.guild.id === member.guild.id);
             const uniqueUsersPerGuild = new Set([].concat(...localLS.map(LS => [...LS.uniqueUsers])));
@@ -128,33 +129,39 @@ export class LSRoom extends Lobby {
                 await User.update({ nicknameUpdatedAt: new Date('2000') }, { where: { id: member.id } });
             }
         }
+
         this.LS.uniqueUsers.add(member.id);
+
         await this.$add('members', member.id);
         await this.reload({include: [{all: true}]});
-        // console.log(this.members.find(m => m.id === member.id));
 
-        if (!this.dcLeader || !this.dcMembers.has(this.dcLeader.id)) {
+        if (!this.dcLeader) {
             this.dcLeader = member;
         }
-        if (this.appealMessage || this.dcMembers.size >= this.LS.roomSize) {
+
+        if (this.appealMessage || this.dcMembers.size >= this.LS.settings.roomSize) {
             await this.updateAppeal();
         }
         // await this.refreshIngameStatus(this);
         // console.log(`${member.user.tag} JOINED ${this.dcChannel.name}`);
     }
 
-    public async leave(member: GuildMember, internal?: boolean) {
+    public async leave(member: GuildMember, internal: boolean) {
         await this.$remove('members', member.id);
         await this.reload({include: [{all: true}]});
 
-        if (this.close) {
-            this.handleClose(false);
-            this.dcChannel = await this.dcChannel.setUserLimit(this.LS.roomSize);
-        }
         if (!this.dcMembers.size) {
             this.dcLeader = null;
+            await this.deactivate();
+            return;
         }
-        if (this.dcMembers.size !== 0 && member.id === this.dcLeader.id) {
+
+        if (this.close) {
+            this.handleClose(false);
+            this.dcChannel = await this.dcChannel.setUserLimit(this.LS.settings.roomSize);
+        }
+
+        if (member.id === this.dcLeader.id) {
             const newLeader = this.dcMembers.random();
             this.handleHardplay(false);
             try {
@@ -162,9 +169,8 @@ export class LSRoom extends Lobby {
             } catch (error) {/* */}
             this.dcLeader = newLeader;
         }
-        if (this.dcMembers.size) {
-            this.updateAppeal();
-        }
+
+        await this.updateAppeal();
         // console.log(`${member.user.tag} LEFT ${this.dcChannel.name}`);
     }
 
@@ -192,7 +198,7 @@ export class LSRoom extends Lobby {
         this.close = !this.close;
         await this.save();
 
-        await this.dcChannel.setUserLimit(flag ? this.dcMembers.size : this.LS.roomSize);
+        await this.dcChannel.setUserLimit(flag ? this.dcMembers.size : this.LS.settings.roomSize);
         debug.log(`${this.dcLeader} ${!this.close ? 'открыл' : 'закрыл'} лобби!. ID пати \`${this.id}\``);
         try {
             this.dcLeader.send(`Лобби ${!this.close ? 'открыто' : 'закрыто'}!`);
@@ -241,34 +247,79 @@ export class LSRoom extends Lobby {
         ]);
     }
 
+    public handleStatus() {
+        const statusColl = new Collection<IS, number>();
+        this.dcMembers.map(m => detectIngameStatus(m.presence)).map(s => statusColl.set(s, (statusColl.get(s) || 0) + 1));
+        statusColl.sort((a, b, ak, bk) => (b - a) || (bk - ak)); // sort by quantity otherwise sort by mode from actual mode to OTHER
+        // if (statusColl.size <= 2 && statusColl.has(IS.OTHER)) {
+        //     Object.values(room.LS.guild.lobbySettings);
+        //     // move when playing incorrect mode
+        // }
+        return this.processStatus(statusColl);
+    }
+
+    @ReverseThrottle(5000)
+    private async processStatus(statusColl: Collection<IS, number>) {
+        if (!this || this.status === IS.LOADING || !this.dcMembers.size) { return; }
+        const prevStatus = this.status;
+        const nextStatus = statusColl.firstKey();
+        if (prevStatus !== nextStatus) {
+            // console.log(IS[prevStatus], '-->', IS[nextStatus], statusColl);
+            if (![prevStatus, nextStatus].includes(IS.OTHER)) {
+                if (start.some(t => t[0] === prevStatus && t[1] === nextStatus)) {
+                    debug.log(`<@${this.members.map(m => m.id).join('>, <@')}> начали играть (\`${IS[prevStatus]} --> ${IS[nextStatus]}\`). ID пати \`${this.id}\``);
+                }
+
+                if (start.some(t => t[1] === prevStatus) && nextStatus === IS.MENU) {
+                    debug.log(`<@${this.members.map(m => m.id).join('>, <@')}> закончили играть (\`${IS[prevStatus]} --> ${IS[nextStatus]}\`). ID пати \`${this.id}\``);
+                }
+
+                if (prevStatus === IS.RANKED && nextStatus === IS.MENU) {
+                    this.members.map(m => {
+                        m.rankUpdatedAt = new Date('2000');
+                        m.save();
+                    });
+                }
+            }
+
+            this.status = typeof nextStatus === 'number' ? nextStatus : IS.OTHER;
+            this.updateAppeal();
+            this.LS.updateFastAppeal();
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // GETTERS
 
-    public get minRank() {
+    get minRank() {
         const ranks = this.members.map(m => m.rank);
         return ranks.some(r => r !== 0) ? Math.min(...ranks.filter(r => r !== 0)) : 0;
     }
 
-    public get maxRank() {
+    get maxRank() {
         return Math.max(...this.members.map(m => m.rank));
     }
 
-    public get limitRank() {
+    get limitRank() {
         return this.minRank === Infinity ? 0 : this.minRank - this.minRank % 4 + 1;
     }
 
-    public get joinAllowed() {
+    get joinAllowed() {
         return !this.close && (this.dcMembers.size < this.dcChannel.userLimit) && !currentlyPlaying.includes(this.status);
     }
 
-    public get dcMembers() {
+    get dcMembers() {
         return this.dcChannel.members;
     }
 
-    public get leader() {
+    get leader() {
         return this.members.find(m => m.id === this.dcLeader.id);
     }
 
-    public get categoryVoices() {
+    get categoryVoices() {
         return this.dcCategory.children.filter(ch => ch instanceof VoiceChannel && !ch.deleted).sort((a, b) => a.position - b.position) as Collection<string, VoiceChannel>;
     }
 }
