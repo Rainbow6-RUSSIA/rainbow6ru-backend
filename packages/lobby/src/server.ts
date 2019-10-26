@@ -25,7 +25,7 @@ server.use(restify.plugins.requestLogger());
 server.get('/auth/login', respond);
 
 server.get('/lobby/:id/preview', async (req, res, next) => {
-  if (Number.isInteger(parseInt(req.params.id))) {
+  if (Number.isInteger(parseInt(req.params.id)) && parseInt(req.params.id) < 2 ** 32 / 2) {
     const lobby = await Lobby.findByPk(req.params.id);
 
     if (!lobby) {
