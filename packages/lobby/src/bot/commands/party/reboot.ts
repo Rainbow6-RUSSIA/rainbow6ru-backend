@@ -30,8 +30,7 @@ export default class Reboot extends Command {
             const room = lobbyStoresRooms.get(args.target.id);
             if (room) {
                 await room.deactivate();
-                const newRoom = await new LSRoom(room.dcChannel, room.LS).init();
-                lobbyStoresRooms.set(room.dcChannel.id, newRoom);
+                lobbyStoresRooms.set(room.dcChannel.id, await new LSRoom(room.dcChannel, room.LS).init());
                 await room.LS.updateFastAppeal();
                 return message.reply('комната перезагружена.');
             } else {
@@ -40,9 +39,9 @@ export default class Reboot extends Command {
         } else {
             if (lobbyStores.has(channel.id)) {
                 const LS = lobbyStores.get(channel.id);
-                lobbyStores.set(channel.id, new LobbyStore(LS.settings, dbGuild));
-                debug.log(`лобби \`${LS.settings.type}\` на ${message.guild.name} перезагружается`);
-                return message.reply(`перезагружаем \`${LS.settings.type}\` лобби`);
+                lobbyStores.set(channel.id, await new LobbyStore(LS.settings, dbGuild).init());
+                debug.log(`лобби \`${LS.settings.type}\` на ${message.guild.name} перезагружено`);
+                return message.reply(`\`${LS.settings.type}\` лобби перезагружено`);
             } else {
                 return message.reply('команда доступна только в канале поиска!');
             }
