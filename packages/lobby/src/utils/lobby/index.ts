@@ -72,8 +72,13 @@ export class LobbyStore {
             this.category = await this.category.fetch() as CategoryChannel;
         }
 
-        const generatedRooms = await Promise.all(this.voices.map(v => new LSRoom(v, this).init()));
-        lobbyStoresRooms = new Collection([ ...lobbyStoresRooms.values(), ...generatedRooms].map(l => [l.channel, l]));
+        await Promise.all(
+            this.voices.map(v =>
+                new LSRoom(v, this)
+                .init()
+                .then(room => lobbyStoresRooms.set(v.id, room))
+            )
+        );
 
         this.status = LSS.AVAILABLE;
 
