@@ -1,3 +1,4 @@
+import { Lobby } from '@r6ru/db';
 import { IngameStatus as IS } from '@r6ru/types';
 import * as restify from 'restify';
 import { BadRequestError, NotFoundError } from 'restify-errors';
@@ -25,13 +26,18 @@ server.get('/auth/login', respond);
 
 server.get('/lobby/:id/preview', async (req, res, next) => {
   if (Number.isInteger(parseInt(req.params.id))) {
-    const room = lobbyStoresRooms.get(req.params.id);
-    // const lobbyBase = await Lobby.findByPk(parseInt(req.params.id)/* , { include: [{ all: true }] } */);
+    const lobby = await Lobby.findByPk(req.params.id);
+
+    if (!lobby) {
+      return next(new NotFoundError());
+    }
+
+    const room = lobbyStoresRooms.get(lobby.channel);
 
     if (!room) {
-      return next(new NotFoundError());
+      return res.redirect(301, 'https://i.imgur.com/5Neb9Sn.png', next);
     } else {
-      await waitLoaded(room);
+      // await waitLoaded(room);
       const pic = await createLobbyPreview(
         room.minRank,
         room.maxRank,
@@ -52,12 +58,12 @@ server.get('/lobby/:id/preview', async (req, res, next) => {
 
 server.listen(ENV.PORT || 3000, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));
 
-async function waitLoaded(room: LSRoom) {
-  return new Promise(resolve => {
-      const waiter = () => {
-          if (room.status !== IS.LOADING) { return resolve(); }
-          setTimeout(waiter, 25);
-      };
-      waiter();
-  });
-}
+// async function waitLoaded(room: LSRoom) {
+//   return new Promise(resolve => {
+//       const waiter = () => {
+//           if (room.status !== IS.LOADING) { return resolve(); }
+//           setTimeout(waiter, 25);
+//       };
+//       waiter();
+//   });
+// }
