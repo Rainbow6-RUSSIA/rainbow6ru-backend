@@ -69,8 +69,9 @@ export class LSRoom extends Lobby {
         if (this.categoryVoices.lastKey() === this.channel) {
             await this.initInvite();
         }
-
+        if (this.dcMembers.size) {
         this.handleStatus();
+        }
 
         return this;
     }
@@ -213,7 +214,7 @@ export class LSRoom extends Lobby {
     public async handleHardplay(flag: boolean) {
         if (flag && this.minRank === 0) {
             try {
-                return this.dcLeader.send(`Нельзя активировать HardPlay в команде состоящей только из \`Unranked\`!`);
+                await this.dcLeader.send(`HardPlay для команды состоящей только из \`Unranked\` бесполезен, внесены только косметические изменения!`);
             } catch (error) {/* */}
         }
 
