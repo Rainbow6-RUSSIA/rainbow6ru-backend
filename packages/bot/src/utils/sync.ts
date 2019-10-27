@@ -1,5 +1,5 @@
 import { Guild as G, Team, User as U } from '@r6ru/db';
-import { ONLINE_TRACKER, PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
+import { ONLINE_TRACKER, PLATFORM, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
 import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { debug } from '..';
@@ -86,8 +86,9 @@ export default class Sync {
     } catch (err) {
       debug.error(`Не удается отправить сообщение о верификации <@${dbUser.id}>. Скорее всего ЛС закрыто.`);
       debug.error(err);
+      return UpdateStatus.DM_CLOSED;
     }
-    return false;
+    return UpdateStatus.VERIFICATION_SENT;
   }
 
   public static async sendFillingRequest(dbGuild: G, dbUser: U, member: GuildMember) {
@@ -95,10 +96,10 @@ export default class Sync {
   }
 
   public static async updateMember(dbGuild: G, dbUser: U) {
-    if (!dbGuild || !dbUser) { return false; }
-    if (!dbGuild.premium) { return false; }
+    if (!dbGuild || !dbUser) { return UpdateStatus.INCORRECT_CALL; }
+    if (!dbGuild.premium) { return UpdateStatus.GUILD_NONPREMIUM; }
     const guild = bot.guilds.get(dbGuild.id);
-    if (!guild.available) { return false; }
+    if (!guild.available) { return UpdateStatus.GUILD_UNAVAILABLE; }
 
     let member: GuildMember = null;
     try {
@@ -107,7 +108,7 @@ export default class Sync {
     } catch (err) {
       dbUser.inactive = true;
       await dbUser.save();
-      return false;
+      return UpdateStatus.GUILD_LEFT;
     }
 
     await Security.detectDupes(dbUser, dbGuild);
@@ -149,7 +150,7 @@ export default class Sync {
 
     await member.roles.set(finalRoles, 'обновление участника');
 
-    return true;
+    return UpdateStatus.SUCCESS;
   }
 
   public static async updateRoles() {

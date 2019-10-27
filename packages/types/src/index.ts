@@ -169,10 +169,22 @@ export interface ILobbySettings {
     type: string;
     disallowedModes: IngameStatus[];
     roomSize: number;
+    enabled: boolean;
 }
 
 export const currentlyPlaying = [IngameStatus.CASUAL, IngameStatus.RANKED, IngameStatus.CUSTOM, IngameStatus.NEWCOMER, IngameStatus.DISCOVERY];
 export enum EmojiButtons {
         CLOSE = '🔐',
         HARDPLAY = '🏆',
+}
+
+export enum UpdateStatus {
+    SUCCESS,
+    VERIFICATION_SENT,
+    DM_CLOSED,
+    GUILD_LEFT,
+    GUILD_UNAVAILABLE,
+    GUILD_NONPREMIUM,
+    INCORRECT_CALL
+
 }

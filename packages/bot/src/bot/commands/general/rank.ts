@@ -6,7 +6,7 @@ import { $enum } from 'ts-enum-util';
 import { Guild, User } from '@r6ru/db';
 import r6 from '../../../r6api';
 
-import { IUbiBound, ONLINE_TRACKER, PLATFORM, RANKS, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
+import { IUbiBound, ONLINE_TRACKER, PLATFORM, RANKS, REGIONS, UpdateStatus, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { debug } from '../../..';
 import embeds from '../../../utils/embeds';
@@ -105,7 +105,7 @@ export default class Rank extends Command {
                 if (adminAction) {
                     msg = (await message.reply(`пользователь уже зарегистрирован!\nДля смены привязанного аккаунта на указанный добавьте реакцию - ♻.`)) as Message;
                 } else {
-                    const time = (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + new Date(dbUser.rankUpdatedAt).valueOf() - Date.now();
+                    const time = (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + dbUser.rankUpdatedAt.valueOf() - Date.now();
                     msg = (await message.reply(`вы уже зарегистрированы, ${time > 5 * 60 * 1000 ? `обновление ранга будет через \`${
                         humanizeDuration(
                             time,
@@ -119,8 +119,8 @@ export default class Rank extends Command {
                     msg.react('♻');
                     const result = await msg.awaitReactions((reaction: MessageReaction, user: U) => reaction.emoji.name === '♻' && user.id === message.author.id, { time: 30000, max: 1 });
                     if (result.size) {
-                        await msg.edit(msg.content + `\nОжидайте дальнейших инструкций в ЛС от <@${this.client.user.id}>`);
-                        return Security.changeGenome(dbUser, dbGuild, activeBound.genome);
+                        const res = await Security.changeGenome(dbUser, dbGuild, activeBound.genome);
+                        await msg.edit(msg.content + (res === UpdateStatus.DM_CLOSED ? `\nОткройте ЛС <@${this.client.user.id}> и повторите попытку` : `\nОжидайте дальнейших инструкций в ЛС от <@${this.client.user.id}>`));
                     }
                 }
                 return Sync.updateMember(dbGuild, dbUser);
@@ -178,15 +178,19 @@ export default class Rank extends Command {
                     await dbUser.save();
                     if ((await Security.detectDupes(dbUser, dbGuild, true)).length > 1) {
                         dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
-                        await await dbUser.save();
+                        await dbUser.save();
                         await debug.error(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}. Обнаружена повторная регистрация или передача аккаунта.`);
                     } else {
                         await debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}.`);
                     }
                     if (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR) {
                         debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
-                        setTimeout(() => Sync.updateMember(dbGuild, dbUser), 3000);
-                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\`\n*В целях безопасности требуется подтверждение аккаунта Uplay.${adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'}*`);
+                        const res = await Sync.updateMember(dbGuild, dbUser);
+                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\`\n*В целях безопасности требуется подтверждение аккаунта Uplay.${
+                            res === UpdateStatus.DM_CLOSED
+                            ? (adminAction ? ' ЛС закрыто.' : ' Откройте ЛС и повторите попытку.')
+                            : (adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.')
+                        }*`);
                     } else {
                         Sync.updateMember(dbGuild, dbUser);
                         return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\``);
