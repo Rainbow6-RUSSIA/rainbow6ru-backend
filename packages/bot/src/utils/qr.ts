@@ -1,8 +1,8 @@
 
 import { UUID } from '@r6ru/types';
 import { AwesomeQRCode, QRErrorCorrectLevel } from 'awesome-qr';
+import * as Canvas from 'canvas';
 import { createHash } from 'crypto';
-import jimp from 'jimp';
 import readerQR from 'jsqr';
 import fetch from 'node-fetch';
 import ENV from './env';
@@ -58,11 +58,14 @@ export async function verify(genome: UUID, id: string): Promise<boolean> {
 }
 
 async function tryURL(url: string): Promise<string> {
+    const QR = new Canvas.Image();
     const res = await fetch(url);
-    const buff = await res.buffer();
-    const img = await jimp.read(buff);
+    QR.src = await res.buffer();
+    const ctx = Canvas.createCanvas(QR.width, QR.height).getContext('2d');
+    ctx.drawImage(QR, 0, 0);
+    const imageData = ctx.getImageData(0, 0, QR.width, QR.height);
     try {
-        const code = readerQR(Uint8ClampedArray.from(img.bitmap.data), img.bitmap.width, img.bitmap.height);
+        const code = readerQR(imageData.data, imageData.width, imageData.height);
         return (code && code.data);
     } catch (err) {
         console.log(err);
