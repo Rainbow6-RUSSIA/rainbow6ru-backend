@@ -1,5 +1,5 @@
 import { currentlyPlaying, EMOJI_REGEXP, EmojiButtons, IngameStatus as IS, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
-import { EmbedField, GuildMember, MessageOptions, Util } from 'discord.js';
+import { EmbedField, GuildMember, MessageEmbed, MessageOptions, Util } from 'discord.js';
 import bot from '../bot';
 import ENV from './env';
 import { LobbyStore } from './lobby';
@@ -7,140 +7,92 @@ import { LSRoom } from './lobby/room';
 import { extractBorders } from './preview';
 
 export default {
-  appealMsg: (lobby: LSRoom): MessageOptions => ({
-    embed: {
-      author: {
-          iconURL: lobby.dcLeader.user.displayAvatarURL(),
-          name: modeSelector(lobby),
-      },
-      color: RANK_COLORS[(lobby.leader && lobby.leader.rank) || 0],
-      description:
-        (lobby.members
-          .sort((a, b) => b.rank - a.rank)
-          .map(m => (lobby.dcLeader.id === m.id ? '\\👑 ' : '')
-              + (!m.platform.PC ? '\\🎮' : '')
-              + `<@${m.id}> (${bot.emojis.resolve(RANK_BADGES[m.rank])} **${Util.escapeMarkdown(m.nickname)}** - [${Object.entries(m.platform).find(e => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
-              + ((m.verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''))
-          .join('\n'))
-        + (lobby.description
-          ? `\n▫${lobby.description}`
-          : ''),
-      fields: (() => {
-        const fields: EmbedField[] = [];
-        if (lobby.hardplay) {
-          fields.push({
-            name: `Режим "HardPlay\\${EmojiButtons.HARDPLAY}"`,
-            value: `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\``,
-          });
-        }
-        if (lobby.close) {
-          fields.push({
-            name: 'Закрытое лобби',
-            value: 'Лимит пользователей восстановится при выходе кого-либо из лобби.',
-          });
-        }
-        if ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status)) {
-          fields.push({
-            name: 'Режим "Новичок"',
-            value: 'Опытным игрокам лучше найти другую комнату, чтобы избежать конфликтов и поражений.',
-          });
-        }
-        if (lobby.joinAllowed) {
-          fields.push({
-            name: 'Присоединиться:',
-            value: `${lobby.dcInvite.url} 👈`,
-          });
-        } else if (!lobby.close && (lobby.dcMembers.size < lobby.dcChannel.userLimit) && currentlyPlaying.includes(lobby.status)) {
-          fields.push({
-            name: 'Лобби играет',
-            value: `Сейчас лучше не заходить в комнату, чтобы не беспокоить игроков.`,
-          });
-        }
-        return fields;
-      })(),
-      footer: {
-          iconURL: 'https://i.imgur.com/sDOEWMV.png',
-          text: `В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`,
-      },
-      thumbnail: {
-          url: `${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcMembers.size}=1`,
-      },
-      timestamp: new Date(),
-    },
-  }),
+  appealMsg: (lobby: LSRoom): MessageOptions => {
+    const embed = new MessageEmbed()
+    .setAuthor(modeSelector(lobby), lobby.dcLeader.user.displayAvatarURL())
+    .setColor(RANK_COLORS[(lobby.leader && lobby.leader.rank) || 0])
+    .setDescription(
+      (lobby.members
+        .sort((a, b) => b.rank - a.rank)
+        .map(m => (lobby.dcLeader.id === m.id ? '\\👑 ' : '')
+            + (!m.platform.PC ? '\\🎮' : '')
+            + `<@${m.id}> (${bot.emojis.resolve(RANK_BADGES[m.rank])} **${Util.escapeMarkdown(m.nickname)}** - [${Object.entries(m.platform).find(e => e[1])[0].replace('PC', 'Uplay').replace('PS4', 'PSN').replace('XBOX', 'Xbox LIVE')}](${ONLINE_TRACKER}${m.genome})${(' | ' + m.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
+            + ((m.verificationLevel >= VERIFICATION_LEVEL.QR) ? ' ' + ENV.VERIFIED_BADGE : ''))
+        .join('\n')
+      )
+      + (lobby.description ? `\n▫${lobby.description}` : '')
+    )
+    .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
+    .setThumbnail(`${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcMembers.size}=1`)
+    .setTimestamp();
 
-  fastAppeal: async (LS: LobbyStore): Promise<MessageOptions> => ({
-    embed: {
-      author: {
-        iconURL: LS.lfgChannel.guild.iconURL(),
-        name: `Быстрый поиск команды в ${LS.category.name}`,
-      },
-      description: `Канал поиска: ${LS.lfgChannel}\n`
-        + `Всего лобби: \`${LS.rooms.filter(v => Boolean(v.dcMembers.size)).size}\`\n`
-        + `Ищут игрока: \`${LS.rooms
-            .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
-            .size
-          || (LS.rooms
-            .filter(l => Boolean(l.dcMembers.size) && Boolean(l.appealMessage))
-            .size
-              ? 'все комнаты укомплектованы!'
-              : 0)}\`\n`
-        + `Присоединиться к новой комнате: ${await (LS.rooms.filter(r => !r.dcMembers.size).last() || LS.rooms.last()).initInvite()} 👈`,
-      fields: LS.rooms
-        .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
-        .sort((a, b) => a.dcChannel.position - b.dcChannel.position)
-        .array()
-        .slice(0, 24)
-        .map(lobby => ({
-          inline: true,
-          name: modeSelector(lobby)
-            .replace(EMOJI_REGEXP, v => '\\' + v), // emoji wrap
-          value: (lobby.hardplay
-              ? `HardPlay\\${EmojiButtons.HARDPLAY}: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n`
-              : `Ранг: ${lobby.minRank === lobby.maxRank
-                ? (lobby.maxRank === 0
-                  ? '`любой`'
-                  : `от \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[0]]}\` до \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[1]]}\``)
-                : `от \`${RANKS[lobby.minRank]}\` до \`${RANKS[lobby.maxRank]}\``}\n`)
-            + ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status) ? 'Новичок: не выше `50` уровня доступа\n' : '')
-            + (lobby.description ? `Описание: ${lobby.description}\n` : '')
-            // + `Присоединиться: ${lobby.dcInvite.url} 👈\n`
-            + `[подробнее...](${lobby.appealMessage.url})`,
-        })),
-      footer: {
-        text: `ID - ${LS.settings.type}`,
-      },
-      timestamp: null,
-    },
-  }),
+    if (lobby.hardplay) { embed.addField(`Режим "HardPlay\\${EmojiButtons.HARDPLAY}"`, `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\``); }
+
+    if (lobby.close) { embed.addField('Закрытое лобби', 'Лимит пользователей восстановится при выходе кого-либо из лобби.'); }
+
+    if ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status)) { embed.addField('Режим "Новичок"', 'Опытным игрокам лучше найти другую комнату, чтобы избежать конфликтов и поражений.'); }
+
+    if (lobby.joinAllowed) {
+      embed.addField('Присоединиться:', `${lobby.dcInvite.url} 👈`);
+    } else if (!lobby.close && (lobby.dcMembers.size < lobby.dcChannel.userLimit) && currentlyPlaying.includes(lobby.status)) {
+      embed.addField('Лобби играет', `Сейчас лучше не заходить в комнату, чтобы не беспокоить игроков.`);
+    }
+
+    return { embed };
+  },
+
+  fastAppeal: async (LS: LobbyStore): Promise<MessageOptions> => {
+    console.log(LS.rooms.filter(r => !r.dcMembers.size).map(r => r.dcChannel.name));
+    const embed = new MessageEmbed()
+    .setAuthor(`Быстрый поиск команды в ${LS.category.name}`, LS.lfgChannel.guild.iconURL())
+    .setFooter(`ID - ${LS.settings.type}`)
+    .setDescription(`Канал поиска: ${LS.lfgChannel}\n`
+      + `Всего лобби: \`${LS.rooms.filter(v => Boolean(v.dcMembers.size)).size}\`\n`
+      + `Ищут игрока: \`${LS.rooms
+          .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
+          .size
+        || (LS.rooms
+          .filter(l => Boolean(l.dcMembers.size) && Boolean(l.appealMessage))
+          .size
+            ? 'все комнаты укомплектованы!'
+            : 0)}\`\n`
+      + `Присоединиться к новой комнате: ${await (LS.rooms.filter(r => !r.dcMembers.size).last() || LS.rooms.last()).initInvite()} 👈`
+    );
+    embed.fields = LS.rooms
+      .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
+      .sort((a, b) => a.dcChannel.position - b.dcChannel.position)
+      .array()
+      .slice(0, 24)
+      .map(lobby => ({
+        inline: true,
+        name: modeSelector(lobby).replace(EMOJI_REGEXP, v => '\\' + v), // emoji wrap
+        value: (lobby.hardplay
+            ? `HardPlay\\${EmojiButtons.HARDPLAY}: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n`
+            : `Ранг: ${lobby.minRank === lobby.maxRank
+              ? (lobby.maxRank === 0
+                ? '`любой`'
+                : `от \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[0]]}\` до \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[1]]}\``)
+              : `от \`${RANKS[lobby.minRank]}\` до \`${RANKS[lobby.maxRank]}\``}\n`)
+          + ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status) ? 'Новичок: не выше `50` уровня доступа\n' : '')
+          + (lobby.description ? `Описание: ${lobby.description}\n` : '')
+          // + `Присоединиться: ${lobby.dcInvite.url} 👈\n`
+          + `[подробнее...](${lobby.appealMessage.url})`,
+      }));
+    return { embed };
+  },
 
   appealMsgPremium: (member: GuildMember, description: string, invite: string): MessageOptions => ({
-    embed: {
-      author: {
-        iconURL: member.user.displayAvatarURL(),
-        name: `${member.user.tag} ищет +${member.voice.channel.userLimit - member.voice.channel.members.size} в свою уютную комнату | ${member.voice.channel.name}`,
-      },
-      color: 12458289,
-      fields: [
-        {
-          name: '🇷6⃣🇷🇺',
-          value: description || ' ឵឵ ឵឵',
-        },
-        {
-          name: 'Присоединиться',
-          value: `${invite} 👈`,
-        },
-      ],
-      footer: {
-        iconURL: 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1',
-        text: `Хотите так же? Обратитесь в ЛС Сервера или к ${member.guild.owner.user.tag} с рублями из маминого кошелька 💵, или активируйте Nitro Boost 💜.`,
-      },
-      thumbnail: {
-        url: member.user.displayAvatarURL(),
-      },
-      timestamp: new Date(),
-    },
-  }),
+    embed: new MessageEmbed()
+    .setAuthor(
+      `${member.user.tag} ищет +${member.voice.channel.userLimit - member.voice.channel.members.size} в свою уютную комнату | ${member.voice.channel.name}`,
+      member.user.displayAvatarURL()
+    ).setColor(12458289)
+    .addField('🇷6⃣🇷🇺', description || ' ឵឵ ឵឵')
+    .addField('Присоединиться', `${invite} 👈`)
+    .setFooter(`Хотите так же? Обратитесь в ЛС Сервера или к ${member.guild.owner.user.tag} с рублями из маминого кошелька 💵, или активируйте Nitro Boost 💜.`, 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1')
+    .setThumbnail(member.user.displayAvatarURL())
+    .setTimestamp()
+  })
 };
 
 const modeSelector = (lobby: LSRoom) => {
