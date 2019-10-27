@@ -21,7 +21,7 @@ export default class VoiceStateUpdate extends Listener {
         await (A && A.dcMembers.size === 0 && !jump && A.LS.reportLeave(A, internal));
         await (A && A.leave(newState.member, internal));
 
-        await (B.LS.reportJoin(B, internal));
+        await (B && B.dcMembers.size === 1 && !jump && B.LS.reportJoin(B, internal));
         await (B && B.join(newState.member, internal));
 
         await (internal || A && A.LS.updateFastAppeal());
