@@ -1,5 +1,5 @@
 import { currentlyPlaying, EMOJI_REGEXP, EmojiButtons, IngameStatus as IS, ONLINE_TRACKER, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
-import { EmbedField, GuildMember, MessageEmbed, MessageOptions, Util } from 'discord.js';
+import { GuildMember, MessageEmbed, MessageOptions, Util } from 'discord.js';
 import bot from '../bot';
 import ENV from './env';
 import { LobbyStore } from './lobby';
@@ -42,7 +42,6 @@ export default {
   },
 
   fastAppeal: async (LS: LobbyStore): Promise<MessageOptions> => {
-    console.log(LS.rooms.filter(r => !r.dcMembers.size).map(r => r.dcChannel.name));
     const embed = new MessageEmbed()
     .setAuthor(`Быстрый поиск команды в ${LS.category.name}`, LS.lfgChannel.guild.iconURL())
     .setFooter(`ID - ${LS.settings.type}`)

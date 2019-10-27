@@ -1,11 +1,11 @@
 import { Lobby, User } from '@r6ru/db';
 import { currentlyPlaying, EmojiButtons, IngameStatus as IS } from '@r6ru/types';
-import { CategoryChannel, Collection, Guild, GuildMember, Invite, Message, MessageOptions, MessageReaction, ReactionCollector, User as U, VoiceChannel } from 'discord.js';
+import { CategoryChannel, Collection, Guild, GuildMember, Invite, Message, MessageReaction, ReactionCollector, User as U, VoiceChannel } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { LobbyStore, lobbyStores, lobbyStoresRooms } from '.';
 import { debug } from '../..';
 import { detectIngameStatus, start } from '../../bot/listeners/presenceUpdate';
-import Debounce, { debounce } from '../decorators/debounce';
+import { debounce } from '../decorators/debounce';
 import ReverseThrottle from '../decorators/reverse_throttle';
 import Throttle from '../decorators/throttle';
 import embeds from '../embeds';
@@ -41,7 +41,6 @@ export class LSRoom extends Lobby {
         this.dcCategory = voice.parent;
         this.dcGuild = voice.guild;
         this.dcLeader = this.dcMembers.random();
-        // this.save();
     }
 
     public async init() {
@@ -70,7 +69,7 @@ export class LSRoom extends Lobby {
             await this.initInvite();
         }
         if (this.dcMembers.size) {
-        this.handleStatus();
+            this.handleStatus();
         }
 
         return this;
@@ -114,11 +113,8 @@ export class LSRoom extends Lobby {
         // console.log('DEACTIVATE', this.dcChannel.name);
         lobbyStoresRooms.delete(this.channel);
         this.active = false;
-        await Promise.all([
-            this.save(),
-            (this.appealMessage && this.appealMessage.delete().catch(e => console.log('DESTROY APPEAL FAILED', e))),
-            // (!appealOnly && this.dcChannel.delete().catch(e => console.log('DESTROY VOICE FAILED', e))),
-        ]);
+        await this.save();
+        await this.destroyAppeal();
     }
 
     public async join(member: GuildMember, internal: boolean) {
@@ -153,8 +149,7 @@ export class LSRoom extends Lobby {
 
         if (!this.dcMembers.size) {
             this.dcLeader = null;
-            await this.deactivate();
-            return;
+            await this.destroyAppeal();
         }
 
         if (this.close) {
@@ -162,7 +157,7 @@ export class LSRoom extends Lobby {
             this.dcChannel = await this.dcChannel.setUserLimit(this.LS.settings.roomSize);
         }
 
-        if (member.id === this.dcLeader.id) {
+        if (this.dcLeader && member.id === this.dcLeader.id) {
             const newLeader = this.dcMembers.random();
             this.handleHardplay(false);
             try {
@@ -182,6 +177,14 @@ export class LSRoom extends Lobby {
         if (!this.appealMessage.deleted) {
             this.appealMessage = await this.appealMessage.edit('', embeds.appealMsg(this));
             // console.log(`APPEAL UPDATED ${this.dcChannel.name}`);
+        }
+    }
+
+    public async destroyAppeal() {
+        if (this.appealMessage && !this.appealMessage.deleted) {
+            try {
+                this.appealMessage.delete();
+            } catch (error) {/* */}
         }
     }
 
