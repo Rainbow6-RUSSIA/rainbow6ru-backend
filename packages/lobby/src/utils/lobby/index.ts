@@ -5,6 +5,8 @@ import * as humanizeDuration from 'humanize-duration';
 import { Sequelize } from 'sequelize-typescript';
 import { debug } from '../..';
 import bot from '../../bot';
+import ChannelCreate from '../../bot/listeners/channel/create';
+import ChannelDelete from '../../bot/listeners/channel/delete';
 import Throttle from '../decorators/throttle';
 import embeds from '../embeds';
 import ENV from '../env';
@@ -65,8 +67,8 @@ export class LobbyStore {
             );
 
             if (!voices.find(v => v.members.size === 0)) {
-                const channelToClone = await this.voices.last();
-                await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, n => `${n + 1}`), userLimit: this.settings.roomSize });
+                const toClone = this.voices.last();
+                await toClone.clone();
             }
 
             this.category = await this.category.fetch() as CategoryChannel;
@@ -111,7 +113,7 @@ export class LobbyStore {
         }
         if (timeout > 10000) {
             const prevRoles = member.roles.clone();
-            const newRoles = member.roles.filter(r => ![...Object.values(this.guild.platformRoles), ...Object.values(this.guild.rankRoles)].includes(r.id));
+            const newRoles = member.roles.filter(r => !Object.values(this.guild.rankRoles).includes(r.id));
             await member.roles.set(newRoles);
             debug.log(`${member} исключен из \`${this.settings.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}". ${lobbyId ? `ID пати ${lobbyId}` : ''}`);
             setTimeout(() => member.roles.set(prevRoles), timeout);
@@ -119,37 +121,29 @@ export class LobbyStore {
     }
 
     public async reportJoin(room: LSRoom, internal: boolean) { // вызывается при первом входе, нужно ли перестраивать список комнат?
-        if (!internal && !this.staticRooms && this.rooms.size < this.roomsRange[1]) {
-            const channelToClone = this.voices.last();
-            await channelToClone.clone({ name: channelToClone.name.replace(/#\d+/g, n => `${n + 1}`), userLimit: this.settings.roomSize });
+        if (this.staticRooms) { return; }
+
+        if (this.rooms.size < this.roomsRange[1]) {
+            const newChannel = await this.voices.last().clone();
+            await ChannelCreate.handle(newChannel, this.settings);
+
+            this.category = await this.category.fetch() as CategoryChannel;
         }
     }
 
     public async reportLeave(room: LSRoom, internal: boolean) { // вызывается при выходе последнего, нужно ли перестраивать список комнат?
-        // console.log('LEAVE REPORTED', this.rooms.size > this.roomsRange[0]);
-        if (internal || this.rooms.size <= this.roomsRange[0] || this.staticRooms) {
-            // await room.deactivate();
+        if (this.staticRooms) {
+            await room.deactivate();
             lobbyStoresRooms.set(room.channel, await new LSRoom(room.dcChannel, this).init());
             return;
         }
+
         if (this.rooms.size > this.roomsRange[0]) {
             const toDelete = room.dcChannel;
-            const pos = toDelete.position;
             await toDelete.delete();
+            await ChannelDelete.handle(toDelete);
 
-            const toMove = this.voices.last();
-            try {
-                await toMove.edit({
-                    name: toMove.name.replace(/#\d+/g, `#${pos + 1}`),
-                    position: pos,
-                }, 'подмена закрытого канала');
-                console.log(`${this.settings.type} EXIT REPLACE ${this.voices.size}`);
-                lobbyStoresRooms.get(toMove.id).updateAppeal();
-            } catch (error) {
-                console.log('FAIL ON REPLACE', error);
-            }
-    // // await this.syncChannels();
-            await this.category.fetch();
+            this.category = await this.category.fetch() as CategoryChannel;
         }
     }
 
@@ -208,7 +202,7 @@ export let lobbyStoresRooms: Collection<Snowflake/*VOICE ID*/, LSRoom> = new Col
 export async function initLobbyStores() {
     const dbGuilds = await Guild.findAll({ where: { premium: true } });
     dbGuilds.map(g => {
-        Object.entries(g.lobbySettings).map(ent => lobbyStores.set(ent[1].lfg, new LobbyStore(ent[1], g, true)));
+        Object.entries(g.lobbySettings).map(ent => ent[1].enabled && lobbyStores.set(ent[1].lfg, new LobbyStore(ent[1], g, true)));
     });
     const lobbies = await Lobby.findAll({
         where: {
@@ -223,26 +217,6 @@ export async function initLobbyStores() {
         return l.save();
     }));
 }
-
-//    {
-//       "ranked": {
-//         "lfg": "505831870735319055",
-//         "voiceCategory": "505831824765747230",
-//         "externalRooms": [],
-//         "roomsRange": [5, 10],
-//         "type": "ranked"},
-//       "casual": {
-//         "lfg": "593497036868026368",
-//         "voiceCategory": "629050460745105427",
-//         "externalRooms": [],
-//         "roomsRange": [5, 10],
-//         "type": "casual"
-//       }
-//    }
-
-// "casual": "580774727757594624",
-
-// "casual": "580774892618645524",
 
 // private async checkLobbyHealth(lobby: Lobby) {
 //     try {

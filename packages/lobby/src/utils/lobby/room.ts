@@ -175,7 +175,9 @@ export class LSRoom extends Lobby {
         if (!this.dcMembers.size) { return; }
         await this.initAppeal();
         if (!this.appealMessage.deleted) {
-            this.appealMessage = await this.appealMessage.edit('', embeds.appealMsg(this));
+            try {
+                this.appealMessage = await this.appealMessage.edit('', embeds.appealMsg(this));
+            } catch (error) {/* */}
             // console.log(`APPEAL UPDATED ${this.dcChannel.name}`);
         }
     }
@@ -183,7 +185,7 @@ export class LSRoom extends Lobby {
     public async destroyAppeal() {
         if (this.appealMessage && !this.appealMessage.deleted) {
             try {
-                this.appealMessage.delete();
+                this.appealMessage = await this.appealMessage.delete();
             } catch (error) {/* */}
         }
     }

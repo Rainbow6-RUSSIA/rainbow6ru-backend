@@ -42,6 +42,7 @@ export default {
   },
 
   fastAppeal: async (LS: LobbyStore): Promise<MessageOptions> => {
+    // console.log(LS.rooms.filter(l => !l.dcMembers.size).map(r => r.dcChannel.name));
     const embed = new MessageEmbed()
     .setAuthor(`Быстрый поиск команды в ${LS.category.name}`, LS.lfgChannel.guild.iconURL())
     .setFooter(`ID - ${LS.settings.type}`)
@@ -101,9 +102,10 @@ const modeSelector = (lobby: LSRoom) => {
   switch (lobby.status) {
     case IS.CASUAL_SEARCH:
     case IS.RANKED_SEARCH:
-    case IS.CUSTOM_SEARCH:
     case IS.UNRANKED_SEARCH:
       return `Поиск матча в ${lobby.dcChannel.name}` + slot;
+    case IS.CUSTOM_SEARCH:
+      return `Поиск Пользовательской в ${lobby.dcChannel.name}` + slot;
     case IS.DISCOVERY_SEARCH:
       return `Поиск Разведки в ${lobby.dcChannel.name}` + slot;
     case IS.NEWCOMER_SEARCH:

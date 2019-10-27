@@ -1,8 +1,8 @@
 import { Listener } from 'discord-akairo';
-import { DMChannel, GuildChannel } from 'discord.js';
+import { DMChannel, GuildChannel, VoiceChannel } from 'discord.js';
 import { lobbyStoresRooms } from '../../../utils/lobby';
 
-export default class Delete extends Listener {
+export default class ChannelDelete extends Listener {
     public constructor() {
         super('channelDelete', {
             emitter: 'client',
@@ -10,13 +10,33 @@ export default class Delete extends Listener {
         });
     }
 
-    public exec = async (channel: DMChannel | GuildChannel) => {
-        const room = lobbyStoresRooms.get(channel.id);
+    public static async handle(voice: VoiceChannel) {
+        const room = lobbyStoresRooms.get(voice.id);
         if (room) {
             // console.log('CHANNEL DELETED');
+            const LS = room.LS;
+            const pos = voice.position;
+
+            const toMove = LS.voices.last();
+            try {
+                await toMove.edit({
+                    name: toMove.name.replace(/#\d+/g, /#\d+/g.exec(room.dcChannel.name)[0]),
+                    position: pos,
+                }, 'подмена удаленного канала');
+                lobbyStoresRooms.get(toMove.id).updateAppeal();
+            } catch (error) {
+                console.log('FAIL ON REPLACE WHEN DELETE', error);
+            }
             await room.deactivate();
-            await room.LS.syncChannels(); // refactor to replace with last voice
-            await room.LS.updateFastAppeal();
+            // await LS.category.fetch();
+            await LS.updateFastAppeal();
+        }
+    }
+
+    public async exec(channel: DMChannel | GuildChannel) {
+        const room = lobbyStoresRooms.get(channel.id);
+        if (channel instanceof VoiceChannel && room) {
+            await ChannelDelete.handle(channel);
         }
     }
 
