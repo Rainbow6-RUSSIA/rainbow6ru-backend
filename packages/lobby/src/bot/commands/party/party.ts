@@ -74,24 +74,22 @@ export default class Party extends Command {
     public async execDefaultParty(message: Message, args: IArgs & IArgsPartyCommand): Promise<any> {
         const { description, room } = args;
 
-        room.description = description;
-        await room.save();
-        await room.updateAppeal();
+        if (room.description === description) {
+            try {
+                message.author.send('Сообщение о поиске не обновлено, так как описание не изменилось!\n' + room.appealMessage.url);
+            } catch (error) {/* */}
+        } else {
+            room.description = description;
 
-        // const inv = await lobby.dcChannel.createInvite({maxAge: parseInt(ENV.INVITE_AGE) });
-        // lobby.invite = inv.url;
-        // lobby.description = description;
-        // await lobby.save();
-        // lobby.dcInvite = inv;
-        // if (lobby.appealMessage) {
-        //     try {
-        //         await lobby.appealMessage.delete();
-        //     } catch (error) {
-        //         // console.log(error)
-        //     }
-        // }
-        // lobby.appealMessage = await LS.lfgChannel.send('', await embeds.appealMsg(lobby)) as Message;
-        room.LS.updateFastAppeal();
-        return debug.log(`${message.author} ищет пати в \`${room.LS.settings.type}\` с описанием: \`${room.description}\`. ID пати \`${room.id}\``);
+            await room.save();
+            await room.updateAppeal();
+            await room.LS.updateFastAppeal();
+            debug.log(`${message.author} ищет пати в \`${room.LS.settings.type}\` с описанием: \`${room.description}\`. ID пати \`${room.id}\``);
+
+            try {
+                message.author.send('Сообщение о поиске обновлено!\n' + room.appealMessage.url);
+            } catch (error) {/* */}
+        }
+
     }
 }
