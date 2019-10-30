@@ -21,6 +21,8 @@ class IDefaultEnv extends IEnv {
     public DISCORD_ID = '';
     public PORT = '';
     public NODE_ENV = '';
+    public GOOGLE_API_KEY = '';
+    public GOOGLE_AUTH = '';
 }
 
 for (const key in new IEnv()) {

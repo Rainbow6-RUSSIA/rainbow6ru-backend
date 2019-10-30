@@ -25,6 +25,7 @@
 		"discord-akairo": "8.0.0-beta.8",
 		"discord.js": "https://github.com/discordjs/discord.js#60f89bd",
 		"dotenv": "^8.0.0",
+		"googleapis": "39",
 		"humanize-duration": "^3.16.0",
 		"jsonwebtoken": "^8.5.0",
 		"morgan": "^1.9.0",
