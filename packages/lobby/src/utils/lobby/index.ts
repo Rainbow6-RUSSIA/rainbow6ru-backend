@@ -1,4 +1,4 @@
-import { Guild, Lobby } from '@r6ru/db';
+import { Guild, Lobby, User } from '@r6ru/db';
 import { ILobbySettings, LobbyStoreStatus as LSS} from '@r6ru/types';
 import { CategoryChannel, Collection, GuildMember, Message, MessageOptions, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
@@ -112,11 +112,12 @@ export class LobbyStore {
             await this.lfgChannel.send(`${member}, ${reason}`);
         }
         if (timeout > 10000) {
-            const prevRoles = member.roles.clone();
-            const newRoles = member.roles.filter(r => !Object.values(this.guild.rankRoles).includes(r.id));
-            await member.roles.set(newRoles);
+            await member.roles.set(member.roles.filter(r => !this.guild.rankRoles.includes(r.id)));
             debug.log(`${member} исключен из \`${this.settings.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}". ${lobbyId ? `ID пати ${lobbyId}` : ''}`);
-            setTimeout(() => member.roles.set(prevRoles), timeout);
+            const dbUser = await User.findByPk(member.id);
+            dbUser.rank = 25;
+            dbUser.rankUpdatedAt = new Date('2018');
+            setTimeout(() => dbUser.save(), timeout);
         }
     }
 

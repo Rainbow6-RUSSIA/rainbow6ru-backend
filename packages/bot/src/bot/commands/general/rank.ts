@@ -45,7 +45,6 @@ export default class Rank extends Command {
                 unordered: true,
             }],
             channel: 'guild',
-            cooldown: 30000,
             ratelimit: 1,
         });
     }
