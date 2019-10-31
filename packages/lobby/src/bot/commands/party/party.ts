@@ -74,21 +74,30 @@ export default class Party extends Command {
     public async execDefaultParty(message: Message, args: IArgs & IArgsPartyCommand): Promise<any> {
         const { description, room } = args;
 
-        if (room.description === description) {
+        const hasAppeal = Boolean(room.appealMessage) && !room.appealMessage.deleted;
+        if (hasAppeal && room.description === description) {
             try {
-                message.author.send('Сообщение о поиске не обновлено, так как описание не изменилось!\n' + room.appealMessage.url);
-            } catch (error) {/* */}
+                message
+                    .reply(`cообщение о поиске не обновлено, так как описание не изменилось!\n${room.appealMessage.url}`)
+                    .then(m => m.delete({ timeout: 5000 }));
+            } catch (error) {
+                console.log(error);
+            }
         } else {
             room.description = description;
 
             await room.save();
             await room.updateAppeal();
             await room.LS.updateFastAppeal();
-            debug.log(`${message.author} ищет пати в \`${room.LS.settings.type}\` с описанием: \`${room.description}\`. ID пати \`${room.id}\``);
+            debug.log(`${room.dcLeader} ищет пати в \`${room.LS.settings.type}\` с описанием: \`${room.description}\`. ID пати \`${room.id}\``);
 
             try {
-                message.author.send('Сообщение о поиске обновлено!\n' + room.appealMessage.url);
-            } catch (error) {/* */}
+                message
+                    .reply(`cообщение о поиске ${hasAppeal ? `обновлено!\n${room.appealMessage.url}` : 'создано!'}`)
+                    .then(m => m.delete({ timeout: 5000 }));
+            } catch (error) {
+                console.log(error);
+            }
         }
 
     }
