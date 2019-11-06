@@ -2,7 +2,6 @@ import * as db from '@r6ru/db';
 import * as util from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { debug } from '../../..';
 import * as utils from '../../../utils/sync';
 
 export default class Eval extends Command {
@@ -12,17 +11,16 @@ export default class Eval extends Command {
             args: [{
                 id: 'code',
                 type: 'string',
+                match: 'restContent'
             }],
             cooldown: 5000,
             ownerOnly: true,
         });
     }
 
-    // @util.TryCatch(debug)
     public exec = async (message: Message, args) => {
         if (false) { console.log(util, utils, db); }
         // tslint:disable-next-line:no-eval
         eval(args.code);
-        // db.Team.findByPk(2, {include: [{all: true}]}).then((d) => console.log(d.dataValues.captain.dataValues));
     }
 }
