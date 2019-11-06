@@ -64,15 +64,12 @@ export default class Stats extends Command {
                 const dbGuild = await Guild.findByPk(guild.id);
                 const rankRoles = guild.roles.filter(r => dbGuild.rankRoles.includes(r.id)).array().sort((a, b) => dbGuild.rankRoles.indexOf(b.id) - dbGuild.rankRoles.indexOf(a.id));
                 const Users = await User.findAll({
-                    attributes: ['id', 'rank', 'verificationLevel', 'requiredVerification', 'inactive'],
-                    where: {
-                        id: guild.members.map(m => m.id)
-                    }
+                    attributes: ['id', 'rank', 'verificationLevel', 'requiredVerification', 'inactive']
                 });
                 return message.reply(
                     `статистика пользователей на _**${guild.name}**_\n`
                     + `${rankRoles.map(r => `\`${r.name}\`: \`${r.members.size}\``).join('\n')}\n`
-                    + Stats.appendix(Users)
+                    + Stats.appendix(Users.filter(u => guild.members.has(u.id)))
                 );
             }
         }
@@ -82,5 +79,5 @@ export default class Stats extends Command {
         `**Зарегистрировано**: \`${arr.length}\`\n`
         + `**Активно**: \`${arr.filter(u => !u.inactive).length}\`\n`
         + `**Верифицированных участников**: \`${arr.filter(u => u.verificationLevel >= VERIFICATION_LEVEL.QR).length}\`\n`
-        + `**Требуется верификация**: \`${arr.filter(u => u.requiredVerification < u.verificationLevel).length}\`\n`
+        + `**Требуется верификация**: \`${arr.filter(u => u.requiredVerification > u.verificationLevel).length}\`\n`
 }
