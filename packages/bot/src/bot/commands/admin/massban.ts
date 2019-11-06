@@ -5,7 +5,7 @@ import { debug } from '../../..';
 
 interface IArgs {
     reason: string;
-    targets: User[];
+    targets: string;
 }
 
 export default class Massban extends Command { // update all|newseason|numofpacks
@@ -16,11 +16,10 @@ export default class Massban extends Command { // update all|newseason|numofpack
                 id: 'reason',
                 type: 'string',
             }, {
-                id: 'id',
-                limit: 1000,
-                multipleFlags: true,
-                type: /^(?:<@!?)?(\d{17,21})>?$/,
-                unordered: true,
+                id: 'targets',
+                type: 'string',
+                match: 'restContent',
+                default: ''
             }],
             channel: 'guild',
             userPermissions: 'BAN_MEMBERS',
@@ -31,13 +30,17 @@ export default class Massban extends Command { // update all|newseason|numofpack
     public exec = async (message: Message, args: IArgs) => {
         console.log(args);
         const { reason, targets } = args;
-        const prmt = await combinedPrompt(await message.reply(`будут забанены \`${targets.length}\` пользователей по причине \`${reason}\`. Продолжить?`) as Message, {
+        const ids = targets.match(/\d*/g).filter(i => i.length >= 17 && i.length <= 19);
+        if (!ids.length) {
+            return message.reply('пользователи не найдены!');
+        }
+        const prmt = await combinedPrompt(await message.reply(`будут забанены \`${ids.length}\` пользователей по причине \`${reason}\`. Продолжить?`) as Message, {
             author: message.author,
             emojis: ['✅', '❎'],
             texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
         });
         if (prmt === 0) {
-            await Promise.all(targets.map(t => message.guild.members.ban(t.id, { days: 7, reason})));
+            await Promise.all(ids.map(t => message.guild.members.ban(t, { days: 7, reason})));
             return message.reply('готово!');
         }
     }
