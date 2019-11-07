@@ -50,6 +50,7 @@ export default class Stats extends Command {
                         .filter(ch => ch.type === 'voice')
                         .reduce((acc, val: VoiceChannel) => acc + val.members.size, 0)
                 }\`\n` + Object.values(dbGuild.lobbySettings)
+                    .filter(ent => ent.enabled)
                     .map(ent => [ent.type, ent.voiceCategory])
                     .map(ent => [ent[0], (guild.channels.get(ent[1]) as CategoryChannel).children
                         .filter(ch => ch.type === 'voice')
