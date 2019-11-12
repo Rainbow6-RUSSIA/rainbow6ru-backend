@@ -14,7 +14,7 @@ const initialState: RootState.TodoState = [
 export const todoReducer = handleActions<RootState.TodoState, TodoModel>(
   {
     [TodoActions.Type.ADD_TODO]: (state, action) => {
-      if (action.payload && action.payload.text) {
+      if (action.payload?.text) {
         return [
           {
             completed: false,

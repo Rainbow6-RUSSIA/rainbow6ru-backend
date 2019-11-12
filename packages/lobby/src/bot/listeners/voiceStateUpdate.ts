@@ -15,21 +15,21 @@ export default class VoiceStateUpdate extends Listener {
         const A = lobbyStoresRooms.get(oldState.channelID);
         const B = lobbyStoresRooms.get(newState.channelID);
 
-        const internal = Boolean(A) && Boolean(B) && A.LS.settings.type === B.LS.settings.type;
+        const internal = A?.LS.settings.type === B?.LS.settings.type;
         const jump = internal && A.dcMembers.size === 0 && B.dcMembers.size === 1;
 
-        await (A && A.dcMembers.size === 0 && !jump && A.LS.reportLeave(A, internal));
-        await (A && A.leave(newState.member, internal));
+        await (A?.dcMembers.size === 0 && !jump && A?.LS.reportLeave(A, internal));
+        await A?.leave(newState.member, internal);
 
-        await (B && B.dcMembers.size === 1 && !jump && B.LS.reportJoin(B, internal));
-        await (B && B.join(newState.member, internal));
+        await (B?.dcMembers.size === 1 && !jump && B?.LS.reportJoin(B, internal));
+        await B?.join(newState.member, internal);
 
-        await (internal || A && A.LS.updateFastAppeal());
-        await (B && B.LS.updateFastAppeal());
+        await (internal || A?.LS.updateFastAppeal());
+        await B?.LS.updateFastAppeal();
     }
 
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
-        if (ENV.NODE_ENV === 'development' && oldState.guild.id !== '216649610511384576' || (oldState && oldState.channelID === newState.channelID)) {return; }
+        if (ENV.NODE_ENV === 'development' && oldState.guild.id !== '216649610511384576' || (oldState?.channelID === newState.channelID)) {return; }
         if (!newState.channel && newState.channelID) {
             await this.client.channels.fetch(newState.channelID);
         }

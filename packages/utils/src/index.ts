@@ -67,12 +67,12 @@ export async function combinedPrompt(prompt: Message, options: {
     prompt.delete({timeout: 5000});
   }
   // console.log({result}, result instanceof Message, result instanceof MessageReaction)
-  if (result && result.channel) {
+  if (result?.channel) {
     return options.texts.findIndex(([...t]) =>
     t.some(txt =>
       result.content.toLowerCase().includes(txt),
     ));
-  } else if (result && result.message) {
+  } else if (result?.message) {
     return options.emojis.indexOf(result.emoji.id || result.emoji.name);
   } else {
     return -1;
@@ -106,7 +106,7 @@ export class Log {
 
     public sendWebhook<T>(context: Context, type: 'Information' | 'Warning' | 'Error', body: T, color: number, retry = 0) {
         try {
-          return this.webhook && this.webhook.send(type === 'Error' && !(body instanceof Error) ? '@everyone' : '', { embeds: [{
+          return this.webhook?.send(type === 'Error' && !(body instanceof Error) ? '@everyone' : '', { embeds: [{
             author: {
                 iconURL: this.client.displayAvatarURL(),
                 name: this.client.tag,

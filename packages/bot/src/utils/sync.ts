@@ -25,7 +25,7 @@ export default class Sync {
     }
     const before = dbUsers.map(u => u.nickname);
     await Promise.all(dbUsers.map(u => {
-      if (res[u.genome] && (u.nickname !== res[u.genome].name)) {
+      if (u.nickname !== res[u.genome]?.name) {
         console.log('[BOT]', u.nickname, '-->', res[u.genome].name);
         u.nickname = res[u.genome].name;
       }

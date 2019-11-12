@@ -83,7 +83,7 @@ function registerValidSW(swUrl: string, config?: IConfig) {
               );
 
               // Execute callback
-              if (config && config.onUpdate) {
+              if (config?.onUpdate) {
                 config.onUpdate(registration);
               }
             } else {
@@ -93,7 +93,7 @@ function registerValidSW(swUrl: string, config?: IConfig) {
               console.log('Content is cached for offline use.');
 
               // Execute callback
-              if (config && config.onSuccess) {
+              if (config?.onSuccess) {
                 config.onSuccess(registration);
               }
             }
@@ -114,7 +114,7 @@ function checkValidServiceWorker(swUrl: string, config?: IConfig) {
       const contentType = response.headers.get('content-type');
       if (
         response.status === 404 ||
-        (contentType != null && contentType.indexOf('javascript') === -1)
+        (contentType?.indexOf('javascript') === -1)
       ) {
         // No service worker found. Probably a different app. Reload the page.
         navigator.serviceWorker.ready.then(registration => {

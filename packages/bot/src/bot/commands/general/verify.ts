@@ -49,7 +49,7 @@ export default class Verify extends Command {
         if (!dbUser.platform.PC) {
             return message.reply('верификация аккаунтов с консолей не поддерживается!');
         }
-        if (dbUser && dbUser.genome) {
+        if (dbUser?.genome) {
             if (dbUser.verificationLevel >= VERIFICATION_LEVEL.QR) {
                 return message.reply('вы уже подтвердили свой аккаунт!');
             }
@@ -76,7 +76,7 @@ export default class Verify extends Command {
         debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
         try {
             const member = await message.guild.members.fetch(dbUser.id);
-            await (member.voice && member.voice.setChannel(null));
+            await member.voice?.setChannel(null);
         } catch (error) {
             console.log('member not in voice');
         }
@@ -121,7 +121,7 @@ export default class Verify extends Command {
                 await dbUser.save();
                 await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
                 debug.log(`самостоятельно запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
-                await (message.member && message.member.voice && message.member.voice.setChannel(null));
+                await message.member?.voice?.setChannel(null);
                 return message.reply('инструкции отправлены вам в ЛС.');
             }
         }

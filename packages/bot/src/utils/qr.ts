@@ -66,7 +66,7 @@ async function tryURL(url: string): Promise<string> {
     const imageData = ctx.getImageData(0, 0, QR.width, QR.height);
     try {
         const code = readerQR(imageData.data, imageData.width, imageData.height);
-        return (code && code.data);
+        return code?.data;
     } catch (err) {
         console.log(err);
         return null;

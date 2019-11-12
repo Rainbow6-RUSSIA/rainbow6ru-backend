@@ -55,14 +55,14 @@ export class LSRoom extends Lobby {
         }
 
         const previousLobby = await Lobby.findOne({ where: { channel: this.dcChannel.id }, order: [['initiatedAt', 'DESC']] });
-        this.description = previousLobby && previousLobby.description;
+        this.description = previousLobby?.description;
 
         await this.save();
         await this.$set('guild', this.dcChannel.guild.id);
         await this.$set('members', await User.findAll({ where: { id: this.dcMembers.map(m => m.id) } }));
         await this.reload({ include: [{all: true}] });
 
-        if (this.dcLeader && this.dcLeader.user) {
+        if (this.dcLeader?.user) {
             await this.initAppeal();
         }
         if (this.categoryVoices.lastKey() === this.channel) {
@@ -157,7 +157,7 @@ export class LSRoom extends Lobby {
             this.dcChannel = await this.dcChannel.setUserLimit(this.LS.settings.roomSize);
         }
 
-        if (this.dcLeader && member.id === this.dcLeader.id) {
+        if (member.id === this.dcLeader?.id) {
             const newLeader = this.dcMembers.random();
             this.handleHardplay(false);
             try {

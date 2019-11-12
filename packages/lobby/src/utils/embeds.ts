@@ -10,7 +10,7 @@ export default {
   appealMsg: (lobby: LSRoom): MessageOptions => {
     const embed = new MessageEmbed()
     .setAuthor(modeSelector(lobby), lobby.dcLeader.user.displayAvatarURL())
-    .setColor(RANK_COLORS[(lobby.leader && lobby.leader.rank) || 0])
+    .setColor(RANK_COLORS[lobby.leader?.rank || 0])
     .setDescription(
       (lobby.members
         .sort((a, b) => b.rank - a.rank)

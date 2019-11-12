@@ -155,11 +155,7 @@ export class LobbyStore {
             const messages = await fastLfg.messages.fetch();
             await Promise.all(
                 messages
-                .filter(m => m
-                    && m.embeds
-                    && m.embeds[0]
-                    && m.embeds[0].footer
-                    && m.embeds[0].footer.text === `ID - ${this.settings.type}`
+                .filter(m => m?.embeds[0]?.footer?.text === `ID - ${this.settings.type}`
                 )
                 .map(m => m.delete())
             );

@@ -69,10 +69,10 @@ export default class Rank extends Command {
 
             // console.log(target, member);
 
-            if (target && member.id !== target.id && (member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id))) {
+            if (target?.id !== member.id && (member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id))) {
                 console.log('switch admin mode');
                 adminAction = true;
-            } else if (target && member.id !== target.id) {
+            } else if (target?.id !== member.id) {
                 return message.reply('регистрация других пользователей доступна **только администрации**');
             } else {
                 adminAction = false;
@@ -94,12 +94,12 @@ export default class Rank extends Command {
                 return message.reply(`выбранная платформа \`${activePlatform}\` не совпадает с платформой указанного аккаунта (${bound.map(b => '`' + b.platform + '`').join(', ')})`);
             }
 
-            if (dbUser && dbUser.genome) {
+            if (dbUser?.genome) {
                 let msg: Message;
                 let changeGenome = dbUser.genome !== activeBound.genome;
                 if (changeGenome) {
                     const changeStats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
-                    changeGenome = Boolean(changeStats && changeStats.general);
+                    changeGenome = Boolean(changeStats?.general);
                 }
                 if (adminAction) {
                     msg = (await message.reply(`пользователь уже зарегистрирован!\nДля смены привязанного аккаунта на указанный добавьте реакцию - ♻.`)) as Message;
@@ -131,7 +131,7 @@ export default class Rank extends Command {
             const mainRegion = $enum(REGIONS).getValues()[regionRank.indexOf(Math.max(...regionRank))];
             const stats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
 
-            if (!(stats && stats.general)) {
+            if (!stats?.general) {
                 return message.reply(`указанный аккаунт не запускал Rainbow Six Siege (\`${activeBound.platform}\`)`);
             }
             // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);

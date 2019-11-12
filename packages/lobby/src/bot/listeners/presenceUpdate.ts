@@ -12,7 +12,7 @@ export const detectIngameStatus = (presence: Presence): IS  => {
 
     const { activity } = presence;
 
-    return activity && activity.applicationID === R6_PRESENCE_ID
+    return activity?.applicationID === R6_PRESENCE_ID
         ? R6_PRESENCE_REGEXPS.findIndex(ar => ar.some(r => r.test(activity.details)))
         : IS.OTHER;
 };

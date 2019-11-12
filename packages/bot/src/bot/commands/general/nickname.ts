@@ -33,7 +33,7 @@ export default class Nickname extends Command {
             target = message.member;
         }
         const dbUser = await User.findByPk(target.id);
-        if (dbUser && dbUser.genome) {
+        if (dbUser?.genome) {
             dbUser.syncNickname = !dbUser.syncNickname;
             await dbUser.save();
             if (dbUser.syncNickname) {

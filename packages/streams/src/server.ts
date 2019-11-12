@@ -31,7 +31,7 @@ io.sockets.on('connection', socket => {
             {model: Vote, include: [{all: true}]},
         ]});
         console.log('init sent');
-        socket.emit('init', match && match.dataValues);
+        socket.emit('init', match?.dataValues);
     });
 });
 

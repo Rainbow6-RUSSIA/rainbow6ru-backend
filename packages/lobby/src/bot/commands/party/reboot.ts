@@ -34,7 +34,7 @@ export default class Reboot extends Command {
         const channel = message.channel as TextChannel;
         if (args.target || args.targetId) {
             const lobby = await Lobby.findByPk(args.targetId);
-            const room = lobbyStoresRooms.get((lobby && lobby.channel) || args.target.id);
+            const room = lobbyStoresRooms.get(lobby?.channel || args.target.id);
             if (room) {
                 await room.deactivate();
                 lobbyStoresRooms.set(room.dcChannel.id, await new LSRoom(room.dcChannel, room.LS).init());

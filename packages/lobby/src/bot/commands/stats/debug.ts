@@ -23,6 +23,6 @@ export default class Debug extends Command {
     // @PartyCommand()
     public async exec(message: Message, args: IArgs) {
         const { target } = args;
-        console.log(lobbyStoresRooms.get(target && target.id || message.member.voice.channelID));
+        console.log(lobbyStoresRooms.get(target?.id || message.member.voice.channelID));
     }
 }
