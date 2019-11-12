@@ -27,6 +27,6 @@
     "@types/socket.io": "^2.1.2",
     "cross-env": "^5.2.0",
     "tslint": "^5.16.0",
-    "typescript": "^3.4.3"
+    "typescript": "^3.7.2"
   }
 }
