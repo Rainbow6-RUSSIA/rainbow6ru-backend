@@ -29,7 +29,7 @@ export default class Security {
         }
         const bannedAt = twinks.find(t => t.id === dbUser.id).bannedAt;
         const localBan = bannedAt.length && bannedAt.find(r => r.id === dbGuild.id);
-        if (!(localBan?.GuildBlacklist.allowed)
+        if (!(localBan?.GuildBlacklist?.allowed)
              && (dbUser.securityNotifiedAt > new Date(Date.now() - 5 * 60 * 1000)
                 || dbUser.securityNotifiedAt < new Date(Date.now() - 14 * 24 * 60 * 60 * 1000))) {
             if (twinks.length > 1) {

@@ -69,9 +69,10 @@ export async function combinedPrompt(prompt: Message, options: {
   // console.log({result}, result instanceof Message, result instanceof MessageReaction)
   if (result?.channel) {
     return options.texts.findIndex(([...t]) =>
-    t.some(txt =>
-      result.content.toLowerCase().includes(txt),
-    ));
+      t.some(txt =>
+        result.content.toLowerCase().includes(txt),
+      )
+    );
   } else if (result?.message) {
     return options.emojis.indexOf(result.emoji.id || result.emoji.name);
   } else {

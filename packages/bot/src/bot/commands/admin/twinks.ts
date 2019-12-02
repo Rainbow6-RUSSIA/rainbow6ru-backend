@@ -28,17 +28,12 @@ export default class Twinks extends Command {
       }
 
     public exec = async (message: Message) => {
-        console.log(1);
         const dbUsers = await User.findAndCountAll({attributes: ['id', 'genome'], where: {id: {[Op.ne]: '0'}}});
-        console.log('count', dbUsers.count); // findAll({ attributes: ['id', 'genome'] });
         const dbGuild = await Guild.findByPk(message.guild.id, {include: [ User ]});
-        console.log(2);
         const twinksCounter = new Collection<UUID, Set<Snowflake>>();
         dbUsers.rows.map(dbUser => twinksCounter.get(dbUser.genome) ? twinksCounter.get(dbUser.genome).add(dbUser.id) : twinksCounter.set(dbUser.genome, new Set([dbUser.id])));
-        console.log(3);
         const filteredTwinks = twinksCounter.filter(g => g.size > 1);
         const bans = await message.guild.fetchBans();
-        console.log(4);
         const genomeBans = new Set([...dbGuild.genomeBlacklist, dbGuild.blacklist.map(u => u.genome)]);
         const answs = filteredTwinks.map(async (set, key) => `• Uplay <${ONLINE_TRACKER}${key}>${genomeBans.has(key)
             ? ' ' + ENV.BAN_BADGE
