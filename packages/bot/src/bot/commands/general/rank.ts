@@ -69,10 +69,10 @@ export default class Rank extends Command {
 
             // console.log(target, member);
 
-            if (target?.id !== member.id && (member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id))) {
+            if (target && member.id !== target.id && (member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id))) {
                 console.log('switch admin mode');
                 adminAction = true;
-            } else if (target?.id !== member.id) {
+            } else if (target && member.id !== target.id) {
                 return message.reply('регистрация других пользователей доступна **только администрации**');
             } else {
                 adminAction = false;
