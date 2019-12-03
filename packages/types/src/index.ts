@@ -119,8 +119,8 @@ export const R6_PRESENCE_ID = '445956193924546560';
 
 export const R6_PRESENCE_REGEXPS = [
     [/МЕНЮ/, /MENU/],
-    [/ОБЫЧНАЯ.+раунд/, /CASUAL.+Round/],
-    [/Поиск.+ОБЫЧНАЯ/, /Looking.+CASUAL/],
+    [/БЫСТРАЯ.+раунд/, /QUICK.+Round/],
+    [/Поиск.+БЫСТРАЯ/, /Looking.+QUICK/],
     [/БЕЗРЕЙТ.+раунд/, /UNRANKED.+Round/],
     [/Поиск.+БЕЗРЕЙТ/, /Looking.+UNRANKED/],
     [/РЕЙТ.+раунд/, /RANKED.+Round/],
