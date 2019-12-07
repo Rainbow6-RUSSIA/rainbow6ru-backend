@@ -15,7 +15,7 @@ export default class VoiceStateUpdate extends Listener {
         const A = lobbyStoresRooms.get(oldState.channelID);
         const B = lobbyStoresRooms.get(newState.channelID);
 
-        const internal = A?.LS.settings.type === B?.LS.settings.type;
+        const internal = A && B && A.LS.settings.type === B.LS.settings.type;
         const jump = internal && A.dcMembers.size === 0 && B.dcMembers.size === 1;
 
         await (A?.dcMembers.size === 0 && !jump && A?.LS.reportLeave(A, internal));
