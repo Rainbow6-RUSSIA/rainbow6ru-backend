@@ -1,212 +1,251 @@
-import { Argument, Command } from 'discord-akairo';
-import { GuildMember, Message, MessageReaction, User as U } from 'discord.js';
+import { ArgumentOptions, Command, Flag } from 'discord-akairo';
+import { GuildMember, Message } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import { $enum } from 'ts-enum-util';
 
 import { Guild, User } from '@r6ru/db';
 import r6 from '../../../r6api';
 
-import { IUbiBound, ONLINE_TRACKER, PLATFORM, RANKS, REGIONS, UpdateStatus, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
-import { combinedPrompt } from '@r6ru/utils';
+import { IUbiBound, PLATFORM, RANKS, REGIONS, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
+import { combinedPrompt, emojiNumbers } from '@r6ru/utils';
 import { debug } from '../../..';
 import embeds from '../../../utils/embeds';
 import ENV from '../../../utils/env';
 import Security from '../../../utils/security';
 import Sync from '../../../utils/sync';
-import ubiGenomeFromNickname from '../../types/ubiGenomeFromNickname';
-// import ubiNickname from '../types/ubiNickname';
+import ubiGenomeFromNickname, { IUbiBoundType } from '../../types/ubiGenomeFromNickname';
 
 interface IRankArgs {
-    genome: UUID;
-    nickname: string;
-    target: GuildMember;
-    bound: IUbiBound[] | null | Error;
+    target?: GuildMember;
+    bound?: IUbiBound[];
+    isAdmin: boolean;
+    dbUser?: User;
 }
 
 export default class Rank extends Command {
     public constructor() {
         super('rank', {
             aliases: ['rank', 'rang', 'unranked', 'copper', 'bronze', 'silver', 'gold', 'platinum', 'diamond'],
-            args: [{
-                id: 'bound',
-                prompt: {
-                    ended: 'Слишком много попыток. Проверьте правильность и начните регистрацию сначала.',
-                    retries: 0,
-                    retry: 'Некорректный ник Uplay! Проверьте правильность и попробуйте еще раз.',
-                    start: 'Введите корректный ник в Uplay!',
-                    time: 30000,
-                    timeout: 'Время вышло. Начните регистрацию сначала.',
-                },
-                type: ubiGenomeFromNickname,
-                unordered: true,
-            }, {
-                id: 'target',
-                type: 'member',
-                unordered: true,
-            }],
             channel: 'guild',
-            ratelimit: 1,
+            ratelimit: 100,
         });
     }
 
-    // @TryCatch(debug)
-    public exec = async (message: Message, args: IRankArgs) => {
-        console.log('[Log] rank called');
+    public async *args(message: Message): AsyncIterableIterator<ArgumentOptions | Flag> {
+        const { member } = message;
+        let isAdmin = member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id);
+        const target: GuildMember = isAdmin
+            ? yield { type: 'member', unordered: true, default: member }
+            : member;
+        isAdmin = isAdmin && target.id !== member.id;
+
+        const dbUser = await User.findByPk(target.id);
+
+        if (dbUser?.genome) {
+            return { isAdmin, dbUser, target };
+        }
+
+        const bound: IUbiBoundType = yield {
+            type: ubiGenomeFromNickname,
+            unordered: true,
+            prompt: {
+                ended: `${member}, cлишком много попыток. Проверьте правильность и начните регистрацию сначала.`,
+                retries: 2,
+                retry: `${member}, некорректный ник! Проверьте правильность и попробуйте еще раз.`,
+                start: `${member}, введите корректный ник в Rainbow Six Siege!`,
+                time: 60000,
+                timeout: `${member}, время вышло. Начните регистрацию сначала.`,
+            }
+        };
+
+        if (bound instanceof Error) {
+            return { error: bound };
+        }
+
+        return { isAdmin, bound, target };
+
+    }
+
+    public async exec(message: Message, args: IRankArgs) {
+        if (args === null) { return; }
+
+        const { channel } = message;
+        const { bound, target, dbUser, isAdmin } = args;
+
         try {
-            const { bound } = args;
-            let { target } = args;
-            // console.log(bound, target);
-            const { member } = message;
 
-            if (bound instanceof Error) {
-                throw bound;
-            }
-            const dbGuild = await Guild.findByPk(message.guild.id);
-            const nonPremium = dbGuild.premium === false;
-            const platformRoles = nonPremium ? null : dbGuild.platformRoles;
-
-            let adminAction: boolean = null;
-
-            // console.log(target, member);
-
-            if (target && member.id !== target.id && (member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id))) {
-                console.log('switch admin mode');
-                adminAction = true;
-            } else if (target && member.id !== target.id) {
-                return message.reply('регистрация других пользователей доступна **только администрации**');
+            if (dbUser) {
+                await this.execRegistered(message, args);
             } else {
-                adminAction = false;
-                target = member;
+                await this.execNew(message, args);
             }
 
-            let dbUser = await User.findByPk(target.id);
-
-            const currentRoles = target.roles.keyArray();
-            const platform = nonPremium ? { PC: true } : {
-                PC: currentRoles.includes(platformRoles.PC),
-                PS4: currentRoles.includes(platformRoles.PS4),
-                XBOX: currentRoles.includes(platformRoles.XBOX),
-            };
-            const activePlatform = $enum(PLATFORM).getValues().find(p => platform[p]) || 'PC';
-            const activeBound = bound.find(b => b.platform === activePlatform);
-
-            if (!activeBound) {
-                return message.reply(`выбранная платформа \`${activePlatform}\` не совпадает с платформой указанного аккаунта (${bound.map(b => '`' + b.platform + '`').join(', ')})`);
-            }
-
-            if (dbUser?.genome) {
-                let msg: Message;
-                let changeGenome = dbUser.genome !== activeBound.genome;
-                if (changeGenome) {
-                    const changeStats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
-                    changeGenome = Boolean(changeStats?.general);
+        } catch (error) {
+            switch (true) {
+                case ['public-ubiservices.ubi.com',
+                    'too many requests',
+                    'gateway was unable to forward the request',
+                    'request timed out while forwarding to the backend'
+                ].some(s => error.message.includes(s)):
+                    debug.error(error, 'UBI');
+                    message.reply('сервера Ubisoft недоступны, попробуйте позднее.');
+                    break;
+                default:
+                    debug.error(error, 'BOT');
+                    message.reply(`произошла ошибка! Попробуйте еще раз.`);
+                    break;
                 }
-                if (adminAction) {
-                    msg = (await message.reply(`пользователь уже зарегистрирован!\nДля смены привязанного аккаунта на указанный добавьте реакцию - ♻.`)) as Message;
-                } else {
-                    const time = (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + dbUser.rankUpdatedAt.valueOf() - Date.now();
-                    msg = (await message.reply(`вы уже зарегистрированы, ${time > 5 * 60 * 1000 ? `обновление ранга будет через \`${
-                        humanizeDuration(
-                            time,
-                            {conjunction: ' и ', language: 'ru', round: true},
-                        )
-                    }\`` : 'скоро будет обновление ранга' }.\n`
-                    + (dbUser.requiredVerification > dbUser.verificationLevel ? '*В целях безопасности требуется подтверждение аккаунта Uplay. Следуйте инструкциям, отправленным в ЛС.*\n' : '')
-                    + (changeGenome ? `Для смены привязанного аккаунта на указанный (${ONLINE_TRACKER}${activeBound.genome}) добавьте реакцию - ♻.` : ''))) as Message;
+        }
+
+        setTimeout(() => {
+            channel.bulkDelete(
+                channel.messages
+                .filter(m => !m.deleted)
+                .filter(m =>
+                    m.mentions.has(message.author)
+                    || (m.author.id === message.author.id && !isAdmin)
+                )
+            );
+        }, 5 * 60 * 1000);
+    }
+
+    public async execNew(message: Message, args: IRankArgs) {
+
+        const { bound, target, isAdmin } = args;
+
+        const dbGuild = await Guild.findByPk(message.guild.id);
+        const nonPremium = dbGuild.premium === false;
+
+        let mainPlatform: PLATFORM = null;
+
+        if (bound.length > 1) {
+            const res = await combinedPrompt(
+                await message.reply('поиск обнаружил несколько аккаунтов на разных платформах, выберите основную:\n' + bound.map((b, i) => `${i + 1}. \`${b.platform}\``).join('\n')),
+                {
+                    author: message.author,
+                    emojis: emojiNumbers(bound.length),
+                    texts: bound.map(b => b.platform)
                 }
-                if (changeGenome) {
-                    msg.react('♻');
-                    const result = await msg.awaitReactions((reaction: MessageReaction, user: U) => reaction.emoji.name === '♻' && user.id === message.author.id, { time: 30000, max: 1 });
-                    if (result.size) {
-                        const res = await Security.changeGenome(dbUser, dbGuild, activeBound.genome);
-                        await msg.edit(msg.content + (res === UpdateStatus.DM_CLOSED ? `\nОткройте ЛС <@${this.client.user.id}> и повторите попытку` : `\nОжидайте дальнейших инструкций в ЛС от <@${this.client.user.id}>`));
-                    }
-                }
-                return Sync.updateMember(dbGuild, dbUser);
-            }
+            );
+            if (res === -1) { return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.'); }
+            mainPlatform = bound[res].platform;
+        } else {
+            mainPlatform = bound[0].platform;
+        }
 
-            // if (!nonPremium && !adminAction && (activePlatform !== bound.platform)) {
-            const rawRank = (await r6.api.getRank(activeBound.platform, activeBound.genome))[activeBound.genome];
-            const regionRank = $enum(REGIONS).getValues().map(r => rawRank[r].rank);
-            const mainRegion = $enum(REGIONS).getValues()[regionRank.indexOf(Math.max(...regionRank))];
-            const stats = (await r6.api.getStats(activeBound.platform, activeBound.genome, {general: '*'}))[activeBound.genome];
+        const activeBound = bound.find(b => b.platform === mainPlatform);
+        const stats = (await r6.api.getStats(mainPlatform, activeBound.genome, {general: '*'}))[activeBound.genome];
 
-            if (!stats?.general) {
-                return message.reply(`указанный аккаунт не запускал Rainbow Six Siege (\`${activeBound.platform}\`)`);
-            }
-            // console.log('​Rank -> publicexec -> rawRank[mainRegion]', rawRank[mainRegion]);
-            if (!nonPremium || adminAction) {
-                platform[activeBound.platform] = true;
-            }
-            dbUser = new User({
-                genome: activeBound.genome,
-                id: target.id,
-                inactive: false,
-                nickname: activeBound.nickname,
-                nicknameUpdatedAt: new Date(),
-                platform,
-                rank: rawRank[mainRegion].rank,
-                rankUpdatedAt: new Date(),
-                region: mainRegion,
-                requiredVerification:
-                (nonPremium || !platform.PC) ? VERIFICATION_LEVEL.NONE
-                : ((Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE) || rawRank[mainRegion].rank >= dbGuild.fixAfter || (await r6.api.getLevel(activeBound.platform, activeBound.genome))[activeBound.genome].level < parseInt(ENV.REQUIRED_LEVEL)) ? VERIFICATION_LEVEL.QR
-                : dbGuild.requiredVerification,
-                securityNotifiedAt: new Date(),
-                verificationLevel:
-                (target.nickname || '').includes(activeBound.nickname) ||
-                target.user.username.includes(activeBound.nickname) ? VERIFICATION_LEVEL.MATCHNICK
-                : VERIFICATION_LEVEL.NONE,
-            });
-
-            dbUser.syncNickname = dbUser.verificationLevel === VERIFICATION_LEVEL.MATCHNICK;
-
-            const prompt = await combinedPrompt(
-                await message.reply(`игрок с ником **${activeBound.nickname}** найден, это верный профиль?`, embeds.rank(activeBound, stats.general)) as Message,
+        if (!stats?.general) {
+            return message.reply(`указанный аккаунт на платформе \`${mainPlatform}\` не запускал Rainbow Six Siege`);
+        } else {
+            const res = await combinedPrompt(
+                await message.reply(`это верный профиль?`, embeds.rank(activeBound, stats.general)),
                 {
                     author: message.author,
                     emojis: ['✅', '❎'],
                     texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
                 },
             );
-
-            switch (prompt) {
+            switch (res) {
                 case 1: return message.reply('вы отклонили регистрацию. Попробуйте снова, указав нужный аккаунт.');
                 case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
-                case 0: {
-                    await dbUser.save();
-                    if ((await Security.detectDupes(dbUser, dbGuild, true)).length > 1) {
-                        dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
-                        await dbUser.save();
-                        await debug.error(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}. Обнаружена повторная регистрация или передача аккаунта.`);
-                    } else {
-                        await debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}.`);
-                    }
-                    if (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR) {
-                        debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
-                        const res = await Sync.updateMember(dbGuild, dbUser);
-                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\`\n*В целях безопасности требуется подтверждение аккаунта Uplay.${
-                            res === UpdateStatus.DM_CLOSED
-                            ? (adminAction ? ' ЛС закрыто.' : ' Откройте ЛС и повторите попытку.')
-                            : (adminAction ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.')
-                        }*`);
-                    } else {
-                        Sync.updateMember(dbGuild, dbUser);
-                        return message.reply(`вы успешно ${adminAction ? `зарегистрировали ${target}` : 'зарегистрировались'}! Ник: \`${dbUser.nickname}\`, ранг \`${RANKS[dbUser.rank]}\``);
-                    }
-                }
             }
+        }
 
-        } catch (err) {
-            switch (true) {
-                case ['public-ubiservices.ubi.com', 'too many requests', 'gateway was unable to forward the request', 'request timed out while forwarding to the backend'].some(s => err.message.includes(s)):
-                    debug.error(err, 'UBI');
-                    return message.reply('сервера Ubisoft недоступны, попробуйте позднее.');
-                    default:
-                        break;
-                    }
-            message.reply(`произошла ошибка! Попробуйте еще раз.`);
-            throw err;
+        const rawRank = (await r6.api.getRank(mainPlatform, activeBound.genome))[activeBound.genome];
+        const regions = $enum(REGIONS).getValues();
+        const regionRank = regions.map(r => rawRank[r].rank);
+
+        let mainRegion: REGIONS = null;
+
+        if (regionRank.filter(Boolean).length !== 1) {
+            const res = await combinedPrompt(
+                await message.reply(`выберите регион для сбора статистики:\n${regions.map((r, i) => `${i + 1}. \`${r}\` - \`${RANKS[rawRank[r].rank]}\``).join('\n')}`),
+                {
+                    author: message.author,
+                    emojis: emojiNumbers(regions.length),
+                    texts: regions,
+                }
+            );
+            mainRegion = res === -1 ? REGIONS.A_EMEA : regions[res];
+        } else {
+            mainRegion = regions[regionRank.indexOf(regionRank.filter(Boolean)[0])];
+        }
+
+        console.log(mainPlatform, mainRegion);
+
+        const newUser = new User({
+            genome: activeBound.genome,
+            id: target.id,
+            inactive: false,
+            nickname: activeBound.nickname,
+            nicknameUpdatedAt: new Date(),
+            platform: {
+                [mainPlatform]: true,
+            },
+            rank: rawRank[mainRegion].rank,
+            rankUpdatedAt: new Date(),
+            region: mainRegion,
+            requiredVerification:
+                (nonPremium || mainPlatform !== PLATFORM.PC)
+                ? VERIFICATION_LEVEL.NONE
+                    : (
+                        (Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE)
+                        || rawRank[mainRegion].rank >= dbGuild.fixAfter
+                        || (await r6.api.getLevel(mainPlatform, activeBound.genome))[activeBound.genome].level < parseInt(ENV.REQUIRED_LEVEL)
+                    )
+                ? VERIFICATION_LEVEL.QR
+                    : dbGuild.requiredVerification,
+            securityNotifiedAt: new Date(),
+            verificationLevel:
+                (target.nickname || '').includes(activeBound.nickname) || target.user.username.includes(activeBound.nickname)
+                ? VERIFICATION_LEVEL.MATCHNICK
+                    : VERIFICATION_LEVEL.NONE,
+        });
+        newUser.syncNickname = newUser.verificationLevel === VERIFICATION_LEVEL.MATCHNICK;
+
+        await newUser.save();
+
+        await Security.processNewUser(newUser, dbGuild);
+        const result = await Sync.updateMember(dbGuild, newUser);
+
+        return message.reply(
+            `вы успешно ${isAdmin ? `зарегистрировали ${target}` : 'зарегистрировались'}!`
+            + ' '
+            + `Ник: \`${newUser.nickname}\`, ранг \`${RANKS[newUser.rank]}\``
+            + `\n`
+            + Rank.verifyAppendix(newUser, result, isAdmin)
+        );
+
+    }
+
+    public async execRegistered(message: Message, args: IRankArgs) {
+        const { bound, target, dbUser, isAdmin } = args;
+
+        const dbGuild = await Guild.findByPk(message.guild.id);
+        const result = await Sync.updateMember(dbGuild, dbUser);
+        if (isAdmin) {
+            return message.reply(`пользователь уже зарегистрирован!`);
+        } else {
+            const time = (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + dbUser.rankUpdatedAt.valueOf() - Date.now();
+            return message.reply(`вы уже зарегистрированы, ${time > 5 * 60 * 1000 ? `обновление ранга будет через \`${
+                humanizeDuration(
+                    time,
+                    {conjunction: ' и ', language: 'ru', round: true},
+                )
+            }\`` : 'скоро будет обновление ранга' }.\n`
+            + Rank.verifyAppendix(dbUser, result, isAdmin));
         }
     }
+
+    public static verifyAppendix = (dbUser: User, status: UpdateStatus, isAdmin: boolean) =>
+        (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR)
+            ? `*В целях безопасности требуется подтверждение аккаунта Uplay.`
+                + ' '
+                + (status === UpdateStatus.DM_CLOSED
+                    ? (isAdmin ? 'ЛС закрыто.' : 'Откройте ЛС и повторите попытку.')
+                    : (isAdmin ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'))
+                + `*`
+            : ''
 }

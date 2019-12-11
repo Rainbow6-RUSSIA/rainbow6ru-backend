@@ -90,6 +90,20 @@ export default class Security {
         return Sync.updateMember(dbGuild, dbUser);
     }
 
+    public static async processNewUser(dbUser: User, dbGuild: Guild) {
+        const dupes = await Security.detectDupes(dbUser, dbGuild, true);
+        if (dupes.length > 1) {
+            dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
+            await dbUser.save();
+            await debug.error(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}. Обнаружена повторная регистрация или передача аккаунта.`);
+        } else {
+            await debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}.`);
+        }
+        if (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR) {
+            await debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+        }
+    }
+
     // public static analyzeRankStats = (data: RankInfo) =>
     //     $enum(REGIONS).getValues().some(r =>
     //         data.regions[r].abandons === 1
