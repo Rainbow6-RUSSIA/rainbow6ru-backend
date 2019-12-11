@@ -105,9 +105,9 @@ export class Log {
       return a;
     }
 
-    public sendWebhook<T>(context: Context, type: 'Information' | 'Warning' | 'Error', body: T, color: number, retry = 0) {
+    public sendWebhook<T>(context: Context, type: 'Information' | 'Warning' | 'Error', body: T, color: number, ping: boolean, retry = 0) {
         try {
-          return this.webhook?.send(type === 'Error' && !(body instanceof Error) ? '@everyone' : '', { embeds: [{
+          return this.webhook?.send(ping ? '@everyone' : '', { embeds: [{
             author: {
                 iconURL: this.client.displayAvatarURL(),
                 name: this.client.tag,
@@ -127,32 +127,32 @@ export class Log {
             timestamp: Date.now(),
           }] });
         } catch (err) {
-          if (retry < 2) { this.sendWebhook(context, type, body, color, retry + 1); }
+          if (retry < 2) { this.sendWebhook(context, type, body, color, ping, retry + 1); }
         }
     }
 
-    public log(msg: any, context: Context = this.defaultContext) {
+    public log(msg: any, context = this.defaultContext, ping = false) {
         console.log(`[INFO][${context}]`, msg);
         try {
-          return this.sendWebhook(context, 'Information', msg, 6513507);
+          return this.sendWebhook(context, 'Information', msg, 6513507, ping);
         } catch (error) {
           console.log('WEBHOOK SEND ERROR', error);
         }
     }
 
-    public warn(msg: any, context: Context = this.defaultContext) {
+    public warn(msg: any, context = this.defaultContext, ping = false) {
         console.warn(`[WARN][${context}]`, msg);
         try {
-          return this.sendWebhook(context, 'Warning', msg, 16763904);
+          return this.sendWebhook(context, 'Warning', msg, 16763904, ping);
         } catch (error) {
           console.log('WEBHOOK SEND ERROR', error);
         }
     }
 
-    public error(msg: any, context: Context = this.defaultContext) {
+    public error(msg: any, context = this.defaultContext, ping = !(msg instanceof Error)) {
         console.error(`[ERROR][${context}]`, msg);
         try {
-          return this.sendWebhook(context, 'Error', msg, 13382400);
+          return this.sendWebhook(context, 'Error', msg, 13382400, ping);
         } catch (error) {
           console.log('WEBHOOK SEND ERROR', error);
         }
