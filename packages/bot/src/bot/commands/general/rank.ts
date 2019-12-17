@@ -215,7 +215,7 @@ export default class Rank extends Command {
             + ' '
             + `Ник: \`${newUser.nickname}\`, ранг \`${RANKS[newUser.rank]}\``
             + `\n`
-            + Rank.verifyAppendix(newUser, result, isAdmin)
+            + this.verifyAppendix(newUser, result, isAdmin)
         );
 
     }
@@ -235,16 +235,16 @@ export default class Rank extends Command {
                     {conjunction: ' и ', language: 'ru', round: true},
                 )
             }\`` : 'скоро будет обновление ранга' }.\n`
-            + Rank.verifyAppendix(dbUser, result, isAdmin));
+            + this.verifyAppendix(dbUser, result, isAdmin));
         }
     }
 
-    public static verifyAppendix = (dbUser: User, status: UpdateStatus, isAdmin: boolean) =>
-        (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR)
+    public verifyAppendix = (dbUser: User, status: UpdateStatus, isAdmin: boolean) =>
+        (dbUser.requiredVerification > dbUser.verificationLevel)
             ? `*В целях безопасности требуется подтверждение аккаунта Uplay.`
                 + ' '
                 + (status === UpdateStatus.DM_CLOSED
-                    ? (isAdmin ? 'ЛС закрыто.' : 'Откройте ЛС и повторите попытку.')
+                    ? (isAdmin ? 'ЛС закрыто.' : `Откройте личные сообщения для <${this.client.user.id}> и повторите попытку.`)
                     : (isAdmin ? ' Инструкции высланы пользователю в ЛС.' : ' Следуйте инструкциям, отправленным в ЛС.'))
                 + `*`
             : ''
