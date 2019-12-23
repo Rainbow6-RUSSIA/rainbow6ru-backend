@@ -12,6 +12,7 @@ export default class System extends Command {
             aliases: ['system'],
             ownerOnly: true,
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

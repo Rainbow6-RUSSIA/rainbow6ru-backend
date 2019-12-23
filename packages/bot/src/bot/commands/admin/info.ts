@@ -41,6 +41,7 @@ export default class Info extends Command {
                     unordered: true,
                 }],
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

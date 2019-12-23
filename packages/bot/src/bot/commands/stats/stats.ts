@@ -20,6 +20,7 @@ export default class Stats extends Command {
             }],
             cooldown: 5000,
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

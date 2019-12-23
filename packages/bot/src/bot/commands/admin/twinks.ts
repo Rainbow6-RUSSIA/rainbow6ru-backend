@@ -14,6 +14,7 @@ export default class Twinks extends Command {
             channel: 'guild',
             userPermissions: 'BAN_MEMBERS',
         });
+        this.typing = true;
     }
 
     public paragraphSplit = (joinWith: string) => (a: string[], b: string) => {

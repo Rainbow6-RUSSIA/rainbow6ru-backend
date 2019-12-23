@@ -18,6 +18,7 @@ export default class Unblock extends Command {
             channel: 'guild',
             userPermissions: 'BAN_MEMBERS',
         });
+        this.typing = true;
     }
 
     public exec = async (message: Message, args: IUnblockArgs) => {

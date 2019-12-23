@@ -24,6 +24,7 @@ export default class Locate extends Command { // update all|newseason|numofpacks
             channel: 'guild',
             userPermissions: 'MANAGE_ROLES',
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

@@ -8,6 +8,7 @@ export default class Ping extends Command {
         super('ping', {
             aliases: ['ping', 'P'],
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

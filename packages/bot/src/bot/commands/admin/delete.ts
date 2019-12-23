@@ -19,6 +19,7 @@ export default class Delete extends Command {
             channel: 'guild',
             userPermissions: 'MANAGE_ROLES',
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

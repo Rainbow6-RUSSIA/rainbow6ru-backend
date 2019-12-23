@@ -20,6 +20,7 @@ export default class Nickname extends Command {
             cooldown: 5 * 60 * 1000,
             ignoreCooldown: (msg: Message) => msg.member.hasPermission('MANAGE_ROLES'),
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

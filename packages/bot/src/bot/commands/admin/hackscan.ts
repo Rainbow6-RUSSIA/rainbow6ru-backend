@@ -33,6 +33,7 @@ export default class HackScan extends Command {
             channel: 'guild',
             userPermissions: 'MANAGE_GUILD',
         });
+        this.typing = true;
     }
 
     public paragraphSplit = (joinWith: string) => (a: string[], b: string) => {

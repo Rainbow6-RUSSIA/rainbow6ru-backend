@@ -16,6 +16,7 @@ export default class Eval extends Command {
             cooldown: 5000,
             ownerOnly: true,
         });
+        this.typing = true;
     }
 
     public exec = async (message: Message, args) => {

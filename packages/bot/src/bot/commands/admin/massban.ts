@@ -24,6 +24,7 @@ export default class Massban extends Command { // update all|newseason|numofpack
             channel: 'guild',
             userPermissions: 'BAN_MEMBERS',
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

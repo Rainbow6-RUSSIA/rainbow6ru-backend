@@ -8,6 +8,7 @@ export default class Help extends Command {
             aliases: ['help', '', 'H'],
             cooldown: 5000,
         });
+        this.typing = true;
     }
 
     public exec = async (message: Message) => {

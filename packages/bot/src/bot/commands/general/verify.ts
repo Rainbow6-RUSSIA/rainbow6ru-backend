@@ -30,6 +30,7 @@ export default class Verify extends Command {
             }],
             cooldown: 5000,
         });
+        this.typing = true;
     }
 
     // @TryCatch(debug)

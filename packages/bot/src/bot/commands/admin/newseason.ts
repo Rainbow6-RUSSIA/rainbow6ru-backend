@@ -14,6 +14,7 @@ export default class NewSeason extends Command {
             channel: 'guild',
             ownerOnly: true,
         });
+        this.typing = true;
     }
 
     public exec = async (message: Message) => {
