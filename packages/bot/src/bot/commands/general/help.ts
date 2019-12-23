@@ -1,7 +1,6 @@
-// import { TryCatch } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { debug } from '../../..';
+import fetch from 'node-fetch';
 
 export default class Help extends Command {
     public constructor() {
@@ -11,8 +10,8 @@ export default class Help extends Command {
         });
     }
 
-    // @TryCatch(debug)
     public exec = async (message: Message) => {
-        return message.reply('some help');
+        const res = await fetch('https://raw.githubusercontent.com/Rainbow6-RUSSIA/rainbow6ru-backend/master/packages/bot/HELP.md');
+        return message.reply(await res.text());
     }
 }
