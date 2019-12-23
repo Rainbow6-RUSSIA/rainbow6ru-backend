@@ -1,5 +1,5 @@
 import { Guild, User } from '@r6ru/db';
-import { ONLINE_TRACKER, REGIONS, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
+import { ONLINE_TRACKER, UUID, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
 import { Collection, User as U } from 'discord.js';
 // import { RankInfo } from 'r6api.js';
 import { Sequelize } from 'sequelize-typescript';
@@ -78,7 +78,7 @@ export default class Security {
         }
     }
 
-    public static logString = (twink: User, bans: BanInfo) => `<@${twink.id}> [${ONLINE_TRACKER}...](${ONLINE_TRACKER}${twink.genome})${twink.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}${bans.has(twink.id) ? ` ${ENV.BAN_BADGE} - \`${bans.get(twink.id).reason}\`` : ''}`;
+    public static logString = (twink: User, bans: BanInfo) => `<@${twink.id}> [${ONLINE_TRACKER}...](${ONLINE_TRACKER}${twink.genome})${twink.verificationLevel >= VERIFICATION_LEVEL.QR ? ` ${bot.emojis.resolve(VERIFIED_BADGE)}` : ''}${bans.has(twink.id) ? ` ${ENV.BAN_BADGE} - \`${bans.get(twink.id).reason}\`` : ''}`;
 
     public static async changeGenome(dbUser: User, dbGuild: Guild, genome: UUID) {
         debug.warn(`<@${dbUser.id}> сменил аккаунт с ${ONLINE_TRACKER}${dbUser.genome} на ${ONLINE_TRACKER}${genome}. Запрошена верификация`);

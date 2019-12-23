@@ -1,7 +1,8 @@
-import { ACCESS, RANKS, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { ACCESS, BAN_BADGE, ONLINE_TRACKER, RANKS, REGIONS, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
 import { AllowNull, BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, NotNull, PrimaryKey, Table } from 'sequelize-typescript';
 
-import { Snowflake } from 'discord.js';
+import { AkairoClient } from 'discord-akairo';
+import { Guild as G, Snowflake } from 'discord.js';
 
 import Guild from './Guild';
 import GuildBlacklist from './GuildBlacklist';
@@ -122,4 +123,31 @@ export default class User extends Model<User> {
 
     @Column(DataType.FLOAT)
     public karma: number;
+
+    public get isInVerification(): boolean {
+        return this.requiredVerification > this.verificationLevel;
+    }
+
+    public infoBadge = async (client?: AkairoClient, adminAction?: boolean, bans?: ThenArg<ReturnType<G['fetchBans']>>) => {
+        return `<@${this.id}>`
+            + (client ? `\`${(await client.users.fetch(this.id)).tag}\`` : '')
+            + ONLINE_TRACKER + this.genome
+            + (this.isInVerification ? ' *требуется верификация*' : '')
+            + (client && this.verificationLevel >= VERIFICATION_LEVEL.QR ? ` ${client.emojis.resolve(VERIFIED_BADGE)}` : '')
+            + (client && adminAction && bans?.has(this.id) ? ` ${client.emojis.resolve(BAN_BADGE)} \`${bans.get(this.id).reason}\`` : '')
+            + (adminAction && this.genomeHistory.length > 1
+                ? '\nРанее привязанные аккаунты:\n◦ ' + this.genomeHistory
+                    .filter(g => g !== this.genome)
+                    .map(g => ONLINE_TRACKER + g)
+                    .join('\n◦ ')
+                : '')
+            + (adminAction
+                ? '\nИстория никнеймов:\n◦ ' + this.nicknameHistory
+                    .map(nick => `\`${nick}\``)
+                    .join('\n◦ ')
+                : '');
+    }
+
 }
+
+type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;

@@ -118,7 +118,7 @@ export default class Sync {
 
     await Security.detectDupes(dbUser, dbGuild);
 
-    if (dbUser.verificationLevel < dbGuild.requiredVerification || dbUser.verificationLevel < dbUser.requiredVerification) {
+    if (dbUser.verificationLevel < dbGuild.requiredVerification || dbUser.isInVerification) {
       return Sync.sendQrRequest(dbGuild, dbUser, member);
     }
 

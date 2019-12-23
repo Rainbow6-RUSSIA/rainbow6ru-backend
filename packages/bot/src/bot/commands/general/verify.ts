@@ -1,9 +1,10 @@
 import { Guild, User } from '@r6ru/db';
-import { ONLINE_TRACKER, VERIFICATION_LEVEL } from '@r6ru/types';
+import { ONLINE_TRACKER, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
 import { debug } from '../../..';
+import bot from '../../../bot';
 import ENV from '../../../utils/env';
 import { verify } from '../../../utils/qr';
 import Sync from '../../../utils/sync';
@@ -56,7 +57,7 @@ export default class Verify extends Command {
             if (message.channel.type === 'dm') {
                 return this.verifyDM(message, dbUser);
             } else {
-                if (dbUser.verificationLevel < dbUser.requiredVerification) {
+                if (dbUser.isInVerification) {
                     await Sync.sendQrRequest(await Guild.findByPk(message.guild.id), dbUser, message.member);
                     return message.reply(`вы уже в процессе верификации. Смотрите инструкцию в ЛС с ${this.client.user}`);
                 } else {
@@ -92,10 +93,10 @@ export default class Verify extends Command {
                         dbUser.inactive = false;
                         await dbUser.save();
                         debug.log(`<@${dbUser.id}> верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
-                        const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Возвращаем роли...`) as Message;
+                        const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${bot.emojis.resolve(VERIFIED_BADGE)}! Возвращаем роли...`) as Message;
                         const guilds = await Guild.findAll({where: {premium: true}});
                         await Promise.all(guilds.map(g => Sync.updateMember(g, dbUser)));
-                        return msg.edit(`Вы успешно подтвердили свой аккаунт ${ENV.VERIFIED_BADGE}! Роли возвращены, приятной игры!`);
+                        return msg.edit(`Вы успешно подтвердили свой аккаунт ${bot.emojis.resolve(VERIFIED_BADGE)}! Роли возвращены, приятной игры!`);
                     }
                 case false: return message.reply('Неккоректный QR-код!\nДля каждой комбинации аккаунтов Discord и Uplay предусмотрен свой уникальный QR-код.');
                 case null: return message.reply('QR-код не установлен!');

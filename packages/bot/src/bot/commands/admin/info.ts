@@ -1,13 +1,12 @@
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
 
-import { Guild as G, User as U } from '@r6ru/db';
-import { ONLINE_TRACKER, PLATFORM, UUID, VERIFICATION_LEVEL } from '@r6ru/types';
+import { User as U } from '@r6ru/db';
+import { PLATFORM, UUID } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import r6 from '../../../r6api';
-import ENV from '../../../utils/env';
 import ubiGenome from '../../types/ubiGenome';
 import ubiNickname from '../../types/ubiNickname';
 
@@ -71,15 +70,15 @@ export default class Info extends Command {
             }
         }
         const bans = adminAction && await message.guild.fetchBans();
-        const idTagTrackerBadge = async (dbUsers: U[]) => (await Promise.all(dbUsers.map(async u => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` ${ONLINE_TRACKER}${u.genome}${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}${(adminAction && bans.has(u.id)) ? `${ENV.BAN_BADGE} \`${bans.get(u.id).reason}\`` : ''}`))).join('\n');
+        const badges = async (dbUsers: U[]) => (await Promise.all(dbUsers.map(u => u.infoBadge(this.client, adminAction, bans)))).join('\n');
         switch (true) {
             case user === message.author: {
                 const dbUser = await U.findByPk(message.author.id);
-                return message.reply(dbUser ? `ваш профиль: ${await idTagTrackerBadge([dbUser])}` : 'вы не зарегистрированы!');
+                return message.reply(dbUser ? `ваш профиль: ${await dbUser.infoBadge(this.client, adminAction)}` : 'вы не зарегистрированы!');
             }
             case Boolean(user): {
                 const dbUser = await U.findByPk(user.id);
-                return message.reply(dbUser ? `профиль ${await idTagTrackerBadge([dbUser])}` : 'пользователь не найден!');
+                return message.reply(dbUser ? `профиль ${await dbUser.infoBadge(this.client, adminAction, bans)}` : 'пользователь не найден!');
             }
             case Boolean(nickname): {
                 let genomes: string[] = null;
@@ -106,7 +105,7 @@ export default class Info extends Command {
                         ],
                     }});
                 }
-                return message.reply(!dbUsers.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено ${!genomes.length ? 'среди сохраненных никнеймов ' : ''}по вашему запросу:\n${await idTagTrackerBadge(dbUsers)}`);
+                return message.reply(!dbUsers.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено ${!genomes.length ? 'среди сохраненных никнеймов ' : ''}по вашему запросу:\n${await badges(dbUsers)}`);
             }
             case Boolean(genome): {
                 const dbUsers = await U.findAll({where: {
@@ -115,11 +114,11 @@ export default class Info extends Command {
                         {genomeHistory: {[Op.contains]: [genome]}},
                     ],
                 }});
-                return message.reply(!dbUsers.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${await idTagTrackerBadge(dbUsers)}`);
+                return message.reply(!dbUsers.length ? 'по вашему запросу ничего не найдено!' : `вот что найдено по вашему запросу:\n${await badges(dbUsers)}`);
             }
             default: {
                 const dbUser = await U.findByPk(message.author.id);
-                return message.reply(dbUser ? `показан ваш профиль, так как по запросу ничего не найдено: ${await idTagTrackerBadge([dbUser])}` : 'по вашему запросу ничего не найдено!');
+                return message.reply(dbUser ? `показан ваш профиль, так как по запросу ничего не найдено: ${await dbUser.infoBadge(this.client, adminAction)}` : 'по вашему запросу ничего не найдено!');
             }
         }
     }

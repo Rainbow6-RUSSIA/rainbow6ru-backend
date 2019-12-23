@@ -240,7 +240,7 @@ export default class Rank extends Command {
     }
 
     public verifyAppendix = (dbUser: User, status: UpdateStatus, isAdmin: boolean) =>
-        (dbUser.requiredVerification > dbUser.verificationLevel)
+        dbUser.isInVerification
             ? `*В целях безопасности требуется подтверждение аккаунта Uplay.`
                 + ' '
                 + (status === UpdateStatus.DM_CLOSED

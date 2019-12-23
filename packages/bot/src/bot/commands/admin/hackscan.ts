@@ -1,5 +1,5 @@
 import { User } from '@r6ru/db';
-import { ONLINE_TRACKER, REGIONS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { REGIONS } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 // import { RankInfo, SeasonNumber } from 'r6api.js';
@@ -59,7 +59,7 @@ export default class HackScan extends Command {
         });
         // admin mode
         const bans = await message.guild.fetchBans();
-        const idTagTrackerBadge = async (dbUsrs: User[]) => (await Promise.all(dbUsrs.map(async u => `<@${u.id}> \`${(await this.client.users.fetch(u.id)).tag}\` <${ONLINE_TRACKER}${u.genome}>${u.requiredVerification > u.verificationLevel ? ' *требуется верификация*' : ''}${u.verificationLevel >= VERIFICATION_LEVEL.QR ? ' ' + ENV.VERIFIED_BADGE : ''}${bans.has(u.id) ? `${ENV.BAN_BADGE} \`${bans.get(u.id).reason}\`` : ''}`))).join('\n');
+        const badges = async (users: User[]) => (await Promise.all(users.map(u => u.infoBadge(this.client, true, bans)))).join('\n');
         const genomeChunks = [...new Set<string>([].concat(...dbUsers.rows.map(u => u.genomeHistory)))].reduce((all, one, i) => {
             const ch = Math.floor(i / 200);
             all[ch] = [].concat((all[ch] || []), one);
@@ -71,7 +71,7 @@ export default class HackScan extends Command {
         const result = []; // answs.filter(Security.analyzeRankStats).map(a => a.id);
         const suspiciousUsers = dbUsers.rows.filter(u => u.genomeHistory.some(g => result.includes(g)));
         const parts = (`<@${message.author.id}>, найдено ${result.length} подозрительных аккаунтов Uplay с удаленной статистикой\n`
-        + `Они привязаны или были привязаны у ${suspiciousUsers.length} пользователей\n` + await idTagTrackerBadge(suspiciousUsers)).split('\n').reduce(this.paragraphSplit('\n'), []);
+        + `Они привязаны или были привязаны у ${suspiciousUsers.length} пользователей\n` + await badges(suspiciousUsers)).split('\n').reduce(this.paragraphSplit('\n'), []);
         console.log(parts);
         for (const part of parts) {
             await message.channel.send(part);

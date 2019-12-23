@@ -80,5 +80,5 @@ export default class Stats extends Command {
         `**Зарегистрировано**: \`${arr.length}\`\n`
         + `**Активно**: \`${arr.filter(u => !u.inactive).length}\`\n`
         + `**Верифицированных участников**: \`${arr.filter(u => u.verificationLevel >= VERIFICATION_LEVEL.QR).length}\`\n`
-        + `**Требуется верификация**: \`${arr.filter(u => u.requiredVerification > u.verificationLevel).length}\`\n`
+        + `**Требуется верификация**: \`${arr.filter(u => u.isInVerification).length}\`\n`
 }
