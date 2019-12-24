@@ -38,10 +38,22 @@ export enum PLATFORM {
     XBOX = 'XBOX',
 }
 
+export enum HF_PLATFORM {
+    PC = 'PC',
+    PS4 = 'PSN',
+    XBOX = 'Xbox LIVE',
+}
+
 export enum REGIONS {
     A_EMEA = 'emea',
     B_APAC = 'apac',
     C_NCSA = 'ncsa',
+}
+
+export enum HF_REGIONS {
+    emea = 'Europe (emea)',
+    apac = 'Asia (apac)',
+    ncsa = 'North America (ncsa)',
 }
 
 export enum MATCH_TYPE {

@@ -1,5 +1,5 @@
 import { Guild, User } from '@r6ru/db';
-import { ONLINE_TRACKER, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
+import { VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
@@ -75,7 +75,7 @@ export default class Verify extends Command {
         dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
         await dbUser.save();
         await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
-        debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+        debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${dbUser.id}> ${dbUser}`);
         try {
             const member = await message.guild.members.fetch(dbUser.id);
             await member.voice?.setChannel(null);
@@ -93,7 +93,7 @@ export default class Verify extends Command {
                         dbUser.verificationLevel = VERIFICATION_LEVEL.QR;
                         dbUser.inactive = false;
                         await dbUser.save();
-                        debug.log(`<@${dbUser.id}> верифицировал аккаунт ${ONLINE_TRACKER}${dbUser.genome}`);
+                        debug.log(`<@${dbUser.id}> верифицировал аккаунт ${dbUser}`);
                         const msg = await message.reply(`Вы успешно подтвердили свой аккаунт ${bot.emojis.resolve(VERIFIED_BADGE)}! Возвращаем роли...`) as Message;
                         const guilds = await Guild.findAll({where: {premium: true}});
                         await Promise.all(guilds.map(g => Sync.updateMember(g, dbUser)));
@@ -122,7 +122,7 @@ export default class Verify extends Command {
                 dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
                 await dbUser.save();
                 await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
-                debug.log(`самостоятельно запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+                debug.log(`самостоятельно запрошена верификация аккаунта <@${dbUser.id}> ${dbUser}`);
                 await message.member?.voice?.setChannel(null);
                 return message.reply('инструкции отправлены вам в ЛС.');
             }

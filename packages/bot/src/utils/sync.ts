@@ -53,7 +53,7 @@ export default class Sync {
     await Promise.all(dbUsers.map(u => {
       if (res[u.genome]) {
         // if (Security.analyzeRankStats(res.get(u.genome))) {
-        //   debug.error(`<@${u.id}> имеет подозрительный аккаунт Uplay с удаленной статистикой ${ONLINE_TRACKER}${u.genome}`);
+        //   debug.error(`<@${u.id}> имеет подозрительный аккаунт Uplay с удаленной статистикой ${u}`);
         // }
         u.rank = u.region ? res[u.genome][u.region].rank : Math.max(res[u.genome].apac.rank, res[u.genome].ncsa.rank, res[u.genome].emea.rank);
       }
@@ -80,7 +80,7 @@ export default class Sync {
         + `2) Установить QR-код на аватар своего аккаунта в **Uplay**.\n`
         + `3) Ввести команду \`$verify\` в ответ на __**это**__ сообщение.\n`
         + `\n`
-        + `Ваш привязанный аккаунт - ${ONLINE_TRACKER}${dbUser.genome}\n`
+        + `Ваш привязанный аккаунт - ${dbUser}\n`
         + `Сменить аватар можно по ссылке - <https://account.ubisoft.com/ru-RU/account-information?modal=change-avatar>\n`
         + `или открыв Ubisoft Club из Uplay - <https://i.imgur.com/zZuF7pA.png>\n`
         + `\n`

@@ -1,5 +1,4 @@
 import { Guild, User } from '@r6ru/db';
-import { ONLINE_TRACKER } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message, TextChannel, User as U } from 'discord.js';
 import { debug } from '../../..';
@@ -29,7 +28,7 @@ export default class Delete extends Command {
         if (!dbUser) {
             return message.reply('пользователь не найден');
         }
-        debug.log(`аккаунт удален <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+        debug.log(`аккаунт удален <@${dbUser.id}> ${dbUser}`);
         await dbUser.destroy();
         const { guild } = message;
         const { platformRoles, rankRoles} = await Guild.findByPk(guild.id);

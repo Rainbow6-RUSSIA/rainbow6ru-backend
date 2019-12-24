@@ -1,4 +1,4 @@
-import { ACCESS, BAN_BADGE, ONLINE_TRACKER, RANKS, REGIONS, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
+import { ACCESS, BAN_BADGE, HF_REGIONS, ONLINE_TRACKER, RANKS, REGIONS, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
 import { AllowNull, BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Model, NotNull, PrimaryKey, Table } from 'sequelize-typescript';
 
 import { AkairoClient } from 'discord-akairo';
@@ -128,13 +128,18 @@ export default class User extends Model<User> {
         return this.requiredVerification > this.verificationLevel;
     }
 
+    public toString() {
+        return ONLINE_TRACKER + this.genome;
+    }
+
     public infoBadge = async (client?: AkairoClient, adminAction?: boolean, bans?: ThenArg<ReturnType<G['fetchBans']>>) => {
-        return `<@${this.id}>`
-            + (client ? `\`${(await client.users.fetch(this.id)).tag}\`` : '')
-            + ONLINE_TRACKER + this.genome
-            + (this.isInVerification ? ' *требуется верификация*' : '')
-            + (client && this.verificationLevel >= VERIFICATION_LEVEL.QR ? ` ${client.emojis.resolve(VERIFIED_BADGE)}` : '')
-            + (client && adminAction && bans?.has(this.id) ? ` ${client.emojis.resolve(BAN_BADGE)} \`${bans.get(this.id).reason}\`` : '')
+        return `<@${this.id}> `
+            + (client ? `\`${(await client.users.fetch(this.id)).tag}\`` : '') + ' '
+            + this.toString() + ' '
+            + `\`${HF_REGIONS[this.region]}\` `
+            + (this.isInVerification ? '*требуется верификация*' : '') + ' '
+            + (client && this.verificationLevel >= VERIFICATION_LEVEL.QR ? client.emojis.resolve(VERIFIED_BADGE).toString() : '') + ' '
+            + (client && adminAction && bans?.has(this.id) ? `${client.emojis.resolve(BAN_BADGE)} \`${bans.get(this.id).reason}\`` : '')
             + (adminAction && this.genomeHistory.length > 1
                 ? '\nРанее привязанные аккаунты:\n◦ ' + this.genomeHistory
                     .filter(g => g !== this.genome)

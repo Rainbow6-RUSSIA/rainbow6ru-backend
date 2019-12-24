@@ -45,7 +45,7 @@ export default class Security {
                 }
             }
             if (dbGuild.genomeBlacklist?.includes(dbUser.genome)) {
-                debug.error(`Аккаунт Uplay ${ONLINE_TRACKER}${dbUser.genome} пользователя <@${dbUser.id}> в черном списке старого бота`);
+                debug.error(`Аккаунт Uplay ${dbUser} пользователя <@${dbUser.id}> в черном списке старого бота`);
             }
         }
         return twinks;
@@ -78,10 +78,10 @@ export default class Security {
         }
     }
 
-    public static logString = (twink: User, bans: BanInfo) => `<@${twink.id}> [${ONLINE_TRACKER}...](${ONLINE_TRACKER}${twink.genome})${twink.verificationLevel >= VERIFICATION_LEVEL.QR ? ` ${bot.emojis.resolve(VERIFIED_BADGE)}` : ''}${bans.has(twink.id) ? ` ${ENV.BAN_BADGE} - \`${bans.get(twink.id).reason}\`` : ''}`;
+    public static logString = (twink: User, bans: BanInfo) => `<@${twink.id}> [${ONLINE_TRACKER}...](${twink})${twink.verificationLevel >= VERIFICATION_LEVEL.QR ? ` ${bot.emojis.resolve(VERIFIED_BADGE)}` : ''}${bans.has(twink.id) ? ` ${ENV.BAN_BADGE} - \`${bans.get(twink.id).reason}\`` : ''}`;
 
     public static async changeGenome(dbUser: User, dbGuild: Guild, genome: UUID) {
-        debug.warn(`<@${dbUser.id}> сменил аккаунт с ${ONLINE_TRACKER}${dbUser.genome} на ${ONLINE_TRACKER}${genome}. Запрошена верификация`);
+        debug.warn(`<@${dbUser.id}> сменил аккаунт с ${dbUser} на ${ONLINE_TRACKER}${genome}. Запрошена верификация`);
         dbUser.genome = genome;
         dbUser.verificationLevel = VERIFICATION_LEVEL.NONE;
         dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
@@ -95,12 +95,12 @@ export default class Security {
         if (dupes.length > 1) {
             dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
             await dbUser.save();
-            await debug.error(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}. Обнаружена повторная регистрация или передача аккаунта.`);
+            await debug.error(`<@${dbUser.id}> зарегистрировался как ${dbUser}. Обнаружена повторная регистрация или передача аккаунта.`);
         } else {
-            await debug.log(`<@${dbUser.id}> зарегистрировался как ${ONLINE_TRACKER}${dbUser.genome}.`);
+            await debug.log(`<@${dbUser.id}> зарегистрировался как ${dbUser}.`);
         }
         if (dbUser.requiredVerification >= VERIFICATION_LEVEL.QR) {
-            await debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${ONLINE_TRACKER}${dbUser.genome}`);
+            await debug.log(`автоматически запрошена верификация аккаунта <@${dbUser.id}> ${dbUser}`);
         }
     }
 

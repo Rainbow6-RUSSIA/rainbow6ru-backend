@@ -6,7 +6,7 @@ import { $enum } from 'ts-enum-util';
 import { Guild, User } from '@r6ru/db';
 import r6 from '../../../r6api';
 
-import { IUbiBound, PLATFORM, RANKS, REGIONS, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
+import { HF_PLATFORM, HF_REGIONS, IUbiBound, PLATFORM, RANKS, REGIONS, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt, emojiNumbers } from '@r6ru/utils';
 import { debug } from '../../..';
 import embeds from '../../../utils/embeds';
@@ -122,8 +122,9 @@ export default class Rank extends Command {
         let mainPlatform: PLATFORM = null;
 
         if (bound.length > 1) {
+            this.typing = false;
             const res = await combinedPrompt(
-                await message.reply('поиск обнаружил несколько аккаунтов на разных платформах, выберите основную:\n' + bound.map((b, i) => `${i + 1}. \`${b.platform}\``).join('\n')),
+                await message.reply('поиск обнаружил несколько аккаунтов на разных платформах, выберите основную:\n' + bound.map((b, i) => `${i + 1}. \`${HF_PLATFORM[b.platform]}\``).join('\n')),
                 {
                     author: message.author,
                     emojis: emojiNumbers(bound.length),
@@ -132,6 +133,7 @@ export default class Rank extends Command {
             );
             if (res === -1) { return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.'); }
             mainPlatform = bound[res].platform;
+            this.typing = true;
         } else {
             mainPlatform = bound[0].platform;
         }
@@ -142,6 +144,7 @@ export default class Rank extends Command {
         if (!stats?.general) {
             return message.reply(`указанный аккаунт на платформе \`${mainPlatform}\` не запускал Rainbow Six Siege`);
         } else {
+            this.typing = false;
             const res = await combinedPrompt(
                 await message.reply(`это верный профиль?`, embeds.rank(activeBound, stats.general)),
                 {
@@ -154,6 +157,7 @@ export default class Rank extends Command {
                 case 1: return message.reply('вы отклонили регистрацию. Попробуйте снова, указав нужный аккаунт.');
                 case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
             }
+            this.typing = true;
         }
 
         const rawRank = (await r6.api.getRank(mainPlatform, activeBound.genome))[activeBound.genome];
@@ -163,8 +167,9 @@ export default class Rank extends Command {
         let mainRegion: REGIONS = null;
 
         if (regionRank.filter(Boolean).length !== 1) {
+            this.typing = false;
             const res = await combinedPrompt(
-                await message.reply(`выберите регион для сбора статистики:\n${regions.map((r, i) => `${i + 1}. \`${r}\` - \`${RANKS[rawRank[r].rank]}\``).join('\n')}`),
+                await message.reply(`выберите регион для сбора статистики:\n${regions.map((r, i) => `${i + 1}. \`${HF_REGIONS[r]}\` - \`${RANKS[rawRank[r].rank]}\``).join('\n')}`),
                 {
                     author: message.author,
                     emojis: emojiNumbers(regions.length),
@@ -172,6 +177,7 @@ export default class Rank extends Command {
                 }
             );
             mainRegion = res === -1 ? REGIONS.A_EMEA : regions[res];
+            this.typing = true;
         } else {
             mainRegion = regions[regionRank.indexOf(regionRank.filter(Boolean)[0])];
         }
