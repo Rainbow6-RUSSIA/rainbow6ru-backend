@@ -18,8 +18,9 @@ import ubiGenomeFromNickname, { IUbiBoundType } from '../../types/ubiGenomeFromN
 interface IRankArgs {
     target?: GuildMember;
     bound?: IUbiBound[];
-    isAdmin: boolean;
+    isAdmin?: boolean;
     dbUser?: User;
+    error?: Error;
 }
 
 export default class Rank extends Command {
@@ -29,9 +30,10 @@ export default class Rank extends Command {
             channel: 'guild',
             ratelimit: 100,
         });
+        this.typing = true;
     }
 
-    public async *args(message: Message): AsyncIterableIterator<ArgumentOptions | Flag> {
+    public async *args(message: Message): AsyncGenerator<ArgumentOptions | Flag, IRankArgs, any> {
         const { member } = message;
         let isAdmin = member.hasPermission('MANAGE_ROLES') || [...this.client.ownerID].includes(member.id);
         const target: GuildMember = isAdmin
@@ -51,11 +53,11 @@ export default class Rank extends Command {
             prompt: {
                 ended: `${member}, cлишком много попыток. Проверьте правильность и начните регистрацию сначала.`,
                 retries: 2,
-                retry: `${member}, некорректный ник! Проверьте правильность и попробуйте еще раз.`,
+                retry: `${member}, неверный ник! Проверьте правильность и попробуйте еще раз.`,
                 start: `${member}, введите корректный ник в Rainbow Six Siege!`,
-                time: 60000,
+                time: 120000,
                 timeout: `${member}, время вышло. Начните регистрацию сначала.`,
-            }
+            },
         };
 
         if (bound instanceof Error) {
@@ -70,9 +72,10 @@ export default class Rank extends Command {
         if (args === null) { return; }
 
         const { channel } = message;
-        const { bound, target, dbUser, isAdmin } = args;
+        const { dbUser, isAdmin, error } = args;
 
         try {
+            if (error) { throw error; }
 
             if (dbUser) {
                 await this.execRegistered(message, args);
