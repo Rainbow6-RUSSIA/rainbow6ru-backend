@@ -5,8 +5,8 @@ import { Message } from 'discord.js';
 // import { RankInfo, SeasonNumber } from 'r6api.js';
 import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
-import r6 from '../../../r6api';
 import ENV from '../../../utils/env';
+import r6 from '../../../utils/r6api';
 import Security from '../../../utils/security';
 
 const { Op } = Sequelize;

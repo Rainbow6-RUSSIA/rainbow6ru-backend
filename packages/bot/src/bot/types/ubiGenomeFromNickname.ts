@@ -2,7 +2,7 @@ import { IUbiBound, PLATFORM, RANKS, REGIONS } from '@r6ru/types';
 import { Flag } from 'discord-akairo';
 import { Message } from 'discord.js';
 import { $enum } from 'ts-enum-util';
-import r6api from '../../r6api';
+import r6api from '../../utils/r6api';
 
 async function fetchProfiles(platforms: PLATFORM[], phrase: string) {
     const rawProfiles = await Promise.all(platforms.map(p => r6api.api.findByName(p, phrase)));

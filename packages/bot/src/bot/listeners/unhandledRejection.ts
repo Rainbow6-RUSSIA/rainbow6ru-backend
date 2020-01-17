@@ -1,6 +1,6 @@
 import { Listener } from 'discord-akairo';
 import { debug } from '../..';
-import { refresh } from '../../r6api';
+import { refresh } from '../../utils/r6api';
 
 export default class UnhandledRejection extends Listener {
     public constructor() {

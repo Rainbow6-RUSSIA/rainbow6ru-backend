@@ -6,7 +6,7 @@ import { PLATFORM, UUID } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
-import r6 from '../../../r6api';
+import r6 from '../../../utils/r6api';
 import ubiGenome from '../../types/ubiGenome';
 import ubiNickname from '../../types/ubiNickname';
 

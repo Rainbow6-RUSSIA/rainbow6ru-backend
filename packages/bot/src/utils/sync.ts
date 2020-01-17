@@ -4,9 +4,9 @@ import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { debug } from '..';
 import bot from '../bot';
-import r6 from '../r6api';
 import ENV from './env';
 import { generate } from './qr';
+import r6 from './r6api';
 import Security from './security';
 
 export default class Sync {

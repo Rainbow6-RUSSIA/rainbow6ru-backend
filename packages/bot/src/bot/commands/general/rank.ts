@@ -4,7 +4,7 @@ import * as humanizeDuration from 'humanize-duration';
 import { $enum } from 'ts-enum-util';
 
 import { Guild, User } from '@r6ru/db';
-import r6 from '../../../r6api';
+import r6 from '../../../utils/r6api';
 
 import { HF_PLATFORM, HF_REGIONS, IUbiBound, PLATFORM, RANKS, REGIONS, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt, emojiNumbers } from '@r6ru/utils';

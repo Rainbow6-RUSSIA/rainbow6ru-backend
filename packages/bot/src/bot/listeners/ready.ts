@@ -4,8 +4,8 @@ import { Listener } from 'discord-akairo';
 import { TextChannel } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { debug } from '../..';
-import r6, { refresh } from '../../r6api';
 import ENV from '../../utils/env';
+import r6, { refresh } from '../../utils/r6api';
 import Sync from '../../utils/sync';
 
 export default class Ready extends Listener {
