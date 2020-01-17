@@ -77,8 +77,8 @@ export default {
             : `Ранг: ${lobby.minRank === lobby.maxRank
               ? (lobby.maxRank === 0
                 ? '`любой`'
-                : `от \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[0]]}\`${bot.emojis.resolve(RANK_BADGES[lobby.minRank])} до \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[1]]}\`${bot.emojis.resolve(RANK_BADGES[lobby.maxRank])}`)
-              : `от \`${RANKS[lobby.minRank]}\` до \`${RANKS[lobby.maxRank]}\``}\n`)
+                : `от \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[0]]}\`${bot.emojis.resolve(RANK_BADGES[extractBorders([lobby.minRank, lobby.maxRank])[0]])} до \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[1]]}\`${bot.emojis.resolve(RANK_BADGES[extractBorders([lobby.minRank, lobby.maxRank])[1]])}`)
+              : `от \`${RANKS[lobby.minRank]}\`${bot.emojis.resolve(RANK_BADGES[lobby.minRank])} до \`${RANKS[lobby.maxRank]}\`${bot.emojis.resolve(RANK_BADGES[lobby.maxRank])}`}\n`)
           + ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status) ? 'Новичок: не выше `50` уровня доступа\n' : '')
           + (lobby.description ? `Описание: ${lobby.description}\n` : '')
           // + `Присоединиться: ${lobby.dcInvite.url} 👈\n`
