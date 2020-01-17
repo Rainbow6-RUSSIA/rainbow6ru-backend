@@ -26,11 +26,17 @@ export default {
     .setThumbnail(`${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcMembers.size}=1`)
     .setTimestamp();
 
-    if (lobby.hardplay) { embed.addField(`Режим "HardPlay\\${EmojiButtons.HARDPLAY}"`, `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\``); }
+    if (lobby.hardplay) {
+      embed.addField(`Режим "HardPlay\\${EmojiButtons.HARDPLAY}"`, `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\``);
+    }
 
-    if (lobby.close) { embed.addField('Закрытое лобби', 'Лимит пользователей восстановится при выходе кого-либо из лобби.'); }
+    if (lobby.close) {
+      embed.addField('Закрытое лобби', 'Лимит пользователей восстановится при выходе кого-либо из лобби.');
+    }
 
-    if ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status)) { embed.addField('Режим "Новичок"', 'Опытным игрокам лучше найти другую комнату, чтобы избежать конфликтов и поражений.'); }
+    if ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status)) {
+      embed.addField('Режим "Новичок"', 'Опытным игрокам лучше найти другую комнату, чтобы избежать конфликтов и поражений.');
+    }
 
     if (lobby.joinAllowed) {
       embed.addField('Присоединиться:', `${lobby.dcInvite.url} 👈`);
@@ -58,26 +64,27 @@ export default {
             : 0)}\`\n`
       + `Присоединиться к новой комнате: ${await (LS.rooms.filter(r => !r.dcMembers.size).last() || LS.rooms.last()).initInvite()} 👈`
     );
-    embed.fields = LS.rooms
+    LS.rooms
       .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
       .sort((a, b) => a.dcChannel.position - b.dcChannel.position)
       .array()
       .slice(0, 24)
-      .map(lobby => ({
-        inline: true,
-        name: modeSelector(lobby).replace(EMOJI_REGEXP, v => '\\' + v), // emoji wrap
-        value: (lobby.hardplay
+      .map(lobby =>
+        embed.addField(
+          modeSelector(lobby).replace(EMOJI_REGEXP, v => '\\' + v),
+          (lobby.hardplay
             ? `HardPlay\\${EmojiButtons.HARDPLAY}: только \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\` и выше\n`
             : `Ранг: ${lobby.minRank === lobby.maxRank
               ? (lobby.maxRank === 0
                 ? '`любой`'
-                : `от \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[0]]}\` до \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[1]]}\``)
+                : `от \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[0]]}\`${bot.emojis.resolve(RANK_BADGES[lobby.minRank])} до \`${RANKS[extractBorders([lobby.minRank, lobby.maxRank])[1]]}\`${bot.emojis.resolve(RANK_BADGES[lobby.maxRank])}`)
               : `от \`${RANKS[lobby.minRank]}\` до \`${RANKS[lobby.maxRank]}\``}\n`)
           + ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status) ? 'Новичок: не выше `50` уровня доступа\n' : '')
           + (lobby.description ? `Описание: ${lobby.description}\n` : '')
           // + `Присоединиться: ${lobby.dcInvite.url} 👈\n`
-          + `[подробнее...](${lobby.appealMessage.url})`,
-      }));
+          + `[подробнее...](${lobby.appealMessage.url})`
+        )
+      );
     return { embed };
   },
 
