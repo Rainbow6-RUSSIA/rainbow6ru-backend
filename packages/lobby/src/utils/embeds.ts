@@ -82,7 +82,8 @@ export default {
           + ([IS.NEWCOMER, IS.NEWCOMER_SEARCH].includes(lobby.status) ? 'Новичок: не выше `50` уровня доступа\n' : '')
           + (lobby.description ? `Описание: ${lobby.description}\n` : '')
           // + `Присоединиться: ${lobby.dcInvite.url} 👈\n`
-          + `[подробнее...](${lobby.appealMessage.url})`
+          + `[подробнее...](${lobby.appealMessage.url})\n`
+          + `ㅤ`
         )
       );
     return { embed };
