@@ -1,10 +1,9 @@
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
 
-import { User as U } from '@r6ru/db';
+import { Op, User as U } from '@r6ru/db';
 import { PLATFORM, UUID } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
-import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import r6 from '../../../utils/r6api';
 import ubiGenome from '../../types/ubiGenome';
@@ -16,8 +15,6 @@ interface IInfoArgs {
     nickname: string;
     id: { match: RegExpMatchArray };
 }
-
-const { Op } = Sequelize;
 
 export default class Info extends Command {
     public constructor() {

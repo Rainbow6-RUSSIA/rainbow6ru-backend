@@ -1,11 +1,8 @@
-import { Guild, User } from '@r6ru/db';
+import { Guild, Op, User } from '@r6ru/db';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { Sequelize } from 'sequelize-typescript';
 import Sync from '../../../utils/sync';
-
-const { Op } = Sequelize;
 
 export default class NewSeason extends Command {
     constructor() {

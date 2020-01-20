@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 
 import Guild from './models/Guild';
@@ -14,10 +15,10 @@ import User from './models/User';
 import Vote from './models/Vote';
 
 export default async (url: string, logging = false) => {
-    const DB = new Sequelize({ url, logging });
+    const DB = new Sequelize(url, { logging });
     await DB.authenticate();
     DB.addModels([Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, TeamMatch, Tournament, TournamentMod, User, Vote]);
     await DB.sync({ force: process.env.DROP_DB === 'true', alter: process.env.ALTER_DB === 'true' });
 };
 
-export { Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, TeamMatch, Tournament, TournamentMod, User, Vote };
+export { Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, TeamMatch, Tournament, TournamentMod, User, Vote, Op };

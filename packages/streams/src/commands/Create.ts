@@ -1,8 +1,7 @@
-import { Guild, MapR6, Match, Team, Tournament, User } from '@r6ru/db';
+import { Guild, MapR6, Match, Op, Team, Tournament, User } from '@r6ru/db';
 import { MATCH_TYPE } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { Sequelize } from 'sequelize-typescript';
 import { pool } from '../bot';
 
 interface IArgs {
@@ -13,8 +12,6 @@ interface IArgs {
 }
 
 let teamPool: Team[] = [];
-
-const { Op } = Sequelize;
 
 function getTeams() {
     (async () => {
@@ -90,7 +87,7 @@ export default class Create extends Command {
         await match.$set('teams', dbTeams);
         await match.$set('tournament', dbTournament);
         await match.reload({include: [{all: true}]});
-        match.poolCache = dbTournament.pool.map(p => p.toJSON());
+        match.poolCache = dbTournament.pool.map(p => p.toJSON() as MapR6);
         await match.save();
         return message.reply(`матч создан!\nОверлей банов https://cdn.rainbow6russia.ru/streams/#/map_vote/${match.id}${''/* \nХуд https://cdn.rainbow6russia.ru/streams/header#${match.id} */}`);
         // message.reply('```js\n' + JSON.stringify(match, null, 2) + '```', {split: {prepend: '```js\n', append: '```'}});

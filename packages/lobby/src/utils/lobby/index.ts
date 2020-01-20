@@ -1,8 +1,7 @@
-import { Guild, Lobby, User } from '@r6ru/db';
+import { Guild, Lobby, Op, User } from '@r6ru/db';
 import { ILobbySettings, LobbyStoreStatus as LSS} from '@r6ru/types';
 import { CategoryChannel, Collection, GuildMember, Message, MessageOptions, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
-import { Sequelize } from 'sequelize-typescript';
 import { debug } from '../..';
 import bot from '../../bot';
 import ChannelCreate from '../../bot/listeners/channel/create';
@@ -12,7 +11,6 @@ import embeds from '../embeds';
 import ENV from '../env';
 import { LSRoom } from './room';
 
-const { Op } = Sequelize;
 const initiatedAt = new Date();
 
 export class LobbyStore {

@@ -1,10 +1,7 @@
-import { MapR6, Match, Team, Tournament, User, Vote } from '@r6ru/db';
+import { MapR6, Match, Op, Team, Tournament, User, Vote } from '@r6ru/db';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { Sequelize } from 'sequelize-typescript';
-
-const { Op } = Sequelize;
 
 export default class Info extends Command {
     constructor() {
@@ -36,7 +33,7 @@ export default class Info extends Command {
             return message.reply('не создано ни одного матча!');
         }
         dbTournament.matches.sort((a, b) => a.id - b.id);
-        console.log(dbTournament.matches.map(m => m.dataValues));
+        console.log(dbTournament.matches.map(m => m.toJSON()));
         let match: Match;
         if (matches.length > 1) {
             const pick = await combinedPrompt(
@@ -54,6 +51,6 @@ export default class Info extends Command {
             match = matches[0];
         }
         await match.reload({ include: [{all: true}] });
-        return message.reply('```js\n' + JSON.stringify(match.dataValues.teams, null, 2) + '```', {split: {prepend: '```js\n', append: '```'}});
+        return message.reply('```js\n' + JSON.stringify(match.getDataValue('teams'), null, 2) + '```', {split: {prepend: '```js\n', append: '```'}});
     }
 }

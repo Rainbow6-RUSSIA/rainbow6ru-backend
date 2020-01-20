@@ -1,15 +1,12 @@
-import { Guild, User } from '@r6ru/db';
+import { Guild, Op, User } from '@r6ru/db';
 import { ONLINE_TRACKER, UUID, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
 import { Collection, User as U } from 'discord.js';
 // import { RankInfo } from 'r6api.js';
-import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import { debug } from '../';
 import bot from '../bot';
 import ENV from './env';
 import Sync from './sync';
-
-const { Op } = Sequelize;
 
 type BanInfo = Collection<string, { user: U, reason: string }>;
 

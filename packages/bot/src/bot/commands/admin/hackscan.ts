@@ -1,15 +1,12 @@
-import { User } from '@r6ru/db';
+import { Op, User } from '@r6ru/db';
 import { REGIONS } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 // import { RankInfo, SeasonNumber } from 'r6api.js';
-import { Sequelize } from 'sequelize-typescript';
 import { $enum } from 'ts-enum-util';
 import ENV from '../../../utils/env';
 import r6 from '../../../utils/r6api';
 import Security from '../../../utils/security';
-
-const { Op } = Sequelize;
 
 interface IArgs {
     // season: SeasonNumber;

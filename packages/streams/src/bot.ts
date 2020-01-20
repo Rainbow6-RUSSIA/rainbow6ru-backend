@@ -1,9 +1,6 @@
-import { MapR6 } from '@r6ru/db';
+import { MapR6, Op } from '@r6ru/db';
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler} from 'discord-akairo';
-import { Sequelize } from 'sequelize-typescript';
 import ENV from './utils/env';
-
-const { Op } = Sequelize;
 
 class Bot extends AkairoClient {
     private commandHandler: CommandHandler;

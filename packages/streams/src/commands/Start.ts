@@ -1,11 +1,8 @@
-import { MapR6, Match, Team, Tournament, User, Vote } from '@r6ru/db';
+import { MapR6, Match, Op, Team, Tournament, User, Vote } from '@r6ru/db';
 import { combinedPrompt, emojiNumbers } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { Sequelize } from 'sequelize-typescript';
 import { io } from '../server';
-
-const { Op } = Sequelize;
 
 export default class Start extends Command {
     public constructor() {
@@ -56,7 +53,7 @@ export default class Start extends Command {
             match = matches[0];
         }
 
-        match.poolCache = dbTournament.pool.map(p => p.toJSON());
+        match.poolCache = dbTournament.pool.map(p => p.toJSON() as MapR6);
         await match.save();
         await match.$set('votes', []);
         await match.reload({include: [

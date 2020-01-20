@@ -1,7 +1,6 @@
-import { Team, User } from '@r6ru/db';
+import { Op, Team, User } from '@r6ru/db';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
-import { Op } from 'sequelize';
 
 interface IArgs {
     name: string;
