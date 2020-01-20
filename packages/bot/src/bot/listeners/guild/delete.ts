@@ -12,6 +12,6 @@ export default class Delete extends Listener {
     }
 
     public exec = async (guild: Guild) => {
-        console.log('​Delete -> publicexec -> guild', guild);
+        debug.warn(`​Delete -> publicexec -> guild ${guild.id} ${guild.name}`);
     }
 }

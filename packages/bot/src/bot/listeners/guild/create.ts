@@ -14,7 +14,7 @@ export default class Create extends Listener {
     }
 
     public exec = async (guild: Guild) => {
-        console.log('​Create -> publicexec -> guild', guild);
+        debug.warn(`​Create -> publicexec -> guild ${guild.id} ${guild.name}`);
         await new G({
             donateRoles: {
                 default: [guild.roles.highest.id, 0, 'Default', []],
