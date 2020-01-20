@@ -1,4 +1,4 @@
-import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, HasOne, IBuildOptions, Model, Table } from 'sequelize-typescript';
+import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
 
 import Guild from './Guild';
 import User from './User';
@@ -6,7 +6,11 @@ import User from './User';
 import { IngameStatus as IS } from '@r6ru/types';
 import { CategoryChannel, Guild as G, GuildMember, Invite, Message, Snowflake, VoiceChannel } from 'discord.js';
 
-@Table({schema: 'siegebot', timestamps: true})
+@Table({
+    schema: 'siegebot',
+    timestamps: true,
+    tableName: 'Lobby'
+})
 export default class Lobby extends Model<Lobby> {
     @BeforeCreate
     public static initLog(instance: Lobby) {

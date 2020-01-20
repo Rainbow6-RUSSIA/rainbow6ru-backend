@@ -12,7 +12,11 @@ import Team from './Team';
 import Tournament from './Tournament';
 import TournamentMod from './TournamentMod';
 
-@Table({schema: 'siegebot', timestamps: true})
+@Table({
+    schema: 'siegebot',
+    timestamps: true,
+    tableName: 'User'
+})
 export default class User extends Model<User> {
     @BeforeCreate
     public static initHistory(instance: User) {

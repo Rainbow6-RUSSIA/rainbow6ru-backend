@@ -9,7 +9,11 @@ import { DonateRecord, ILobbySettings, RANKS, VERIFICATION_LEVEL } from '@r6ru/t
 import { Snowflake } from 'discord.js';
 import Tournament from './Tournament';
 
-@Table({schema: 'siegebot'})
+@Table({
+    schema: 'siegebot',
+    tableName: 'Guild',
+    timestamps: false
+})
 export default class Guild extends Model<Guild> {
     @PrimaryKey
     @Column(DataType.STRING)

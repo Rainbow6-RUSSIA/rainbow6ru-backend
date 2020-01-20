@@ -3,7 +3,7 @@ import Pool from './Pool';
 import Tournament from './Tournament';
 import Vote from './Vote';
 
-@Table({schema: 'streambot'})
+@Table({schema: 'streambot', tableName: 'MapR6'})
 export default class MapR6 extends Model<MapR6> {
     @PrimaryKey
     @Column(DataType.STRING)

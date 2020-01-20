@@ -4,7 +4,7 @@ import TeamMatch from './TeamMatch';
 import User from './User';
 import Vote from './Vote';
 
-@Table({schema: 'streambot'})
+@Table({schema: 'streambot', tableName: 'Team'})
 export default class Team extends Model<Team> {
     @Column
     public name: string;

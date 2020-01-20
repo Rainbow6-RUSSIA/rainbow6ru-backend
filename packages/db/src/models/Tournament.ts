@@ -8,7 +8,7 @@ import Pool from './Pool';
 import TournamentMod from './TournamentMod';
 import User from './User';
 
-@Table({schema: 'streambot'})
+@Table({schema: 'streambot', tableName: 'Tournament'})
 export default class Tournament extends Model<Tournament> {
     @Column
     public name: string;

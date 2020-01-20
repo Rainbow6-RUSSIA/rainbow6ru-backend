@@ -3,7 +3,11 @@ import MapR6 from './MapR6';
 import Match from './Match';
 import Team from './Team';
 
-@Table({schema: 'streambot', timestamps: true})
+@Table({
+    schema: 'streambot',
+    timestamps: true,
+    tableName: 'Vote'
+})
 export default class Vote extends Model<Vote> {
     @ForeignKey(() => Match)
     public matchId: number;

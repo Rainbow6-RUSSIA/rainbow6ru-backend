@@ -6,7 +6,7 @@ import TeamMatch from './TeamMatch';
 import Tournament from './Tournament';
 import Vote from './Vote';
 
-@Table({schema: 'streambot'})
+@Table({schema: 'streambot', tableName: 'Match'})
 export default class Match extends Model<Match> {
 
     @Column(DataType.STRING(5))
