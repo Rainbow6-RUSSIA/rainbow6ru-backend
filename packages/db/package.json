@@ -9,13 +9,13 @@
   "typings": "build/index.d.ts",
   "scripts": {
     "build": "tsc -p .",
-    "test": "yarn build && node ./build/test.js"
+    "test": "yarn build && node ./build/test.js",
+    "bootstrap": "lerna bootstrap"
   },
   "dependencies": {
     "@r6ru/types": "0.0.0",
     "discord-akairo": "8.0.0-beta.8",
     "discord.js": "https://github.com/discordjs/discord.js#60f89bd",
-    "dotenv": "^8.1.0",
     "pg": "^7.10.0",
     "reflect-metadata": "^0.1.13",
     "restify": "^8.3.0",
@@ -24,10 +24,11 @@
   },
   "devDependencies": {
     "@types/node": "^12.0.2",
-    "@types/sequelize": "^4.27.48",
+    "@types/sequelize": "^4.28.8",
     "@types/socket.io": "^2.1.2",
     "cross-env": "^5.2.0",
     "tslint": "^5.16.0",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.2",
+    "dotenv": "8.2.0"
   }
 }

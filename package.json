@@ -12,7 +12,7 @@
   },
   "engines": {
     "node": "12.x.x",
-    "yarn": "1.19.x"
+    "yarn": "1.x.x"
   },
   "dependencies": {
     "lerna": "^3.13.1",
