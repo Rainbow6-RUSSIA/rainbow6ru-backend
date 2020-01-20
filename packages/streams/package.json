@@ -30,8 +30,6 @@
 		"reflect-metadata": "^0.1.13",
 		"restify": "^8.2.0",
 		"restify-errors": "^8.0.1",
-		"sequelize": "^5.8.2",
-		"sequelize-typescript": "^0.6.10",
 		"socket.io": "^2.1.1",
 		"socketio-jwt": "^4.5.0"
 	},

@@ -33,9 +33,7 @@
     "passport-oauth2": "^1.5.0",
     "pg": "^7.11.0",
     "restify": "^8.4.0",
-    "restify-errors": "^8.0.1",
-    "sequelize": "^5.8.2",
-    "sequelize-typescript": "^0.6.10"
+    "restify-errors": "^8.0.1"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.3.6",
