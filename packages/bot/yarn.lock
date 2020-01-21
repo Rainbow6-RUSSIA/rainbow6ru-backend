@@ -32,9 +32,9 @@
     extsprintf "^1.4.0"
     lodash "^4.17.15"
 
-"@r6s.media/r6.api@https://github.com/BadCoder1337/r6api#77a4916":
+"@r6s.media/r6.api@https://github.com/BadCoder1337/r6api#3a1b414":
   version "1.5.6"
-  resolved "https://github.com/BadCoder1337/r6api#77a491606d9805e04e766f786bd92028fd761609"
+  resolved "https://github.com/BadCoder1337/r6api#3a1b4146d4382c4a0fb718260a66ae503adeabcb"
   dependencies:
     bluebird "^3.5.3"
     lodash.merge "^4.6.0"
