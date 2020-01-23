@@ -139,7 +139,7 @@ export default class User extends Model<User> {
             + `\`${HF_REGIONS[this.region]}\` `
             + (this.isInVerification ? '*требуется верификация*' : '') + ' '
             + (client && this.verificationLevel >= VERIFICATION_LEVEL.QR ? client.emojis.resolve(VERIFIED_BADGE).toString() : '') + ' '
-            + (client && adminAction && bans?.has(this.id) ? `${client.emojis.resolve(BAN_BADGE)} \`${bans.get(this.id).reason}\`` : '')
+            + (client && adminAction && bans?.has(this.id) ? `${client.emojis.resolve(BAN_BADGE)} \`${decodeURIComponent(bans.get(this.id).reason)}\`` : '')
             + (adminAction && this.genomeHistory.length > 1
                 ? '\nРанее привязанные аккаунты:\n◦ ' + this.genomeHistory
                     .filter(g => g !== this.genome)
