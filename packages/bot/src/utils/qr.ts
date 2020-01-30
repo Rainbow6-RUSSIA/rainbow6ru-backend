@@ -24,7 +24,7 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
             logoCornerRadius: 8,
             margin: 5,
             size: 500,
-            text: `${id}${createHash('md5').update(`${genome}_${id}_${ENV.KEY256}`).digest('base64')}`,
+            text: `${id}.${createHash('md5').update(`${id}_${genome}_${ENV.KEY256}`).digest('base64')}`,
             typeNumber: 4,
             whiteMargin: true,
         });
@@ -32,28 +32,25 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
 }
 
 export async function verify(genome: UUID, id: string): Promise<boolean> {
-    const codes = await Promise.all([
-        tryURL(`https://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`),
-        tryURL(`http://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`),
-        tryURL(`https://ubisoft-avatars.akamaized.net/${genome}/default_146_146.png`),
-        tryURL(`http://ubisoft-avatars.akamaized.net/${genome}/default_146_146.png`)]);
-    const results = codes.map(c => {
-        if (c) {
-            const args = [c.slice(0, 18), c.slice(18)];
-            return createHash('md5').update(`${genome}_${args[0]}_${ENV.KEY256}`).digest('base64') === args[1] && args[0] === id;
-        } else {
-            return null;
-        }
-    });
+    const codes = await Promise.all(
+        ['http', 'https']
+            .map(protocol => 
+                [146, 256]
+                .map(res => `${protocol}://ubisoft-avatars.akamaized.net/${genome}/default_${res}_${res}.png`))
+            .reduce((a,b) => a.concat(b), [])
+            .map(tryURL)
+    );
+    const results = [checkCode, checkCodeLegacy]
+        .map(func => codes.map(withParams(func, id, genome)))
+        .reduce((a,b) => a.concat(b), []);
     console.log(id, genome, 'verifying results', results);
-    if (results.some(r => r === true)) {
-        return true;
-    }
-    if (results.some(r => r === false)) {
-        return false;
-    }
-    if (results.every(r => r === null)) {
-        return null;
+    switch (true) {
+        case results.some(r => r === true):
+            return true;
+        case results.some(r => r === false):
+            return false;
+        case results.every(r => r === null):
+            return null
     }
 }
 
@@ -72,3 +69,23 @@ async function tryURL(url: string): Promise<string> {
         return null;
     }
 }
+
+const withParams = (func, id: string, genome: string) => (code: string) => func(code, id, genome);
+
+function checkCode(code: string, id: string, genome: string) {
+    if (code) {
+        const args = code.split('.');
+        return id === args[0] && createHash('md5').update(`${id}_${genome}_${ENV.KEY256}`).digest('base64') === args[1];
+    } else {
+        return null;
+    }
+}
+
+function checkCodeLegacy(code: string, id: string, genome: string) {
+    if (code) {
+        const args = [code.slice(0, 18), code.slice(18)];
+        return createHash('md5').update(`${genome}_${args[0]}_${ENV.KEY256}`).digest('base64') === args[1] && args[0] === id;
+    } else {
+        return null;
+    }
+}   
