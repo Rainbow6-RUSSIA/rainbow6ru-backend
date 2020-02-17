@@ -1,0 +1,43 @@
+import { Guild, Lobby, Op, User } from '@r6ru/db';
+import { ILobbySettings, LobbyStoreStatus as LSS} from '@r6ru/types';
+import { RankedRoom, Room, CasualRoom, UntrackedRoom } from './rooms/';
+import { CategoryChannel, Collection, GuildMember, Message, MessageOptions, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+
+
+const initiatedAt = new Date();
+
+export class LobbyContainer<LT extends Room> {
+    constructor(public settings: ILobbySettings, public guild: Guild, public ContaineredLobby: LT) {}
+}
+
+export const lobbyStores: Collection<Snowflake/*LFG ID*/, LobbyContainer<Room>> = new Collection();
+export let lobbyStoresRooms: Collection<Snowflake/*VOICE ID*/, Room> = new Collection();
+
+export async function initLobbyStores() {
+    const dbGuilds = await Guild.findAll({ where: { premium: true } });
+    dbGuilds.map(g => {
+        Object.entries(g.lobbySettings).map(ent => ent[1].enabled && lobbyStores.set(ent[1].lfg, new LobbyContainer(ent[1], g, )));
+    });
+    const lobbies = await Lobby.findAll({
+        where: {
+            [Op.and]: [
+                {initiatedAt: {[Op.lt]: initiatedAt}},
+                {active: true},
+            ],
+        },
+    });
+    await Promise.all(lobbies.map(l => {
+        l.active = false;
+        return l.save();
+    }));
+}
+
+function lobbySelector(type: string) {
+    switch (type) {
+        case 'ranked': return RankedRoom;
+        case 'casual': return CasualRoom;
+        case 'unranked': return 
+    
+        default: return UntrackedRoom;
+    }
+}
