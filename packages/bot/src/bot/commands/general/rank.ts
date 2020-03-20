@@ -88,7 +88,8 @@ export default class Rank extends Command {
                 case ['public-ubiservices.ubi.com',
                     'too many requests',
                     'gateway was unable to forward the request',
-                    'request timed out while forwarding to the backend'
+                    'request timed out while forwarding to the backend',
+                    'RendezVous'
                 ].some(s => error.message.includes(s)):
                     debug.error(error, 'UBI');
                     message.reply('сервера Ubisoft недоступны, попробуйте позднее.');
