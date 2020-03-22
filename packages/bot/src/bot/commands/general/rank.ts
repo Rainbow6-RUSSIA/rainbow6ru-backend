@@ -1,12 +1,9 @@
 import { ArgumentOptions, Command, Flag } from 'discord-akairo';
 import { GuildMember, Message } from 'discord.js';
-import * as humanizeDuration from 'humanize-duration';
-import { $enum } from 'ts-enum-util';
 
 import { Guild, User } from '@r6ru/db';
-import r6 from '../../../utils/r6api';
 
-import { HF_PLATFORM, HF_REGIONS, IUbiBound, PLATFORM, RANKS, REGIONS, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
+import { HF_PLATFORM, IUbiBound, PLATFORM, REGIONS, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
 import { combinedPrompt, emojiNumbers } from '@r6ru/utils';
 import { debug } from '../../..';
 import embeds from '../../../utils/embeds';
@@ -14,6 +11,7 @@ import ENV from '../../../utils/env';
 import Security from '../../../utils/security';
 import Sync from '../../../utils/sync';
 import ubiGenomeFromNickname, { IUbiBoundType } from '../../types/ubiGenomeFromNickname';
+import { TextChannel } from 'discord.js';
 
 interface IRankArgs {
     target?: GuildMember;
@@ -101,16 +99,18 @@ export default class Rank extends Command {
                 }
         }
 
-        setTimeout(() => {
-            channel.bulkDelete(
-                channel.messages
-                .filter(m => !m.deleted)
-                .filter(m =>
-                    m.mentions.has(message.author)
-                    || (m.author.id === message.author.id && !isAdmin)
-                )
-            );
-        }, 5 * 60 * 1000);
+        if (message.channel instanceof TextChannel && message.channel.name.includes('registration')) {
+            setTimeout(() => {
+                channel.bulkDelete(
+                    channel.messages
+                    .filter(m => !m.deleted)
+                    .filter(m =>
+                        m.mentions.has(message.author)
+                        || (m.author.id === message.author.id && !isAdmin)
+                    )
+                );
+            }, 5 * 60 * 1000);
+        }
     }
 
     public async execNew(message: Message, args: IRankArgs) {
@@ -118,7 +118,6 @@ export default class Rank extends Command {
         const { bound, target, isAdmin } = args;
 
         const dbGuild = await Guild.findByPk(message.guild.id);
-        const nonPremium = dbGuild.premium === false;
 
         let mainPlatform: PLATFORM = null;
 
@@ -140,50 +139,21 @@ export default class Rank extends Command {
         }
 
         const activeBound = bound.find(b => b.platform === mainPlatform);
-        const stats = (await r6.api.getStats(mainPlatform, activeBound.genome, {general: '*'}))[activeBound.genome];
 
-        if (!stats?.general) {
-            return message.reply(`указанный аккаунт на платформе \`${mainPlatform}\` не запускал Rainbow Six Siege`);
-        } else {
-            this.typing = false;
-            const res = await combinedPrompt(
-                await message.reply(`это верный профиль?`, embeds.rank(activeBound, stats.general)),
-                {
-                    author: message.author,
-                    emojis: ['✅', '❎'],
-                    texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
-                },
-            );
-            switch (res) {
-                case 1: return message.reply('вы отклонили регистрацию. Попробуйте снова, указав нужный аккаунт.');
-                case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
-            }
-            this.typing = true;
+        this.typing = false;
+        const res = await combinedPrompt(
+            await message.reply(`это верный профиль?`, embeds.rank(activeBound, {})),
+            {
+                author: message.author,
+                emojis: ['✅', '❎'],
+                texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
+            },
+        );
+        switch (res) {
+            case 1: return message.reply('вы отклонили регистрацию. Попробуйте снова, указав нужный аккаунт.');
+            case -1: return message.reply('время на подтверждение истекло. Попробуйте еще раз и нажмите реакцию для подтверждения.');
         }
-
-        const rawRank = (await r6.api.getRank(mainPlatform, activeBound.genome))[activeBound.genome];
-        const regions = $enum(REGIONS).getValues();
-        const regionRank = regions.map(r => rawRank[r].rank);
-
-        let mainRegion: REGIONS = null;
-
-        if (regionRank.filter(Boolean).length !== 1) {
-            this.typing = false;
-            const res = await combinedPrompt(
-                await message.reply(`выберите регион для сбора статистики:\n${regions.map((r, i) => `${i + 1}. \`${HF_REGIONS[r]}\` - \`${RANKS[rawRank[r].rank]}\``).join('\n')}`),
-                {
-                    author: message.author,
-                    emojis: emojiNumbers(regions.length),
-                    texts: regions,
-                }
-            );
-            mainRegion = res === -1 ? REGIONS.A_EMEA : regions[res];
-            this.typing = true;
-        } else {
-            mainRegion = regions[regionRank.indexOf(regionRank.filter(Boolean)[0])];
-        }
-
-        console.log(mainPlatform, mainRegion);
+        this.typing = true;
 
         const newUser = new User({
             genome: activeBound.genome,
@@ -194,19 +164,10 @@ export default class Rank extends Command {
             platform: {
                 [mainPlatform]: true,
             },
-            rank: rawRank[mainRegion].rank,
-            rankUpdatedAt: new Date(),
-            region: mainRegion,
-            requiredVerification:
-                (nonPremium || mainPlatform !== PLATFORM.PC)
-                ? VERIFICATION_LEVEL.NONE
-                    : (
-                        (Date.now() - target.user.createdTimestamp) < parseInt(ENV.REQUIRED_ACCOUNT_AGE)
-                        || rawRank[mainRegion].rank >= dbGuild.fixAfter
-                        || (await r6.api.getLevel(mainPlatform, activeBound.genome))[activeBound.genome].level < parseInt(ENV.REQUIRED_LEVEL)
-                    )
-                ? VERIFICATION_LEVEL.QR
-                    : dbGuild.requiredVerification,
+            rank: 25,
+            rankUpdatedAt: new Date('2000'),
+            region: REGIONS.A_EMEA,
+            requiredVerification: 3,
             securityNotifiedAt: new Date(),
             verificationLevel:
                 (target.nickname || '').includes(activeBound.nickname) || target.user.username.includes(activeBound.nickname)
@@ -223,7 +184,7 @@ export default class Rank extends Command {
         return message.reply(
             `вы успешно ${isAdmin ? `зарегистрировали ${target}` : 'зарегистрировались'}!`
             + ' '
-            + `Ник: \`${newUser.nickname}\`, ранг \`${RANKS[newUser.rank]}\``
+            + `Ник: \`${newUser.nickname}\`, ранг же будет получен, когда сервисы Ubisoft снова станут доступны.\``
             + `\n`
             + this.verifyAppendix(newUser, result, isAdmin)
         );
@@ -239,12 +200,7 @@ export default class Rank extends Command {
             return message.reply(`пользователь уже зарегистрирован!`);
         } else {
             const time = (await User.count({where: {inactive: false}})) * parseInt(ENV.COOLDOWN) / parseInt(ENV.PACK_SIZE) + dbUser.rankUpdatedAt.valueOf() - Date.now();
-            return message.reply(`вы уже зарегистрированы, ${time > 5 * 60 * 1000 ? `обновление ранга будет через \`${
-                humanizeDuration(
-                    time,
-                    {conjunction: ' и ', language: 'ru', round: true},
-                )
-            }\`` : 'скоро будет обновление ранга' }.\n`
+            return message.reply(`вы уже зарегистрированы. Ранг будет получен, когда сервисы Ubisoft снова станут доступны.\n`
             + this.verifyAppendix(dbUser, result, isAdmin));
         }
     }
