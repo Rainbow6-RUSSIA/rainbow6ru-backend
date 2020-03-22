@@ -155,6 +155,8 @@ export const RANK_COLORS = [
     0x00cdc1, 0x00cdc1, 0x00cdc1,
     0xa67df8,
     0xff0784,
+    0,
+    0xbe1931,
 ];
 
 export const RANK_BADGES = [
@@ -166,6 +168,8 @@ export const RANK_BADGES = [
     '598137243206418462', '598137243013742593', '598137243336704030',
     '598137243277721629',
     '622159827681935371',
+    '',
+    '691300697517588480',
 ];
 
 export const VERIFIED_BADGE = '593877747391135843';
