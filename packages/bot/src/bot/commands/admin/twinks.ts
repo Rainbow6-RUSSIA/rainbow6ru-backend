@@ -40,7 +40,7 @@ export default class Twinks extends Command {
             ? ' ' + ENV.BAN_BADGE
             : ''
         } привязан:\n◦    ${(await Promise.all([...set]
-            .map(async id => `<@${id}> \`${(await this.client.users.fetch(id)).tag}\` ${bans.has(id) ? `${ENV.BAN_BADGE} \`${bans.get(id).reason}\`` : ''}`),
+            .map(async id => `<@${id}> \`${(await this.client.users.fetch(id)).tag}\` ${bans.has(id) ? `${ENV.BAN_BADGE} \`${decodeURIComponent(bans.get(id).reason)}\`` : ''}`),
         )).join('\n◦    ')}`);
         const parts = (await Promise.all(answs)).join('\n').split('\n• ').reduce(this.paragraphSplit('\n• '), []);
 

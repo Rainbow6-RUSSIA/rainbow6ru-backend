@@ -78,7 +78,7 @@ export default class Security {
         }
     }
 
-    public static logString = (twink: User, bans: BanInfo) => `<@${twink.id}> [${ONLINE_TRACKER}...](${twink})${twink.verificationLevel >= VERIFICATION_LEVEL.QR ? ` ${bot.emojis.resolve(VERIFIED_BADGE)}` : ''}${bans.has(twink.id) ? ` ${ENV.BAN_BADGE} - \`${bans.get(twink.id).reason}\`` : ''}`;
+    public static logString = (twink: User, bans: BanInfo) => `<@${twink.id}> [${ONLINE_TRACKER}...](${twink})${twink.verificationLevel >= VERIFICATION_LEVEL.QR ? ` ${bot.emojis.resolve(VERIFIED_BADGE)}` : ''}${bans.has(twink.id) ? ` ${ENV.BAN_BADGE} - \`${decodeURIComponent(bans.get(twink.id).reason)}\`` : ''}`;
 
     public static async changeGenome(dbUser: User, dbGuild: Guild, genome: UUID) {
         debug.warn(`<@${dbUser.id}> сменил аккаунт с ${dbUser} на ${ONLINE_TRACKER}${genome}. Запрошена верификация`);
