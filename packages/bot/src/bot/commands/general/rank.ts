@@ -31,7 +31,6 @@ export default class Rank extends Command {
             channel: 'guild',
             ratelimit: 100,
         });
-        this.typing = true;
     }
 
     public async *args(message: Message): AsyncGenerator<ArgumentOptions | Flag, IRankArgs, any> {
@@ -78,6 +77,7 @@ export default class Rank extends Command {
         try {
             if (error) { throw error; }
 
+            this.typing = true;
             if (dbUser) {
                 await this.execRegistered(message, args);
             } else {
@@ -101,6 +101,8 @@ export default class Rank extends Command {
                     break;
                 }
         }
+
+        this.typing = false;
 
         if (message.channel instanceof TextChannel && message.channel.name.includes('registration')) {
             setTimeout(() => {
