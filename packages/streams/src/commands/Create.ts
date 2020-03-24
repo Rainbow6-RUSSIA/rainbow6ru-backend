@@ -92,7 +92,7 @@ export default class Create extends Command {
         await match.reload({include: [{all: true}]});
         match.poolCache = dbTournament.pool.map(p => p.toJSON());
         await match.save();
-        return message.reply(`матч создан!\nОверлей банов https://cdn.rainbow6russia.ru/streams/#/map_vote/${match.id}${''/* \nХуд https://cdn.rainbow6russia.ru/streams/header#${match.id} */}`);
+        return message.reply(`матч создан!\nОверлей банов https://cdn.rainbow6.ru/streams/#/map_vote/${match.id}${''/* \nХуд https://cdn.rainbow6.ru/streams/header#${match.id} */}`);
         // message.reply('```js\n' + JSON.stringify(match, null, 2) + '```', {split: {prepend: '```js\n', append: '```'}});
     }
 }

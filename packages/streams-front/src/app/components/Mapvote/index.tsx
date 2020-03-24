@@ -63,7 +63,7 @@ export class Mapvote extends React.Component<IMapvoteProps, IMapvoteState> {
   constructor(props: any) {
     super(props);
     console.log('Map Vote init');
-    this.socket = connect('https://streams.rainbow6russia.ru');
+    this.socket = connect('https://streams.rainbow6.ru');
   }
 
   public render() {
