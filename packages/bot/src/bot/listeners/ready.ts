@@ -27,7 +27,10 @@ export default class Ready extends Listener {
                 debug.error(`${unavGuilds.size} серверов недоступны`);
             } catch (error) {/* */}
         }
-        console.log(this.client.guilds.array());
+        console.log(this.client.guilds.map(g => {
+            const {members, channels, emojis, roles, voiceStates, presences, ...other} = g;
+            return other;
+        }));
 
         if (ENV.NODE_ENV !== 'development') {
             console.log('[INFO][BOT] Updating scheduled');

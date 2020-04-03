@@ -14,7 +14,10 @@ export default class Create extends Listener {
     }
 
     public exec = async (guild: Guild) => {
-        console.log('​Create -> publicexec -> guild', guild);
+
+        const {members, channels, emojis, roles, voiceStates, presences, ...other} = guild;
+        console.log('​Create -> publicexec -> guild', other);
+
         await new G({
             donateRoles: {
                 default: [guild.roles.highest.id, 0, 'Default', []],
@@ -26,5 +29,6 @@ export default class Create extends Listener {
             premium: false,
             requiredVerification: VERIFICATION_LEVEL.NONE,
         }).save();
+
     }
 }
