@@ -56,10 +56,10 @@ export default class Lobby extends Model<Lobby> {
     @Column
     public guildId: Snowflake;
 
-    @BelongsTo(() => Guild, 'Lobby_guildId_fkey')
+    @BelongsTo(() => Guild)
     public guild: Guild;
 
-    @HasMany(() => User, 'User_lobbyId_fkey')
+    @HasMany(() => User)
     public members: User[];
 
     @Default([])

@@ -2,7 +2,7 @@ import { currentlyPlaying, EMOJI_REGEXP, EmojiButtons, HF_PLATFORM, IngameStatus
 import { GuildMember, MessageEmbed, MessageOptions, Util } from 'discord.js';
 import bot from '../bot';
 import ENV from './env';
-import { LobbyStore } from './lobby';
+import { LobbyStore } from './lobby/index1';
 import { LSRoom } from './lobby/room';
 import { extractBorders } from './preview';
 
