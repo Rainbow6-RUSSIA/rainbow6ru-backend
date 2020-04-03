@@ -10,7 +10,7 @@ export default class Debug extends Listener {
     }
 
     public exec = async (data: string) => {
-        if (ENV.NODE_ENV === 'development') {
+        if (process.env.DISCORD_DEBUG === 'true') {
             console.log(data);
         }
     }
