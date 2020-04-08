@@ -52,6 +52,7 @@ export class LSRoom extends Lobby {
             }, 'инициализация комнаты');
         } catch (error) {
             console.log('FAIL ON INIT', error);
+            return null;
         }
 
         const previousLobby = await Lobby.findOne({ where: { channel: this.dcChannel.id }, order: [['initiatedAt', 'DESC']] });

@@ -78,7 +78,7 @@ export class LobbyStore {
             this.voices.map(v =>
                 new LSRoom(v, this)
                 .init()
-                .then(room => lobbyStoresRooms.set(v.id, room))
+                .then(room => room && lobbyStoresRooms.set(v.id, room))
             )
         );
 
