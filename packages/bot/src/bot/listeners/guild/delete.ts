@@ -12,6 +12,7 @@ export default class Delete extends Listener {
     }
 
     public exec = async (guild: Guild) => {
-        console.log('​Delete -> publicexec -> guild', guild);
+        const {members, channels, emojis, roles, voiceStates, presences, ...other} = guild;
+        console.log('​Create -> publicexec -> guild', other);
     }
 }
