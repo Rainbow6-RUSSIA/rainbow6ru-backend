@@ -3,9 +3,12 @@
   "private": true,
   "main": "bootstrap.js",
   "scripts": {
-    "bootstrap": "lerna bootstrap --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
-    "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-filtered-dependencies",
+    "bootstrap:all": "lerna bootstrap",
+    "bootstrap": "lerna bootstrap --scope=@r6ru/$PACKAGE_NAME --include-dependencies",
+    "bootstrap:backend": "lerna bootstrap --ignore=@r6ru/*-front",
+    "bootstrap:frontend": "lerna bootstrap --scope=@r6ru/*-front",
     "build:all": "lerna run build",
+    "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-dependencies",
     "build:backend": "lerna run build --ignore=@r6ru/*-front",
     "build:frontend": "lerna run build --scope=@r6ru/*-front",
     "postinstall": "yarn bootstrap",
@@ -18,11 +21,36 @@
     "yarn": "1.x.x"
   },
   "dependencies": {
-    "lerna": "^3.13.1",
-    "typescript": "^3.7.2"
+    "@r6ru/auth": "file:packages/auth",
+    "@r6ru/bot": "file:packages/bot",
+    "@r6ru/db": "file:packages/db",
+    "@r6ru/lobby": "file:packages/lobby",
+    "@r6ru/promo": "file:packages/promo",
+    "@r6ru/r6db": "file:packages/r6db",
+    "@r6ru/types": "file:packages/types",
+    "@r6ru/utils": "file:packages/utils"
   },
   "devDependencies": {
-    "@types/node": "^12.7.2"
+    "@types/bcrypt": "^3.0.0",
+    "@types/bluebird": "^3.5.29",
+    "@types/jsonwebtoken": "^8.3.1",
+    "@types/node": "^13.11.1",
+    "@types/node-fetch": "^2.1.7",
+    "@types/passport": "^1.0.0",
+    "@types/passport-jwt": "^3.0.1",
+    "@types/passport-local": "^1.0.33",
+    "@types/pngjs": "^3.3.2",
+    "@types/redis": "^2.8.12",
+    "@types/restify": "^8.4.0",
+    "@types/restify-errors": "^4.3.3",
+    "@types/socket.io": "^2.1.2",
+    "@types/uuid": "^7.0.2",
+    "@types/validator": "^13.0.0",
+    "bluebird": "^3.7.2",
+    "cross-env": "^7.0.2",
+    "tsc-watch": "^4.2.3",
+    "tslint": "^6.1.1",
+    "typescript": "^3.8.3"
   },
   "peerDependencies": {
     "tslint": "^5.19.0"

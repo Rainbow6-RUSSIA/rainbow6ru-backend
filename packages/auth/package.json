@@ -5,46 +5,39 @@
   "author": "BadCoder1337 <anton.tiz.musin@gmail.com>",
   "homepage": "https://github.com/BadCoder1337/rainbow6ru-backend#readme",
   "license": "MIT",
-	"main": "build/index.js",
-	"typings": "build/index.d.ts",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BadCoder1337/rainbow6ru-backend.git"
   },
   "scripts": {
     "build": "tsc -p .",
-		"build:deps": "lerna run build --parallel --scope=@r6ru/auth --include-filtered-dependencies",
-		"bootstrap": "lerna bootstrap",
-		"dev": "yarn build:deps && yarn start:watch",
-		"start": "node ./build/index.js",
-		"start:dev": "node --inspect ./build/index.js",
-		"start:watch": "tsc-watch --onSuccess \"yarn start:dev\""
+    "build:deps": "lerna run build --parallel --scope=@r6ru/auth --include-filtered-dependencies",
+    "bootstrap": "lerna bootstrap",
+    "dev": "yarn build:deps && yarn start:watch",
+    "start": "node ./build/index.js",
+    "start:dev": "node --inspect ./build/index.js",
+    "start:watch": "tsc-watch --onSuccess \"yarn start:dev\""
   },
   "bugs": {
     "url": "https://github.com/BadCoder1337/rainbow6ru-backend/issues"
   },
   "dependencies": {
-    "@r6ru/db": "0.0.0",
-    "@r6ru/types": "0.0.0",
-    "discord.js": "https://github.com/discordjs/discord.js#60f89bd",
+    "@r6ru/db": "file:../db",
+    "@r6ru/types": "file:../types",
+    "discord.js": "12.1.1",
+    "dotenv": "8.2.0",
     "jsonwebtoken": "^8.5.1",
+    "morgan": "1.10.0",
+    "node-fetch": "2.6.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-oauth2": "^1.5.0",
     "pg": "^7.11.0",
-    "restify": "^8.4.0",
-    "restify-errors": "^8.0.1"
-  },
-  "devDependencies": {
-    "@types/jsonwebtoken": "^8.3.6",
-    "@types/node": "^13.1.8",
-    "@types/passport": "^1.0.2",
-    "@types/passport-jwt": "^3.0.3",
-    "@types/restify": "^8.4.2",
-    "@types/restify-errors": "^4.3.3",
-    "tsc-watch": "^4.0.0",
-		"bluebird": "^3.5.4",
-    "tslint": "^5.20.1",
-		"typescript": "^3.7.2"
+    "reflect-metadata": "0.1.13",
+    "restify": "8.5.1",
+    "restify-errors": "8.0.2",
+    "ts-enum-util": "4.0.1"
   }
 }

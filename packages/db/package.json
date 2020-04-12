@@ -13,20 +13,12 @@
     "bootstrap": "lerna bootstrap"
   },
   "dependencies": {
-    "@r6ru/types": "0.0.0",
-    "discord-akairo": "8.0.0-beta.8",
-    "discord.js": "https://github.com/discordjs/discord.js#60f89bd",
-    "pg": "^7.10.0",
+    "@r6ru/types": "file:../types",
+    "discord.js": "12.1.1",
+    "pg": "8.0.2",
     "reflect-metadata": "^0.1.13",
-    "sequelize": "^5.21.3",
-    "sequelize-typescript": "^1.1.0"
-  },
-  "devDependencies": {
-    "@types/bluebird": "^3.5.29",
-    "@types/node": "^13.1.8",
-    "@types/validator": "^12.0.1",
-    "dotenv": "8.2.0",
-    "tslint": "^5.16.0",
-    "typescript": "^3.7.2"
+    "sequelize": "5.21.6",
+    "sequelize-typescript": "^1.1.0",
+    "uuid": "7.0.3"
   }
 }
