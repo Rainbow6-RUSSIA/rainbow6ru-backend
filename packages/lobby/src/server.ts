@@ -1,10 +1,8 @@
 import { Lobby } from '@r6ru/db';
-import { IngameStatus as IS } from '@r6ru/types';
 import * as restify from 'restify';
 import { BadRequestError, NotFoundError } from 'restify-errors';
 import ENV from './utils/env';
 import { lobbyStoresRooms } from './utils/lobby';
-import { LSRoom } from './utils/lobby/room';
 import { createLobbyPreview } from './utils/preview';
 
 function respond(req, res, next) {

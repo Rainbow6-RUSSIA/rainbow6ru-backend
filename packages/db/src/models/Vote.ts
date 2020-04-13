@@ -1,4 +1,4 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import MapR6 from './MapR6';
 import Match from './Match';
 import Team from './Team';

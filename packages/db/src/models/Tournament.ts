@@ -8,7 +8,6 @@ import {
     Default,
     ForeignKey,
     HasMany,
-    HasOne,
     Model,
     Table,
 } from 'sequelize-typescript';

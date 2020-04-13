@@ -1,14 +1,4 @@
-import { Lobby, User } from '@r6ru/db';
-import {
-    CategoryChannel,
-    Collection,
-    GuildMember,
-    Message,
-    MessageOptions,
-    Snowflake,
-    TextChannel,
-    VoiceChannel,
-} from 'discord.js';
+import { Lobby } from '@r6ru/db';
 // import { LobbyStoreEventType } from '@r6ru/types';
 import { LobbyType } from '..';
 
@@ -30,6 +20,6 @@ export abstract class Room {
 //     leave(member: GuildMember): Promise<T>
 // }
 
+export { CasualRoom } from './casual';
 export { RankedRoom } from './ranked';
 export { UntrackedRoom } from './untracked';
-export { CasualRoom } from './casual';

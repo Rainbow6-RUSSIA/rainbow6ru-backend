@@ -2,9 +2,7 @@ import { Guild, User } from '@r6ru/db';
 import { RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { CategoryChannel, Message, VoiceChannel } from 'discord.js';
-import * as humanizeDuration from 'humanize-duration';
 import { $enum } from 'ts-enum-util';
-import ENV from '../../../utils/env';
 
 interface IArgs {
     type: 'global' | 'voice' | 'lobby';

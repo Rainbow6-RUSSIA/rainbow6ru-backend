@@ -16,4 +16,4 @@ for (const key in new IEnv()) {
     }
 }
 
-export default (process.env as any) as IOptionalEnv;
+export default (process.env as unknown) as IOptionalEnv;

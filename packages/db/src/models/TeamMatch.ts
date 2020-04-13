@@ -1,5 +1,4 @@
-import { AutoIncrement, Column, DataType, ForeignKey, Model, PrimaryKey, Table, Unique } from 'sequelize-typescript';
-
+import { Column, ForeignKey, Model, Table } from 'sequelize-typescript';
 import Match from './Match';
 import Team from './Team';
 

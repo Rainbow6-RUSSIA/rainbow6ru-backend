@@ -1,4 +1,4 @@
-import { Guild, GuildBlacklist, Op, User } from '@r6ru/db';
+import { Guild, Op, User } from '@r6ru/db';
 import { ONLINE_TRACKER, UUID } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Collection, Message, Snowflake } from 'discord.js';

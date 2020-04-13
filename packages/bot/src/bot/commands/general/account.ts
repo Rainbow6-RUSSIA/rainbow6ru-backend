@@ -1,7 +1,7 @@
 import { Guild, User } from '@r6ru/db';
-import { HF_REGIONS, IUbiBound, ONLINE_TRACKER, PLATFORM, REGIONS, UpdateStatus } from '@r6ru/types';
+import { HF_REGIONS, ONLINE_TRACKER, REGIONS, UpdateStatus } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
-import { ArgumentOptions, Command, Flag } from 'discord-akairo';
+import { ArgumentOptions, Command } from 'discord-akairo';
 import { GuildMember, Message } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { debug } from '../../..';

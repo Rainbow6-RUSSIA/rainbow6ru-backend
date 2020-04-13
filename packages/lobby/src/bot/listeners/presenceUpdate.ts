@@ -1,11 +1,7 @@
 import { IngameStatus as IS, R6_PRESENCE_ID, R6_PRESENCE_REGEXPS } from '@r6ru/types';
 import { Listener } from 'discord-akairo';
-import { Collection, Presence } from 'discord.js';
-import { debug } from '../..';
-import ReverseThrottle from '../../utils/decorators/reverse_throttle';
-import ENV from '../../utils/env';
+import { Presence } from 'discord.js';
 import { lobbyStoresRooms } from '../../utils/lobby';
-import { LSRoom } from '../../utils/lobby/room';
 
 export const detectIngameStatus = (presence: Presence): IS => {
     if (!presence) {

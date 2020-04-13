@@ -1,11 +1,6 @@
-import { Guild } from '@r6ru/db';
-import { PLATFORM, VERIFICATION_LEVEL } from '@r6ru/types';
 import { Listener } from 'discord-akairo';
-import { TextChannel } from 'discord.js';
-import { $enum } from 'ts-enum-util';
-import { debug } from '../..';
 import ENV from '../../utils/env';
-import r6, { refresh } from '../../utils/r6api';
+import { refresh } from '../../utils/r6api';
 import Sync from '../../utils/sync';
 
 export default class Ready extends Listener {

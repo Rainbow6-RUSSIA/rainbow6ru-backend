@@ -8,6 +8,8 @@ import {
     VERIFICATION_LEVEL,
     VERIFIED_BADGE,
 } from '@r6ru/types';
+import { AkairoClient } from 'discord-akairo';
+import { Guild as G, Snowflake } from 'discord.js';
 import {
     AllowNull,
     BeforeCreate,
@@ -18,20 +20,13 @@ import {
     DataType,
     Default,
     ForeignKey,
-    HasMany,
     Model,
-    NotNull,
     PrimaryKey,
     Table,
 } from 'sequelize-typescript';
-
-import { AkairoClient } from 'discord-akairo';
-import { Guild as G, Snowflake } from 'discord.js';
-
 import Guild from './Guild';
 import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
-import Match from './Match';
 import Team from './Team';
 import Tournament from './Tournament';
 import TournamentMod from './TournamentMod';

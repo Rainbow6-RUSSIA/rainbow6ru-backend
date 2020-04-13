@@ -1,26 +1,18 @@
 import 'reflect-metadata';
 
-export default function Throttle(delay: number) {
-    return (_, __, propertyDesciptor: PropertyDescriptor) => {
-        propertyDesciptor.value = throttle(propertyDesciptor.value, delay);
-
-        return propertyDesciptor;
-    };
-}
-
 export function throttle(func, ms) {
     let isThrottled = false;
     let savedArgs = null;
     let savedThis = null;
 
-    function wrapper() {
+    function wrapper(...args) {
         if (isThrottled) {
-            savedArgs = arguments;
+            savedArgs = args;
             savedThis = this;
             return;
         }
 
-        func.apply(this, arguments);
+        func.apply(this, args);
 
         isThrottled = true;
 
@@ -34,4 +26,12 @@ export function throttle(func, ms) {
     }
 
     return wrapper;
+}
+
+export default function Throttle(delay: number) {
+    return (_, __, propertyDesciptor: PropertyDescriptor) => {
+        propertyDesciptor.value = throttle(propertyDesciptor.value, delay);
+
+        return propertyDesciptor;
+    };
 }

@@ -4,9 +4,6 @@ import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 // import { RankInfo, SeasonNumber } from 'r6api.js';
 import { $enum } from 'ts-enum-util';
-import ENV from '../../../utils/env';
-import r6 from '../../../utils/r6api';
-import Security from '../../../utils/security';
 
 interface IArgs {
     // season: SeasonNumber;

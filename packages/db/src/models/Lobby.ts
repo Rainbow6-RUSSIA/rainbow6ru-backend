@@ -1,3 +1,5 @@
+import { IngameStatus as IS } from '@r6ru/types';
+import { Snowflake } from 'discord.js';
 import {
     BeforeCreate,
     BeforeUpdate,
@@ -7,16 +9,11 @@ import {
     Default,
     ForeignKey,
     HasMany,
-    HasOne,
     Model,
     Table,
 } from 'sequelize-typescript';
-
 import Guild from './Guild';
 import User from './User';
-
-import { IngameStatus as IS } from '@r6ru/types';
-import { CategoryChannel, Guild as G, GuildMember, Invite, Message, Snowflake, VoiceChannel } from 'discord.js';
 
 @Table({
     schema: 'siegebot',

@@ -1,7 +1,6 @@
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
-import { Message, User } from 'discord.js';
-import { debug } from '../../..';
+import { Message } from 'discord.js';
 
 interface IArgs {
     reason: string;

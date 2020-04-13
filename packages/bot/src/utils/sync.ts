@@ -1,5 +1,5 @@
 import { Guild as G, Team, User as U } from '@r6ru/db';
-import { ONLINE_TRACKER, PLATFORM, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
+import { PLATFORM, UpdateStatus, VERIFICATION_LEVEL } from '@r6ru/types';
 import { GuildMember, MessageAttachment } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import { debug } from '..';

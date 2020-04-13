@@ -1,4 +1,4 @@
-import { Guild, Op, User } from '@r6ru/db';
+import { Guild, User } from '@r6ru/db';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';

@@ -1,9 +1,8 @@
-import { Command } from 'discord-akairo';
-import { Message, User } from 'discord.js';
-
 import { Op, User as U } from '@r6ru/db';
 import { PLATFORM, UUID } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
+import { Command } from 'discord-akairo';
+import { Message, User } from 'discord.js';
 import { $enum } from 'ts-enum-util';
 import r6 from '../../../utils/r6api';
 import ubiGenome from '../../types/ubiGenome';

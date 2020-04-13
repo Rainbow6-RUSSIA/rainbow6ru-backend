@@ -1,5 +1,5 @@
 import * as restify from 'restify';
-import { NotFoundError } from 'restify-errors';
+import './endpoints';
 import ENV from './utils/env';
 
 export function respond(req, res, next) {
@@ -18,7 +18,5 @@ server.use(
 );
 server.use(restify.plugins.bodyParser());
 server.use(restify.plugins.requestLogger());
-
-import './endpoints';
 
 server.listen(ENV.PORT || 3333, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));
