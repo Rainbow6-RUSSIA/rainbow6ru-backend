@@ -1,13 +1,10 @@
+import { DonateRecord, ILobbySettings, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { Snowflake } from 'discord.js';
 import { BelongsToMany, Column, DataType, Default, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
-
 import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
-import User from './User';
-
-import { DonateRecord, ILobbySettings, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
-
-import { Snowflake } from 'discord.js';
 import Tournament from './Tournament';
+import User from './User';
 
 @Table({
     schema: 'siegebot',

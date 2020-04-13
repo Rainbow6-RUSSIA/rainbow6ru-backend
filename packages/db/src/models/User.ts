@@ -1,29 +1,6 @@
-import {
-    ACCESS,
-    BAN_BADGE,
-    HF_REGIONS,
-    ONLINE_TRACKER,
-    RANKS,
-    REGIONS,
-    VERIFICATION_LEVEL,
-    VERIFIED_BADGE,
-} from '@r6ru/types';
-import { AkairoClient } from 'discord-akairo';
-import { Guild as G, Snowflake } from 'discord.js';
-import {
-    AllowNull,
-    BeforeCreate,
-    BeforeUpdate,
-    BelongsTo,
-    BelongsToMany,
-    Column,
-    DataType,
-    Default,
-    ForeignKey,
-    Model,
-    PrimaryKey,
-    Table,
-} from 'sequelize-typescript';
+import { ACCESS, BAN_BADGE, HF_REGIONS, ONLINE_TRACKER, RANKS, REGIONS, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
+import { Client, Guild as G, Snowflake } from 'discord.js';
+import { AllowNull, BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import Guild from './Guild';
 import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
@@ -63,25 +40,11 @@ export default class User extends Model<User> {
     @Column(DataType.STRING)
     public id: Snowflake; // discord snowflake
 
-    @Column(DataType.UUID)
-    public genome: string;
+    @Column(DataType.ARRAY(DataType.UUID))
+    public genome: string[];
 
     @Column(DataType.ARRAY(DataType.UUID))
     public genomeHistory: string[];
-
-    @Column(DataType.STRING(20))
-    public nickname: string;
-
-    @Column(DataType.ARRAY(DataType.STRING(20)))
-    public nicknameHistory: string[];
-
-    @Default(new Date())
-    @Column
-    public rankUpdatedAt: Date;
-
-    @Default(new Date())
-    @Column
-    public nicknameUpdatedAt: Date;
 
     @Default(new Date())
     @Column
@@ -111,10 +74,10 @@ export default class User extends Model<User> {
     public team: Team;
 
     @BelongsToMany(() => Tournament, () => TournamentMod)
-    public tournaments: Array<Tournament & { TournamentMod: TournamentMod }>;
+    public tournaments: (Tournament & { TournamentMod: TournamentMod })[];
 
     @BelongsToMany(() => Guild, () => GuildBlacklist)
-    public bannedAt: Array<Guild & { GuildBlacklist: GuildBlacklist }>;
+    public bannedAt: (Guild & { GuildBlacklist: GuildBlacklist })[];
 
     @Column(DataType.INTEGER)
     public rank: RANKS;
@@ -156,7 +119,7 @@ export default class User extends Model<User> {
     }
 
     public infoBadge = async (
-        client?: AkairoClient,
+        client?: Client,
         adminAction?: boolean,
         bans?: ThenArg<ReturnType<G['fetchBans']>>,
     ) => {

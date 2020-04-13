@@ -1,17 +1,6 @@
 import { IngameStatus as IS } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
-import {
-    BeforeCreate,
-    BeforeUpdate,
-    BelongsTo,
-    Column,
-    DataType,
-    Default,
-    ForeignKey,
-    HasMany,
-    Model,
-    Table,
-} from 'sequelize-typescript';
+import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
 import Guild from './Guild';
 import User from './User';
 

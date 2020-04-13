@@ -1,5 +1,4 @@
 import { Column, Default, ForeignKey, Model, Table } from 'sequelize-typescript';
-
 import Guild from './Guild';
 import User from './User';
 
