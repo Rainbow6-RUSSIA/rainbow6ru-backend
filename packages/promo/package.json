@@ -9,7 +9,8 @@
 	"scripts": {
 		"build": "tsc -p .",
 		"dev": "lerna run build --parallel --ignore=@r6ru/bot && tsc-watch --onSuccess \"node ./build/index.js\"",
-		"start": "node ./build/index.js"
+		"start": "node ./build/index.js",
+		"lint": "eslint */**/*.{js,jsx,ts,tsx} --fix"
 	},
 	"dependencies": {
 		"discord.js": "12.1.1",

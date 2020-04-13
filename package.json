@@ -1,34 +1,18 @@
 {
   "name": "@r6ru/r6ru",
   "private": true,
-  "main": "bootstrap.js",
   "scripts": {
     "bootstrap:all": "lerna bootstrap",
     "bootstrap": "lerna bootstrap --scope=@r6ru/$PACKAGE_NAME --include-dependencies",
-    "bootstrap:backend": "lerna bootstrap --ignore=@r6ru/*-front",
-    "bootstrap:frontend": "lerna bootstrap --scope=@r6ru/*-front",
     "build:all": "lerna run build",
     "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-dependencies",
-    "build:backend": "lerna run build --ignore=@r6ru/*-front",
-    "build:frontend": "lerna run build --scope=@r6ru/*-front",
-    "postinstall": "yarn bootstrap",
-    "start": "node --max-old-space-size=4096 ./packages/$PACKAGE_NAME/build/index.js",
+    "start": "cd ./packages/$PACKAGE_NAME && yarn start",
     "front-publish": "cp -r -f ./packages/$PACKAGE_NAME/build ./front-publish",
-    "lint": "tslint --fix -p ./packages"
+    "lint": "eslint ./packages/**/src/**/*.{js,jsx,ts,tsx} --fix"
   },
   "engines": {
     "node": "12.x.x",
     "yarn": "1.x.x"
-  },
-  "dependencies": {
-    "@r6ru/auth": "file:packages/auth",
-    "@r6ru/bot": "file:packages/bot",
-    "@r6ru/db": "file:packages/db",
-    "@r6ru/lobby": "file:packages/lobby",
-    "@r6ru/promo": "file:packages/promo",
-    "@r6ru/r6db": "file:packages/r6db",
-    "@r6ru/types": "file:packages/types",
-    "@r6ru/utils": "file:packages/utils"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
@@ -46,13 +30,17 @@
     "@types/socket.io": "^2.1.2",
     "@types/uuid": "^7.0.2",
     "@types/validator": "^13.0.0",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
     "bluebird": "^3.7.2",
     "cross-env": "^7.0.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.3",
+    "prettier": "^2.0.4",
     "tsc-watch": "^4.2.3",
     "tslint": "^6.1.1",
-    "typescript": "^3.8.3"
-  },
-  "peerDependencies": {
-    "tslint": "^5.19.0"
+    "typescript": "^3.8.3",
+    "lerna": "^3.20.2"
   }
 }

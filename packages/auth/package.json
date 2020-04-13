@@ -18,14 +18,15 @@
     "dev": "yarn build:deps && yarn start:watch",
     "start": "node ./build/index.js",
     "start:dev": "node --inspect ./build/index.js",
-    "start:watch": "tsc-watch --onSuccess \"yarn start:dev\""
+    "start:watch": "tsc-watch --onSuccess \"yarn start:dev\"",
+    "lint": "eslint */**/*.{js,jsx,ts,tsx} --fix"
   },
   "bugs": {
     "url": "https://github.com/BadCoder1337/rainbow6ru-backend/issues"
   },
   "dependencies": {
-    "@r6ru/db": "file:../db",
-    "@r6ru/types": "file:../types",
+    "@r6ru/db": "0.0.0",
+    "@r6ru/types": "0.0.0",
     "discord.js": "12.1.1",
     "dotenv": "8.2.0",
     "jsonwebtoken": "^8.5.1",

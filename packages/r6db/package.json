@@ -9,10 +9,11 @@
 	"scripts": {
 		"build": "tsc -p .",
 		"dev": "lerna run build --parallel --ignore=@r6ru/bot && tsc-watch --onSuccess \"node ./build/index.js\"",
-		"start": "node ./build/index.js"
+		"start": "node ./build/index.js",
+		"lint": "eslint */**/*.{js,jsx,ts,tsx} --fix"
 	},
 	"dependencies": {
-		"@r6ru/db": "file:../db",
+		"@r6ru/db": "0.0.0",
 		"dotenv": "8.2.0",
 		"morgan": "1.10.0",
 		"node-fetch": "2.6.0",
