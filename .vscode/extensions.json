@@ -4,11 +4,9 @@
 
 	// List of extensions which should be recommended for users of this workspace.
 	"recommendations": [
-		"eg2.tslint",
 		"esbenp.prettier-vscode",
 		"dbaeumer.vscode-eslint",
 		"mikestead.dotenv",
-		"shardulm94.trailing-spaces",
 		"chakrounanas.turbo-console-log"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
