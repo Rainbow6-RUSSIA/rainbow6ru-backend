@@ -12,7 +12,7 @@ import Tournament from './Tournament';
 @Table({
     schema: 'siegebot',
     tableName: 'Guild',
-    timestamps: false
+    timestamps: false,
 })
 export default class Guild extends Model<Guild> {
     @PrimaryKey
@@ -27,9 +27,9 @@ export default class Guild extends Model<Guild> {
 
     @Column(DataType.JSONB)
     public platformRoles: {
-        PC: string,
-        PS4: string,
-        XBOX: string,
+        PC: string;
+        PS4: string;
+        XBOX: string;
     };
 
     @HasMany(() => Lobby, 'Lobby_guildId_fkey')
@@ -44,12 +44,12 @@ export default class Guild extends Model<Guild> {
 
     @Column(DataType.JSONB)
     public donateRoles: {
-        default: DonateRecord,
-        [key: string]: DonateRecord,
+        default: DonateRecord;
+        [key: string]: DonateRecord;
     };
 
     @BelongsToMany(() => User, () => GuildBlacklist)
-    public blacklist: Array<User & {GuildBlacklist: GuildBlacklist}>;
+    public blacklist: Array<User & { GuildBlacklist: GuildBlacklist }>;
 
     @Column(DataType.ARRAY(DataType.UUID))
     public genomeBlacklist: string[];
@@ -68,6 +68,6 @@ export default class Guild extends Model<Guild> {
 
     @Column(DataType.JSONB)
     public lobbySettings: {
-        [key: string]: ILobbySettings,
+        [key: string]: ILobbySettings;
     };
 }

@@ -13,5 +13,5 @@ export default class Debug extends Listener {
         if (process.env.DISCORD_DEBUG === 'true') {
             console.log(data);
         }
-    }
+    };
 }

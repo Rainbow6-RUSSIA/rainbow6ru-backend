@@ -8,11 +8,13 @@ export default class Eval extends Command {
     constructor() {
         super('eval', {
             aliases: ['eval'],
-            args: [{
-                id: 'code',
-                type: 'string',
-                match: 'restContent'
-            }],
+            args: [
+                {
+                    id: 'code',
+                    type: 'string',
+                    match: 'restContent',
+                },
+            ],
             cooldown: 5000,
             ownerOnly: true,
         });
@@ -20,8 +22,10 @@ export default class Eval extends Command {
     }
 
     public exec = async (message: Message, args) => {
-        if (false) { console.log(util, utils, db); }
+        if (false) {
+            console.log(util, utils, db);
+        }
         // tslint:disable-next-line:no-eval
         eval(args.code);
-    }
+    };
 }

@@ -26,5 +26,5 @@ export default class Create extends Listener {
             premium: false,
             requiredVerification: VERIFICATION_LEVEL.NONE,
         }).save();
-    }
+    };
 }

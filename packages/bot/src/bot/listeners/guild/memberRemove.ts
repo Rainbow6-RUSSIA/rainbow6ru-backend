@@ -13,10 +13,11 @@ export default class MemberRemove extends Listener {
     }
 
     public exec = async (member: GuildMember) => {
-        const dbUser = await User.findByPk(member.id, {include: [Lobby]});
-        if (!dbUser) { return; }
-        if (!this.client.guilds.array().some(g => !g.available || g.members.has(member.id))) {
-
+        const dbUser = await User.findByPk(member.id, { include: [Lobby] });
+        if (!dbUser) {
+            return;
+        }
+        if (!this.client.guilds.array().some((g) => !g.available || g.members.has(member.id))) {
             dbUser.set({
                 inactive: true,
             });
@@ -25,5 +26,5 @@ export default class MemberRemove extends Listener {
         }
 
         await dbUser.save();
-    }
+    };
 }

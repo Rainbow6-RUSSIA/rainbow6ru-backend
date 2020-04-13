@@ -20,7 +20,9 @@ export default class System extends Command {
         message.reply(`Free RAM: ${PrettyBytes(os.freemem())}
 Total RAM: ${PrettyBytes(os.totalmem())}
 Load: ${os.loadavg()}
-Uptime: ${humanizeDuration(os.uptime(), {conjunction: ' и ', language: 'ru', round: true})}`);
-        return message.reply(`CPU: \`\`\`json\n${JSON.stringify(os.cpus(), null, 4)}\`\`\`\n`, { split: {prepend: '```json\n', append: '```'} });
-    }
+Uptime: ${humanizeDuration(os.uptime(), { conjunction: ' и ', language: 'ru', round: true })}`);
+        return message.reply(`CPU: \`\`\`json\n${JSON.stringify(os.cpus(), null, 4)}\`\`\`\n`, {
+            split: { prepend: '```json\n', append: '```' },
+        });
+    };
 }

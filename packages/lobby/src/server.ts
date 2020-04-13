@@ -10,50 +10,50 @@ import { createLobbyPreview } from './utils/preview';
 function respond(req, res, next) {
     res.send('hello ' + req.params.name);
     next();
-  }
+}
 
 export const server = restify.createServer();
 
-server.use(restify.plugins.throttle({
-    burst: 100,
-    ip: true,
-    rate: 50,
-  }));
+server.use(
+    restify.plugins.throttle({
+        burst: 100,
+        ip: true,
+        rate: 50,
+    }),
+);
 server.use(restify.plugins.bodyParser());
 server.use(restify.plugins.requestLogger());
 
 server.get('/auth/login', respond);
 
 server.get('/lobby/:id/preview', async (req, res, next) => {
-  if (Number.isInteger(parseInt(req.params.id)) && parseInt(req.params.id) < 2 ** 32 / 2) {
-    const lobby = await Lobby.findByPk(req.params.id);
+    if (Number.isInteger(parseInt(req.params.id)) && parseInt(req.params.id) < 2 ** 32 / 2) {
+        const lobby = await Lobby.findByPk(req.params.id);
 
-    if (!lobby) {
-      return next(new NotFoundError());
-    }
+        if (!lobby) {
+            return next(new NotFoundError());
+        }
 
-    const room = lobbyStoresRooms.get(lobby.channel);
+        const room = lobbyStoresRooms.get(lobby.channel);
 
-    if (!room) {
-      return res.redirect(301, 'https://i.imgur.com/5Neb9Sn.png', next);
+        if (!room) {
+            return res.redirect(301, 'https://i.imgur.com/5Neb9Sn.png', next);
+        } else {
+            // await waitLoaded(room);
+            const pic = await createLobbyPreview(
+                room.minRank,
+                room.maxRank,
+                !room.joinAllowed ? room.dcChannel.userLimit - room.dcMembers.size : 0,
+            );
+
+            return res.sendRaw(200, pic || 'Error', {
+                'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
+                'Content-Type': 'image/png',
+            });
+        }
     } else {
-      // await waitLoaded(room);
-      const pic = await createLobbyPreview(
-        room.minRank,
-        room.maxRank,
-        (!room.joinAllowed
-          ? room.dcChannel.userLimit - room.dcMembers.size
-          : 0));
-
-      return res.sendRaw(200, pic || 'Error', {
-        'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
-        'Content-Type': 'image/png',
-      });
+        return next(new BadRequestError());
     }
-
-  } else {
-    return next(new BadRequestError());
-  }
 });
 
 server.listen(ENV.PORT || 3000, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));

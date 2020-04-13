@@ -12,7 +12,9 @@ export default class Help extends Command {
     }
 
     public exec = async (message: Message) => {
-        const res = await fetch('https://raw.githubusercontent.com/Rainbow6-RUSSIA/rainbow6ru-backend/master/packages/bot/HELP.md');
+        const res = await fetch(
+            'https://raw.githubusercontent.com/Rainbow6-RUSSIA/rainbow6ru-backend/master/packages/bot/HELP.md',
+        );
         return message.reply(await res.text());
-    }
+    };
 }

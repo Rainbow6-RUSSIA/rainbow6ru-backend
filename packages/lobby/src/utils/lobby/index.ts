@@ -1,7 +1,16 @@
 import { Guild, Lobby, Op, User } from '@r6ru/db';
-import { ILobbySettings, LobbyStoreStatus as LSS} from '@r6ru/types';
+import { ILobbySettings, LobbyStoreStatus as LSS } from '@r6ru/types';
 import { RankedRoom, Room, CasualRoom, UntrackedRoom } from './rooms';
-import { CategoryChannel, Collection, GuildMember, Message, MessageOptions, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import {
+    CategoryChannel,
+    Collection,
+    GuildMember,
+    Message,
+    MessageOptions,
+    Snowflake,
+    TextChannel,
+    VoiceChannel,
+} from 'discord.js';
 import { UnrankedRoom } from './rooms/unranked';
 
 const initiatedAt = new Date();
@@ -10,8 +19,8 @@ export class LobbyContainer<LT extends Room> {
     constructor(public settings: ILobbySettings, public guild: Guild, public ContaineredLobby: LT) {}
 }
 
-export const lobbyStores: Collection<Snowflake/*LFG ID*/, LobbyContainer<Room>> = new Collection();
-export let lobbyStoresRooms: Collection<Snowflake/*VOICE ID*/, Room> = new Collection();
+export const lobbyStores: Collection<Snowflake /*LFG ID*/, LobbyContainer<Room>> = new Collection();
+export const lobbyStoresRooms: Collection<Snowflake /*VOICE ID*/, Room> = new Collection();
 
 // export async function initLobbyStores() {
 //     const dbGuilds = await Guild.findAll({ where: { premium: true } });
@@ -34,12 +43,16 @@ export let lobbyStoresRooms: Collection<Snowflake/*VOICE ID*/, Room> = new Colle
 
 function lobbySelector(type: LobbyType) {
     switch (type) {
-        case LobbyType.RANKED: return RankedRoom;
-        case LobbyType.CASUAL: return CasualRoom;
-        case LobbyType.UNRANKED: return UnrankedRoom;
+        case LobbyType.RANKED:
+            return RankedRoom;
+        case LobbyType.CASUAL:
+            return CasualRoom;
+        case LobbyType.UNRANKED:
+            return UnrankedRoom;
 
         case LobbyType.DEFAULT:
-        default: return UntrackedRoom;
+        default:
+            return UntrackedRoom;
     }
 }
 

@@ -9,17 +9,21 @@ interface IUpdateArgs {
     verification: number;
 }
 
-export default class Update extends Command { // update all|newseason|numofpacks
+export default class Update extends Command {
+    // update all|newseason|numofpacks
     public constructor() {
         super('update', {
             aliases: ['update', 'U'],
-            args: [{
-                id: 'user',
-                type: 'user',
-            }, {
-                id: 'verification',
-                type: 'number',
-            }],
+            args: [
+                {
+                    id: 'user',
+                    type: 'user',
+                },
+                {
+                    id: 'verification',
+                    type: 'number',
+                },
+            ],
             channel: 'guild',
             userPermissions: 'MANAGE_ROLES',
         });
@@ -43,5 +47,5 @@ export default class Update extends Command { // update all|newseason|numofpacks
         await dbUser.save();
         await Sync.updateMember(await G.findByPk(message.guild.id), dbUser);
         return message.reply('обновлено!');
-    }
+    };
 }

@@ -2,7 +2,7 @@ import { Column, ForeignKey, Model, Table } from 'sequelize-typescript';
 import MapR6 from './MapR6';
 import Tournament from './Tournament';
 
-@Table({schema: 'streambot', tableName: 'Pool'})
+@Table({ schema: 'streambot', tableName: 'Pool' })
 export default class Pool extends Model<Pool> {
     @ForeignKey(() => Tournament)
     @Column

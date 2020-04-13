@@ -11,10 +11,12 @@ export default class Block extends Command {
     constructor() {
         super('block', {
             aliases: ['block'],
-            args: [{
-                id: 'target',
-                type: 'user',
-            }],
+            args: [
+                {
+                    id: 'target',
+                    type: 'user',
+                },
+            ],
             channel: 'guild',
             userPermissions: 'BAN_MEMBERS',
         });
@@ -23,7 +25,9 @@ export default class Block extends Command {
 
     public exec = async (message: Message, args: IBlockArgs) => {
         const dbUser = await User.findByPk(args.target.id);
-        if (!dbUser) { return message.reply('пользователь не зарегистрирован'); }
+        if (!dbUser) {
+            return message.reply('пользователь не зарегистрирован');
+        }
         const BLRecord = new GuildBlacklist({
             allowed: false,
             guildId: message.guild.id,
@@ -32,5 +36,5 @@ export default class Block extends Command {
         await BLRecord.save();
         debug.log(`${message.author} внес <@${dbUser.id}> в черный список`);
         return message.reply('пользователь внесен в черный список');
-    }
+    };
 }

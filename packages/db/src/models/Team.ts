@@ -4,7 +4,7 @@ import TeamMatch from './TeamMatch';
 import User from './User';
 import Vote from './Vote';
 
-@Table({schema: 'streambot', tableName: 'Team'})
+@Table({ schema: 'streambot', tableName: 'Team' })
 export default class Team extends Model<Team> {
     @Column
     public name: string;
@@ -25,7 +25,7 @@ export default class Team extends Model<Team> {
     public members: User[];
 
     @BelongsToMany(() => Match, () => TeamMatch)
-    public matches: Array<Match & {TeamMatch: TeamMatch}>;
+    public matches: Array<Match & { TeamMatch: TeamMatch }>;
 
     @HasMany(() => Vote, 'Vote_teamId_fkey')
     public votes: Vote[];

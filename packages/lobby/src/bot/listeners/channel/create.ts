@@ -17,7 +17,7 @@ export default class ChannelCreate extends Listener {
         // console.log('CHANNEL CREATED');
         if (!settigns) {
             const dbGuild = await Guild.findByPk(voice.guild.id);
-            settigns = Object.values(dbGuild.lobbySettings || {}).find(s => s.voiceCategory === voice.parentID); // map(s => s.voiceCategory).includes(channel.parentID)
+            settigns = Object.values(dbGuild.lobbySettings || {}).find((s) => s.voiceCategory === voice.parentID); // map(s => s.voiceCategory).includes(channel.parentID)
         }
         if (settigns) {
             const LS = lobbyStores.get(settigns.lfg);
@@ -33,5 +33,4 @@ export default class ChannelCreate extends Listener {
             await ChannelCreate.handle(channel);
         }
     }
-
 }

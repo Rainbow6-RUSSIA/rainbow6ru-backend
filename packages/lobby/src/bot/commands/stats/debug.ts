@@ -10,10 +10,12 @@ export default class Debug extends Command {
     public constructor() {
         super('debug', {
             aliases: ['debug'],
-            args: [{
-                id: 'target',
-                type: 'voiceChannel',
-            }],
+            args: [
+                {
+                    id: 'target',
+                    type: 'voiceChannel',
+                },
+            ],
             channel: 'guild',
             userPermissions: 'MANAGE_ROLES',
         });

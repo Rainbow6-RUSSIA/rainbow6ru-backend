@@ -13,7 +13,5 @@ export default class Ready extends Listener {
         console.log('[INFO][BOT] Logged as', this.client.user.tag);
 
         await initLobbyStores();
-
-    }
-
+    };
 }

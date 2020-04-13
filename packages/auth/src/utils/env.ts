@@ -11,7 +11,9 @@ class IOptionalEnv extends IEnv {
 }
 
 for (const key in new IEnv()) {
-    if (!process.env[key] && !process.env.NO_ENV_CHECK) { throw new Error(`Enviromental variable ${key} not specified`); }
+    if (!process.env[key] && !process.env.NO_ENV_CHECK) {
+        throw new Error(`Enviromental variable ${key} not specified`);
+    }
 }
 
-export default process.env as any as IOptionalEnv;
+export default (process.env as any) as IOptionalEnv;

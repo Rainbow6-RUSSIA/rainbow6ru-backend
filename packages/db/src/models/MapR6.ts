@@ -3,7 +3,7 @@ import Pool from './Pool';
 import Tournament from './Tournament';
 import Vote from './Vote';
 
-@Table({schema: 'streambot', tableName: 'MapR6'})
+@Table({ schema: 'streambot', tableName: 'MapR6' })
 export default class MapR6 extends Model<MapR6> {
     @PrimaryKey
     @Column(DataType.STRING)
@@ -22,7 +22,7 @@ export default class MapR6 extends Model<MapR6> {
     public titleEn: string;
 
     @BelongsToMany(() => Tournament, () => Pool)
-    public tournamentPools: Array<Tournament & {Pool: Pool}>;
+    public tournamentPools: Array<Tournament & { Pool: Pool }>;
 
     @HasMany(() => Vote, 'Vote_mapId_fkey')
     public votes: Vote[];

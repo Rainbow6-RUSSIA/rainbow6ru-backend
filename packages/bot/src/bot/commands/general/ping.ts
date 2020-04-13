@@ -13,7 +13,7 @@ export default class Ping extends Command {
 
     // @TryCatch(debug)
     public exec = async (message: Message) => {
-        const sent = await message.channel.send('Пинг...') as any;
+        const sent = (await message.channel.send('Пинг...')) as any;
         return sent.edit(`Понг! Задержка ${sent.createdTimestamp - message.createdTimestamp}мс`);
-    }
+    };
 }

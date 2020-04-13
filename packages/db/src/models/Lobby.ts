@@ -1,4 +1,16 @@
-import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
+import {
+    BeforeCreate,
+    BeforeUpdate,
+    BelongsTo,
+    Column,
+    DataType,
+    Default,
+    ForeignKey,
+    HasMany,
+    HasOne,
+    Model,
+    Table,
+} from 'sequelize-typescript';
 
 import Guild from './Guild';
 import User from './User';
@@ -9,7 +21,7 @@ import { CategoryChannel, Guild as G, GuildMember, Invite, Message, Snowflake, V
 @Table({
     schema: 'siegebot',
     timestamps: true,
-    tableName: 'Lobby'
+    tableName: 'Lobby',
 })
 export default class Lobby extends Model<Lobby> {
     @BeforeCreate
@@ -20,7 +32,10 @@ export default class Lobby extends Model<Lobby> {
     @BeforeUpdate
     public static addLog(instance: Lobby) {
         if (instance.members) {
-            instance.log = [...instance.log, ...instance.members.map(u => u.id).filter(u => !instance.log.includes(u))];
+            instance.log = [
+                ...instance.log,
+                ...instance.members.map((u) => u.id).filter((u) => !instance.log.includes(u)),
+            ];
         }
     }
 

@@ -24,30 +24,29 @@ export default class Ready extends Listener {
             this.startNickUpdating();
             this.startRankUpdating();
         }
-
-    }
+    };
 
     private startRankUpdating = async () => {
         while (true) {
             try {
-                await new Promise(resolve => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+                await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
                 console.log('[INFO][BOT] Updating ranks...');
                 await Sync.updateRoles();
             } catch (err) {
                 refresh();
             }
         }
-    }
+    };
 
     private startNickUpdating = async () => {
         while (true) {
             try {
-                await new Promise(resolve => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
+                await new Promise((resolve) => setTimeout(resolve, parseInt(ENV.COOLDOWN)));
                 console.log('[INFO][BOT] Updating membernames...');
                 await Sync.updateMembernames();
             } catch (err) {
                 refresh();
             }
         }
-    }
+    };
 }

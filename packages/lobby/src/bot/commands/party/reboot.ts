@@ -14,15 +14,18 @@ export default class Reboot extends Command {
     public constructor() {
         super('reboot', {
             aliases: ['reboot'],
-            args: [{
-                id: 'target',
-                type: 'voiceChannel',
-                unordered: true,
-            }, {
-                id: 'targetId',
-                type: 'number',
-                unordered: true,
-            }],
+            args: [
+                {
+                    id: 'target',
+                    type: 'voiceChannel',
+                    unordered: true,
+                },
+                {
+                    id: 'targetId',
+                    type: 'number',
+                    unordered: true,
+                },
+            ],
             channel: 'guild',
             cooldown: 5000,
             userPermissions: 'MANAGE_GUILD',
@@ -53,5 +56,5 @@ export default class Reboot extends Command {
                 return message.reply('команда доступна только в канале поиска!');
             }
         }
-    }
+    };
 }

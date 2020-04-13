@@ -11,10 +11,12 @@ export default class Unblock extends Command {
     constructor() {
         super('unblock', {
             aliases: ['unblock'],
-            args: [{
-                id: 'target',
-                type: 'user',
-            }],
+            args: [
+                {
+                    id: 'target',
+                    type: 'user',
+                },
+            ],
             channel: 'guild',
             userPermissions: 'BAN_MEMBERS',
         });
@@ -23,11 +25,15 @@ export default class Unblock extends Command {
 
     public exec = async (message: Message, args: IUnblockArgs) => {
         const dbUser = await User.findByPk(args.target.id);
-        if (!dbUser) { return message.reply('пользователь не зарегистрирован'); }
-        const BLRecord = await GuildBlacklist.findOne({ where: {
-            guildId: message.guild.id,
-            userId: args.target.id,
-        }});
+        if (!dbUser) {
+            return message.reply('пользователь не зарегистрирован');
+        }
+        const BLRecord = await GuildBlacklist.findOne({
+            where: {
+                guildId: message.guild.id,
+                userId: args.target.id,
+            },
+        });
         if (BLRecord) {
             BLRecord.allowed = true;
             await BLRecord.save();
@@ -36,5 +42,5 @@ export default class Unblock extends Command {
         } else {
             return message.reply('пользователь не в черном списке!');
         }
-    }
+    };
 }

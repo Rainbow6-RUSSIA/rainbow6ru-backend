@@ -11,10 +11,12 @@ export default class Delete extends Command {
     public constructor() {
         super('delete', {
             aliases: ['delete'],
-            args: [{
-                id: 'target',
-                type: 'user',
-            }],
+            args: [
+                {
+                    id: 'target',
+                    type: 'user',
+                },
+            ],
             channel: 'guild',
             userPermissions: 'MANAGE_ROLES',
         });
@@ -31,10 +33,10 @@ export default class Delete extends Command {
         debug.log(`аккаунт удален <@${dbUser.id}> ${dbUser}`);
         await dbUser.destroy();
         const { guild } = message;
-        const { platformRoles, rankRoles} = await Guild.findByPk(guild.id);
+        const { platformRoles, rankRoles } = await Guild.findByPk(guild.id);
         const member = await guild.members.fetch(target.id);
         member.roles.remove([...Object.values(platformRoles), ...rankRoles].filter(Boolean), 'пользователь удален');
 
         return message.reply('пользователь удален');
-    }
+    };
 }

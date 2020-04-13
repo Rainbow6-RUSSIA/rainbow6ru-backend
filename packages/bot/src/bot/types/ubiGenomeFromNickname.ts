@@ -5,11 +5,11 @@ import { $enum } from 'ts-enum-util';
 import r6api from '../../utils/r6api';
 
 async function fetchProfiles(platforms: PLATFORM[], phrase: string) {
-    const rawProfiles = await Promise.all(platforms.map(p => r6api.api.findByName(p, phrase)));
+    const rawProfiles = await Promise.all(platforms.map((p) => r6api.api.findByName(p, phrase)));
     const profiles = rawProfiles
         .map((p, i) => ({ profile: Object.values(p)[0], platform: platforms[i] }))
-        .filter(p => p.profile)
-        .map(p => ({
+        .filter((p) => p.profile)
+        .map((p) => ({
             genome: p.profile.id,
             nickname: p.profile.name,
             platform: p.platform,
@@ -18,18 +18,28 @@ async function fetchProfiles(platforms: PLATFORM[], phrase: string) {
 }
 
 export default async (message: Message, phrase: string): Promise<IUbiBoundType | Flag> => {
-    if (!phrase
-        || $enum(REGIONS).isValue(phrase.toLowerCase())
-        || $enum(RANKS).map(r => r.toString().toLowerCase().split(' ')[0]).some(r => r === phrase.toLowerCase())
-    ) { return null; }
+    if (
+        !phrase ||
+        $enum(REGIONS).isValue(phrase.toLowerCase()) ||
+        $enum(RANKS)
+            .map((r) => r.toString().toLowerCase().split(' ')[0])
+            .some((r) => r === phrase.toLowerCase())
+    ) {
+        return null;
+    }
 
     try {
         const platforms = $enum(PLATFORM).getValues();
         if (!phrase.toLowerCase().startsWith('ubi_') && !phrase.toLowerCase().endsWith('_ubi')) {
             switch (true) {
-                case /^[a-zA-Z][\w-._]{2,14}$/.test(phrase): return await fetchProfiles(platforms, phrase); // await errors
+                case /^[a-zA-Z][\w-._]{2,14}$/.test(phrase):
+                    return await fetchProfiles(platforms, phrase); // await errors
 
-                case /^[a-zA-Z][\w-._ ]{2,14}$/.test(phrase): return await fetchProfiles(platforms.filter(p => p === PLATFORM.XBOX), phrase); // await errors
+                case /^[a-zA-Z][\w-._ ]{2,14}$/.test(phrase):
+                    return await fetchProfiles(
+                        platforms.filter((p) => p === PLATFORM.XBOX),
+                        phrase,
+                    ); // await errors
             }
         }
     } catch (error) {

@@ -6,7 +6,7 @@ import Team from './Team';
 @Table({
     schema: 'streambot',
     timestamps: true,
-    tableName: 'Vote'
+    tableName: 'Vote',
 })
 export default class Vote extends Model<Vote> {
     @ForeignKey(() => Match)
@@ -29,5 +29,4 @@ export default class Vote extends Model<Vote> {
 
     @Column(DataType.STRING)
     public type: 'ban' | 'pick' | 'decider';
-
 }

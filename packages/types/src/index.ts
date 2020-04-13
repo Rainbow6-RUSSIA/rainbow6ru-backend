@@ -2,11 +2,27 @@ import { GuildMember, Snowflake } from 'discord.js';
 
 export const RankResolvable = [
     'Unranked',
-    'Copper V', 'Copper IV', 'Copper III', 'Copper II', 'Copper I',
-    'Bronze V', 'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
-    'Silver V', 'Silver IV', 'Silver III', 'Silver II', 'Silver I',
-    'Gold III', 'Gold II', 'Gold I',
-    'Platinum III', 'Platinum II', 'Platinum I',
+    'Copper V',
+    'Copper IV',
+    'Copper III',
+    'Copper II',
+    'Copper I',
+    'Bronze V',
+    'Bronze IV',
+    'Bronze III',
+    'Bronze II',
+    'Bronze I',
+    'Silver V',
+    'Silver IV',
+    'Silver III',
+    'Silver II',
+    'Silver I',
+    'Gold III',
+    'Gold II',
+    'Gold I',
+    'Platinum III',
+    'Platinum II',
+    'Platinum I',
     'Diamond',
     'Champion',
 ];
@@ -66,11 +82,27 @@ export enum MATCH_TYPE {
 
 export enum RANKS {
     'Unranked',
-    'Copper V', 'Copper IV', 'Copper III', 'Copper II', 'Copper I',
-    'Bronze V', 'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
-    'Silver V', 'Silver IV', 'Silver III', 'Silver II', 'Silver I',
-    'Gold III', 'Gold II', 'Gold I',
-    'Platinum III', 'Platinum II', 'Platinum I',
+    'Copper V',
+    'Copper IV',
+    'Copper III',
+    'Copper II',
+    'Copper I',
+    'Bronze V',
+    'Bronze IV',
+    'Bronze III',
+    'Bronze II',
+    'Bronze I',
+    'Silver V',
+    'Silver IV',
+    'Silver III',
+    'Silver II',
+    'Silver I',
+    'Gold III',
+    'Gold II',
+    'Gold I',
+    'Platinum III',
+    'Platinum II',
+    'Platinum I',
     'Diamond',
     'Champion',
 }
@@ -104,11 +136,16 @@ export const DefaultSocial = {
 };
 
 export enum LobbyStoreEventType {
-    JOIN, LEAVE, MOVE, KICK,
+    JOIN,
+    LEAVE,
+    MOVE,
+    KICK,
 }
 
 export enum LobbyStoreStatus {
-    LOADING, TRANSACTING, AVAILABLE,
+    LOADING,
+    TRANSACTING,
+    AVAILABLE,
 }
 
 export type ILobbyStoreEventType = 'join' | 'leave' | 'move' | 'report';
@@ -124,7 +161,19 @@ export enum IngameStatus {
     LOADING = -2,
     OTHER = -1,
     MENU = 0,
-    CASUAL, CASUAL_SEARCH, UNRANKED, UNRANKED_SEARCH, RANKED, RANKED_SEARCH, NEWCOMER, NEWCOMER_SEARCH, TERRORIST_HUNT, CUSTOM, CUSTOM_SEARCH, DISCOVERY, DISCOVERY_SEARCH,
+    CASUAL,
+    CASUAL_SEARCH,
+    UNRANKED,
+    UNRANKED_SEARCH,
+    RANKED,
+    RANKED_SEARCH,
+    NEWCOMER,
+    NEWCOMER_SEARCH,
+    TERRORIST_HUNT,
+    CUSTOM,
+    CUSTOM_SEARCH,
+    DISCOVERY,
+    DISCOVERY_SEARCH,
 }
 
 export const R6_PRESENCE_ID = '445956193924546560';
@@ -148,22 +197,54 @@ export const R6_PRESENCE_REGEXPS = [
 
 export const RANK_COLORS = [
     0x1f191a,
-    0x902700, 0x902700, 0x902700, 0x902700, 0x902700,
-    0xd17935, 0xd17935, 0xd17935, 0xd17935, 0xd17935,
-    0xa7a7a7, 0xa7a7a7, 0xa7a7a7, 0xa7a7a7, 0xa7a7a7,
-    0xffb120, 0xffb120, 0xffb120,
-    0x00cdc1, 0x00cdc1, 0x00cdc1,
+    0x902700,
+    0x902700,
+    0x902700,
+    0x902700,
+    0x902700,
+    0xd17935,
+    0xd17935,
+    0xd17935,
+    0xd17935,
+    0xd17935,
+    0xa7a7a7,
+    0xa7a7a7,
+    0xa7a7a7,
+    0xa7a7a7,
+    0xa7a7a7,
+    0xffb120,
+    0xffb120,
+    0xffb120,
+    0x00cdc1,
+    0x00cdc1,
+    0x00cdc1,
     0xa67df8,
     0xff0784,
 ];
 
 export const RANK_BADGES = [
     '598137242829062154',
-    '622165779328270367', '598137242451443743', '598137243260944394', '598137243043102720', '598137243001159680',
-    '622165779843907584', '598137242946371584', '598137242955022347', '598137244100067329', '598137243001159681',
-    '622165779990839318', '598137243529641994', '598137242996703235', '598137242996703234', '598137243193966592',
-    '598137243206418432', '598137243659665408', '598137243349024768',
-    '598137243206418462', '598137243013742593', '598137243336704030',
+    '622165779328270367',
+    '598137242451443743',
+    '598137243260944394',
+    '598137243043102720',
+    '598137243001159680',
+    '622165779843907584',
+    '598137242946371584',
+    '598137242955022347',
+    '598137244100067329',
+    '598137243001159681',
+    '622165779990839318',
+    '598137243529641994',
+    '598137242996703235',
+    '598137242996703234',
+    '598137243193966592',
+    '598137243206418432',
+    '598137243659665408',
+    '598137243349024768',
+    '598137243206418462',
+    '598137243013742593',
+    '598137243336704030',
     '598137243277721629',
     '622159827681935371',
 ];
@@ -187,10 +268,16 @@ export interface ILobbySettings {
     enabled: boolean;
 }
 
-export const currentlyPlaying = [IngameStatus.CASUAL, IngameStatus.RANKED, IngameStatus.CUSTOM, IngameStatus.NEWCOMER, IngameStatus.DISCOVERY];
+export const currentlyPlaying = [
+    IngameStatus.CASUAL,
+    IngameStatus.RANKED,
+    IngameStatus.CUSTOM,
+    IngameStatus.NEWCOMER,
+    IngameStatus.DISCOVERY,
+];
 export enum EmojiButtons {
-        CLOSE = '🔐',
-        HARDPLAY = '🏆',
+    CLOSE = '🔐',
+    HARDPLAY = '🏆',
 }
 
 export enum UpdateStatus {
@@ -200,6 +287,5 @@ export enum UpdateStatus {
     GUILD_LEFT,
     GUILD_UNAVAILABLE,
     GUILD_NONPREMIUM,
-    INCORRECT_CALL
-
+    INCORRECT_CALL,
 }

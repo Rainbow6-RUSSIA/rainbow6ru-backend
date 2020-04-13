@@ -17,7 +17,20 @@ import Vote from './models/Vote';
 export default async (url: string, logging = false) => {
     const DB = new Sequelize(url, { logging });
     await DB.authenticate();
-    DB.addModels([Guild, GuildBlacklist, Lobby, MapR6, Match, Pool, Team, TeamMatch, Tournament, TournamentMod, User, Vote]);
+    DB.addModels([
+        Guild,
+        GuildBlacklist,
+        Lobby,
+        MapR6,
+        Match,
+        Pool,
+        Team,
+        TeamMatch,
+        Tournament,
+        TournamentMod,
+        User,
+        Vote,
+    ]);
     await DB.sync({ force: process.env.DROP_DB === 'true', alter: process.env.ALTER_DB === 'true' });
 };
 

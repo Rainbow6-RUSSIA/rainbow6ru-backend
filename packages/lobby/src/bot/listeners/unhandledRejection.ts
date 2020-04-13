@@ -11,5 +11,5 @@ export default class UnhandledRejection extends Listener {
 
     public exec = async (error: Error) => {
         debug.error(error);
-    }
+    };
 }

@@ -15,30 +15,43 @@ export default class Twinks extends Command {
     }
 
     public paragraphSplit = (joinWith: string) => (a: string[], b: string) => {
-        if (a.length === 0) { return [b]; }
+        if (a.length === 0) {
+            return [b];
+        }
         const c = a[a.length - 1] + joinWith + b;
         if (c.length <= 2000) {
-          a[a.length - 1] = c;
+            a[a.length - 1] = c;
         } else {
-          a.push(b);
+            a.push(b);
         }
         return a;
-      }
+    };
 
     public exec = async (message: Message) => {
-        const dbUsers = await User.findAndCountAll({attributes: ['id', 'genome'], where: {id: {[Op.ne]: '0'}}});
-        const dbGuild = await Guild.findByPk(message.guild.id, {include: [ User ]});
+        const dbUsers = await User.findAndCountAll({ attributes: ['id', 'genome'], where: { id: { [Op.ne]: '0' } } });
+        const dbGuild = await Guild.findByPk(message.guild.id, { include: [User] });
         const twinksCounter = new Collection<UUID, Set<Snowflake>>();
-        dbUsers.rows.map(dbUser => twinksCounter.get(dbUser.genome) ? twinksCounter.get(dbUser.genome).add(dbUser.id) : twinksCounter.set(dbUser.genome, new Set([dbUser.id])));
-        const filteredTwinks = twinksCounter.filter(g => g.size > 1);
+        dbUsers.rows.map((dbUser) =>
+            twinksCounter.get(dbUser.genome)
+                ? twinksCounter.get(dbUser.genome).add(dbUser.id)
+                : twinksCounter.set(dbUser.genome, new Set([dbUser.id])),
+        );
+        const filteredTwinks = twinksCounter.filter((g) => g.size > 1);
         const bans = await message.guild.fetchBans();
-        const genomeBans = new Set([...dbGuild.genomeBlacklist, dbGuild.blacklist.map(u => u.genome)]);
-        const answs = filteredTwinks.map(async (set, key) => `• Uplay <${ONLINE_TRACKER}${key}>${genomeBans.has(key)
-            ? ' ' + ENV.BAN_BADGE
-            : ''
-        } привязан:\n◦    ${(await Promise.all([...set]
-            .map(async id => `<@${id}> \`${(await this.client.users.fetch(id)).tag}\` ${bans.has(id) ? `${ENV.BAN_BADGE} \`${bans.get(id).reason}\`` : ''}`),
-        )).join('\n◦    ')}`);
+        const genomeBans = new Set([...dbGuild.genomeBlacklist, dbGuild.blacklist.map((u) => u.genome)]);
+        const answs = filteredTwinks.map(
+            async (set, key) =>
+                `• Uplay <${ONLINE_TRACKER}${key}>${genomeBans.has(key) ? ' ' + ENV.BAN_BADGE : ''} привязан:\n◦    ${(
+                    await Promise.all(
+                        [...set].map(
+                            async (id) =>
+                                `<@${id}> \`${(await this.client.users.fetch(id)).tag}\` ${
+                                    bans.has(id) ? `${ENV.BAN_BADGE} \`${bans.get(id).reason}\`` : ''
+                                }`,
+                        ),
+                    )
+                ).join('\n◦    ')}`,
+        );
         const parts = (await Promise.all(answs)).join('\n').split('\n• ').reduce(this.paragraphSplit('\n• '), []);
 
         console.log(5);
@@ -46,5 +59,5 @@ export default class Twinks extends Command {
             await message.channel.send(part);
         }
         return message.reply(`найдено ${new Set(filteredTwinks.values()).size} твинков`);
-    }
+    };
 }

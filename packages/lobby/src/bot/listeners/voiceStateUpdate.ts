@@ -29,7 +29,12 @@ export default class VoiceStateUpdate extends Listener {
     }
 
     public exec = async (oldState: VoiceState, newState: VoiceState) => {
-        if (ENV.NODE_ENV === 'development' && oldState.guild.id !== '216649610511384576' || (oldState?.channelID === newState.channelID)) {return; }
+        if (
+            (ENV.NODE_ENV === 'development' && oldState.guild.id !== '216649610511384576') ||
+            oldState?.channelID === newState.channelID
+        ) {
+            return;
+        }
         if (!newState.channel && newState.channelID) {
             await this.client.channels.fetch(newState.channelID);
         }
@@ -37,5 +42,5 @@ export default class VoiceStateUpdate extends Listener {
             await this.client.channels.fetch(oldState.channelID);
         }
         VoiceStateUpdate.handle(oldState, newState);
-    }
+    };
 }

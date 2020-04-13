@@ -1,6 +1,17 @@
 import { DefaultSocial } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
-import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
+import {
+    BelongsTo,
+    BelongsToMany,
+    Column,
+    DataType,
+    Default,
+    ForeignKey,
+    HasMany,
+    HasOne,
+    Model,
+    Table,
+} from 'sequelize-typescript';
 import Guild from './Guild';
 import MapR6 from './MapR6';
 import Match from './Match';
@@ -8,7 +19,7 @@ import Pool from './Pool';
 import TournamentMod from './TournamentMod';
 import User from './User';
 
-@Table({schema: 'streambot', tableName: 'Tournament'})
+@Table({ schema: 'streambot', tableName: 'Tournament' })
 export default class Tournament extends Model<Tournament> {
     @Column
     public name: string;
@@ -47,8 +58,8 @@ export default class Tournament extends Model<Tournament> {
     public matches: Match[];
 
     @BelongsToMany(() => MapR6, () => Pool)
-    public pool: Array<MapR6 & {Pool: Pool}>;
+    public pool: Array<MapR6 & { Pool: Pool }>;
 
     @BelongsToMany(() => User, () => TournamentMod)
-    public moderators: Array<User & {TournamentMod: TournamentMod}>;
+    public moderators: Array<User & { TournamentMod: TournamentMod }>;
 }

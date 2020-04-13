@@ -19,10 +19,13 @@ export default class ChannelDelete extends Listener {
 
             const toMove = LS.voices.last();
             try {
-                await toMove.edit({
-                    name: toMove.name.replace(/#\d+/g, /#\d+/g.exec(room.dcChannel.name)[0]),
-                    position: pos,
-                }, 'подмена удаленного канала');
+                await toMove.edit(
+                    {
+                        name: toMove.name.replace(/#\d+/g, /#\d+/g.exec(room.dcChannel.name)[0]),
+                        position: pos,
+                    },
+                    'подмена удаленного канала',
+                );
                 lobbyStoresRooms.get(toMove.id).updateAppeal();
             } catch (error) {
                 console.log('FAIL ON REPLACE WHEN DELETE', error);
@@ -39,5 +42,4 @@ export default class ChannelDelete extends Listener {
             await ChannelDelete.handle(channel);
         }
     }
-
 }

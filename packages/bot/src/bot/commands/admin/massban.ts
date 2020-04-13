@@ -8,19 +8,23 @@ interface IArgs {
     targets: string;
 }
 
-export default class Massban extends Command { // update all|newseason|numofpacks
+export default class Massban extends Command {
+    // update all|newseason|numofpacks
     public constructor() {
         super('massban', {
             aliases: ['massban', 'BANNAHUY'],
-            args: [{
-                id: 'reason',
-                type: 'string',
-            }, {
-                id: 'targets',
-                type: 'string',
-                match: 'restContent',
-                default: ''
-            }],
+            args: [
+                {
+                    id: 'reason',
+                    type: 'string',
+                },
+                {
+                    id: 'targets',
+                    type: 'string',
+                    match: 'restContent',
+                    default: '',
+                },
+            ],
             channel: 'guild',
             userPermissions: 'BAN_MEMBERS',
         });
@@ -31,18 +35,26 @@ export default class Massban extends Command { // update all|newseason|numofpack
     public exec = async (message: Message, args: IArgs) => {
         console.log(args);
         const { reason, targets } = args;
-        const ids = targets.match(/\d*/g).filter(i => i.length >= 17 && i.length <= 19);
+        const ids = targets.match(/\d*/g).filter((i) => i.length >= 17 && i.length <= 19);
         if (!ids.length) {
             return message.reply('пользователи не найдены!');
         }
-        const prmt = await combinedPrompt(await message.reply(`будут забанены \`${ids.length}\` пользователей по причине \`${reason}\`. Продолжить?`) as Message, {
-            author: message.author,
-            emojis: ['✅', '❎'],
-            texts: [['yes', 'да', '+'], ['no', 'нет', '-']],
-        });
+        const prmt = await combinedPrompt(
+            (await message.reply(
+                `будут забанены \`${ids.length}\` пользователей по причине \`${reason}\`. Продолжить?`,
+            )) as Message,
+            {
+                author: message.author,
+                emojis: ['✅', '❎'],
+                texts: [
+                    ['yes', 'да', '+'],
+                    ['no', 'нет', '-'],
+                ],
+            },
+        );
         if (prmt === 0) {
-            await Promise.all(ids.map(t => message.guild.members.ban(t, { days: 7, reason})));
+            await Promise.all(ids.map((t) => message.guild.members.ban(t, { days: 7, reason })));
             return message.reply('готово!');
         }
-    }
+    };
 }

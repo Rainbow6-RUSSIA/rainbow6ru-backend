@@ -7,13 +7,15 @@ import ENV from '../../utils/env';
 import { lobbyStoresRooms } from '../../utils/lobby';
 import { LSRoom } from '../../utils/lobby/room';
 
-export const detectIngameStatus = (presence: Presence): IS  => {
-    if (!presence) { return IS.OTHER; }
+export const detectIngameStatus = (presence: Presence): IS => {
+    if (!presence) {
+        return IS.OTHER;
+    }
 
     const { activity } = presence;
 
     return activity?.applicationID === R6_PRESENCE_ID
-        ? R6_PRESENCE_REGEXPS.findIndex(ar => ar.some(r => r.test(activity.details)))
+        ? R6_PRESENCE_REGEXPS.findIndex((ar) => ar.some((r) => r.test(activity.details)))
         : IS.OTHER;
 };
 
@@ -38,7 +40,9 @@ export default class PresenceUpdate extends Listener {
         // if (!room || room.status === IS.LOADING || !room.dcMembers.size) { return; }
 
         const [prev, next] = [detectIngameStatus(oldPresence), detectIngameStatus(newPresence)];
-        if (!room || prev === next) { return; }
+        if (!room || prev === next) {
+            return;
+        }
 
         return room.handleStatus();
     }

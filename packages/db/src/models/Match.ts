@@ -1,14 +1,25 @@
 import { MATCH_TYPE } from '@r6ru/types';
-import { AllowNull, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
+import {
+    AllowNull,
+    BelongsTo,
+    BelongsToMany,
+    Column,
+    DataType,
+    Default,
+    ForeignKey,
+    HasMany,
+    HasOne,
+    Model,
+    Table,
+} from 'sequelize-typescript';
 import MapR6 from './MapR6';
 import Team from './Team';
 import TeamMatch from './TeamMatch';
 import Tournament from './Tournament';
 import Vote from './Vote';
 
-@Table({schema: 'streambot', tableName: 'Match'})
+@Table({ schema: 'streambot', tableName: 'Match' })
 export default class Match extends Model<Match> {
-
     @Column(DataType.STRING(5))
     public matchType: MATCH_TYPE;
 
@@ -32,7 +43,7 @@ export default class Match extends Model<Match> {
     public poolCache: MapR6[];
 
     @BelongsToMany(() => Team, () => TeamMatch)
-    public teams: Array<Team & {TeamMatch: TeamMatch}>;
+    public teams: Array<Team & { TeamMatch: TeamMatch }>;
 
     @ForeignKey(() => Tournament)
     @Column

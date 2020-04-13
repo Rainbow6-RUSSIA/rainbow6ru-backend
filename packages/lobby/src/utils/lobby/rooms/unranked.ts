@@ -1,14 +1,13 @@
-import { Room } from '.'
+import { Room } from '.';
 
 export class UnrankedRoom extends Room {
     public from = UnrankedRoom.from;
     static from<LT extends Room>(lobby: LT): UnrankedRoom {
         if (lobby instanceof UnrankedRoom) {
-            return lobby
+            return lobby;
         }
-
     }
-    
+
     public generateAppeal() {
         return {};
     }
@@ -20,5 +19,4 @@ export class UnrankedRoom extends Room {
     public async leave() {
         super.leave();
     }
-    
 }
