@@ -6,19 +6,6 @@ import { UnrankedRoom } from './rooms/unranked';
 
 const initiatedAt = new Date();
 
-export enum LobbyType {
-    'DEFAULT', // показывает всех юзеров без привязки к БД (для всех игр)
-    'RANKED',
-    'CASUAL',
-    'UNRANKED',
-    'REGION', // комната для ДВ и Америки
-    'CONSOLE', // показывать стату с консолей
-    'CUSTOM', // кастом на 5 мест (показывать стату в кастоме)
-    'CUSTOM_GENERAL', // общий кастом на 12 мест
-    'TERRORIST_HUNT', // показывать стату в ТХ
-    'SIMPLE', // показывает всех юзеров, выделяя тех, кто в БД (для игр Юбисофт)
-}
-
 export class LobbyContainer<LT extends Room> {
     constructor(public settings: ILobbySettings, public guild: Guild, public ContaineredLobby: LT) {}
 }

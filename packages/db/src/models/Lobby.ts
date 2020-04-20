@@ -1,4 +1,4 @@
-import { IngameStatus as IS, LOBBY_FLAGS, LobbyType } from '@r6ru/types';
+import { IngameStatus as IS, LOBBY_FLAGS, LobbyType, LobbyStoreEventType } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
 import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
 import Guild from './Guild';
@@ -57,9 +57,15 @@ export default class Lobby extends Model<Lobby> {
     @HasMany(() => User)
     public members: User[];
 
+    /**
+     * [memberId, action, timestamp]
+     *
+     * @type {[Snowflake, LobbyStoreEventType, number][]}
+     * @memberof Lobby
+     */
     @Default([])
     @Column(DataType.JSONB)
-    public log: Snowflake[];
+    public log: [Snowflake, LobbyStoreEventType, number][];
 
     @Column
     public initiatedAt: Date;
