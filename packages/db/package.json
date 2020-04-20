@@ -11,16 +11,20 @@
     "build": "tsc -p .",
     "test": "yarn build && node ./build/test.js",
     "bootstrap": "lerna bootstrap",
-		"lint": "eslint */**/*.{js,jsx,ts,tsx} --fix"
+    "lint": "eslint */**/*.{js,jsx,ts,tsx} --fix"
   },
   "dependencies": {
     "@r6ru/types": "0.0.0",
     "discord.js": "12.1.1",
-    "r6api.js": "^1.3.0",
     "pg": "8.0.2",
+    "r6api.js": "^1.3.0",
     "reflect-metadata": "^0.1.13",
     "sequelize": "5.21.6",
     "sequelize-typescript": "^1.1.0",
     "uuid": "7.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^13.13.0",
+    "typescript": "^3.8.3"
   }
 }

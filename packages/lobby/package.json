@@ -40,5 +40,9 @@
 		"restify-errors": "8.0.2",
 		"ts-enum-util": "^4.0.1",
 		"uuid": "^3.3.2"
+	},
+	"devDependencies": {
+		"@types/node": "^13.13.0",
+		"typescript": "^3.8.3"
 	}
 }
