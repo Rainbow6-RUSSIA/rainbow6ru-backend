@@ -1,17 +1,14 @@
-import { ACCESS, BAN_BADGE, HF_REGIONS, ONLINE_TRACKER, RANKS, REGIONS, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
+import { USER_FLAGS, BAN_BADGE, HF_REGIONS, ONLINE_TRACKER, RANKS, REGIONS, VERIFIED_BADGE } from '@r6ru/types';
 import { Client, Guild as G, Snowflake } from 'discord.js';
 import { AllowNull, BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table } from 'sequelize-typescript';
-import Guild from './Guild';
 import Account from './Account';
 import UserAccount from './UserAccount';
-import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
 // import Team from './Team';
 
 @Table({
     schema: 'siegebot',
-    timestamps: true,
-    tableName: 'User',
+    timestamps: true
 })
 export default class User extends Model<User> {
     @BeforeUpdate
@@ -22,7 +19,7 @@ export default class User extends Model<User> {
 
     @PrimaryKey
     @Column(DataType.STRING)
-    public id: Snowflake; // discord snowflake
+    public id: Snowflake;
 
     @BelongsToMany(() => Account, () => UserAccount)
     public accounts: Array<Account & { UserAccount: UserAccount }>
@@ -36,6 +33,12 @@ export default class User extends Model<User> {
     @Column
     public active: boolean;
 
+    /**
+     * true/false - синхронизация. null - принудительная синхронизация
+     *
+     * @type {boolean}
+     * @memberof User
+     */
     @Default(false)
     @Column
     public syncNickname: boolean;
@@ -44,15 +47,12 @@ export default class User extends Model<User> {
     @Column
     public lobbyId: number;
 
-    @BelongsTo(() => Lobby, 'User_lobbyId_fkey')
+    @BelongsTo(() => Lobby)
     public lobby: Lobby;
 
     // @ForeignKey(() => Team)
     // @Column
-    // public teamId: number;
-
-    @BelongsToMany(() => Guild, () => GuildBlacklist)
-    public bannedAt: (Guild & { GuildBlacklist: GuildBlacklist })[];
+    // public teamId: number
 
     @Column(DataType.STRING)
     public region: REGIONS;
@@ -61,7 +61,7 @@ export default class User extends Model<User> {
     public verificationRequired: boolean;
 
     @Column(DataType.INTEGER)
-    public access: ACCESS;
+    public flags: USER_FLAGS;
 
     @Column(DataType.JSONB)
     public likes: {
@@ -71,15 +71,19 @@ export default class User extends Model<User> {
     @Column(DataType.FLOAT)
     public karma: number;
 
+    public get mainAccount() {
+        return this.accounts.find(a => a.UserAccount.main);
+    }
+
     public get isInVerification(): boolean {
-        return this.requiredVerification > this.verificationLevel;
+        return this.accounts.find(a => a.UserAccount.main && a.UserAccount.verified) && this.verificationRequired;
     }
 
     public toString() {
-        return ONLINE_TRACKER + this.genome;
+        return ONLINE_TRACKER(this.mainAccount.id);
     }
 
-    public infoBadge = async (
+    /* public infoBadge = async (
         client?: Client,
         adminAction?: boolean,
         bans?: ThenArg<ReturnType<G['fetchBans']>>,
@@ -111,7 +115,7 @@ export default class User extends Model<User> {
                 ? '\nИстория никнеймов:\n◦ ' + this.nicknameHistory.map((nick) => `\`${nick}\``).join('\n◦ ')
                 : '')
         );
-    };
+    }; */
 }
 
-type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
+// type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;

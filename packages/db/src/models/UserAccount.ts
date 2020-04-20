@@ -1,4 +1,4 @@
-import { Column, Default, ForeignKey, Model, Table, DataType } from 'sequelize-typescript';
+import { Column, Default, ForeignKey, Model, Table, DataType, Unique } from 'sequelize-typescript';
 import Account from './Account';
 import User from './User';
 
@@ -12,6 +12,11 @@ export default class UserAccount extends Model<UserAccount> {
     @Column(DataType.UUID)
     public accountId: string;
 
+    @Unique
+    @Default(DataType.UUIDV4)
+    @Column(DataType.UUID)
+    public connectionId: string;
+
     @Default(false)
     @Column
     public verified: boolean;
@@ -20,6 +25,12 @@ export default class UserAccount extends Model<UserAccount> {
     @Column
     public verificationRequired: boolean;
 
+    /**
+     * Один основной аккаунт на пользователя среди всех аккаунтов
+     *
+     * @type {boolean}
+     * @memberof UserAccount
+     */
     @Default(false)
     @Column
     public main: boolean;

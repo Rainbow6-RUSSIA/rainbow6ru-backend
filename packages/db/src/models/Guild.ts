@@ -1,20 +1,18 @@
-import { DonateRecord, ILobbySettings, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
+import { DonateRecord, ILobbySettings, RANKS } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
 import { BelongsToMany, Column, DataType, Default, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
-import { Platform } from 'r6api.js'
-import GuildBlacklist from './GuildBlacklist';
+import { Platform } from 'r6api.js';
 import Lobby from './Lobby';
 import User from './User';
 
 @Table({
     schema: 'siegebot',
-    tableName: 'Guild',
     timestamps: false,
 })
 export default class Guild extends Model<Guild> {
     @PrimaryKey
     @Column(DataType.STRING)
-    public id: Snowflake; // discord snowflake
+    public id: Snowflake;
 
     @Column(DataType.INTEGER)
     public fixAfter: RANKS;
@@ -38,11 +36,14 @@ export default class Guild extends Model<Guild> {
         [key: string]: DonateRecord;
     };
 
-    @BelongsToMany(() => User, () => GuildBlacklist) // rework to HasMany UserAccount + merge genomeBlacklist
-    public blacklist: Array<User & { GuildBlacklist: GuildBlacklist }>;
-
+    /**
+     * Связанные UserAccounts через connectionId. Нужно подгрузить отдельно
+     *
+     * @type {string[]}
+     * @memberof Guild
+     */
     @Column(DataType.ARRAY(DataType.UUID))
-    public genomeBlacklist: string[];
+    public blacklist: string[];
 
     @Column
     public verificationRequired: boolean;

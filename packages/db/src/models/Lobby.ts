@@ -1,4 +1,4 @@
-import { IngameStatus as IS } from '@r6ru/types';
+import { IngameStatus as IS, LOBBY_FLAGS, LobbyType } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
 import { BeforeCreate, BeforeUpdate, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
 import Guild from './Guild';
@@ -7,7 +7,6 @@ import User from './User';
 @Table({
     schema: 'siegebot',
     timestamps: true,
-    tableName: 'Lobby',
 })
 export default class Lobby extends Model<Lobby> {
     @BeforeCreate
@@ -32,13 +31,8 @@ export default class Lobby extends Model<Lobby> {
     @Column
     public active: boolean;
 
-    @Default(false)
-    @Column
-    public close: boolean;
-
-    @Default(false)
-    @Column
-    public hardplay: boolean;
+    @Column(DataType.INTEGER)
+    public flags: LOBBY_FLAGS;
 
     @Column
     public invite: string;
@@ -47,8 +41,8 @@ export default class Lobby extends Model<Lobby> {
     @Column
     public status: IS;
 
-    @Column
-    public type: string;
+    @Column(DataType.INTEGER)
+    public type: LobbyType;
 
     @Column
     public channel: Snowflake;
@@ -64,9 +58,12 @@ export default class Lobby extends Model<Lobby> {
     public members: User[];
 
     @Default([])
-    @Column(DataType.ARRAY(DataType.STRING))
+    @Column(DataType.JSONB)
     public log: Snowflake[];
 
     @Column
     public initiatedAt: Date;
+
+    @Column
+    public scheduledAt: Date;
 }

@@ -18,6 +18,12 @@ export default class Account extends Model<Account> {
 
     // General info
 
+    /**
+     * Для верификации по QR коду (на консолях отличается)
+     *
+     * @type {string}
+     * @memberof Account
+     */
     @Column(DataType.UUID)
     public userId?: string;
 

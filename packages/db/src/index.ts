@@ -1,16 +1,17 @@
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
+import Account from './models/Account';
 import Guild from './models/Guild';
-import GuildBlacklist from './models/GuildBlacklist';
 import Lobby from './models/Lobby';
 import User from './models/User';
+import UserAccount from './models/UserAccount';
 
 export default async (url: string, logging = false) => {
     const DB = new Sequelize(url, { logging });
     await DB.authenticate();
-    DB.addModels([Guild, GuildBlacklist, Lobby, User]);
+    DB.addModels([Account, Guild, Lobby, User, UserAccount]);
     await DB.sync({ force: process.env.DROP_DB === 'true', alter: process.env.ALTER_DB === 'true' });
 };
 
-export { Guild, GuildBlacklist, Lobby, User, Op };
+export { Account, Guild, Lobby, User, UserAccount, Op, Sequelize };
 
