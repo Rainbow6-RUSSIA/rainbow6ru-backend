@@ -1,9 +1,9 @@
 import { DonateRecord, ILobbySettings, RANKS, VERIFICATION_LEVEL } from '@r6ru/types';
 import { Snowflake } from 'discord.js';
 import { BelongsToMany, Column, DataType, Default, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { Platform } from 'r6api.js'
 import GuildBlacklist from './GuildBlacklist';
 import Lobby from './Lobby';
-import Tournament from './Tournament';
 import User from './User';
 
 @Table({
@@ -23,17 +23,10 @@ export default class Guild extends Model<Guild> {
     public rankRoles: string[];
 
     @Column(DataType.JSONB)
-    public platformRoles: {
-        PC: string;
-        PS4: string;
-        XBOX: string;
-    };
+    public platformRoles: Record<Platform, Snowflake>;
 
-    @HasMany(() => Lobby, 'Lobby_guildId_fkey')
+    @HasMany(() => Lobby)
     public lobbies: Lobby[];
-
-    @HasMany(() => Tournament, 'Tournament_guildId_fkey')
-    public tournaments: Tournament[];
 
     @Default(false)
     @Column
@@ -45,14 +38,14 @@ export default class Guild extends Model<Guild> {
         [key: string]: DonateRecord;
     };
 
-    @BelongsToMany(() => User, () => GuildBlacklist)
+    @BelongsToMany(() => User, () => GuildBlacklist) // rework to HasMany UserAccount + merge genomeBlacklist
     public blacklist: Array<User & { GuildBlacklist: GuildBlacklist }>;
 
     @Column(DataType.ARRAY(DataType.UUID))
     public genomeBlacklist: string[];
 
-    @Column(DataType.INTEGER)
-    public requiredVerification: VERIFICATION_LEVEL;
+    @Column
+    public verificationRequired: boolean;
 
     @Column
     public fastLfg: string;
