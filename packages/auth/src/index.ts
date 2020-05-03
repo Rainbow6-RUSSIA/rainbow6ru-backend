@@ -1,5 +1,4 @@
 import * as restify from 'restify';
-import './endpoints';
 import ENV from './utils/env';
 
 export function respond(req, res, next) {
@@ -21,3 +20,5 @@ server.use(restify.plugins.bodyParser());
 server.use(restify.plugins.requestLogger());
 
 server.listen(ENV.PORT || 3333, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));
+
+import('./endpoints')
