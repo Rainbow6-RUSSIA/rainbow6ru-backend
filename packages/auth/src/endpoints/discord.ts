@@ -14,7 +14,7 @@ server.get('/discord', async (req, res, next) => {
         'code': code,
         'redirect_uri': ENV.CALLBACK_URL,
         'scope': 'identify email connections'
-    })
+    });
     try {
         const reqToken = await fetch(
             'https://discordapp.com/api/v6/oauth2/token?' + params,
@@ -22,21 +22,21 @@ server.get('/discord', async (req, res, next) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             }
-        )
+        );
         const json = await reqToken.json();
-        if (!json.access_token) return next(new BadRequestError())
+        if (!json.access_token) return next(new BadRequestError());
         const reqUser = await fetch(`https://discordapp.com/api/v6/users/@me?access_token=${json.access_token}`);
         const user = await reqUser.json();
         const token = jwt.sign({
             sub: user.id,
         }, ENV.KEY256, {
             expiresIn: '7d'
-        })
+        });
 
-        res.send({ user, token })
+        res.send({ user, token });
         
     } catch (error) {
         return next(new InternalServerError());
     }
-    next()
+    next();
 });

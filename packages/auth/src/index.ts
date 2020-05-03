@@ -1,4 +1,5 @@
 import * as restify from 'restify';
+import * as CORSMiddleware from 'restify-cors-middleware';
 import ENV from './utils/env';
 
 export function respond(req, res, next) {
@@ -6,8 +7,16 @@ export function respond(req, res, next) {
     next();
 }
 
+const cors = CORSMiddleware({
+    origins: ["https://*.rainbow6.ru", "https://rainbow6.ru"],
+    allowHeaders: ['*'],
+    exposeHeaders: ['*']
+});
+
 export const server = restify.createServer();
 
+server.pre(cors.preflight);
+server.use(cors.actual);
 server.use(
     restify.plugins.throttle({
         burst: 100,

@@ -36,11 +36,13 @@
     "pg": "^7.11.0",
     "reflect-metadata": "0.1.13",
     "restify": "8.5.1",
+    "restify-cors-middleware": "^1.1.1",
     "restify-errors": "8.0.2",
     "ts-enum-util": "4.0.1"
   },
   "devDependencies": {
     "@types/node": "^13.13.0",
+    "@types/restify-cors-middleware": "^1.0.1",
     "typescript": "^3.8.3"
   }
 }

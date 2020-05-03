@@ -16,10 +16,60 @@
     extsprintf "^1.4.0"
     lodash "^4.17.15"
 
+"@types/bunyan@*":
+  version "1.8.6"
+  resolved "https://registry.yarnpkg.com/@types/bunyan/-/bunyan-1.8.6.tgz#6527641cca30bedec5feb9ab527b7803b8000582"
+  integrity sha512-YiozPOOsS6bIuz31ilYqR5SlLif4TBWsousN2aCWLi5233nZSX19tFbcQUPdR7xJ8ypPyxkCGNxg0CIV5n9qxQ==
+  dependencies:
+    "@types/node" "*"
+
+"@types/events@*":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
+  integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
+
+"@types/formidable@*":
+  version "1.0.31"
+  resolved "https://registry.yarnpkg.com/@types/formidable/-/formidable-1.0.31.tgz#274f9dc2d0a1a9ce1feef48c24ca0859e7ec947b"
+  integrity sha512-dIhM5t8lRP0oWe2HF8MuPvdd1TpPTjhDMAqemcq6oIZQCBQTovhBAdTQ5L5veJB4pdQChadmHuxtB0YzqvfU3Q==
+  dependencies:
+    "@types/events" "*"
+    "@types/node" "*"
+
+"@types/node@*":
+  version "13.13.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.4.tgz#1581d6c16e3d4803eb079c87d4ac893ee7501c2c"
+  integrity sha512-x26ur3dSXgv5AwKS0lNfbjpCakGIduWU1DU91Zz58ONRWrIKGunmZBNv4P7N+e27sJkiGDsw/3fT4AtsqQBrBA==
+
 "@types/node@^13.13.0":
   version "13.13.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.0.tgz#30d2d09f623fe32cde9cb582c7a6eda2788ce4a8"
   integrity sha512-WE4IOAC6r/yBZss1oQGM5zs2D7RuKR6Q+w+X2SouPofnWn+LbCqClRyhO3ZE7Ix8nmFgo/oVuuE01cJT2XB13A==
+
+"@types/restify-cors-middleware@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/restify-cors-middleware/-/restify-cors-middleware-1.0.1.tgz#6c230c53a419eb3af83eeaabbcbc4771f25299e9"
+  integrity sha512-+S/FClLh8Wnw970RYEJ2OmdZDFwOR2GCf2hGqaB+fLdX3pRFb7WYJJHh6jN7Lrw2GiZ6LfybwgANExEC64x+Cg==
+  dependencies:
+    "@types/node" "*"
+    "@types/restify" "*"
+
+"@types/restify@*":
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/@types/restify/-/restify-8.4.2.tgz#f071d971d10ad79f6073dfbbeed7729d68760e7f"
+  integrity sha512-jdXB0IrsigqMccBMs3a2kBUUAlYTbjLCbfC63sI00rwTXc+B4UQniGkAJCGS27CAxwkJFAFXzpk0msOQtQ1RXA==
+  dependencies:
+    "@types/bunyan" "*"
+    "@types/formidable" "*"
+    "@types/node" "*"
+    "@types/spdy" "*"
+
+"@types/spdy@*":
+  version "3.4.4"
+  resolved "https://registry.yarnpkg.com/@types/spdy/-/spdy-3.4.4.tgz#3282fd4ad8c4603aa49f7017dd520a08a345b2bc"
+  integrity sha512-N9LBlbVRRYq6HgYpPkqQc3a9HJ/iEtVZToW6xlTtJiMhmRJ7jJdV7TaZQJw/Ve/1ePUsQiCTDc4JMuzzag94GA==
+  dependencies:
+    "@types/node" "*"
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -816,6 +866,13 @@ reflect-metadata@0.1.13:
   version "0.1.13"
   resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.1.13.tgz#67ae3ca57c972a2aa1642b10fe363fe32d49dc08"
   integrity sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==
+
+restify-cors-middleware@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/restify-cors-middleware/-/restify-cors-middleware-1.1.1.tgz#06688502fa08b8c62783103844c87dcfc30dcf3e"
+  integrity sha1-BmiFAvoIuMYngxA4RMh9z8MNzz4=
+  dependencies:
+    assert-plus "^1.0.0"
 
 restify-errors@8.0.2, restify-errors@^8.0.2:
   version "8.0.2"
