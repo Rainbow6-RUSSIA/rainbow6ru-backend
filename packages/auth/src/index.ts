@@ -1,6 +1,8 @@
+import { config } from 'dotenv';
 import * as restify from 'restify';
 import * as CORSMiddleware from 'restify-cors-middleware';
 import ENV from './utils/env';
+config();
 
 export function respond(req, res, next) {
     res.send('hello ' + req.params.name);
@@ -17,6 +19,7 @@ export const server = restify.createServer();
 
 server.pre(cors.preflight);
 server.use(cors.actual);
+
 server.use(
     restify.plugins.throttle({
         burst: 100,

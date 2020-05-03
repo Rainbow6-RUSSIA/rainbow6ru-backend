@@ -17,10 +17,11 @@ server.get('/discord', async (req, res, next) => {
     });
     try {
         const reqToken = await fetch(
-            'https://discordapp.com/api/v6/oauth2/token?' + params,
+            'https://discordapp.com/api/v6/oauth2/token',
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
             }
         );
         const json = await reqToken.json();
