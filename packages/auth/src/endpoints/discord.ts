@@ -26,8 +26,11 @@ server.get('/discord', async (req, res, next) => {
         );
         const json = await reqToken.json();
         if (!json.access_token) return next(new BadRequestError());
-        const reqUser = await fetch(`https://discordapp.com/api/v6/users/@me?access_token=${json.access_token}`);
+        const reqUser = await fetch(`https://discordapp.com/api/v6/users/@me`, {
+            headers: { 'Authorization': `Bearer ${json.access_token}`}
+        });
         const user = await reqUser.json();
+        if (!user.id) return next(new BadRequestError())
         const token = jwt.sign({
             sub: user.id,
         }, ENV.KEY256, {
