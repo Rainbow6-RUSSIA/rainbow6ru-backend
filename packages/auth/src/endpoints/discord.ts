@@ -6,6 +6,7 @@ import ENV from '../utils/env';
 
 server.get('/discord', async (req, res, next) => {
     const code = req.query.code;
+    console.log("code", code)
     if (!code) return next(new BadRequestError());
     const params = new URLSearchParams({
         'client_id': ENV.CLIENT_ID,
@@ -25,17 +26,20 @@ server.get('/discord', async (req, res, next) => {
             }
         );
         const json = await reqToken.json();
+        console.log("json", json)
         if (!json.access_token) return next(new BadRequestError());
         const reqUser = await fetch(`https://discordapp.com/api/v6/users/@me`, {
             headers: { 'Authorization': `Bearer ${json.access_token}`}
         });
         const user = await reqUser.json();
+        console.log("user", user)
         if (!user.id) return next(new BadRequestError())
         const token = jwt.sign({
             sub: user.id,
         }, ENV.KEY256, {
             expiresIn: '7d'
         });
+        console.log("token", token)
 
         res.send({ user, token });
         
