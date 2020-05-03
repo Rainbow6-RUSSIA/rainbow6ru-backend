@@ -3,6 +3,7 @@ class IEnv {
     public DISCORD_SECRET: string;
     public CLIENT_ID: string;
     public KEY256: string;
+    public CORS_ORIGINS: string;
 }
 
 // tslint:disable-next-line:max-classes-per-file

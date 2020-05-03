@@ -8,7 +8,7 @@ export function respond(req, res, next) {
 }
 
 const cors = CORSMiddleware({
-    origins: ["https://*.rainbow6.ru", "https://rainbow6.ru"],
+    origins: ENV.CORS_ORIGINS.split(','),
     allowHeaders: ['*'],
     exposeHeaders: ['*']
 });
