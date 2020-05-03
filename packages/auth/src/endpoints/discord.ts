@@ -1,3 +1,4 @@
+import * as jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import { BadRequestError, InternalServerError } from 'restify-errors';
 import { server } from '..';
@@ -15,15 +16,24 @@ server.get('/discord', async (req, res, next) => {
         'scope': 'identify email connections'
     })
     try {
-        const responce = await fetch(
+        const reqToken = await fetch(
             'https://discordapp.com/api/v6/oauth2/token?' + params,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        
             }
         )
-        const json = await responce.json();
+        const json = await reqToken.json();
+        if (!json.access_token) return next(new BadRequestError())
+        const reqUser = await fetch(`https://discordapp.com/api/v6/users/@me?access_token=${json.access_token}`);
+        const user = await reqUser.json();
+        const token = jwt.sign({
+            sub: user.id,
+        }, ENV.KEY256, {
+            expiresIn: '7d'
+        })
+
+        res.send({ user, token })
         
     } catch (error) {
         return next(new InternalServerError());
