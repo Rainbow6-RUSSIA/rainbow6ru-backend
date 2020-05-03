@@ -16,6 +16,7 @@ server.use(
         rate: 50,
     }),
 );
+server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 server.use(restify.plugins.requestLogger());
 

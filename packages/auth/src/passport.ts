@@ -1,7 +1,7 @@
-import { User } from '@r6ru/db';
+/* import { User } from '@r6ru/db';
 import * as passport from 'passport';
+import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt';
 import { Strategy as DiscordStrategy } from 'passport-oauth2';
-import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
 import ENV from './utils/env';
 
 passport.use(
@@ -34,8 +34,8 @@ passport.use(
         {
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: ENV.KEY256,
-            issuer: 'auth.rainbow6russia.ru',
-            audience: 'rainbow6russia.ru',
+            issuer: 'auth.rainbow6.ru',
+            audience: 'rainbow6.ru',
         },
         (jwtPayload, done) => {
             User.findByPk(jwtPayload.sub)
@@ -50,3 +50,4 @@ passport.use(
         },
     ),
 );
+ */
