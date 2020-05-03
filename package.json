@@ -8,7 +8,8 @@
     "build": "lerna run build --scope=@r6ru/$PACKAGE_NAME --include-dependencies",
     "start": "cd ./packages/$PACKAGE_NAME && yarn start",
     "front-publish": "cp -r -f ./packages/$PACKAGE_NAME/build ./front-publish",
-    "lint": "eslint ./packages/**/src/**/*.{js,jsx,ts,tsx} --fix"
+    "lint": "eslint ./packages/**/src/**/*.{js,jsx,ts,tsx} --fix",
+    "postinstall": "npm run bootstrap"
   },
   "engines": {
     "node": "12.x.x",
