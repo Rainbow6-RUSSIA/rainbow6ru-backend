@@ -1,35 +1,16 @@
-import { ACCESS, BAN_BADGE, HF_REGIONS, ONLINE_TRACKER, RANKS, REGIONS, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
+import { USER_FLAGS, BAN_BADGE, HF_REGIONS, ONLINE_TRACKER, RANKS, REGIONS, VERIFIED_BADGE } from '@r6ru/types';
 import { Client, Guild as G, Snowflake } from 'discord.js';
 import { AllowNull, BeforeCreate, BeforeUpdate, BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table } from 'sequelize-typescript';
-import Guild from './Guild';
-import GuildBlacklist from './GuildBlacklist';
+import Account from './Account';
+import UserAccount from './UserAccount';
 import Lobby from './Lobby';
-import Team from './Team';
-import Tournament from './Tournament';
-import TournamentMod from './TournamentMod';
+// import Team from './Team';
 
 @Table({
     schema: 'siegebot',
-    timestamps: true,
-    tableName: 'User',
+    timestamps: true
 })
 export default class User extends Model<User> {
-    @BeforeCreate
-    public static initHistory(instance: User) {
-        instance.genomeHistory = [instance.genome];
-        instance.nicknameHistory = [instance.nickname.toLowerCase()];
-    }
-
-    @BeforeUpdate
-    public static addHistory(instance: User) {
-        if (!instance.genomeHistory.includes(instance.genome)) {
-            instance.genomeHistory = [...instance.genomeHistory, instance.genome];
-        }
-        if (!instance.nicknameHistory.includes(instance.nickname.toLowerCase())) {
-            instance.nicknameHistory = [...instance.nicknameHistory, instance.nickname.toLowerCase()];
-        }
-    }
-
     @BeforeUpdate
     public static calculateKarma(instance: User) {
         const likes = Object.values(instance.likes || {});
@@ -38,23 +19,26 @@ export default class User extends Model<User> {
 
     @PrimaryKey
     @Column(DataType.STRING)
-    public id: Snowflake; // discord snowflake
+    public id: Snowflake;
 
-    @Column(DataType.ARRAY(DataType.UUID))
-    public genome: string[];
-
-    @Column(DataType.ARRAY(DataType.UUID))
-    public genomeHistory: string[];
+    @BelongsToMany(() => Account, () => UserAccount)
+    public accounts: Array<Account & { UserAccount: UserAccount }>
 
     @Default(new Date())
     @Column
     public securityNotifiedAt: Date;
 
     @AllowNull(false)
-    @Default(false)
+    @Default(true)
     @Column
-    public inactive: boolean;
+    public active: boolean;
 
+    /**
+     * true/false - синхронизация. null - принудительная синхронизация
+     *
+     * @type {boolean}
+     * @memberof User
+     */
     @Default(false)
     @Column
     public syncNickname: boolean;
@@ -63,44 +47,21 @@ export default class User extends Model<User> {
     @Column
     public lobbyId: number;
 
-    @BelongsTo(() => Lobby, 'User_lobbyId_fkey')
+    @BelongsTo(() => Lobby)
     public lobby: Lobby;
 
-    @ForeignKey(() => Team)
-    @Column
-    public teamId: number;
-
-    @BelongsTo(() => Team, 'User_teamId_fkey')
-    public team: Team;
-
-    @BelongsToMany(() => Tournament, () => TournamentMod)
-    public tournaments: (Tournament & { TournamentMod: TournamentMod })[];
-
-    @BelongsToMany(() => Guild, () => GuildBlacklist)
-    public bannedAt: (Guild & { GuildBlacklist: GuildBlacklist })[];
-
-    @Column(DataType.INTEGER)
-    public rank: RANKS;
+    // @ForeignKey(() => Team)
+    // @Column
+    // public teamId: number
 
     @Column(DataType.STRING)
     public region: REGIONS;
 
-    @Default(0)
     @Column(DataType.INTEGER)
-    public verificationLevel: VERIFICATION_LEVEL;
+    public verificationRequired: boolean;
 
     @Column(DataType.INTEGER)
-    public requiredVerification: VERIFICATION_LEVEL;
-
-    @Column(DataType.JSONB)
-    public platform: {
-        PC: boolean;
-        PS4: boolean;
-        XBOX: boolean;
-    };
-
-    @Column(DataType.INTEGER)
-    public access: ACCESS;
+    public flags: USER_FLAGS;
 
     @Column(DataType.JSONB)
     public likes: {
@@ -110,15 +71,19 @@ export default class User extends Model<User> {
     @Column(DataType.FLOAT)
     public karma: number;
 
+    public get mainAccount() {
+        return this.accounts.find(a => a.UserAccount.main);
+    }
+
     public get isInVerification(): boolean {
-        return this.requiredVerification > this.verificationLevel;
+        return this.accounts.find(a => a.UserAccount.main && a.UserAccount.verified) && this.verificationRequired;
     }
 
     public toString() {
-        return ONLINE_TRACKER + this.genome;
+        return ONLINE_TRACKER(this.mainAccount.id);
     }
 
-    public infoBadge = async (
+    /* public infoBadge = async (
         client?: Client,
         adminAction?: boolean,
         bans?: ThenArg<ReturnType<G['fetchBans']>>,
@@ -150,7 +115,7 @@ export default class User extends Model<User> {
                 ? '\nИстория никнеймов:\n◦ ' + this.nicknameHistory.map((nick) => `\`${nick}\``).join('\n◦ ')
                 : '')
         );
-    };
+    }; */
 }
 
-type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
+// type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
