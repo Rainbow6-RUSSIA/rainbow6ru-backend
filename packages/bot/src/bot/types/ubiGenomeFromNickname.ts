@@ -32,10 +32,10 @@ export default async (message: Message, phrase: string): Promise<IUbiBoundType |
         const platforms = $enum(PLATFORM).getValues();
         if (!phrase.toLowerCase().startsWith('ubi_') && !phrase.toLowerCase().endsWith('_ubi')) {
             switch (true) {
-                case /^[a-zA-Z][\w-._]{2,14}$/.test(phrase):
+                case /^[a-zA-Z][\w-._]{2,16}$/.test(phrase):
                     return await fetchProfiles(platforms, phrase); // await errors
 
-                case /^[a-zA-Z][\w-._ ]{2,14}$/.test(phrase):
+                case /^[a-zA-Z][\w-._ ]{2,16}$/.test(phrase):
                     return await fetchProfiles(
                         platforms.filter((p) => p === PLATFORM.XBOX),
                         phrase,
