@@ -44,6 +44,7 @@ server.get('/discord', async (req, res, next) => {
         res.send({ user, token });
         
     } catch (error) {
+        console.log(error);
         return next(new InternalServerError());
     }
     next();
