@@ -205,6 +205,8 @@ export interface ILobbySettings {
 }
 
 export enum LobbyType {
+    // собирать стату по операм и придумать ММ по ролям
+    // сделать отдельный вид комнаты для Варденмейнеров
     /**
      * Показывает всех юзеров без привязки к БД (для всех игр)
      */
@@ -212,10 +214,12 @@ export enum LobbyType {
     'RANKED',
     'CASUAL',
     'UNRANKED',
+    'DISCOVERY',
+    'NEWCOMER',
     /**
      * Комната для ДВ и Америки
      */
-    'REGION',
+    // 'REGION', DEPRECATED
     /**
      * Показывает стату с консолей
      */
