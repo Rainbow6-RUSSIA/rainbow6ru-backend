@@ -57,7 +57,7 @@ export class LobbyStore {
             const emptyVoices = this.voices.sort((a, b) => b.members.size - a.members.size).filter(v => !v.members.size); // только пустые
 
             await Promise.all(emptyVoices
-                .first(emptyVoices.size - 5)
+                .first((emptyVoices.size - 5) > 0 ? (emptyVoices.size - 5) : 0) // отсекаем отрицательный аргумент
                 .map(v => v.delete())
             );
 
