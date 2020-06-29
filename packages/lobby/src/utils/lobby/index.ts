@@ -1,6 +1,6 @@
 import { Guild, Lobby, User } from '@r6ru/db';
-import { ILobbySettings, LobbyStoreStatus as LSS} from '@r6ru/types';
-import { CategoryChannel, Collection, GuildMember, Message, MessageOptions, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import { ILobbySettings, LobbyStoreStatus as LSS } from '@r6ru/types';
+import { CategoryChannel, Collection, GuildMember, Message, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import { Sequelize } from 'sequelize-typescript';
 import { debug } from '../..';
@@ -9,7 +9,6 @@ import ChannelCreate from '../../bot/listeners/channel/create';
 import ChannelDelete from '../../bot/listeners/channel/delete';
 import Throttle from '../decorators/throttle';
 import embeds from '../embeds';
-import ENV from '../env';
 import { LSRoom } from './room';
 
 const { Op } = Sequelize;
@@ -55,21 +54,12 @@ export class LobbyStore {
         const loadingMsg = await this.lfgChannel.send('Лобби загружаются, подождите минутку') as Message;
 
         if (!this.staticRooms) {
-            const voices = this.voices.sort((a, b) => b.members.size - a.members.size);
-            const keys = voices.keyArray();
+            const emptyVoices = this.voices.sort((a, b) => b.members.size - a.members.size).filter(v => !v.members.size); // только пустые
 
-            await Promise.all(voices
-                .filter((v, key, a) => !v.members.size
-                    && (keys.indexOf(v.id) >= this.roomsRange[0])
-                    && a.lastKey() !== v.id
-                )
+            await Promise.all(emptyVoices
+                .first(emptyVoices.size - 5)
                 .map(v => v.delete())
             );
-
-            if (!voices.find(v => v.members.size === 0)) {
-                const toClone = this.voices.last();
-                await toClone.clone();
-            }
 
             this.category = await this.category.fetch() as CategoryChannel;
         }
