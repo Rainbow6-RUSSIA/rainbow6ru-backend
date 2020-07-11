@@ -15,13 +15,13 @@ export default class ChannelDelete extends Listener {
         if (room) {
             // console.log('CHANNEL DELETED');
             const LS = room.LS;
-            const pos = voice.position;
+            const pos = voice.rawPosition;
 
             const toMove = LS.voices.last();
             try {
                 await toMove.edit({
                     name: toMove.name.replace(/#\d+/g, /#\d+/g.exec(room.dcChannel.name)[0]),
-                    position: pos,
+                    position: pos, // на самом деле здесь rawPosition
                 }, 'подмена удаленного канала');
                 lobbyStoresRooms.get(toMove.id).updateAppeal();
             } catch (error) {
