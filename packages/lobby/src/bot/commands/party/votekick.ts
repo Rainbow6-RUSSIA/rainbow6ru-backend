@@ -32,15 +32,18 @@ export default class Votekick extends Command {
         if (!target) {
             return DMReply(message, 'Вы не указали цель голосования!');
         }
-        if (!description) {
-            return DMReply(message, 'Вы не указали причину исключения!');
+        if (target.id === room.dcLeader?.id) {
+            return DMReply(message, 'Вы не можете голосовать за исключение лидера канала!');
         }
-        const voice = room.dcChannel;
         if (message.author.id === target.id) {
             return DMReply(message, 'Вы не можете голосовать за исключение себя!');
         }
+        const voice = room.dcChannel;
         if (!voice.members.has(target.id)) {
             return DMReply(message, 'Вы не можете голосовать за исключение участника из другого канала!');
+        }
+        if (!description) {
+            return DMReply(message, 'Вы не указали причину исключения!');
         }
         const vote = await message.channel.send(`Голосование за исключение ${target} (30 сек.)\n${voice.members.filter(m => m.id !== target.id).array().join(', ')}`) as Message;
         const emojis = ['❎', '✅'];
