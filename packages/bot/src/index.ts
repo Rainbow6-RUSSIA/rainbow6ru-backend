@@ -28,7 +28,7 @@ if (process.env.MIGRATE === 'true') {
     // import('./utils/migration');
 }
 
-setInterval(() => {
-    console.log('reboot');
-    process.exit(0);
-}, parseInt(ENV.REBOOT_TIME) || 24 * 60 * 60 * 1000);
+// setInterval(() => {
+//     console.log('reboot');
+//     process.exit(0);
+// }, parseInt(ENV.REBOOT_TIME) || 24 * 60 * 60 * 1000);
