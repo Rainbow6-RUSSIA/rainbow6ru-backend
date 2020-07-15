@@ -5,6 +5,7 @@ import db from '@r6ru/db';
 import { Log } from '@r6ru/utils';
 import { WebhookClient } from 'discord.js';
 import ENV from './utils/env';
+import { lobbyStores, LobbyStore } from './utils/lobby';
 
 export let debug: Log = null;
 
@@ -33,7 +34,15 @@ const diff = rebootTime.getTime() - new Date().getTime();
 const time = diff > 0 ? diff : diff + 24 * 60 * 60 * 1000;
 console.log(`[INFO][GENERIC] Reboot in ${time / 1000 / 60} min`);
 
-setInterval(() => {
-    console.log('reboot');
-    process.exit(0);
+const rebootAllLS = () => {
+    lobbyStores.each(async (val, key, coll) => {
+        const LS = lobbyStores.get(key);
+        lobbyStores.set(key, await new LobbyStore(LS.settings, LS.guild).init());
+        debug.log(`лобби \`${LS.settings.type}\` на ${LS.category.guild.name} перезагружено`);
+    })
+}
+
+setTimeout(() => {
+    rebootAllLS()
+    setInterval(rebootAllLS, 24 * 60 * 60 * 1000)
 }, time);
