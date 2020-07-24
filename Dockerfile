@@ -8,4 +8,4 @@ RUN yarn install
 RUN yarn build
 ENV PORT 80
 EXPOSE 80
-CMD [ \"yarn\", \"start\" ]
+CMD [ "yarn", "start" ]
