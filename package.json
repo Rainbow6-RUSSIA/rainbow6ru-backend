@@ -11,8 +11,8 @@
     "lint": "tslint --fix -p ./packages"
   },
   "engines": {
-    "node": "12.x.x",
-    "yarn": "1.19.x"
+    "node": "12",
+    "yarn": "1"
   },
   "dependencies": {
     "lerna": "^3.13.1",
