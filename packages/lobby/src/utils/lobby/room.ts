@@ -46,7 +46,8 @@ export class LSRoom extends Lobby {
     public async init() {
         try {
             await this.dcChannel.edit({
-                name: this.dcChannel.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${this.dcChannel.position + 1}`),
+                name:  this.LS.settings.roomName?.replace(/{{n}}/, (this.dcChannel.position + 1).toString())
+                    || this.dcChannel.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${this.dcChannel.position + 1}`),
                 permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
                 userLimit: this.LS.settings.roomSize,
             }, 'инициализация комнаты');
@@ -189,6 +190,19 @@ export class LSRoom extends Lobby {
                 this.appealMessage = await this.appealMessage.delete();
             } catch (error) {/* */}
         }
+    }
+
+    public async moveTo(type: string | IS) {
+        if (typeof type === 'number') {
+            const category = lobbyStores.find(ls => ls.settings.allowedModes?.includes(type))?.category;
+            if (!category) throw new ReferenceError();
+            await this.dcChannel.setParent(category, { lockPermissions: true, reason: 'перемещение в нужную категорию'});
+        } else if (typeof type === 'string') {
+            const category = lobbyStores.find(ls => ls.settings.type === type)?.category;
+            if (!category) throw new ReferenceError();
+            await this.dcChannel.setParent(category, { lockPermissions: true, reason: 'перемещение в нужную категорию вручную'});
+        }
+        return this
     }
 
     // ACTION HANDLING

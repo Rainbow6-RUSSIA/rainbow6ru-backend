@@ -186,9 +186,11 @@ export interface ILobbySettings {
     roomsRange: [number, number];
     externalRooms: Snowflake[];
     type: string;
+    allowedModes: IngameStatus[];
     disallowedModes: IngameStatus[];
     roomSize: number;
     enabled: boolean;
+    roomName: string;
 }
 
 export const currentlyPlaying = [IngameStatus.CASUAL, IngameStatus.RANKED, IngameStatus.CUSTOM, IngameStatus.NEWCOMER, IngameStatus.DISCOVERY];

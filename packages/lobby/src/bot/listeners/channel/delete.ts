@@ -20,7 +20,8 @@ export default class ChannelDelete extends Listener {
             const toMove = LS.voices.last();
             try {
                 await toMove.edit({
-                    name: toMove.name.replace(/#\d+/g, /#\d+/g.exec(room.dcChannel.name)[0]),
+                    name:  LS.settings.roomName?.replace(/{{n}}/, (pos + 1).toString())
+                        || toMove.name.replace(/#\d+/g, /#\d+/g.exec(room.dcChannel.name)[0]),
                     position: pos, // на самом деле здесь rawPosition
                 }, 'подмена удаленного канала');
                 lobbyStoresRooms.get(toMove.id).updateAppeal();

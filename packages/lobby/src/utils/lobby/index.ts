@@ -90,7 +90,7 @@ export class LobbyStore {
     }
 
     public syncChannels = () => Promise.all(this.rooms.map(l => l.dcChannel).filter(v => !v.deleted).sort((a, b) => a.position - b.position).map((v, i) => {
-        const name = v.name.replace(/#\d+/g, _ => `#${i + 1}`);
+        const name = this.settings.roomName?.replace(/{{n}}/, (i + 1).toString()) || v.name.replace(/#\d+/g, _ => `#${i + 1}`);
         return v.name !== name ? v.setName(name) : v;
     }))
 
