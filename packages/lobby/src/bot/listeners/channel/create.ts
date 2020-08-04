@@ -21,6 +21,7 @@ export default class ChannelCreate extends Listener {
         }
         if (settigns) {
             const LS = lobbyStores.get(settigns.lfg);
+            if (!LS) return;
             const room = await new LSRoom(voice, LS).init();
             lobbyStoresRooms.set(voice.id, room);
             await LS.updateFastAppeal();
