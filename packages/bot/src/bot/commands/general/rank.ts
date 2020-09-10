@@ -170,25 +170,7 @@ export default class Rank extends Command {
         const regions = $enum(REGIONS).getValues();
         const regionRank = regions.map(r => rawRank[r].rank);
 
-        let mainRegion: REGIONS = null;
-
-        if (regionRank.filter(Boolean).length !== 1) {
-            this.typing = false;
-            const res = await combinedPrompt(
-                await message.reply(`выберите регион для сбора статистики:\n${regions.map((r, i) => `${i + 1}. \`${HF_REGIONS[r]}\` - \`${RANKS[rawRank[r].rank]}\``).join('\n')}`),
-                {
-                    author: message.author,
-                    emojis: emojiNumbers(regions.length),
-                    texts: regions,
-                }
-            );
-            mainRegion = res === -1 ? REGIONS.A_EMEA : regions[res];
-            this.typing = true;
-        } else {
-            mainRegion = regions[regionRank.indexOf(regionRank.filter(Boolean)[0])];
-        }
-
-        console.log(mainPlatform, mainRegion);
+        let mainRegion = REGIONS.A_EMEA;
 
         const newUser = new User({
             genome: activeBound.genome,
