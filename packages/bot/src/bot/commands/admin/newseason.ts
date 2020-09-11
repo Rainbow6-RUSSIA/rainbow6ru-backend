@@ -1,11 +1,9 @@
-import { Guild, User } from '@r6ru/db';
+import { Guild, User, Op } from '@r6ru/db';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import { Sequelize } from 'sequelize-typescript';
 import Sync from '../../../utils/sync';
-
-const { Op } = Sequelize;
 
 export default class NewSeason extends Command {
     constructor() {
@@ -31,11 +29,21 @@ export default class NewSeason extends Command {
             const dbGuild = await Guild.findByPk(guild.id);
             const members = await guild.members.fetch();
             const query = {
-                where: { id: members.map(m => m.id) }
+                where: {
+                    [Op.and]: [
+                        { id: members.map(m => m.id) },
+                        {inactive: false},
+                        {rank: 0},
+                    ],
+                }
             };
-            await User.update({ rank: 0 }, query);
+            // await User.update({ rank: 0 }, query);
             const targets = await User.findAll(query);
-            await Promise.all(targets.map(t => Sync.updateMember(dbGuild, t)));
+            let i = 0;
+            await Promise.all(targets.map(t => Sync.updateMember(dbGuild, t).then(() => {
+                i++;
+                if (!(i % 10)) { console.log(`${i}/${targets.length}/${(100 * i / targets.length).toPrecision(3)}% сброс`) }
+            })));
             await message.reply('роли обновлены!');
         }
     }
