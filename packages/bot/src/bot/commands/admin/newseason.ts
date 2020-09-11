@@ -3,6 +3,7 @@ import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import { Sequelize } from 'sequelize-typescript';
+import { debug } from '../../..';
 import Sync from '../../../utils/sync';
 
 const { Op } = Sequelize;
@@ -33,7 +34,7 @@ export default class NewSeason extends Command {
             const query = {
                 where: {
                     [Op.and]: [
-                        { id: members.map(m => m.id) },
+                        { id: members.filter(m => !m.roles.has(dbGuild.rankRoles[0])).map(m => m.id) },
                         {inactive: false},
                         {rank: 0},
                     ],
@@ -44,7 +45,9 @@ export default class NewSeason extends Command {
             let i = 0;
             await Promise.all(targets.map(t => Sync.updateMember(dbGuild, t).then(() => {
                 i++;
-                if (!(i % 10)) { console.log(`${i}/${targets.length}/${(100 * i / targets.length).toPrecision(3)}% сброс`) }
+                if (!(i % 25)) { 
+                    debug.log(`${i}/${targets.length}/${(100 * i / targets.length).toPrecision(3)}% ПРОГРЕСС ОБНОВЛЕНИЯ НОВОГО СЕЗОНА`);
+                }
             })));
             await message.reply('роли обновлены!');
         }
