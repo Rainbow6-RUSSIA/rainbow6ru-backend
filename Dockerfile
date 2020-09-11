@@ -1,7 +1,6 @@
 FROM node:12
 ENV NODE_ENV production
 ARG PACKAGE_NAME=${PACKAGE_NAME}
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY ./ /usr/src/app
 RUN yarn install
