@@ -45,12 +45,15 @@ export class LSRoom extends Lobby {
 
     public async init() {
         try {
-            await this.dcChannel.edit({
-                name:  this.LS.settings.roomName?.replace(/{{n}}/, (this.dcChannel.position + 1).toString())
-                    || this.dcChannel.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${this.dcChannel.position + 1}`),
-                permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
-                userLimit: this.LS.settings.roomSize,
-            }, 'инициализация комнаты');
+            await Promise.race([
+                this.dcChannel.edit({
+                    name:  this.LS.settings.roomName?.replace(/{{n}}/, (this.dcChannel.position + 1).toString())
+                        || this.dcChannel.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${this.dcChannel.position + 1}`),
+                    permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
+                    userLimit: this.LS.settings.roomSize,
+                }, 'инициализация комнаты'),
+                new Promise(res => setTimeout(res, 60 * 1000))
+            ]);
         } catch (error) {
             console.log('FAIL ON INIT', error);
             return null;
