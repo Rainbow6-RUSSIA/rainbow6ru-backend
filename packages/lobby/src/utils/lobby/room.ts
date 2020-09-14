@@ -19,7 +19,7 @@ export class LSRoom extends Lobby {
 
     public reactionBarCollector: ReactionCollector;
 
-    public dcInvite: Invite;
+    // public dcInvite: Invite;
     public dcCategory: CategoryChannel;
     public dcChannel: VoiceChannel;
     public dcGuild: Guild;
@@ -61,6 +61,7 @@ export class LSRoom extends Lobby {
 
         const previousLobby = await Lobby.findOne({ where: { channel: this.dcChannel.id }, order: [['initiatedAt', 'DESC']] });
         this.description = previousLobby?.description;
+        this.invite = previousLobby?.invite;
 
         await this.save();
         await this.$set('guild', this.dcChannel.guild.id);
@@ -81,15 +82,14 @@ export class LSRoom extends Lobby {
     }
 
     public async initInvite() {
-        if (this.dcInvite && (this.dcInvite.expiresTimestamp - Date.now()) > 0) {
-            return this.dcInvite;
+        if (this.invite) {
+            return this.invite;
         } else {
             // console.log('INIT INVITE', this.dcChannel.name);
-            const inv = await this.dcChannel.createInvite({ maxAge: parseInt(ENV.INVITE_AGE) });
+            const inv = await this.dcChannel.createInvite({ maxAge: 0 });
             this.invite = inv.url;
-            this.dcInvite = inv;
             await this.save();
-            return inv;
+            return inv.url;
         }
     }
 
