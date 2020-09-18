@@ -14,8 +14,8 @@ class IEnv {
     public REQUIRED_ACCOUNT_AGE = '';
     public REQUIRED_LEVEL = '';
     public LOGGING_WEBHOOK = '';
-    public VERIFIED_BADGE = '<:verified:562059822279819265>';
-    public BAN_BADGE = '<:ban:544254582637723679>';
+    // public VERIFIED_BADGE = '<:verified:562059822279819265>';
+    // public BAN_BADGE = '<:ban:544254582637723679>';
     public R6API_CREDS_LOGIN = '';
     public R6API_CREDS_PASS = '';
     public REBOOT_TIME = '';

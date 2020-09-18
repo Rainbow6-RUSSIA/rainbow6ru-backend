@@ -6,8 +6,8 @@ class IEnv {
     public CALLBACK_URL = '';
     public DB = '';
     public LOGGING_WEBHOOK = '';
-    public VERIFIED_BADGE = '<:verified:562059822279819265>';
-    public BAN_BADGE = '<:ban:544254582637723679>';
+    // public VERIFIED_BADGE = '';
+    // public BAN_BADGE = '';
     public KICK_LIMIT = '';
     public REBOOT_TIME = '';
     public INVITE_AGE = '';

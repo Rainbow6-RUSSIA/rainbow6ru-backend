@@ -1,5 +1,5 @@
 import { Guild, GuildBlacklist, User } from '@r6ru/db';
-import { ONLINE_TRACKER, UUID } from '@r6ru/types';
+import { ONLINE_TRACKER, UUID, BAN_BADGE } from '@r6ru/types';
 import { Command } from 'discord-akairo';
 import { Collection, Message, Snowflake } from 'discord.js';
 import { Sequelize } from 'sequelize-typescript';
@@ -37,10 +37,10 @@ export default class Twinks extends Command {
         const bans = await message.guild.fetchBans();
         const genomeBans = new Set([...dbGuild.genomeBlacklist, dbGuild.blacklist.map(u => u.genome)]);
         const answs = filteredTwinks.map(async (set, key) => `• Uplay <${ONLINE_TRACKER}${key}>${genomeBans.has(key)
-            ? ' ' + ENV.BAN_BADGE
+            ? ' ' + this.client.emojis.resolve(BAN_BADGE)
             : ''
         } привязан:\n◦    ${(await Promise.all([...set]
-            .map(async id => `<@${id}> \`${(await this.client.users.fetch(id)).tag}\` ${bans.has(id) ? `${ENV.BAN_BADGE} \`${decodeURIComponent(bans.get(id).reason)}\`` : ''}`),
+            .map(async id => `<@${id}> \`${(await this.client.users.fetch(id)).tag}\` ${bans.has(id) ? `${this.client.emojis.resolve(BAN_BADGE)} \`${decodeURIComponent(bans.get(id).reason)}\`` : ''}`),
         )).join('\n◦    ')}`);
         const parts = (await Promise.all(answs)).join('\n').split('\n• ').reduce(this.paragraphSplit('\n• '), []);
 
