@@ -12,6 +12,9 @@ class Bot extends AkairoClient {
             // messageCacheLifetime: parseInt(ENV.INVITE_AGE),
             // messageCacheMaxSize: 500,
             // messageSweepInterval: 120,
+            http: {
+                host: 'https://discord.com/api',
+            },
             ws: {
                 compress: true,
             },
