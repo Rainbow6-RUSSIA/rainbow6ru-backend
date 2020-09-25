@@ -172,8 +172,8 @@ export const RANK_BADGES = [
     '691300697517588480',
 ];
 
-export const VERIFIED_BADGE = '562059822279819265';
-export const BAN_BADGE = '544254582637723679';
+export const VERIFIED_BADGE = '593877747391135843';
+export const BAN_BADGE = '414787874668412928';
 
 export const EMOJI_REGEXP = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
 
