@@ -68,10 +68,11 @@ export default class Sync {
     await dbUser.save();
     const guild = bot.guilds.get(dbGuild.id);
     await (await guild.members.fetch(dbUser.id)).roles.remove([...dbGuild.rankRoles.filter(Boolean), ...Object.values(dbGuild.platformRoles).filter(Boolean)], 'запрос верификации');
-    const QR = await generate(dbUser.genome, dbUser.id);
     try {
       const DM = await member.createDM();
+      await DM.messages.fetch();
       if (!DM.messages.find(m => m.author.id === bot.user.id && Boolean(m.attachments.size))) {
+        const QR = await generate(dbUser.genome, dbUser.id);
         await member.send(
           `Боец, пришло время получить статус проверенного игрока!\n`
           + `А заодно обезопасить себя от недоразумений и поднять уровень доверия к себе со стороны других пользователей 👌\n`
@@ -92,7 +93,7 @@ export default class Sync {
         );
       }
     } catch (err) {
-      debug.error(`Не удается отправить сообщение о верификации <@${dbUser.id}>. Скорее всего ЛС закрыто. \`${err.toString().slice(0, 20)}\``);
+      debug.error(`Не удается отправить сообщение о верификации <@${dbUser.id}>. Скорее всего ЛС закрыто. \`${err.toString().slice(0, 75)}\``);
       return UpdateStatus.DM_CLOSED;
     }
     return UpdateStatus.VERIFICATION_SENT;
