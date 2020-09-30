@@ -1,5 +1,8 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
 import ENV from './utils/env';
+import { Client, Message } from 'discord.js'
+import Verify from './bot/commands/general/verify';
+import { User } from '@r6ru/db';
 
 class Bot extends AkairoClient {
     private commandHandler: CommandHandler;
@@ -58,8 +61,18 @@ class Bot extends AkairoClient {
 
 const bot = new Bot();
 
+const secondBot = new Client({
+    http: {
+        host: 'https://discord.com/api',
+    },
+    ws: {
+        compress: true,
+    },
+})
+
 const login = async () => {
     await bot.login(ENV.DISCORD_TOKEN);
+    await secondBot.login(process.env.SECOND_DISCORD_TOKEN);
 };
 
 const state = login();
@@ -70,3 +83,13 @@ export async function user() {
 }
 
 export default bot;
+
+
+secondBot.on('message', async (msg) => {
+    if (msg.channel.type === 'dm' && msg.content === '$verify') {
+        const dbUserTarget = await User.findByPk(msg.author.id);
+        if (dbUserTarget) {
+            Verify.verifyDM(await bot.users.get(msg.author.id).send('_...QR-код сканируется..._') as Message, dbUserTarget);
+        }
+    }
+})

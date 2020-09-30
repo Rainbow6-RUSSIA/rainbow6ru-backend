@@ -42,9 +42,9 @@ export default class Verify extends Command {
                 return message.reply('верификация аккаунтов с консолей не поддерживается!');
             }
             if (scan === 'scan') {
-                return this.verifyDM(await target.send('_...QR-код сканируется администратором..._') as Message, dbUserTarget);
+                return Verify.verifyDM(await target.send('_...QR-код сканируется администратором..._') as Message, dbUserTarget);
             } else {
-                return this.verifyMember(message, dbUserTarget);
+                return Verify.verifyMember(message, dbUserTarget);
             }
         }
         const dbUser = await User.findByPk(message.author.id);
@@ -56,13 +56,13 @@ export default class Verify extends Command {
                 return message.reply('вы уже подтвердили свой аккаунт!');
             }
             if (message.channel.type === 'dm') {
-                return this.verifyDM(message, dbUser);
+                return Verify.verifyDM(message, dbUser);
             } else {
                 if (dbUser.isInVerification) {
                     await Sync.sendQrRequest(await Guild.findByPk(message.guild.id), dbUser, message.member);
                     return message.reply(`вы уже в процессе верификации. Смотрите инструкцию в ЛС с ${this.client.user}`);
                 } else {
-                    return this.verifyGuild(message, dbUser);
+                    return Verify.verifyGuild(message, dbUser);
                 }
             }
         } else {
@@ -70,8 +70,7 @@ export default class Verify extends Command {
         }
     }
 
-    // @TryCatch(debug)
-    private verifyMember = async (message: Message, dbUser: User) => {
+    static verifyMember = async (message: Message, dbUser: User) => {
         dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
         await dbUser.save();
         await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
@@ -85,8 +84,7 @@ export default class Verify extends Command {
         return message.reply('верификация запрошена');
     }
 
-    // @TryCatch(debug)
-    private verifyDM = async (message: Message, dbUser: User) => {
+    static verifyDM = async (message: Message, dbUser: User) => {
         try {
             switch (await verify(dbUser.genome, dbUser.id)) {
                 case true: {
@@ -107,8 +105,7 @@ export default class Verify extends Command {
         }
     }
 
-    // @TryCatch(debug)
-    private verifyGuild = async (message: Message, dbUser: User) => {
+    static verifyGuild = async (message: Message, dbUser: User) => {
         const prmpt = await combinedPrompt(await message.reply('вы действительно хотите пройти процедуру верификации с помощью QR-кода?\nВам потребуется доступ к панели управления аккаунтом Uplay и немного желания.\nУбедитесь, что не заблокировали ЛС с ботом.') as Message, {
             author: message.author,
             emojis: ['✅', '❎'],
