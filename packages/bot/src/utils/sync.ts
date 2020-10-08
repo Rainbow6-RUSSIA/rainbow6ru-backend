@@ -71,7 +71,7 @@ export default class Sync {
     try {
       const DM = await member.createDM();
       await DM.messages.fetch();
-      if (!DM.messages.find(m => m.author.id === bot.user.id && Boolean(m.attachments.size))) {
+      if (!DM.messages.find(m => m.author.id === bot.user.id && m.content.includes(dbUser.toString()))) {
         const QR = await generate(dbUser.genome, dbUser.id);
         await member.send(
           `Боец, пришло время получить статус проверенного игрока!\n`
