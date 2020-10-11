@@ -92,10 +92,13 @@ export default class Account extends Command {
                     case -1: return message.reply('время на подтверждение истекло.');
                     case 0: {
                         const result = await Security.changeGenome(dbUser, await Guild.findByPk(message.guild.id), bound[0].genome);
-                        if (result === UpdateStatus.DM_CLOSED) {
-                            return message.reply('откройте ЛС и используйте команду `$rank`.');
-                        } else {
-                            return message.reply('следуйте инструкциям, отправленным в ЛС.');
+                        switch (result) {
+                            case UpdateStatus.DM_CLOSED:
+                                return message.reply('откройте ЛС и используйте команду `$rank`.');
+                            case UpdateStatus.VERIFICATION_SENT:
+                                return message.reply('следуйте инструкциям, отправленным в ЛС.');
+                            case UpdateStatus.ALREADY_SENT:
+                                return message.reply(`следуйте инструкциям, отправленным в ЛС с ${this.client.user} ранее.`);
                         }
                     }
                     case 1: return message.reply('вы отклонили смену привязанного аккаунта.');

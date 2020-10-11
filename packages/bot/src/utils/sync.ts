@@ -71,7 +71,12 @@ export default class Sync {
     try {
       const DM = await member.createDM();
       await DM.messages.fetch();
-      if (!DM.messages.find(m => m.author.id === bot.user.id && m.content.includes(dbUser.toString()))) {
+      const foundRequest = DM.messages
+        .filter(m => m.author.id === bot.user.id && Date.now() - m.createdTimestamp < 3 * 24 * 3600 * 1000 && Boolean(m.attachments.size))
+        .sort((a, b) => a.createdTimestamp - b.createdTimestamp)
+        .last()
+      if (!foundRequest?.content.includes(dbUser.genome)) {
+        DM.messages.filter(m => m.author.id === bot.user.id && Boolean(m.attachments.size)).map(m => m.delete())
         const QR = await generate(dbUser.genome, dbUser.id);
         await member.send(
           `Боец, пришло время получить статус проверенного игрока!\n`
@@ -91,6 +96,8 @@ export default class Sync {
           + `(текущий можно сохранить по ссылке <https://ubisoft-avatars.akamaized.net/${dbUser.genome}/default_256_256.png>)`,
           new MessageAttachment(Buffer.from(QR.buffer), 'QR-verification.png'),
         );
+      } else {
+        return UpdateStatus.ALREADY_SENT;
       }
     } catch (err) {
       debug.error(`Не удается отправить сообщение о верификации <@${dbUser.id}>. Скорее всего ЛС закрыто. \`${err.toString().slice(0, 75)}\``);

@@ -1,5 +1,5 @@
 import { Guild, User } from '@r6ru/db';
-import { VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
+import { UpdateStatus, VERIFICATION_LEVEL, VERIFIED_BADGE } from '@r6ru/types';
 import { combinedPrompt } from '@r6ru/utils';
 import { Command } from 'discord-akairo';
 import { Message, User as U } from 'discord.js';
@@ -59,8 +59,13 @@ export default class Verify extends Command {
                 return Verify.verifyDM(message, dbUser);
             } else {
                 if (dbUser.isInVerification) {
-                    await Sync.sendQrRequest(await Guild.findByPk(message.guild.id), dbUser, message.member);
-                    return message.reply(`вы уже в процессе верификации. Смотрите инструкцию в ЛС с ${this.client.user}`);
+                    const status = await Sync.sendQrRequest(await Guild.findByPk(message.guild.id), dbUser, message.member);
+                    switch (status) {
+                        case UpdateStatus.ALREADY_SENT: return message.reply(`вы уже в процессе верификации. Инструкция была отправлена ранее в ЛС с ${this.client.user}`);
+                        case UpdateStatus.DM_CLOSED: return message.reply('вы уже в процессе верификации. Откройте ЛС для отправки инструкции!');
+                        case UpdateStatus.VERIFICATION_SENT: return message.reply(`вы уже в процессе верификации. Смотрите инструкцию в ЛС с ${this.client.user}`);
+                    }
+                    
                 } else {
                     return Verify.verifyGuild(message, dbUser);
                 }
@@ -118,10 +123,15 @@ export default class Verify extends Command {
             case 0: {
                 dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
                 await dbUser.save();
-                await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
+                const status = await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
                 debug.log(`самостоятельно запрошена верификация аккаунта <@${dbUser.id}> ${dbUser}`);
                 await message.member?.voice?.setChannel(null);
-                return message.reply('инструкции отправлены вам в ЛС.');
+                switch (status) {
+                    case UpdateStatus.ALREADY_SENT: return message.reply(`инструкции были отправлены вам ранее. Смотрите ЛС с ${bot.user}`);
+                    case UpdateStatus.DM_CLOSED: return message.reply('не получилось отправить инструкции, откройте ЛС и повторите попытку.');
+                    case UpdateStatus.GUILD_NONPREMIUM: return message.reply('на этом сервере команда недоступна!');
+                    case UpdateStatus.VERIFICATION_SENT: return message.reply('инструкции отправлены вам в ЛС.');
+                }
             }
         }
 

@@ -206,6 +206,7 @@ export enum UpdateStatus {
     GUILD_LEFT,
     GUILD_UNAVAILABLE,
     GUILD_NONPREMIUM,
-    INCORRECT_CALL
+    INCORRECT_CALL,
+    ALREADY_SENT,
 
 }
