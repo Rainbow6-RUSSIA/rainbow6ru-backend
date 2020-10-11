@@ -58,9 +58,10 @@ export default class Nickname extends Command {
 
                 case UpdateStatus.SUCCESS:
                 case null:
-                default:
+                default: {
                     debug.log(`синхронизация ника <@${dbUser.id}> ${dbUser.syncNickname ? 'включена' : 'отключена'}!`);
                     return message.reply(`синхронизация игрового ника ${dbUser.syncNickname ? 'включена' : 'отключена'}!`);
+                }
             }
             
         } else {

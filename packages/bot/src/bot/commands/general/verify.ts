@@ -78,7 +78,7 @@ export default class Verify extends Command {
     static verifyMember = async (message: Message, dbUser: User) => {
         dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
         await dbUser.save();
-        await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
+        const status = await Sync.updateMember(await Guild.findByPk(message.guild.id), dbUser);
         debug.log(`<@${message.author.id}> запрошена верификация аккаунта <@${dbUser.id}> ${dbUser}`);
         try {
             const member = await message.guild.members.fetch(dbUser.id);
@@ -86,7 +86,13 @@ export default class Verify extends Command {
         } catch (error) {
             console.log('member not in voice');
         }
-        return message.reply('верификация запрошена');
+        switch (status) {
+            case UpdateStatus.ALREADY_SENT: return message.reply(`верификация уже запрошена. Инструкции были высланы ранее.`);
+            case UpdateStatus.DM_CLOSED: return message.reply('не получилось отправить инструкции, ЛС закрыто.');
+            case UpdateStatus.GUILD_NONPREMIUM: return message.reply('на этом сервере команда недоступна!');
+            case UpdateStatus.VERIFICATION_SENT: return message.reply('верификация запрошена.');
+            case UpdateStatus.SUCCESS: return message.reply('пользователь уже верифицирован!');
+        }
     }
 
     static verifyDM = async (message: Message, dbUser: User) => {
