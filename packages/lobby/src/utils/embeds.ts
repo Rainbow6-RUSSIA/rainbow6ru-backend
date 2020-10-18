@@ -55,7 +55,7 @@ export default class LobbyEmbedUtil {
       + (lobby.description ? `\n▫${Util.escapeMarkdown(lobby.description)}` : '')
     )
     .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
-    .setThumbnail(`${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/preview?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcMembers.size}=1`)
+    .setThumbnail(`${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/preview.png?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcMembers.size}=1`)
     .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)
@@ -79,7 +79,7 @@ export default class LobbyEmbedUtil {
       .setColor([118, 31, 230])
       .setDescription(description)
       .setFooter(`Хочешь так же? Смотри #${(bot.channels.get('559714938000769034') as GuildChannel).name} • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1')
-      .setThumbnail(`${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/leader`)
+      .setThumbnail(`${ENV.LOBBY_PREVIEW_URL}/${lobby.id}/leader.gif`)
       .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)

@@ -47,7 +47,7 @@ const lobbyGetterMiddleware = async (req: restify.Request & { data?: LSRoom }, r
   }
 }
 
-server.get('/lobby/:id/leader', lobbyGetterMiddleware, async (req: restify.Request & { data: LSRoom }, res, next) => {
+server.get('/lobby/:id/leader.gif', lobbyGetterMiddleware, async (req: restify.Request & { data: LSRoom }, res, next) => {
   const room = req.data;
 
   if (!room.isEnhanced) res.send(new PaymentRequiredError())
@@ -58,7 +58,7 @@ server.get('/lobby/:id/leader', lobbyGetterMiddleware, async (req: restify.Reque
   // createEnhancedUserPreview({ id: '261871531418845186', avatar: 'a_d89a473082eb25f2383e75e8e7d07d98' } as User, res);
 })
 
-server.get('/lobby/:id/preview', lobbyGetterMiddleware, async (req: restify.Request & { data: LSRoom }, res, next) => {
+server.get('/lobby/:id/preview.png', lobbyGetterMiddleware, async (req: restify.Request & { data: LSRoom }, res, next) => {
   const room = req.data;
   
   const pic = await createLobbyPreview(
