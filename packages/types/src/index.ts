@@ -174,6 +174,9 @@ export const RANK_BADGES = [
 
 export const VERIFIED_BADGE = '593877747391135843';
 export const BAN_BADGE = '414787874668412928';
+export const NITRO_BADGE = '708671862602858516';
+export const DONATE_BADGE = '476880992913850398';
+export const ADMIN_BADGE = '767457897730277396';
 
 export const EMOJI_REGEXP = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
 
