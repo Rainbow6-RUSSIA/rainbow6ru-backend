@@ -13,6 +13,8 @@ class IEnv {
     public INVITE_AGE = '';
     public LOBBY_PREVIEW_URL = '';
     public MESSAGE_COOLDOWN = '';
+    public DONATE_ROLE = '';
+    public NITRO_ROLE = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file

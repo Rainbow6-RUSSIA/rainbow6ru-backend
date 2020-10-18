@@ -8,7 +8,7 @@ import bot from '../../bot';
 import ChannelCreate from '../../bot/listeners/channel/create';
 import ChannelDelete from '../../bot/listeners/channel/delete';
 import Throttle from '../decorators/throttle';
-import embeds from '../embeds';
+import LobbyEmbedUtil from '../embeds';
 import { LSRoom } from './room';
 
 const { Op } = Sequelize;
@@ -149,7 +149,7 @@ export class LobbyStore {
                 )
                 .map(m => m.delete())
             );
-            const msgOpts = await embeds.fastAppeal(this);
+            const msgOpts = await LobbyEmbedUtil.fastAppeal(this);
             this.fastAppealCache = JSON.stringify(msgOpts);
             msgOpts.embed.timestamp = new Date();
             this.fastAppeal = await fastLfg.send('', msgOpts) as Message;
@@ -160,7 +160,7 @@ export class LobbyStore {
     @Throttle(3000)
     public async updateFastAppeal() {
         if (await this.initFastAppeal()) {
-            const msgOpts = await embeds.fastAppeal(this);
+            const msgOpts = await LobbyEmbedUtil.fastAppeal(this);
             if (this.fastAppealCache !== JSON.stringify(msgOpts)) {
                 this.fastAppealCache = JSON.stringify(msgOpts);
                 msgOpts.embed.timestamp = new Date();

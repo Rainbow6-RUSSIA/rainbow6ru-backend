@@ -8,7 +8,7 @@ import { detectIngameStatus, start } from '../../bot/listeners/presenceUpdate';
 import { debounce } from '../decorators/debounce';
 import ReverseThrottle from '../decorators/reverse_throttle';
 import Throttle from '../decorators/throttle';
-import embeds from '../embeds';
+import LobbyEmbedUtil from '../embeds';
 import ENV from '../env';
 import { applyMixins } from '../mixin';
 
@@ -97,7 +97,7 @@ export class LSRoom extends Lobby {
         await this.initInvite();
         if (!this.appealMessage) {
             // console.log('INIT APPEAL', this.dcChannel.name);
-            this.appealMessage = await this.LS.lfgChannel.send('', embeds.appealMsg(this));
+            this.appealMessage = await this.LS.lfgChannel.send('', this.isEnhanced ? LobbyEmbedUtil.appealMsgEnhanced(this) : LobbyEmbedUtil.appealMsg(this));
             const filter = (reaction: MessageReaction, user: U) => !user.bot && $enum(EmojiButtons).isValue(reaction.emoji.name) && ((this.dcLeader && this.dcLeader.id) === user.id || this.dcGuild.member(user).hasPermission('MANAGE_ROLES'));
             this.reactionBarCollector = this.appealMessage.createReactionCollector(filter, {dispose: true});
             (async () => {
@@ -163,7 +163,7 @@ export class LSRoom extends Lobby {
         }
 
         if (member.id === this.dcLeader?.id) {
-            const newLeader = this.dcMembers.random();
+            const newLeader = this.dcMembers.find(m => this.checkEnhancedMember(m.id)) ?? this.dcMembers.random();
             this.handleHardplay(false);
             try {
                 newLeader.send('Теперь Вы - лидер лобби');
@@ -181,7 +181,7 @@ export class LSRoom extends Lobby {
         await this.initAppeal();
         if (!this.appealMessage.deleted) {
             try {
-                this.appealMessage = await this.appealMessage.edit('', embeds.appealMsg(this));
+                this.appealMessage = await this.appealMessage.edit('', this.isEnhanced ? LobbyEmbedUtil.appealMsgEnhanced(this) : LobbyEmbedUtil.appealMsg(this));
             } catch (error) {/* */}
             // console.log(`APPEAL UPDATED ${this.dcChannel.name}`);
         }
@@ -345,6 +345,15 @@ export class LSRoom extends Lobby {
 
     get categoryVoices() {
         return this.dcCategory.children.filter(ch => ch instanceof VoiceChannel && !ch.deleted).sort((a, b) => a.position - b.position) as Collection<string, VoiceChannel>;
+    }
+
+    get isEnhanced() {
+        return this.checkEnhancedMember(this.leader.id);
+    }
+
+    public checkEnhancedMember(id: string): boolean {
+        const member = this.dcGuild.members.get(id);
+        return member.roles.has(ENV.DONATE_ROLE) || member.roles.has(ENV.NITRO_ROLE) || member.permissions.has('MANAGE_ROLES');
     }
 }
 

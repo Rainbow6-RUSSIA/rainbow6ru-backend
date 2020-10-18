@@ -4,7 +4,7 @@ import { Message } from 'discord.js';
 import { debug } from '../../..';
 import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party_command';
 import RequireVoice from '../../../utils/decorators/require_voice';
-import embeds from '../../../utils/embeds';
+import LobbyEmbedUtil from '../../../utils/embeds';
 import ENV from '../../../utils/env';
 import { lobbyStoresRooms } from '../../../utils/lobby';
 
@@ -65,7 +65,7 @@ export default class Party extends Command {
     public async execDonateParty(message: Message, args: IArgs) {
         const { description } = args;
         const inv = await message.member.voice.channel.createInvite({ maxAge: parseInt(ENV.INVITE_AGE) / 5});
-        const msg = await message.channel.send('@here', embeds.appealMsgPremium(message.member, description, inv.url)) as Message;
+        const msg = await message.channel.send('', LobbyEmbedUtil.appealMsgPremium(message.member, description, inv.url)) as Message;
         msg.delete({ timeout: parseInt(ENV.INVITE_AGE) * 1000 / 5 });
 
     }
