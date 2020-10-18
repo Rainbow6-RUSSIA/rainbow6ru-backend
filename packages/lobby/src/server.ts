@@ -51,6 +51,8 @@ server.get('/lobby/:id/leader', lobbyGetterMiddleware, async (req: restify.Reque
   const room = req.data;
 
   if (!room.isEnhanced) res.send(new PaymentRequiredError())
+
+  res.setHeader('Content-Type', 'image/gif');
   
   createEnhancedUserPreview(room.dcLeader.user, res);
   // createEnhancedUserPreview({ id: '261871531418845186', avatar: 'a_d89a473082eb25f2383e75e8e7d07d98' } as User, res);
