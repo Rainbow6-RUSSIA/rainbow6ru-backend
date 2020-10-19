@@ -90,7 +90,7 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
     // encoder.setTransparent(0x000000); // make black transparent
     encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat
     encoder.setDelay(delay); // frame delay in ms
-    encoder.setQuality(5); // image quality. 10 is default.
+    encoder.setQuality(10); // image quality. 10 is default.
 
     const preview = createCanvas(80, 80);
     const ctx = preview.getContext('2d');
