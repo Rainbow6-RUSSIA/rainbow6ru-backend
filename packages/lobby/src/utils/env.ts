@@ -11,7 +11,7 @@ class IEnv {
     public KICK_LIMIT = '';
     public REBOOT_TIME = '';
     public INVITE_AGE = '';
-    public LOBBY_PREVIEW_URL = '';
+    public LOBBY_SERVICE_URL = '';
     public MESSAGE_COOLDOWN = '';
     public DONATE_ROLE = '';
     public NITRO_ROLE = '';

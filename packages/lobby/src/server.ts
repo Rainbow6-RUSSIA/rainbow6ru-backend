@@ -3,6 +3,7 @@ import { IngameStatus as IS } from '@r6ru/types';
 import { User } from 'discord.js';
 import * as restify from 'restify';
 import { BadRequestError, NotFoundError, PaymentRequiredError } from 'restify-errors';
+import bot from './bot';
 import ENV from './utils/env';
 import { lobbyStoresRooms } from './utils/lobby';
 import { LSRoom } from './utils/lobby/room';
@@ -47,14 +48,18 @@ const lobbyGetterMiddleware = async (req: restify.Request & { data?: LSRoom }, r
   }
 }
 
-server.get('/lobby/:id/leader.gif', lobbyGetterMiddleware, async (req: restify.Request & { data: LSRoom }, res, next) => {
-  const room = req.data;
+server.get('/leader/:id/preview.gif', async (req, res, next) => {
+  const user = bot.users.get(req.params.id);
+  if (!user) return res.send(new NotFoundError());
+  
+  const room = lobbyStoresRooms.find(r => r.members.findIndex(m => m.id === user.id) !== -1);
+  if (!room) return res.send(new NotFoundError());
 
-  if (!room.isEnhanced) res.send(new PaymentRequiredError())
+  if (!room.isEnhanced) return res.send(new PaymentRequiredError())
 
   res.setHeader('Content-Type', 'image/gif');
   
-  createEnhancedUserPreview(room.dcLeader.user, res);
+  createEnhancedUserPreview(user, res);
   // createEnhancedUserPreview({ id: '261871531418845186', avatar: 'a_d89a473082eb25f2383e75e8e7d07d98' } as User, res);
 })
 
