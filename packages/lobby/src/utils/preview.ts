@@ -58,7 +58,7 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
     const canvasAvatar = await Canvas.loadImage(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`, { width: 80, height: 80 })
 
     const FRAMES = 10;
-    const BORDER = 2;
+    const BORDER = 5;
 
     const encoder = new GIFEncoder(80, 80);
     encoder.createReadStream().pipe(res);
