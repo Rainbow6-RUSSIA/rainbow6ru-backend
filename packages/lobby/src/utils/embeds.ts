@@ -65,7 +65,7 @@ export default class LobbyEmbedUtil {
 
   static appealMsgEnhanced = (lobby: LSRoom): MessageOptions => {
     let description = memberTag(lobby, lobby.leader) + '\n'
-    if (lobby.members.length > 1) description += + '──────────────────────\n'
+    if (lobby.members.length > 1) description += '──────────────────────\n'
     description += lobby.members
       .filter(u => u.id !== lobby.leader.id)
       .sort((a, b) => b.rank - a.rank)
