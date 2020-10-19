@@ -69,7 +69,7 @@ server.get('/lobby/:id/preview.png', lobbyGetterMiddleware, async (req: restify.
   const pic = await createLobbyPreview(
     room.minRank,
     room.maxRank,
-    (!room.joinAllowed
+    (room.joinAllowed
       ? room.dcChannel.userLimit - room.dcMembers.size
       : 0));
 
