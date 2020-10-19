@@ -348,7 +348,7 @@ export class LSRoom extends Lobby {
     }
 
     get isEnhanced() {
-        return this.checkEnhancedMember(this.leader.id);
+        return this.leader?.id ? this.checkEnhancedMember(this.leader.id) : false;
     }
 
     public checkEnhancedMember(id: string): boolean {
