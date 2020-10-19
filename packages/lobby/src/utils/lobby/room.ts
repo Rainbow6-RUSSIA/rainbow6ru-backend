@@ -40,7 +40,7 @@ export class LSRoom extends Lobby {
         this.dcChannel = voice;
         this.dcCategory = voice.parent;
         this.dcGuild = voice.guild;
-        this.dcLeader = this.dcMembers.random();
+        this.dcLeader = this.selectNewLeader();
     }
 
     public async init() {
@@ -163,7 +163,7 @@ export class LSRoom extends Lobby {
         }
 
         if (member.id === this.dcLeader?.id) {
-            const newLeader = this.dcMembers.find(m => this.checkEnhancedMember(m.id)) ?? this.dcMembers.random();
+            const newLeader = this.selectNewLeader();
             this.handleHardplay(false);
             try {
                 newLeader.send('Теперь Вы - лидер лобби');
@@ -354,6 +354,10 @@ export class LSRoom extends Lobby {
     public checkEnhancedMember(id: string): boolean {
         const member = this.dcGuild.members.get(id);
         return member.roles.has(ENV.DONATE_ROLE) || member.roles.has(ENV.NITRO_ROLE) || member.permissions.has('MANAGE_ROLES');
+    }
+
+    public selectNewLeader() {
+        return this.dcMembers.find(m => this.checkEnhancedMember(m.id)) ?? this.dcMembers.random();
     }
 }
 
