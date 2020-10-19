@@ -71,7 +71,7 @@ export default class LobbyEmbedUtil {
       .sort((a, b) => b.rank - a.rank)
       .map(u => memberTag(lobby, u))
       .join('\n')
-    description += '\`\`\`\nʀᴀɪɴʙᴏᴡ6-ʀᴜssɪᴀ ᴘʀᴇᴍɪᴜᴍ ʟᴏʙʙʏ                           — □ ×\n\`\`\`\n'
+    description += '\`\`\`\nʀᴀɪɴʙᴏᴡ6-ʀᴜssɪᴀ ᴘʀᴇᴍɪᴜᴍ ʟᴏʙʙʏ               — □ ×\n\`\`\`\n'
     description += lobby.description ?? ''
 
     let embed = new MessageEmbed()
