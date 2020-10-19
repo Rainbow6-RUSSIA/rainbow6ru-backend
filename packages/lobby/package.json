@@ -21,10 +21,12 @@
 		"@r6ru/db": "0.0.0",
 		"@r6ru/types": "0.0.0",
 		"@r6ru/utils": "0.0.0",
-		"canvas": "^2.6.0",
+		"canvas": "^2.6.1",
 		"discord-akairo": "8.0.0-beta.8",
 		"discord.js": "https://github.com/discordjs/discord.js#60f89bd",
 		"dotenv": "^8.0.0",
+		"gifencoder": "^2.0.1",
+		"gifuct-js": "^2.0.0",
 		"googleapis": "39",
 		"humanize-duration": "^3.16.0",
 		"jsonwebtoken": "^8.5.0",
@@ -40,8 +42,7 @@
 		"sequelize": "^5.8.2",
 		"sequelize-typescript": "^0.6.10",
 		"ts-enum-util": "^4.0.1",
-		"uuid": "^3.3.2",
-		"gifencoder": "^2.0.1"
+		"uuid": "^3.3.2"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^3.0.0",

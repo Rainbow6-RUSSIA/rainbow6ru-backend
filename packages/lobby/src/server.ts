@@ -2,7 +2,7 @@ import { Lobby } from '@r6ru/db';
 import { IngameStatus as IS } from '@r6ru/types';
 import { User } from 'discord.js';
 import * as restify from 'restify';
-import { BadRequestError, NotFoundError, PaymentRequiredError } from 'restify-errors';
+import { BadRequestError, InternalServerError, NotFoundError, PaymentRequiredError } from 'restify-errors';
 import bot from './bot';
 import ENV from './utils/env';
 import { lobbyStoresRooms } from './utils/lobby';
@@ -59,8 +59,13 @@ server.get('/leader/:id/preview.gif', async (req, res, next) => {
 
   res.setHeader('Content-Type', 'image/gif');
   
-  createEnhancedUserPreview(user, res);
-  // createEnhancedUserPreview({ id: '261871531418845186', avatar: 'a_d89a473082eb25f2383e75e8e7d07d98' } as User, res);
+  try {
+    createEnhancedUserPreview(user, res);
+    // createEnhancedUserPreview({ id: '261871531418845186', avatar: 'a_d89a473082eb25f2383e75e8e7d07d98' } as User, res);
+    // createEnhancedUserPreview({ id: '125634283258773504', avatar: '175220b1bbde18ab5a10f924c5285712' } as User, res);
+  } catch (error) {
+    return res.send(new InternalServerError())
+  }
 })
 
 server.get('/lobby/:id/preview.png', lobbyGetterMiddleware, async (req: restify.Request & { data: LSRoom }, res, next) => {

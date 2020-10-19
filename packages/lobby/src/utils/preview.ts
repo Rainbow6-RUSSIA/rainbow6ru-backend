@@ -1,19 +1,20 @@
 import { User } from 'discord.js';
-import * as Canvas from 'canvas';
 import fetch from 'node-fetch'
-import * as GIFEncoder from 'gifencoder';
 import * as restify from 'restify';
+import { registerFont, createCanvas, Canvas, Image, ImageData, loadImage } from 'canvas';
+import * as GIFEncoder from 'gifencoder';
+import { parseGIF, decompressFrames  } from 'gifuct-js';
 
-Canvas.registerFont(__dirname + '/../../assets/BebasNeue Bold.otf', { family: 'BebasNeue Bold' });
+registerFont(__dirname + '/../../assets/BebasNeue Bold.otf', { family: 'BebasNeue Bold' });
 
 export async function createLobbyPreview(n: number, m: number, k: number = 0) {
     if (!(Number.isInteger(n) && Number.isInteger(m) && Number.isInteger(k))) { return; }
 
     [n, m] = extractBorders([n, m]);
 
-    const preview = Canvas.createCanvas(160, 160);
+    const preview = createCanvas(160, 160);
     const ctx = preview.getContext('2d');
-    const images = await Promise.all([Canvas.loadImage(__dirname + `/../../assets/ranks/${n}.png`), Canvas.loadImage(__dirname + `/../../assets/ranks/${m}.png`)]);
+    const images = await Promise.all([loadImage(__dirname + `/../../assets/ranks/${n}.png`), loadImage(__dirname + `/../../assets/ranks/${m}.png`)]);
     ctx.font = '50px "BebasNeue Bold"';
     if (k > 0) {
         ctx.fillStyle = 'white';
@@ -29,60 +30,84 @@ export async function createLobbyPreview(n: number, m: number, k: number = 0) {
     return preview.toBuffer();
 }
 
-const rainbow = Canvas.createCanvas(160, 160);
+const rainbow = createCanvas(160, 160);
 const rainbowCtx = rainbow.getContext('2d');
 
-var CX = rainbow.width / 2,
+const CX = rainbow.width / 2,
     CY = rainbow.height/ 2,
     sx = CX,
-    sy = CY;
+    sy = CY,
+    da = 20;
 
-for(var i = 0; i < 360; i+=0.1){
-    var rad = i * (2*Math.PI) / 360;
-    rainbowCtx.strokeStyle = "hsla("+i+", 100%, 50%, 1.0)";   
+for(let i = 0; i < 360; i+=da){
+    const angle1 = i * (2 * Math.PI) / 360;
+    const angle2 = (i + da) * (2 * Math.PI) / 360;
+    rainbowCtx.fillStyle = "hsla("+i+", 100%, 50%, 1.0)";   
     rainbowCtx.beginPath();
     rainbowCtx.moveTo(CX, CY);
-    rainbowCtx.lineTo(CX + sx * Math.cos(rad), CY + sy * Math.sin(rad));
-    rainbowCtx.stroke();
+    rainbowCtx.lineTo(CX + sx * Math.cos(angle1), CY + sy * Math.sin(angle1));
+    rainbowCtx.lineTo(CX + sx * Math.cos(angle2), CY + sy * Math.sin(angle2));
+    rainbowCtx.fill();
 }
 
 export async function createEnhancedUserPreview(user: User, res: restify.Response) {
-    
-    // if (user.avatar.startsWith('a_')) {
-    //     const res = await fetch(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.gif?size=128`);
-    //     res.body.pipe();
+    let getFrame: (i: number) => Canvas | Image = null
+    let numOfFrames = 30;
+    let delay = 100;
+    const border = 3;
 
-    // } else {
-        // const avatar = await fetch().then(d => d.blob())
-    // }
-    const canvasAvatar = await Canvas.loadImage(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`, { width: 80, height: 80 })
+    const coverCanvas = createCanvas(128, 128);
+    const coverCtx = coverCanvas.getContext('2d');
 
-    const FRAMES = 10;
-    const BORDER = 5;
+    if (user.avatar.startsWith('a_')) {
+        const bufferPromise = fetch(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.gif?size=128`)
+            .then(d => d.buffer())
+        const framesData = await bufferPromise
+            .then(parseGIF)
+            .then(gif => decompressFrames(gif, true));        
+
+        const tmpCanvas = createCanvas(128, 128);
+        const tmpCtx = tmpCanvas.getContext('2d');
+        getFrame = (i: number) => {
+            if (framesData[i]) {
+                tmpCtx.putImageData(new ImageData(framesData[i].patch, 128, 128), 0, 0);
+                coverCtx.drawImage(tmpCanvas, 0, 0)
+            } 
+            return coverCanvas;
+        }
+        numOfFrames = framesData.length;
+        delay = framesData[0].delay;
+    } else {
+        const avatar = await fetch(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`).then(d => d.buffer());
+        const canvasPage = await loadImage(avatar, { width: 80, height: 80 })
+        getFrame = () => canvasPage;
+    }
 
     const encoder = new GIFEncoder(80, 80);
-    encoder.createReadStream().pipe(res);
+    encoder.createReadStream().pipe(res).on('error', (err: Error) => {throw err});
 
     encoder.start();
-    encoder.setTransparent(0x000000); // make black transparent
+    // encoder.setTransparent(0x000000); // make black transparent
     encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat
-    encoder.setDelay(1000 / FRAMES); // frame delay in ms
-    encoder.setQuality(10); // image quality. 10 is default.
+    encoder.setDelay(delay); // frame delay in ms
+    encoder.setQuality(5); // image quality. 10 is default.
 
-    const preview = Canvas.createCanvas(80, 80);
+    const preview = createCanvas(80, 80);
     const ctx = preview.getContext('2d');
 
     const { width, height } = preview
 
     ctx.translate(width / 2, height / 2);
 
-    for (let i = 0; i <= FRAMES; i++) {
-        const angle = 2 * Math.PI / FRAMES; 
+    for (let i = 0; i < numOfFrames; i++) {
+        const angle = 2 * Math.PI / numOfFrames; 
         ctx.rotate(angle * i);
         ctx.drawImage(rainbow, -width, -height);
         ctx.rotate(-angle * i);
 
-        ctx.drawImage(canvasAvatar, -width / 2 + BORDER, -height / 2 + BORDER, width - BORDER * 2, height - BORDER * 2);
+        // const page = await sharp(avatar, { pages: 1, page: i }).toBuffer()
+        ctx.drawImage(getFrame(i), -width / 2 + border, -height / 2 + border, width - border * 2, height - border * 2);
+        // ctx.putImageData()
 
         encoder.addFrame(ctx);
     }
