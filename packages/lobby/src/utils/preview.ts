@@ -61,17 +61,19 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
 
     if (user.avatar.startsWith('a_')) {
         const bufferPromise = fetch(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.gif?size=128`)
-            .then(d => d.buffer())
+            .then(d => d.buffer());
         const framesData = await bufferPromise
             .then(parseGIF)
-            .then(gif => decompressFrames(gif, true));        
+            .then(gif => decompressFrames(gif, true));  
 
-        const tmpCanvas = createCanvas(128, 128);
+        const {width, height} = framesData[0].dims;
+
+        const tmpCanvas = createCanvas(width, height);
         const tmpCtx = tmpCanvas.getContext('2d');
         getFrame = (i: number) => {
             if (framesData[i]) {
-                tmpCtx.putImageData(new ImageData(framesData[i].patch, 128, 128), 0, 0);
-                coverCtx.drawImage(tmpCanvas, 0, 0)
+                tmpCtx.putImageData(new ImageData(framesData[i].patch, width, height), 0, 0);
+                coverCtx.drawImage(tmpCanvas, 0, 0, 128, 128);
             } 
             return coverCanvas;
         }
