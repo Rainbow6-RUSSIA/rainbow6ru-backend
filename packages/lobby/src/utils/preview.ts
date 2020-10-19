@@ -29,7 +29,7 @@ export async function createLobbyPreview(n: number, m: number, k: number = 0) {
     return preview.toBuffer();
 }
 
-const rainbow = Canvas.createCanvas(320, 320);
+const rainbow = Canvas.createCanvas(160, 160);
 const rainbowCtx = rainbow.getContext('2d');
 
 var CX = rainbow.width / 2,
@@ -55,12 +55,12 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
     // } else {
         // const avatar = await fetch().then(d => d.blob())
     // }
-    const canvasAvatar = await Canvas.loadImage(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`, { width: 160, height: 160 })
+    const canvasAvatar = await Canvas.loadImage(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`, { width: 80, height: 80 })
 
     const FRAMES = 10;
-    const BORDER = 3;
+    const BORDER = 2;
 
-    const encoder = new GIFEncoder(160, 160);
+    const encoder = new GIFEncoder(80, 80);
     encoder.createReadStream().pipe(res);
 
     encoder.start();
@@ -69,7 +69,7 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
     encoder.setDelay(1000 / FRAMES); // frame delay in ms
     encoder.setQuality(10); // image quality. 10 is default.
 
-    const preview = Canvas.createCanvas(160, 160);
+    const preview = Canvas.createCanvas(80, 80);
     const ctx = preview.getContext('2d');
 
     const { width, height } = preview
