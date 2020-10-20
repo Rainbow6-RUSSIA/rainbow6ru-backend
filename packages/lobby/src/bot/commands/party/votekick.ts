@@ -48,26 +48,31 @@ export default class Votekick extends Command {
         const vote = await message.channel.send(`Голосование за исключение ${target} (30 сек.)\n${voice.members.filter(m => m.id !== target.id).array().join(', ')}`) as Message;
         const emojis = ['❎', '✅'];
         await Promise.all(emojis.map(e => vote.react(e)));
+        
         const votes: Collection<string, boolean> = new Collection();
+        votes.set(message.author.id, true);
+
         const filter = (reaction: MessageReaction, user: User) => emojis.includes(reaction.emoji.name);
         const collector = vote.createReactionCollector(filter, { time: 30000 });
         collector.on('collect', async (reaction, user) => {
             votes.set(user.id, Boolean(emojis.indexOf(reaction.emoji.name)));
-            if (voice.members.filter(m => m.id !== target.id).every(m => votes.filter(Boolean).has(m.id))) {
+            if (voice.members.filter(m => m.id !== target.id).every(m => votes.has(m.id))) {
                 collector.stop();
             }
         });
         collector.on('end', async collected => {
             const VM = voice.members.filter(m => m.id !== target.id);
+            const results = VM.map(m => `${m.user} - \\${!votes.has(m.id) ? '❔' : emojis[Number(votes.get(m.id))]}`).join(', ')
             if (!VM.every(m => votes.filter(Boolean).has(m.id))) {
                 await vote.reactions.clear();
-                await vote.edit(`Недостаточно голосов для исключения ${target}\n${VM.array().join(', ')}`);
+                await vote.edit(`Недостаточно голосов для исключения ${target}\n${results}`);
             } else {
-                await debug.log(`${VM.array().join(', ')} исключили ${target} из \`${room.LS.settings.type}\` по причине \`${description}\`. ID пати \`${room.id}\``);
+                await debug.log(`${results} исключили ${target} из \`${room.LS.settings.type}\` по причине \`${description}\`. ID пати \`${room.id}\``);
                 await room.LS.kick(target, 300000, 'Вы временно отстранены от поиска по результатам голосования!', room.id);
-                await vote.edit(`${target} исключен\n${VM.array().join(', ')}`);
+                await vote.edit(`${target} исключен\n${results}`);
             }
             return vote.delete({ timeout: 30000 });
         });
+        
     }
 }
