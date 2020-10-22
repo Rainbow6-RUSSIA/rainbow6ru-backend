@@ -93,7 +93,7 @@ export interface IJWT {
     acc: number;
 }
 
-export const ONLINE_TRACKER = 'https://r6stats.com/stats/';
+export const ONLINE_TRACKER = 'https://www.ubisoft.com/ru-ru/game/rainbow-six/siege/stats/summary/';
 
 export const DefaultSocial = {
     discord: [],
