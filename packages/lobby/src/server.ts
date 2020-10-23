@@ -1,13 +1,12 @@
-import { Lobby } from '@r6ru/db';
-import { IngameStatus as IS } from '@r6ru/types';
-import { User } from 'discord.js';
 import * as restify from 'restify';
-import { BadRequestError, InternalServerError, NotFoundError, PaymentRequiredError } from 'restify-errors';
+import { InternalServerError, NotFoundError, PaymentRequiredError } from 'restify-errors';
 import bot from './bot';
 import ENV from './utils/env';
 import { lobbyStoresRooms } from './utils/lobby';
-import { LSRoom } from './utils/lobby/room';
 import { createEnhancedUserPreview, createLobbyPreview } from './utils/preview';
+
+const gitInfo = require('git-commit-info');
+const versionHash = gitInfo().shortHash;
 
 function respond(req, res, next) {
     res.send('hello ' + req.params.name);
@@ -26,7 +25,7 @@ server.use(restify.plugins.requestLogger());
 
 server.get('/auth/login', respond);
 
-server.get('/leader/:id/preview.gif', async (req, res) => {
+server.get(`/v${versionHash}/leader/:id/preview.gif`, async (req, res) => {
   const user = bot.users.get(req.params.id);
   if (!user) return res.send(new NotFoundError());
   
@@ -48,7 +47,7 @@ server.get('/leader/:id/preview.gif', async (req, res) => {
   }
 })
 
-server.get('/lobby/:n/:m/:k/preview.png', async (req, res) => {
+server.get(`/v${versionHash}/lobby/:n/:m/:k/preview.png`, async (req, res) => {
   const { n, m, k } = req.params;
   
   const pic = await createLobbyPreview(parseInt(n), parseInt(m), parseInt(k));

@@ -9,6 +9,9 @@ import { LobbyStore } from './lobby';
 import { LSRoom } from './lobby/room';
 import { createEnhancedUserPreview, extractBorders } from './preview';
 
+const gitInfo = require('git-commit-info');
+const versionHash = gitInfo().shortHash;
+
 const memberTag = (lobby: LSRoom, user: User, member = lobby.dcGuild.members.get(user.id)) => 
   (lobby.dcLeader.id === user.id ? '\\👑 ' : '')
   + (!user.platform.PC ? '\\🎮' : '')
@@ -59,7 +62,7 @@ export default class LobbyEmbedUtil {
       + (lobby.description ? `\n▫${Util.escapeMarkdown(lobby.description)}` : '')
     )
     .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
-    .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/lobby/${lobby.minRank}/${lobby.maxRank}/${k}/preview.png`)
+    .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/v${versionHash}/lobby/${lobby.minRank}/${lobby.maxRank}/${k}/preview.png`)
     .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)
@@ -83,7 +86,7 @@ export default class LobbyEmbedUtil {
       .setColor([118, 31, 230])
       .setDescription(description)
       .setFooter(`Хочешь так же? Смотри #${(bot.channels.get('559714938000769034') as GuildChannel).name} • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1')
-      .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/leader/${lobby.leader.id}/preview.gif`)
+      .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/v${versionHash}/leader/${lobby.leader.id}/preview.gif`)
       .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)

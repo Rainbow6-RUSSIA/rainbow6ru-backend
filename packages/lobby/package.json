@@ -42,6 +42,7 @@
 		"sequelize": "^5.8.2",
 		"sequelize-typescript": "^0.6.10",
 		"ts-enum-util": "^4.0.1",
+		"git-commit-info": "^2.0.0",
 		"uuid": "^3.3.2"
 	},
 	"devDependencies": {
