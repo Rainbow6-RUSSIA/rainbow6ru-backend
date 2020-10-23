@@ -1,6 +1,6 @@
 import { Guild, Lobby, User } from '@r6ru/db';
 import { ILobbySettings, LobbyStoreStatus as LSS } from '@r6ru/types';
-import { CategoryChannel, Collection, GuildMember, Message, Snowflake, TextChannel, VoiceChannel } from 'discord.js';
+import { CategoryChannel, Collection, GuildMember, Message, Snowflake, TextChannel, VoiceChannel, Permissions, PermissionOverwrites } from 'discord.js';
 import * as humanizeDuration from 'humanize-duration';
 import { Sequelize } from 'sequelize-typescript';
 import { debug } from '../..';
@@ -94,21 +94,25 @@ export class LobbyStore {
         return v.name !== name ? v.setName(name) : v;
     }))
 
-    public async kick(member: GuildMember, timeout: number = 10000, reason?: string, lobbyId?: number) {
+    public async kick(member: GuildMember, timeout: number, reason: string, room: LSRoom) {
         await member.voice.setChannel(null, reason);
         try {
             await member.send(reason);
         } catch (err) {
             await this.lfgChannel.send(`${member}, ${reason}`);
         }
-        if (timeout > 10000) {
-            await member.roles.set(member.roles.filter(r => !this.guild.rankRoles.includes(r.id)));
-            debug.log(`${member} исключен из \`${this.settings.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}". ${lobbyId ? `ID пати ${lobbyId}` : ''}`);
-            const dbUser = await User.findByPk(member.id);
-            dbUser.rank = 25;
-            dbUser.rankUpdatedAt = new Date('2018');
-            setTimeout(() => dbUser.save(), timeout);
-        }
+        debug.log(`${member} исключен из \`${this.settings.type}\` на ${humanizeDuration(timeout, {conjunction: ' и ', language: 'ru', round: true})} по причине "${reason}". ID пати ${room.id}`);
+        await room.dcChannel.overwritePermissions({
+            reason: 'Исключение игрока',
+            permissionOverwrites: [
+                ...room.dcChannel.permissionOverwrites.values(),
+                {
+                    id: member.id,
+                    deny: new Permissions('CONNECT'),
+                }
+            ]
+        })
+        setTimeout(() => room.dcChannel.overwritePermissions({ permissionOverwrites: room.dcChannel.permissionOverwrites.filter(po => po.id !== member.id) }), timeout);
     }
 
     public async reportJoin(room: LSRoom, internal: boolean) { // вызывается при первом входе, нужно ли перестраивать список комнат?

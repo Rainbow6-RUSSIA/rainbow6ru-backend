@@ -68,7 +68,7 @@ export default class Votekick extends Command {
                 await vote.edit(`Недостаточно голосов для исключения ${target}\n${results}`);
             } else {
                 await debug.log(`${results} исключили ${target} из \`${room.LS.settings.type}\` по причине \`${description}\`. ID пати \`${room.id}\``);
-                await room.LS.kick(target, 300000, 'Вы временно отстранены от поиска по результатам голосования!', room.id);
+                await room.LS.kick(target, 1200000, 'Вы исключены из канала по результатам голосования!', room);
                 await vote.edit(`${target} исключен\n${results}`);
             }
             return vote.delete({ timeout: 30000 });
