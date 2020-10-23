@@ -24,7 +24,7 @@ export default class ChannelDelete extends Listener {
                         || toMove.name.replace(/#\d+/g, /#\d+/g.exec(room.dcChannel.name)[0]),
                     position: pos, // на самом деле здесь rawPosition
                 }, 'подмена удаленного канала');
-                lobbyStoresRooms.get(toMove.id).updateAppeal();
+                lobbyStoresRooms.get(toMove.id)?.updateAppeal();
             } catch (error) {
                 console.log('FAIL ON REPLACE WHEN DELETE', error);
             }
