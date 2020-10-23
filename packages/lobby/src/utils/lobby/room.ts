@@ -179,7 +179,7 @@ export class LSRoom extends Lobby {
     public async updateAppeal() {
         if (!this.dcMembers.size) { return; }
         await this.initAppeal();
-        if (!this.appealMessage.deleted) {
+        if (!this.appealMessage.deleted && (await this.handleStatus())) {
             try {
                 this.appealMessage = await this.appealMessage.edit('', this.isEnhanced ? LobbyEmbedUtil.appealMsgEnhanced(this) : LobbyEmbedUtil.appealMsg(this));
             } catch (error) {/* */}
