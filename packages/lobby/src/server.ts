@@ -26,29 +26,7 @@ server.use(restify.plugins.requestLogger());
 
 server.get('/auth/login', respond);
 
-const lobbyGetterMiddleware = async (req: restify.Request & { data?: LSRoom }, res: restify.Response, next: restify.Next) => {
-  if (Number.isInteger(parseInt(req.params.id)) && parseInt(req.params.id) < 2 ** 32 / 2) {
-    const lobby = await Lobby.findByPk(req.params.id);
-
-    if (!lobby) {
-      return res.send(new NotFoundError());
-    }
-
-    const room = lobbyStoresRooms.get(lobby.channel);
-
-    if (!room) {
-      return res.redirect(301, 'https://i.imgur.com/5Neb9Sn.png', next);
-    } else {
-      req.data = room;
-      next()
-    }
-
-  } else {
-    return res.send(new BadRequestError());
-  }
-}
-
-server.get('/leader/:id/preview.gif', async (req, res, next) => {
+server.get('/leader/:id/preview.gif', async (req, res) => {
   const user = bot.users.get(req.params.id);
   if (!user) return res.send(new NotFoundError());
   
@@ -68,16 +46,10 @@ server.get('/leader/:id/preview.gif', async (req, res, next) => {
   }
 })
 
-server.get('/lobby/:id/preview.png', lobbyGetterMiddleware, async (req: restify.Request & { data: LSRoom }, res, next) => {
-  const room = req.data;
+server.get('/lobby/:n/:m/:k/preview.png', async (req, res) => {
+  const { n, m, k } = req.params;
   
-  const pic = await createLobbyPreview(
-    room.minRank,
-    room.maxRank,
-    (room.joinAllowed
-      ? room.dcChannel.userLimit - room.dcMembers.size
-      : 0));
-
+  const pic = await createLobbyPreview(n, m, k);
   return res.sendRaw(200, pic || 'Error', {
     'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
     'Content-Type': 'image/png',

@@ -43,6 +43,10 @@ export default class LobbyEmbedUtil {
   }
 
   static appealMsg = (lobby: LSRoom): MessageOptions => {
+    const k = lobby.joinAllowed
+      ? lobby.dcChannel.userLimit - lobby.dcMembers.size
+      : 0
+
     let embed = new MessageEmbed()
     .setAuthor(LobbyEmbedUtil.modeSelector(lobby), lobby.dcLeader.user.displayAvatarURL())
     .setColor(RANK_COLORS[lobby.leader?.rank || 0])
@@ -55,7 +59,7 @@ export default class LobbyEmbedUtil {
       + (lobby.description ? `\n▫${Util.escapeMarkdown(lobby.description)}` : '')
     )
     .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
-    .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/lobby/${lobby.id}/preview.png?a${lobby.minRank}.${lobby.maxRank}.${lobby.dcChannel.userLimit - lobby.dcMembers.size}=1`)
+    .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/lobby/${lobby.minRank}/${lobby.maxRank}/${k}/preview.png`)
     .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)
