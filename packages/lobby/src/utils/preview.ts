@@ -8,8 +8,6 @@ import { parseGIF, decompressFrames  } from 'gifuct-js';
 registerFont(__dirname + '/../../assets/BebasNeue Bold.otf', { family: 'BebasNeue Bold' });
 
 export async function createLobbyPreview(n: number, m: number, k: number = 0) {
-    if (!(Number.isInteger(n) && Number.isInteger(m) && Number.isInteger(k))) { return; }
-
     [n, m] = extractBorders([n, m]);
 
     const preview = createCanvas(160, 160);

@@ -35,7 +35,9 @@ server.get('/leader/:id/preview.gif', async (req, res) => {
 
   if (!room.isEnhanced) return res.send(new PaymentRequiredError())
 
+  res.setHeader('Content-Disposition',`inline; filename="preview-${req.id().split('-')[0]}.gif"`);
   res.setHeader('Content-Type', 'image/gif');
+  res.setHeader('Cache-Control', `max-age=${1 * 24 * 3600}`);
   
   try {
     createEnhancedUserPreview(user, res);
@@ -49,11 +51,11 @@ server.get('/leader/:id/preview.gif', async (req, res) => {
 server.get('/lobby/:n/:m/:k/preview.png', async (req, res) => {
   const { n, m, k } = req.params;
   
-  const pic = await createLobbyPreview(n, m, k);
-  return res.sendRaw(200, pic || 'Error', {
-    'Content-Disposition': `inline; filename="preview-${req.id().split('-')[0]}.png"`,
-    'Content-Type': 'image/png',
-  });
+  const pic = await createLobbyPreview(parseInt(n), parseInt(m), parseInt(k));
+  res.setHeader('Content-Disposition',`inline; filename="preview-${req.id().split('-')[0]}.png"`);
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', `max-age=${30 * 24 * 3600}`);
+  return res.sendRaw(200, pic || 'Error');
 });
 
 server.listen(ENV.PORT || 3000, () => console.log(`[INFO][GENERIC] ${server.name} listening at ${server.url}`));
