@@ -139,7 +139,7 @@ export const R6_PRESENCE_REGEXPS = [
     [/Поиск.+РЕЙТ/, /Looking.+RANKED/],
     [/НОВИЧОК.+раунд/, /NEWCOMER.+Round/],
     [/Поиск.+НОВИЧОК/, /Looking.+NEWCOMER/],
-    [/Антитеррор/, /TERRORIST HUNT/],
+    [/Учебный лагерь/, /TRAINING GROUNDS/],
     [/Игра.+ПОЛЬЗ/, /CUSTOM.+Round/],
     [/Поиск.+ПОЛЬЗ/, /Looking.+CUSTOM/],
     [/РАЗВЕДКА.+раунд/, /DISCOVERY.+Round/],
