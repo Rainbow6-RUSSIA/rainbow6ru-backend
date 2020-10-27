@@ -86,7 +86,7 @@ export default class LobbyEmbedUtil {
       .setColor([118, 31, 230])
       .setDescription(description)
       .setFooter(`Хочешь так же? Смотри #${(bot.channels.get('559714938000769034') as GuildChannel).name} • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1')
-      .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/v${versionHash}/leader/${lobby.leader.id}/preview.gif`)
+      .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/v${versionHash}/leader/${lobby.dcLeader.id}/${lobby.dcLeader.user.avatar}/preview.gif`)
       .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)

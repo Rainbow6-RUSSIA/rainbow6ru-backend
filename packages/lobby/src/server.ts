@@ -25,7 +25,7 @@ server.use(restify.plugins.requestLogger());
 
 server.get('/auth/login', respond);
 
-server.get(`/v${versionHash}/leader/:id/preview.gif`, async (req, res) => {
+server.get(`/v${versionHash}/leader/:id/:hash/preview.gif`, async (req, res) => {
   const user = bot.users.get(req.params.id);
   if (!user) return res.send(new NotFoundError());
   
