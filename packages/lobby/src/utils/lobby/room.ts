@@ -68,14 +68,14 @@ export class LSRoom extends Lobby {
         await this.$set('members', await User.findAll({ where: { id: this.dcMembers.map(m => m.id) } }));
         await this.reload({ include: [{all: true}] });
 
+        if (this.dcMembers.size) {
+            this.processStatus();
+        }
         if (this.dcLeader?.user) {
             await this.initAppeal();
         }
         if (this.categoryVoices.lastKey() === this.channel) {
             await this.initInvite();
-        }
-        if (this.dcMembers.size) {
-            this.handleStatus();
         }
 
         return this;
@@ -181,6 +181,7 @@ export class LSRoom extends Lobby {
         await this.initAppeal();
         if (!this.appealMessage.deleted) {
             try {
+                this.processStatus();
                 this.appealMessage = await this.appealMessage.edit('', this.isEnhanced ? LobbyEmbedUtil.appealMsgEnhanced(this) : LobbyEmbedUtil.appealMsg(this));
             } catch (error) {/* */}
             // console.log(`APPEAL UPDATED ${this.dcChannel.name}`);
@@ -271,19 +272,23 @@ export class LSRoom extends Lobby {
         ]);
     }
 
+    @ReverseThrottle(5000)
     public handleStatus() {
-        const statusColl = new Collection<IS, number>();
-        this.dcMembers.map(m => detectIngameStatus(m.presence)).map(s => statusColl.set(s, (statusColl.get(s) || 0) + 1));
-        statusColl.sort((a, b, ak, bk) => (b - a) || (bk - ak)); // sort by quantity otherwise sort by mode from actual mode to OTHER
-        // if (statusColl.size <= 2 && statusColl.has(IS.OTHER)) {
+         // if (statusColl.size <= 2 && statusColl.has(IS.OTHER)) {
         //     Object.values(room.LS.guild.lobbySettings);
         //     // move when playing incorrect mode
         // }
-        return this.processStatus(statusColl);
+        if (this.processStatus()) {
+            return this.updateAppeal();
+        }
     }
 
-    @ReverseThrottle(5000)
-    private async processStatus(statusColl: Collection<IS, number>) {
+    // @ReverseThrottle(5000)
+    private processStatus() {
+        const statusColl = new Collection<IS, number>();
+        this.dcMembers.map(m => detectIngameStatus(m.presence)).map(s => statusColl.set(s, (statusColl.get(s) || 0) + 1));
+        statusColl.sort((a, b, ak, bk) => (b - a) || (bk - ak)); // sort by quantity otherwise sort by mode from actual mode to OTHER
+
         if (!this || this.status === IS.LOADING || !this.dcMembers.size) { return; }
         const prevStatus = this.status;
         const nextStatus = statusColl.firstKey();
@@ -307,8 +312,8 @@ export class LSRoom extends Lobby {
             }
 
             this.status = typeof nextStatus === 'number' ? nextStatus : IS.OTHER;
-            this.updateAppeal();
-            this.LS.updateFastAppeal();
+            // this.updateAppeal();
+            // this.LS.updateFastAppeal();
 
             return true;
         } else {
