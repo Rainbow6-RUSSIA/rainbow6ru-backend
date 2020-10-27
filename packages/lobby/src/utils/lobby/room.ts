@@ -357,7 +357,7 @@ export class LSRoom extends Lobby {
     }
 
     public selectNewLeader() {
-        return this.dcMembers.find(m => this.checkEnhancedMember(m.id)) ?? this.dcMembers.random();
+        return this.dcMembers.filter(m => this.checkEnhancedMember(m.id)).random() ?? this.dcMembers.random();
     }
 }
 
