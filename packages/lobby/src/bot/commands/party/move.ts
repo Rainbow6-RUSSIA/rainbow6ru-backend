@@ -17,12 +17,12 @@ export default class Move extends Command {
         super('move', {
             aliases: ['move', 'mv'],
             args: [{
-                id: 'target',
-                type: 'voiceChannel',
-                unordered: true,
-            }, {
                 id: 'targetId',
                 type: 'number',
+                unordered: true,
+            }, {
+                id: 'target',
+                type: 'voiceChannel',
                 unordered: true,
             }, {
                 id: 'gameMode',
