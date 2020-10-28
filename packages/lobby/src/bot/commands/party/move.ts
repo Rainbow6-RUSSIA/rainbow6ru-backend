@@ -7,8 +7,7 @@ import { LSRoom } from '../../../utils/lobby/room';
 import { IngameStatus } from '@r6ru/types';
 
 interface IArgs {
-    target: VoiceChannel;
-    targetId: number;
+    targetId: string;
     gameMode: string;
 }
 
@@ -18,16 +17,10 @@ export default class Move extends Command {
             aliases: ['move', 'mv'],
             args: [{
                 id: 'targetId',
-                type: 'number',
-                unordered: true,
-            }, {
-                id: 'target',
-                type: 'voiceChannel',
-                unordered: true,
+                type: 'string'
             }, {
                 id: 'gameMode',
-                type: 'string',
-                unordered: true
+                type: 'string'
             }],
             channel: 'guild',
             cooldown: 5000,
@@ -36,9 +29,9 @@ export default class Move extends Command {
     }
 
     public exec = async (message: Message, args: IArgs) => {
-        const { target, targetId, gameMode } = args;
-        if ((target || targetId) && gameMode ) {
-            const room = lobbyStoresRooms.find(r => (target && r.dcChannel.id === target.id) || (targetId && r.id === targetId));
+        const { targetId, gameMode } = args;
+        if (targetId && gameMode) {
+            const room = lobbyStoresRooms.find(r => r.dcChannel.id === targetId || r.id === parseInt(targetId));
             try {
                 if (room) {
                     const IS = IngameStatus[gameMode]
