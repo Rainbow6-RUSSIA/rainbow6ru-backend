@@ -93,7 +93,7 @@ export interface IJWT {
     acc: number;
 }
 
-export const ONLINE_TRACKER = 'https://r6stats.com/stats/';
+export const ONLINE_TRACKER = process.env.ONLINE_TRACKER; //'https://r6stats.com/stats/';
 
 export const DefaultSocial = {
     discord: [],
