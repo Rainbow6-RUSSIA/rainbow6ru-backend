@@ -20,7 +20,7 @@ export default class NewSeason extends Command {
 
     public exec = async (message: Message) => {
         const res = await combinedPrompt(
-            await message.reply('вы уверены, что хотите сбросить статистику?'),
+            await message.reply('вы уверены, что хотите сбросить роли?'),
             {
                 author: message.author,
                 emojis: ['✅', '❎'],
@@ -32,24 +32,22 @@ export default class NewSeason extends Command {
             const dbGuild = await Guild.findByPk(guild.id);
             const members = await guild.members.fetch();
             const query = {
-                where: {
-                    [Op.and]: [
-                        { id: members.filter(m => !m.roles.has(dbGuild.rankRoles[0])).map(m => m.id) },
-                        {inactive: false},
-                        {rank: 0},
-                    ],
+                where: { 
+                    id: members.filter(m => m.roles.some(r => dbGuild.rankRoles.slice(1).includes(r.id))).map(m => m.id)
                 }
             };
-            // await User.update({ rank: 0 }, query);
-            const targets = await User.findAll(query);
+            const [N, targets] = await User.update({ rank: 0 }, query);
             let i = 0;
-            await Promise.all(targets.map(t => Sync.updateMember(dbGuild, t).then(() => {
-                i++;
-                if (!(i % 25)) { 
-                    debug.log(`${i}/${targets.length}/${(100 * i / targets.length).toPrecision(3)}% ПРОГРЕСС ОБНОВЛЕНИЯ НОВОГО СЕЗОНА`);
-                }
-            })));
-            await message.reply('роли обновлены!');
+            await Promise.all(
+                targets.map(t => 
+                    Sync.updateMember(dbGuild, t)
+                    .then(() => {
+                        i++;
+                        if (i % 100 === 0) message.channel.send(`${i}/${N}/${(100 * i / N).toFixed(2)}% ПРОГРЕСС ОБНОВЛЕНИЯ НОВОГО СЕЗОНА`);
+                    })
+                )
+            );
+            await message.reply('роли сброшены!');
         }
     }
 }
