@@ -39,12 +39,16 @@ export default class NewSeason extends Command {
             };
             const [N, targets] = await User.update({ rank: 0 }, query);
             let i = 0;
+
+            const progress = await message.channel.send(`\`${i}/${N}/${(100 * i / N).toFixed(2)}%\` ПРОГРЕСС ОБНОВЛЕНИЯ РОЛЕЙ В НОВОМ СЕЗОНЕ`);
+            await progress.pin();
+            
             await Promise.all(
                 targets.map(t => 
                     Sync.updateMember(dbGuild, t)
                     .then(() => {
                         i++;
-                        if (i % 100 === 0) message.channel.send(`${i}/${N}/${(100 * i / N).toFixed(2)}% ПРОГРЕСС ОБНОВЛЕНИЯ НОВОГО СЕЗОНА`);
+                        if (i % 25 === 0) progress.edit(`\`${i} / ${N} / ${(100 * i / N).toFixed(2)}%\` ПРОГРЕСС ОБНОВЛЕНИЯ РОЛЕЙ В НОВОМ СЕЗОНЕ`);
                     })
                 )
             );
