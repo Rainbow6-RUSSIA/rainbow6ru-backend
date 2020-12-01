@@ -32,6 +32,7 @@ export default class NewSeason extends Command {
             const dbGuild = await Guild.findByPk(guild.id);
             const members = await guild.members.fetch();
             const query = {
+                returning: true,
                 where: { 
                     id: members.filter(m => m.roles.some(r => dbGuild.rankRoles.slice(1).includes(r.id))).map(m => m.id)
                 }
