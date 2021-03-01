@@ -34,32 +34,32 @@ export default class Party extends Command {
     public async exec(message: Message, args: IArgs) {
         // const lobby = LS.lobbies.get(message.member.voice.channelID);
         const voice = message.member.voice.channel;
-        if (lobbyStoresRooms.has(voice.id)) {
-            return this.execDefaultParty(message, args);
-        } else {
-            const { description } = args;
-            switch (true) {
-                case !description:
-                    return this.execDefaultParty(message, args);
-                case description.startsWith('donate'):
-                case description.startsWith('premium'): {
-                    const dbGuild = await Guild.findByPk(message.guild.id);
-                    if (message.member.roles.has(dbGuild.donateRoles.default[0]) || message.member.premiumSince) {
-                        args.description = description.slice(description.split(' ')[0].length).trim();
-                        return this.execDonateParty(message, args);
-                    } else {
-                        return message.author.send('Аргумент `donate` или `premium` доступен только донатерам или поддержавшим с помощью Nitro Boost');
-                    }
-                }
-                // case description.startsWith('youtube'):
-                case description.startsWith('twitch'):
-                case description.startsWith('stream'): {
-                    return this.execDefaultParty(message, args);
-                }
-                default:
-                    return this.execDefaultParty(message, args);
-            }
-        }
+        return this.execDefaultParty(message, args);
+        // if (lobbyStoresRooms.has(voice.id)) {
+        // } else {
+        //     const { description } = args;
+        //     switch (true) {
+        //         case !description:
+        //             return this.execDefaultParty(message, args);
+        //         case description.startsWith('donate'):
+        //         case description.startsWith('premium'): {
+        //             const dbGuild = await Guild.findByPk(message.guild.id);
+        //             if (message.member.roles.has(dbGuild.donateRoles.default[0]) || message.member.premiumSince) {
+        //                 args.description = description.slice(description.split(' ')[0].length).trim();
+        //                 return this.execDonateParty(message, args);
+        //             } else {
+        //                 return message.author.send('Аргумент `donate` или `premium` доступен только донатерам или поддержавшим с помощью Nitro Boost');
+        //             }
+        //         }
+        //         // case description.startsWith('youtube'):
+        //         case description.startsWith('twitch'):
+        //         case description.startsWith('stream'): {
+        //             return this.execDefaultParty(message, args);
+        //         }
+        //         default:
+        //             return this.execDefaultParty(message, args);
+        //     }
+        // }
     }
 
     public async execDonateParty(message: Message, args: IArgs) {
@@ -72,7 +72,13 @@ export default class Party extends Command {
 
     @PartyCommand()
     public async execDefaultParty(message: Message, args: IArgs & IArgsPartyCommand): Promise<any> {
-        const { description, room } = args;
+        let { description, room } = args;
+
+        if (description) {
+            const lines = description.split('\n');
+            if (lines.length > 5) description = lines.slice(0, 5).join('\n') + '…';
+            if (description.length > 200) description = description.slice(0, 200) + '…';
+        }
 
         const hasAppeal = Boolean(room.appealMessage) && !room.appealMessage.deleted;
         if (hasAppeal && room.description === description) {
