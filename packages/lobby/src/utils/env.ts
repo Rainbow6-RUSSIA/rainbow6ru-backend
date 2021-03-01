@@ -15,6 +15,9 @@ class IEnv {
     public MESSAGE_COOLDOWN = '';
     public DONATE_ROLE = '';
     public NITRO_ROLE = '';
+
+    public DESCRIPTION_LENGTH_LIMIT = '';
+    public DESCRIPTION_LINES_LIMIT = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file

@@ -75,9 +75,12 @@ export default class Party extends Command {
         let { description, room } = args;
 
         if (description) {
+            const linesLimit = parseInt(ENV.DESCRIPTION_LINES_LIMIT)
+            const lengthLimit = parseInt(ENV.DESCRIPTION_LENGTH_LIMIT)
             const lines = description.split('\n');
-            if (lines.length > 5) description = lines.slice(0, 5).join('\n') + '…';
-            if (description.length > 200) description = description.slice(0, 200) + '…';
+
+            if (lines.length > linesLimit) description = lines.slice(0, linesLimit).join('\n') + '…';
+            if (description.length > lengthLimit) description = description.slice(0, lengthLimit) + '…';
         }
 
         const hasAppeal = Boolean(room.appealMessage) && !room.appealMessage.deleted;
