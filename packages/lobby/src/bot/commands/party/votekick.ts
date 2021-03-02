@@ -64,10 +64,11 @@ export default class Votekick extends Command {
             const VM = voice.members.filter(m => m.id !== target.id);
             const results = VM.map(m => `${m.user} - \\${!votes.has(m.id) ? '❔' : emojis[Number(votes.get(m.id))]}`).join(', ')
             if (!VM.every(m => votes.filter(Boolean).has(m.id))) {
-                await vote.reactions.clear();
+                void debug.log(`${results} НЕ удалось исключить ${target} из \`${room.LS.settings.type}\` по причине \`${description}\`. ID пати \`${room.id}\``);
+                vote.reactions.clear();
                 await vote.edit(`Недостаточно голосов для исключения ${target}\n${results}`);
             } else {
-                await debug.log(`${results} исключили ${target} из \`${room.LS.settings.type}\` по причине \`${description}\`. ID пати \`${room.id}\``);
+                void debug.log(`${results} исключили ${target} из \`${room.LS.settings.type}\` по причине \`${description}\`. ID пати \`${room.id}\``);
                 await room.LS.kick(target, 1200000, 'Вы исключены из канала по результатам голосования!', room);
                 await vote.edit(`${target} исключен\n${results}`);
             }
