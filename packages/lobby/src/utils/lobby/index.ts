@@ -95,8 +95,8 @@ export class LobbyStore {
     }))
 
     public async kick(member: GuildMember, timeout: number, reason: string, room: LSRoom) {
-        await member.voice.setChannel(null, reason);
         try {
+            await member.voice?.setChannel(null, reason);
             await member.send(reason);
         } catch (err) {
             await this.lfgChannel.send(`${member}, ${reason}`);
