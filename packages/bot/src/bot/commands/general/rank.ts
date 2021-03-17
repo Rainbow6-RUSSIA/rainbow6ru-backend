@@ -27,7 +27,7 @@ interface IRankArgs {
 export default class Rank extends Command {
     public constructor() {
         super('rank', {
-            aliases: ['rank', 'rang', 'unranked', 'copper', 'bronze', 'silver', 'gold', 'platinum', 'diamond'],
+            aliases: ['rank', 'rang', 'unranked', 'copper', 'bronze', 'silver', 'gold', 'platinum', 'diamond', 'reg', 'auth', 'register', 'login'],
             channel: 'guild',
             ratelimit: 100,
         });
