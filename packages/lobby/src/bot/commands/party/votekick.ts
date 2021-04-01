@@ -4,6 +4,7 @@ import { Collection, GuildMember, Message, MessageReaction, User } from 'discord
 import { debug } from '../../..';
 import PartyCommand, { IArgsPartyCommand } from '../../../utils/decorators/party_command';
 import RequireVoice from '../../../utils/decorators/require_voice';
+import ENV from '../../../utils/env';
 
 interface IArgs extends IArgsPartyCommand {
     target: GuildMember;
@@ -53,7 +54,7 @@ export default class Votekick extends Command {
         votes.set(message.author.id, true);
 
         const filter = (reaction: MessageReaction, user: User) => emojis.includes(reaction.emoji.name);
-        const collector = vote.createReactionCollector(filter, { time: 30000 });
+        const collector = vote.createReactionCollector(filter, { time: parseInt(ENV.VOTEKICK_TIME) });
         collector.on('collect', async (reaction, user) => {
             votes.set(user.id, Boolean(emojis.indexOf(reaction.emoji.name)));
             if (voice.members.filter(m => m.id !== target.id).every(m => votes.has(m.id))) {
@@ -72,7 +73,7 @@ export default class Votekick extends Command {
                 await room.LS.kick(target, 1200000, 'Вы исключены из канала по результатам голосования!', room);
                 await vote.edit(`${target} исключен\n${results}`);
             }
-            return vote.delete({ timeout: 30000 });
+            return vote.delete({ timeout: parseInt(ENV.VOTEKICK_TIME) / 2 });
         });
         
     }

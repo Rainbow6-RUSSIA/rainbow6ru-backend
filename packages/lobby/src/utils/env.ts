@@ -18,6 +18,8 @@ class IEnv {
 
     public DESCRIPTION_LENGTH_LIMIT = '';
     public DESCRIPTION_LINES_LIMIT = '';
+
+    public VOTEKICK_TIME = '';
 }
 
 // tslint:disable-next-line:max-classes-per-file
