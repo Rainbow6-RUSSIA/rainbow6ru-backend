@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@types/node": "^12.0.2",
-    "discord.js": "https://github.com/discordjs/discord.js#60f89bd"
+    "discord.js": "https://github.com/discordjs/discord.js#60f89bd96f7e110617af021642a810e7fb71e694"
   },
   "devDependencies": {
     "tslint": "^5.16.0"

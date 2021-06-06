@@ -20,7 +20,7 @@
 		"@r6ru/types": "0.0.0",
 		"@r6ru/utils": "0.0.0",
 		"discord-akairo": "8.0.0-beta.8",
-		"discord.js": "https://github.com/discordjs/discord.js#60f89bd",
+		"discord.js": "https://github.com/discordjs/discord.js#60f89bd96f7e110617af021642a810e7fb71e694",
 		"dotenv": "^8.1.0",
 		"jsonwebtoken": "^8.5.1",
 		"morgan": "^1.9.1",
