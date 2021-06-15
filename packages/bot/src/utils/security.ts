@@ -16,11 +16,11 @@ type BanInfo = Collection<string, { user: U, reason: string }>;
 export default class Security {
     public static async detectDupes(dbUser: User, dbGuild: Guild, silent?: boolean) {
         let twinks = await User.findAll({
-            include: [{ all: true}],
+            include: [{ all: true }],
             where: {
                 [Op.or]: [
-                    {genome: [dbUser.genome]},
-                    {genomeHistory: {[Op.contains]: [dbUser.genome]}},
+                    { genome: [dbUser.genome] },
+                    { genomeHistory: { [Op.contains]: [dbUser.genome] } },
                 ],
             },
         });
@@ -30,7 +30,7 @@ export default class Security {
         const bannedAt = twinks.find(t => t.id === dbUser.id).bannedAt;
         const localBan = bannedAt.length && bannedAt.find(r => r.id === dbGuild.id);
         if (!(localBan?.GuildBlacklist?.allowed)
-             && (dbUser.securityNotifiedAt > new Date(Date.now() - 5 * 60 * 1000)
+            && (dbUser.securityNotifiedAt > new Date(Date.now() - 5 * 60 * 1000)
                 || dbUser.securityNotifiedAt < new Date(Date.now() - 14 * 24 * 60 * 60 * 1000))) {
             if (twinks.length > 1) {
                 const guild = bot.guilds.get(dbGuild.id);
@@ -58,10 +58,10 @@ export default class Security {
                 + Security.logString(twinks[0], bans)
                 + '\nи\n'
                 + twinks
-                .filter((t, i, a) => t.genome === a[0].genome)
-                .slice(1)
-                .map(t => Security.logString(t, bans))
-                .join('\n'));
+                    .filter((t, i, a) => t.genome === a[0].genome)
+                    .slice(1)
+                    .map(t => Security.logString(t, bans))
+                    .join('\n'));
         }
     }
     public static async logHistoricalDupes(twinks: User[], bans: BanInfo) {
@@ -95,7 +95,7 @@ export default class Security {
         if (dupes.length > 1) {
             dbUser.requiredVerification = VERIFICATION_LEVEL.QR;
             await dbUser.save();
-            await debug.error(`<@${dbUser.id}> зарегистрировался как ${dbUser}. Обнаружена повторная регистрация или передача аккаунта.`);
+            await debug.warn(`<@${dbUser.id}> зарегистрировался как ${dbUser}. Обнаружена повторная регистрация или передача аккаунта.`);
         } else {
             await debug.log(`<@${dbUser.id}> зарегистрировался как ${dbUser}.`);
         }
