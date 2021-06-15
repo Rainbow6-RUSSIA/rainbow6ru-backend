@@ -23,7 +23,6 @@ export default class NewSeason extends Command {
         const dbGuild = await Guild.findByPk(guild.id);
         const members = await guild.members.fetch();
         const query = {
-            attributes: ['id', 'rank', 'verificationLevel', 'requiredVerification', 'inactive'],
             where: {
                 id: members.map(m => m.id)
             }
