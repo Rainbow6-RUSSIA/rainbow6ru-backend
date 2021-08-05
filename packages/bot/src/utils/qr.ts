@@ -34,9 +34,7 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
 export async function verify(genome: UUID, id: string): Promise<boolean> {
     const codes = await Promise.all([
         tryURL(`https://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`),
-        tryURL(`http://ubisoft-avatars.akamaized.net/${genome}/default_256_256.png`),
-        tryURL(`https://ubisoft-avatars.akamaized.net/${genome}/default_146_146.png`),
-        tryURL(`http://ubisoft-avatars.akamaized.net/${genome}/default_146_146.png`)]);
+        tryURL(`https://ubisoft-avatars.akamaized.net/${genome}/default_tall.png`)]);
     const results = codes.map(c => {
         if (c) {
             const args = [c.slice(0, 18), c.slice(18)];
@@ -60,15 +58,20 @@ export async function verify(genome: UUID, id: string): Promise<boolean> {
 async function tryURL(url: string): Promise<string> {
     const QR = new Canvas.Image();
     const res = await fetch(url);
-    QR.src = await res.buffer();
-    const ctx = Canvas.createCanvas(QR.width, QR.height).getContext('2d');
-    ctx.drawImage(QR, 0, 0);
-    const imageData = ctx.getImageData(0, 0, QR.width, QR.height);
-    try {
-        const code = readerQR(imageData.data, imageData.width, imageData.height);
-        return code?.data;
-    } catch (err) {
-        console.log(err);
-        return null;
-    }
+    const buf = await res.buffer();
+    return new Promise(res => {
+      QR.onload = () => {
+        const ctx = Canvas.createCanvas(QR.width, QR.height).getContext('2d');
+        ctx.drawImage(QR, 0, 0);
+        const imageData = ctx.getImageData(0, 0, QR.width, QR.height);
+        try {
+            const code = readerQR(imageData.data, imageData.width, imageData.height);
+            return res(code?.data);
+        } catch (err) {
+            console.log(err);
+            return res(null);
+        }
+      }
+      QR.src = buf
+    });
 }
