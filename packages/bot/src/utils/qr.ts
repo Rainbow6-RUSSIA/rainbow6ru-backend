@@ -9,17 +9,22 @@ import ENV from './env';
 async function tryURL(url: string): Promise<string> {
     const QR = new Canvas.Image();
     const res = await fetch(url);
-    QR.src = await res.buffer();
-    const ctx = Canvas.createCanvas(QR.width, QR.height).getContext('2d');
-    ctx.drawImage(QR, 0, 0);
-    const imageData = ctx.getImageData(0, 0, QR.width, QR.height);
-    try {
-        const code = readerQR(imageData.data, imageData.width, imageData.height);
-        return code?.data;
-    } catch (err) {
-        console.log(err);
-        return null;
-    }
+    const buf = await res.buffer();
+    return new Promise(res => {
+      QR.onload = () => {
+        const ctx = Canvas.createCanvas(QR.width, QR.height).getContext('2d');
+        ctx.drawImage(QR, 0, 0);
+        const imageData = ctx.getImageData(0, 0, QR.width, QR.height);
+        try {
+            const code = readerQR(imageData.data, imageData.width, imageData.height);
+            return res(code?.data);
+        } catch (err) {
+            console.log(err);
+            return res(null);
+        }
+      }
+      QR.src = buf
+    });
 }
 
 const withParams = (func, id: string, genome: string) => (code: string) => func(code, id, genome);
@@ -71,13 +76,8 @@ export function generate(genome: UUID, id: string): Promise<Uint8Array> {
 
 export async function verify(genome: UUID, id: string): Promise<boolean> {
     const codes = await Promise.all(
-        ['http', 'https']
-            .map((protocol) =>
-                [146, 256].map(
-                    (res) => `${protocol}://ubisoft-avatars.akamaized.net/${genome}/default_${res}_${res}.png`,
-                ),
-            )
-            .reduce((a, b) => a.concat(b), [])
+        ['256_256', 'tall']
+            .map(res => `https://ubisoft-avatars.akamaized.net/${genome}/default_${res}.png`
             .map(tryURL),
     );
     const results = [checkCode, checkCodeLegacy]
