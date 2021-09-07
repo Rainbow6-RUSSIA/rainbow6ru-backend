@@ -7,9 +7,20 @@ export const RankResolvable = [
     'Silver V', 'Silver IV', 'Silver III', 'Silver II', 'Silver I',
     'Gold III', 'Gold II', 'Gold I',
     'Platinum III', 'Platinum II', 'Platinum I',
-    'Diamond',
+    'Diamond III', 'Diamond II', 'Diamond I',
     'Champion',
 ];
+
+export const RankGaps = [
+    2500,
+    1100, 1200, 1300, 1400, 1500,
+    1600, 1700, 1800, 1900, 2000,
+    2100, 2200, 2300, 2400, 2500,
+    2600, 2800, 3000,
+    3200, 3600, 4000,
+    4100, 4400, 4700,
+    5000
+]
 
 export type UUID = string;
 
@@ -71,7 +82,7 @@ export enum RANKS {
     'Silver V', 'Silver IV', 'Silver III', 'Silver II', 'Silver I',
     'Gold III', 'Gold II', 'Gold I',
     'Platinum III', 'Platinum II', 'Platinum I',
-    'Diamond',
+    'Diamond III', 'Diamond II', 'Diamond I',
     'Champion',
 }
 
@@ -153,10 +164,10 @@ export const RANK_COLORS = [
     0xa7a7a7, 0xa7a7a7, 0xa7a7a7, 0xa7a7a7, 0xa7a7a7,
     0xffb120, 0xffb120, 0xffb120,
     0x00cdc1, 0x00cdc1, 0x00cdc1,
-    0xa67df8,
+    0xa67df8, 0xa67df8, 0xa67df8,
     0xff0784,
     0,
-    0xbe1931,
+    0,
 ];
 
 export const RANK_BADGES = [
@@ -198,8 +209,8 @@ export interface ILobbySettings {
 
 export const currentlyPlaying = [IngameStatus.CASUAL, IngameStatus.RANKED, IngameStatus.CUSTOM, IngameStatus.NEWCOMER, IngameStatus.DISCOVERY];
 export enum EmojiButtons {
-        CLOSE = '🔐',
-        HARDPLAY = '🏆',
+    CLOSE = '🔐',
+    HARDPLAY = '🏆',
 }
 
 export enum UpdateStatus {

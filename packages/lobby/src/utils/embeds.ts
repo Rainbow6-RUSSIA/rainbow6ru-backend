@@ -1,5 +1,5 @@
 import { Lobby, User } from '@r6ru/db';
-import { currentlyPlaying, EMOJI_REGEXP, EmojiButtons, HF_PLATFORM, IngameStatus as IS, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL, VERIFIED_BADGE, DONATE_BADGE, NITRO_BADGE, ADMIN_BADGE } from '@r6ru/types';
+import { currentlyPlaying, EMOJI_REGEXP, EmojiButtons, HF_PLATFORM, IngameStatus as IS, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL, VERIFIED_BADGE, DONATE_BADGE, NITRO_BADGE, ADMIN_BADGE, RankGaps } from '@r6ru/types';
 import { MessageAttachment } from 'discord.js';
 import { GuildChannel } from 'discord.js';
 import { GuildMember, MessageEmbed, MessageOptions, Util } from 'discord.js';
@@ -7,12 +7,12 @@ import bot from '../bot';
 import ENV from './env';
 import { LobbyStore } from './lobby';
 import { LSRoom } from './lobby/room';
-import { createEnhancedUserPreview, extractBorders } from './preview';
+import { createEnhancedUserPreview, extractBorders, canQueue } from './preview';
 
 const gitInfo = require('git-commit-info');
 const versionHash = gitInfo().shortHash;
 
-const memberTag = (lobby: LSRoom, user: User, member = lobby.dcGuild.members.get(user.id)) => 
+const memberTag = (lobby: LSRoom, user: User, member = lobby.dcGuild.members.get(user.id)) =>
   (lobby.dcLeader.id === user.id ? '\\👑 ' : '')
   + (!user.platform.PC ? '\\🎮' : '')
   + `<@${user.id}> (${bot.emojis.resolve(RANK_BADGES[user.rank])} **${Util.escapeMarkdown(user.nickname)}** - [${HF_PLATFORM[Object.entries(user.platform).find(e => e[1])[0]]}](${user.toString()})${(' | ' + user.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
@@ -51,19 +51,20 @@ export default class LobbyEmbedUtil {
       : 0
 
     let embed = new MessageEmbed()
-    .setAuthor(LobbyEmbedUtil.modeSelector(lobby), lobby.dcLeader.user.displayAvatarURL())
-    .setColor(RANK_COLORS[lobby.leader?.rank || 0])
-    .setDescription(
-      (lobby.members
-        .sort((a, b) => b.rank - a.rank)
-        .map(m => memberTag(lobby, m))
-        .join('\n')
+      .setAuthor(LobbyEmbedUtil.modeSelector(lobby), lobby.dcLeader.user.displayAvatarURL())
+      .setColor(RANK_COLORS[lobby.leader?.rank || 0])
+      .setDescription(
+        (lobby.members
+          .sort((a, b) => b.rank - a.rank)
+          .map(m => memberTag(lobby, m))
+          .join('\n')
+        )
+        + (lobby.description ? `\n▫${Util.escapeMarkdown(lobby.description)}` : '')
+        + (lobby.type === "ranked" && !canQueue([lobby.minRank, lobby.maxRank]) ? "\n**Разброс MMR в лобби слишком велик (>700)**" : "")
       )
-      + (lobby.description ? `\n▫${Util.escapeMarkdown(lobby.description)}` : '')
-    )
-    .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
-    .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/v${versionHash}/lobby/${lobby.minRank}/${lobby.maxRank}/${k}/preview.png`)
-    .setTimestamp();
+      .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
+      .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/v${versionHash}/lobby/${lobby.minRank}/${lobby.maxRank}/${k}/preview.png`)
+      .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)
 
@@ -79,7 +80,7 @@ export default class LobbyEmbedUtil {
       .map(u => memberTag(lobby, u))
       .join('\n')
     description += '\`\`\`\nʀᴀɪɴʙᴏᴡ6-ʀᴜssɪᴀ ᴘʀᴇᴍɪᴜᴍ ʟᴏʙʙʏ               — □ ×\n\`\`\`'
-    description += lobby.description ?? ''
+    description += (lobby.description ?? '') + (lobby.type === "ranked" && !canQueue([lobby.minRank, lobby.maxRank]) ? "\n**Разброс MMR в лобби слишком велик (>700)**" : "")
 
     let embed = new MessageEmbed()
       .setAuthor(LobbyEmbedUtil.modeSelector(lobby), lobby.dcLeader.user.displayAvatarURL())
@@ -97,20 +98,20 @@ export default class LobbyEmbedUtil {
   static fastAppeal = async (LS: LobbyStore): Promise<MessageOptions> => {
     // console.log(LS.rooms.filter(l => !l.dcMembers.size).map(r => r.dcChannel.name));
     const embed = new MessageEmbed()
-    .setAuthor(`Быстрый поиск команды в ${LS.category.name}`, LS.lfgChannel.guild.iconURL())
-    .setFooter(`ID - ${LS.settings.type}`)
-    .setDescription(`Канал поиска: ${LS.lfgChannel}\n`
-      + `Всего лобби: \`${LS.rooms.filter(v => Boolean(v.dcMembers.size)).size}\`\n`
-      + `Ищут игрока: \`${LS.rooms
+      .setAuthor(`Быстрый поиск команды в ${LS.category.name}`, LS.lfgChannel.guild.iconURL())
+      .setFooter(`ID - ${LS.settings.type}`)
+      .setDescription(`Канал поиска: ${LS.lfgChannel}\n`
+        + `Всего лобби: \`${LS.rooms.filter(v => Boolean(v.dcMembers.size)).size}\`\n`
+        + `Ищут игрока: \`${LS.rooms
           .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
           .size
         || (LS.rooms
           .filter(l => Boolean(l.dcMembers.size) && Boolean(l.appealMessage))
           .size
-            ? 'все комнаты укомплектованы!'
-            : 0)}\`\n`
-      + `Присоединиться к новой комнате: ${await (LS.rooms.filter(r => !r.dcMembers.size).last() || LS.rooms.last()).initInvite()} 👈`
-    );
+          ? 'все комнаты укомплектованы!'
+          : 0)}\`\n`
+        + `Присоединиться к новой комнате: ${await (LS.rooms.filter(r => !r.dcMembers.size).last() || LS.rooms.last()).initInvite()} 👈`
+      );
     LS.rooms
       .filter(l => Boolean(l.dcMembers.size) && l.appealMessage && l.joinAllowed)
       .sort((a, b) => a.dcChannel.position - b.dcChannel.position)
@@ -138,15 +139,15 @@ export default class LobbyEmbedUtil {
 
   static appealMsgPremium = (member: GuildMember, description: string, invite: string): MessageOptions => ({
     embed: new MessageEmbed()
-    .setAuthor(
-      `${member.user.tag} ищет +${member.voice.channel.userLimit - member.voice.channel.members.size} в свою уютную комнату | ${member.voice.channel.name}`,
-      member.user.displayAvatarURL()
-    ).setColor(12458289)
-    .addField('🇷6⃣🇷🇺', description || ' ឵឵ ឵឵')
-    .addField('Присоединиться', `${invite} 👈`)
-    .setFooter(`Хотите так же? Обратитесь в ЛС Сервера или к ${member.guild.owner.user.tag} с рублями из маминого кошелька 💵, или активируйте Nitro Boost 💜.`, 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1')
-    .setThumbnail(member.user.displayAvatarURL())
-    .setTimestamp()
+      .setAuthor(
+        `${member.user.tag} ищет +${member.voice.channel.userLimit - member.voice.channel.members.size} в свою уютную комнату | ${member.voice.channel.name}`,
+        member.user.displayAvatarURL()
+      ).setColor(12458289)
+      .addField('🇷6⃣🇷🇺', description || ' ឵឵ ឵឵')
+      .addField('Присоединиться', `${invite} 👈`)
+      .setFooter(`Хотите так же? Обратитесь в ЛС Сервера или к ${member.guild.owner.user.tag} с рублями из маминого кошелька 💵, или активируйте Nitro Boost 💜.`, 'https://cdn.discordapp.com/emojis/414787874374942721.png?v=1')
+      .setThumbnail(member.user.displayAvatarURL())
+      .setTimestamp()
   })
 
   static modeSelector = (lobby: LSRoom) => {

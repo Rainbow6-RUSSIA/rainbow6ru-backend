@@ -3,7 +3,8 @@ import fetch from 'node-fetch'
 import * as restify from 'restify';
 import { registerFont, createCanvas, Canvas, Image, ImageData, loadImage } from 'canvas';
 import * as GIFEncoder from 'gifencoder';
-import { parseGIF, decompressFrames  } from 'gifuct-js';
+import { parseGIF, decompressFrames } from 'gifuct-js';
+import { RankGaps } from '@r6ru/types';
 
 registerFont(__dirname + '/../../assets/BebasNeue Bold.otf', { family: 'BebasNeue Bold' });
 
@@ -32,15 +33,15 @@ const rainbow = createCanvas(160, 160);
 const rainbowCtx = rainbow.getContext('2d');
 
 const CX = rainbow.width / 2,
-    CY = rainbow.height/ 2,
+    CY = rainbow.height / 2,
     sx = CX,
     sy = CY,
     da = 20;
 
-for(let i = 0; i < 360; i+=da){
+for (let i = 0; i < 360; i += da) {
     const angle1 = i * (2 * Math.PI) / 360;
     const angle2 = (i + da) * (2 * Math.PI) / 360;
-    rainbowCtx.fillStyle = "hsla("+i+", 100%, 50%, 1.0)";   
+    rainbowCtx.fillStyle = "hsla(" + i + ", 100%, 50%, 1.0)";
     rainbowCtx.beginPath();
     rainbowCtx.moveTo(CX, CY);
     rainbowCtx.lineTo(CX + sx * Math.cos(angle1), CY + sy * Math.sin(angle1));
@@ -62,9 +63,9 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
             .then(d => d.buffer());
         const framesData = await bufferPromise
             .then(parseGIF)
-            .then(gif => decompressFrames(gif, true));  
+            .then(gif => decompressFrames(gif, true));
 
-        const {width, height} = framesData[0].dims;
+        const { width, height } = framesData[0].dims;
 
         const tmpCanvas = createCanvas(width, height);
         const tmpCtx = tmpCanvas.getContext('2d');
@@ -72,7 +73,7 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
             if (framesData[i]) {
                 tmpCtx.putImageData(new ImageData(framesData[i].patch, width, height), 0, 0);
                 coverCtx.drawImage(tmpCanvas, 0, 0, 128, 128);
-            } 
+            }
             return coverCanvas;
         }
         numOfFrames = framesData.length;
@@ -84,7 +85,7 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
     }
 
     const encoder = new GIFEncoder(80, 80);
-    encoder.createReadStream().pipe(res).on('error', (err: Error) => {throw err});
+    encoder.createReadStream().pipe(res).on('error', (err: Error) => { throw err });
 
     encoder.start();
     // encoder.setTransparent(0x000000); // make black transparent
@@ -100,7 +101,7 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
     ctx.translate(width / 2, height / 2);
 
     for (let i = 0; i < numOfFrames; i++) {
-        const angle = 2 * Math.PI / numOfFrames; 
+        const angle = 2 * Math.PI / numOfFrames;
         ctx.rotate(angle * i);
         ctx.drawImage(rainbow, -width, -height);
         ctx.rotate(-angle * i);
@@ -115,19 +116,25 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
     encoder.finish();
 }
 
+const rankedGap = 700
+
+export function canQueue([n, m]) {
+    if (n === 0) return true
+    const guaranteedLowerBorder = RankGaps[n + 1] - 1
+    const guaranteedUpperBorder = RankGaps[m]
+    return Math.abs(guaranteedUpperBorder - guaranteedLowerBorder) < rankedGap
+}
+
 // createLobbyPreview(18, 20, 4);
 export function extractBorders([n, m]) {
     if (n === m) {
         if (n === 0) {
             return [0, 23];
         } else {
-            switch (true) {
-                case n > 0 && n <= 5: return [1, 5];
-                case n > 5 && n <= 10: return [6, 10];
-                case n > 10 && n <= 15: return [11, 15];
-                case n > 15 && n <= 19: return [16, 19];
-                case n > 19: return [20, 23];
-            }
+            const possibleLowerBorder = RankGaps[n]
+            const possibleUpperBorder = RankGaps[n + 1] - 1
+            const mmrRange = [possibleLowerBorder - rankedGap, possibleUpperBorder + rankedGap]
+            return [RankGaps.slice(1).findIndex(g => g > mmrRange[0]) - 1, RankGaps.slice(1).findIndex(g => g > mmrRange[1]) - 1]
         }
     } else {
         return [n, m];
