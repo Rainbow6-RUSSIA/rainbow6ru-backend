@@ -129,7 +129,7 @@ export function canQueue([n, m]) {
 export function extractBorders([n, m]) {
     if (n === m) {
         if (n === 0) {
-            return [0, 23];
+            return [0, 25];
         } else {
             const possibleLowerBorder = RankGaps[n]
             const possibleUpperBorder = RankGaps[n + 1] - 1
