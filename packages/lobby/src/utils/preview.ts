@@ -116,7 +116,7 @@ export async function createEnhancedUserPreview(user: User, res: restify.Respons
     encoder.finish();
 }
 
-const rankedGap = 700
+const rankedGap = 1000
 
 export function canQueue([n, m]) {
     if (n === 0) return true
