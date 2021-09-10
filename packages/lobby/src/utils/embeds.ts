@@ -7,7 +7,7 @@ import bot from '../bot';
 import ENV from './env';
 import { LobbyStore } from './lobby';
 import { LSRoom } from './lobby/room';
-import { createEnhancedUserPreview, extractBorders, canQueue } from './preview';
+import { createEnhancedUserPreview, extractBorders, canQueue, rankedGap } from './preview';
 
 const gitInfo = require('git-commit-info');
 const versionHash = gitInfo().shortHash;
@@ -60,7 +60,7 @@ export default class LobbyEmbedUtil {
           .join('\n')
         )
         + (lobby.description ? `\n▫${Util.escapeMarkdown(lobby.description)}` : '')
-        + (lobby.type === "ranked" && !canQueue([lobby.minRank, lobby.maxRank]) ? "\n**Разброс MMR в лобби слишком велик (>700)**" : "")
+        + (lobby.type === "ranked" && !canQueue([lobby.minRank, lobby.maxRank]) ? `\n**Разброс MMR в лобби слишком велик (>${rankedGap})**` : "")
       )
       .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
       .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/v${versionHash}/lobby/${lobby.minRank}/${lobby.maxRank}/${k}/preview.png`)
