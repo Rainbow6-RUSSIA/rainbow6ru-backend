@@ -131,11 +131,11 @@ export function extractBorders([n, m]) {
         if (n === 0) {
             return [0, 25];
         } else {
-            const possibleLowerBorder = RankGaps[n]
-            const possibleUpperBorder = RankGaps[n + 1] - 1
-            const lowerRank = RankGaps.slice(1).findIndex(g => g > possibleLowerBorder - rankedGap) - 1
-            const upperRank = RankGaps.slice(1).findIndex(g => g > possibleUpperBorder + rankedGap) - 1
-            return [lowerRank < 0 ? 0 : lowerRank, upperRank < 0 ? 25 : upperRank]
+            const possibleLowerBorder = RankGaps[n] - rankedGap
+            const possibleUpperBorder = RankGaps[n + 1] - 1 + rankedGap
+            const lowerRank = RankGaps.slice(1).findIndex(g => g >= possibleLowerBorder) + 1
+            const upperRank = RankGaps.slice(1).findIndex(g => g >= possibleUpperBorder) + 1 - 1
+            return [lowerRank, upperRank > 0 ? upperRank : 25]
         }
     } else {
         return [n, m];
