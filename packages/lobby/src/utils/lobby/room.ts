@@ -49,7 +49,7 @@ export class LSRoom extends Lobby {
                 this.dcChannel.edit({
                     name:  this.LS.settings.roomName?.replace(/{{n}}/, (this.dcChannel.position + 1).toString())
                         || this.dcChannel.name.replace(/HardPlay /g, '').replace(/#\d+/g, `#${this.dcChannel.position + 1}`),
-                    lockPermissions: true,
+                    permissionOverwrites: this.dcChannel.parent.permissionOverwrites,
                     userLimit: this.LS.settings.roomSize,
                 }, 'инициализация комнаты'),
                 new Promise(res => setTimeout(res, 60 * 1000))
