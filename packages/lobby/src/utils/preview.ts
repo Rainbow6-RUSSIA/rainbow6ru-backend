@@ -133,8 +133,9 @@ export function extractBorders([n, m]) {
         } else {
             const possibleLowerBorder = RankGaps[n]
             const possibleUpperBorder = RankGaps[n + 1] - 1
-            const mmrRange = [possibleLowerBorder - rankedGap, possibleUpperBorder + rankedGap]
-            return [RankGaps.slice(1).findIndex(g => g > mmrRange[0]) - 1, RankGaps.slice(1).findIndex(g => g > mmrRange[1]) - 1]
+            const lowerRank = RankGaps.slice(1).findIndex(g => g > possibleLowerBorder - rankedGap) - 1
+            const upperRank = RankGaps.slice(1).findIndex(g => g > possibleUpperBorder + rankedGap) - 1
+            return [lowerRank < 0 ? 0 : lowerRank, upperRank < 0 ? 25 : upperRank]
         }
     } else {
         return [n, m];
