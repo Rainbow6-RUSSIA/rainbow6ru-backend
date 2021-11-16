@@ -37,7 +37,7 @@ export default class LobbyEmbedUtil {
     }
 
     if (lobby.joinAllowed) {
-      embed.addField('Присоединиться:', `${lobby.invite} 👈`);
+      embed.addField('Присоединиться:', `<#${lobby.channel}> 👈`);
     } else if (!lobby.close && (lobby.dcMembers.size < lobby.dcChannel.userLimit) && currentlyPlaying.includes(lobby.status)) {
       embed.addField('Лобби играет', `Сейчас лучше не заходить в комнату, чтобы не беспокоить игроков.`);
     }

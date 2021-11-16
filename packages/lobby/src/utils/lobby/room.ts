@@ -86,10 +86,10 @@ export class LSRoom extends Lobby {
             return this.invite;
         } else {
             // console.log('INIT INVITE', this.dcChannel.name);
-            const inv = await this.dcChannel.createInvite({ maxAge: 0 });
-            this.invite = inv.url;
+            // const inv = await this.dcChannel.createInvite({ maxAge: 0 });
+            this.invite = `https://discord.gg/r6ru`;
             await this.save();
-            return inv.url;
+            return this.invite;
         }
     }
 
