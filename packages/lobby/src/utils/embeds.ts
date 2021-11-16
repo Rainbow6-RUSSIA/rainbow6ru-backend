@@ -80,7 +80,7 @@ export default class LobbyEmbedUtil {
       .map(u => memberTag(lobby, u))
       .join('\n')
     description += '\`\`\`\nʀᴀɪɴʙᴏᴡ6-ʀᴜssɪᴀ ᴘʀᴇᴍɪᴜᴍ ʟᴏʙʙʏ               — □ ×\n\`\`\`'
-    description += (lobby.description ?? '') + (lobby.type === "ranked" && !canQueue([lobby.minRank, lobby.maxRank]) ? "\n**Разброс MMR в лобби слишком велик (>700)**" : "")
+    description += (lobby.description ?? '') + (lobby.type === "ranked" && !canQueue([lobby.minRank, lobby.maxRank]) ? `\n**Разброс MMR в лобби слишком велик (>${rankedGap})**` : "")
 
     let embed = new MessageEmbed()
       .setAuthor(LobbyEmbedUtil.modeSelector(lobby), lobby.dcLeader.user.displayAvatarURL())
