@@ -1,13 +1,11 @@
-import { Lobby, User } from '@r6ru/db';
-import { currentlyPlaying, EMOJI_REGEXP, EmojiButtons, HF_PLATFORM, IngameStatus as IS, RANK_BADGES, RANK_COLORS, RANKS, VERIFICATION_LEVEL, VERIFIED_BADGE, DONATE_BADGE, NITRO_BADGE, ADMIN_BADGE, RankGaps } from '@r6ru/types';
-import { MessageAttachment } from 'discord.js';
-import { GuildChannel } from 'discord.js';
-import { GuildMember, MessageEmbed, MessageOptions, Util } from 'discord.js';
+import { User } from '@r6ru/db';
+import { ADMIN_BADGE, currentlyPlaying, DONATE_BADGE, EmojiButtons, EMOJI_REGEXP, IngameStatus as IS, NITRO_BADGE, RANKS, RANK_BADGES, RANK_COLORS } from '@r6ru/types';
+import { GuildChannel, GuildMember, MessageEmbed, MessageOptions, Util } from 'discord.js';
 import bot from '../bot';
 import ENV from './env';
 import { LobbyStore } from './lobby';
 import { LSRoom } from './lobby/room';
-import { createEnhancedUserPreview, extractBorders, canQueue, rankedGap } from './preview';
+import { extractBorders } from './preview';
 
 const gitInfo = require('git-commit-info');
 const versionHash = gitInfo().shortHash;
@@ -15,19 +13,14 @@ const versionHash = gitInfo().shortHash;
 const memberTag = (lobby: LSRoom, user: User, member = lobby.dcGuild.members.get(user.id)) =>
   (lobby.dcLeader.id === user.id ? '\\👑 ' : '')
   + (!user.platform.PC ? '\\🎮' : '')
-  + `<@${user.id}> (${bot.emojis.resolve(RANK_BADGES[user.rank])} **${Util.escapeMarkdown(user.nickname)}** - [${HF_PLATFORM[Object.entries(user.platform).find(e => e[1])[0]]}](${user.toString()})${(' | ' + user.region).replace(/.+emea/g, '').replace('ncsa', '🌎').replace('apac', '🌏')})`
+  + `<@${user.id}>`
   + ' '
-  + (user.verificationLevel >= VERIFICATION_LEVEL.QR ? bot.emojis.resolve(VERIFIED_BADGE).toString() : '')
   + (member.roles.has(ENV.DONATE_ROLE) ? bot.emojis.resolve(DONATE_BADGE).toString() : '')
   + (member.roles.has(ENV.NITRO_ROLE) ? bot.emojis.resolve(NITRO_BADGE).toString() : '')
   + (member.permissions.has('MANAGE_ROLES') ? bot.emojis.resolve(ADMIN_BADGE).toString() : '')
 
 export default class LobbyEmbedUtil {
   static addFields = (lobby: LSRoom, embed: MessageEmbed) => {
-    if (lobby.hardplay) {
-      embed.addField(`Режим "HardPlay\\${EmojiButtons.HARDPLAY}"`, `Минимальный ранг для входа: \`${RANKS[lobby.guild.rankRoles.findIndex(r => lobby.guild.rankRoles[lobby.minRank] === r)]}\``);
-    }
-
     if (lobby.close) {
       embed.addField('Закрытое лобби', 'Лимит пользователей восстановится при выходе кого-либо из лобби.');
     }
@@ -60,10 +53,8 @@ export default class LobbyEmbedUtil {
           .join('\n')
         )
         + (lobby.description ? `\n▫${Util.escapeMarkdown(lobby.description)}` : '')
-        + (lobby.type === "ranked" && !canQueue([lobby.minRank, lobby.maxRank]) ? `\n**Разброс MMR в лобби слишком велик (>${rankedGap})**` : "")
       )
       .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
-      .setThumbnail(`${ENV.LOBBY_SERVICE_URL}/v${versionHash}/lobby/${lobby.minRank}/${lobby.maxRank}/${k}/preview.png`)
       .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)
@@ -80,7 +71,7 @@ export default class LobbyEmbedUtil {
       .map(u => memberTag(lobby, u))
       .join('\n')
     description += '\`\`\`\nʀᴀɪɴʙᴏᴡ6-ʀᴜssɪᴀ ᴘʀᴇᴍɪᴜᴍ ʟᴏʙʙʏ               — □ ×\n\`\`\`'
-    description += (lobby.description ?? '') + (lobby.type === "ranked" && !canQueue([lobby.minRank, lobby.maxRank]) ? `\n**Разброс MMR в лобби слишком велик (>${rankedGap})**` : "")
+    description += lobby.description ?? ''
 
     let embed = new MessageEmbed()
       .setAuthor(LobbyEmbedUtil.modeSelector(lobby), lobby.dcLeader.user.displayAvatarURL())
@@ -162,7 +153,7 @@ export default class LobbyEmbedUtil {
       case IS.CUSTOM_SEARCH:
         return `Поиск Пользовательской в ${lobby.dcChannel.name}` + slot;
       case IS.DISCOVERY_SEARCH:
-        return `Поиск Разведки в ${lobby.dcChannel.name}` + slot;
+        return `Поиск Ивента в ${lobby.dcChannel.name}` + slot;
       case IS.NEWCOMER_SEARCH:
         return `Поиск режима Новичок в ${lobby.dcChannel.name}` + slot;
       case IS.CASUAL:
@@ -171,7 +162,7 @@ export default class LobbyEmbedUtil {
       case IS.UNRANKED:
         return `Играют в ${lobby.dcChannel.name}`;
       case IS.DISCOVERY:
-        return `${lobby.dcChannel.name} играет Разведку` + slot;
+        return `${lobby.dcChannel.name} играет Ивент` + slot;
       case IS.NEWCOMER:
         return `Играют режим Новичок в ${lobby.dcChannel.name}`;
       case IS.TERRORIST_HUNT:
