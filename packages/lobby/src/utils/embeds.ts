@@ -54,7 +54,7 @@ export default class LobbyEmbedUtil {
         )
         + (lobby.description ? `\n▫${Util.escapeMarkdown(lobby.description)}` : '')
       )
-      .setFooter(`В игре ники Uplay отличаются? Cообщите администрации со скрином таба. С вами ненадежный игрок! • S: ${IS[lobby.status]} ID: ${lobby.id}`, 'https://i.imgur.com/sDOEWMV.png')
+      .setFooter(`Информация о рангах и никнеймах пока недоступна, используйте /info или команды контекстного меню`, 'https://i.imgur.com/sDOEWMV.png')
       .setTimestamp();
 
     embed = LobbyEmbedUtil.addFields(lobby, embed)
